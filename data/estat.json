@@ -1,0 +1,9 @@
+{
+ "fets": ["DT01", "DT02", "DT03", "DT04", "DT05", "DJ01", "DJ02", "DJ03", "DJ04"],
+ "origen": {
+  "D16": "teu", "D20": "teu", "J5": "teu", "J6": "teu", "C3": "teu", "G7": "teu", "J10": "teu", "J12": "teu",
+  "J16": "teu", "J19": "teu", "J26": "teu", "J32": "teu", "G30": "teu", "B44": "teu",
+  "J7": "modificat",
+  "B21": "claude", "G15": "claude", "G22": "claude", "G25": "claude", "J27": "claude", "J28": "claude", "J29": "claude"
+ }
+}

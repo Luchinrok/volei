@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vòlei 26-27</title>
+<meta name="theme-color" content="#1F4E79">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root {
+  --bg: #f4f6f9; --card: #ffffff; --ink: #17202b; --muted: #5b6878; --line: #dfe4ea;
+  --brand: #1F4E79; --brand-soft: #e6eef7;
+  --new: #1d7a46; --new-soft: #e3f4ea; --chg: #9a6400; --chg-soft: #fdf3dc; --gone: #8a8f96; --gone-soft: #eef0f2;
+  --teu: #1d7a46; --mod: #9a6400; --cla: #7a4fb0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141a; --card: #18202a; --ink: #e8edf3; --muted: #9aa7b6; --line: #2a3542;
+    --brand: #7fb3e6; --brand-soft: #1c2d40;
+    --new: #6cd39a; --new-soft: #16301f; --chg: #f0bf5a; --chg-soft: #3a2e12; --gone: #8a95a3; --gone-soft: #1f2731;
+    --teu: #6cd39a; --mod: #f0bf5a; --cla: #c4a2f0;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding-bottom: 72px; }
+header { position: sticky; top: 0; z-index: 5; background: var(--brand); color: #fff; padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 10px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) header { background: #13263a; } }
+header h1 { font-size: 18px; margin: 0; flex: 1; font-weight: 650; }
+header button { background: none; border: 0; color: #fff; font-size: 22px; padding: 0 6px; cursor: pointer; }
+main { max-width: 760px; margin: 0 auto; padding: 16px; }
+nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+nav.tabs a { flex: 1; text-align: center; padding: 10px 4px 12px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 600; position: relative; }
+nav.tabs a.on { color: var(--brand); }
+nav.tabs a .ico { display: block; font-size: 20px; line-height: 1.2; }
+.dot { position: absolute; top: 6px; left: 50%; margin-left: 10px; background: var(--chg); color: #fff; border-radius: 9px; font-size: 11px; padding: 0 6px; }
+h2 { font-size: 20px; margin: 4px 0 12px; }
+h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 22px 0 8px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+a.card { display: block; color: inherit; text-decoration: none; }
+.next { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 420px) { .next { grid-template-columns: 1fr; } }
+.next .card { border-left: 4px solid var(--brand); }
+.kicker { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.big { font-size: 18px; font-weight: 650; margin-top: 2px; }
+.row { display: flex; align-items: center; gap: 10px; }
+.row .grow { flex: 1; min-width: 0; }
+.code { font-family: ui-monospace, Consolas, monospace; font-weight: 700; color: var(--brand); }
+.list a.card { padding: 11px 14px; }
+.list .fet { opacity: .55; }
+.tag { display: inline-block; font-size: 12px; font-weight: 650; border-radius: 6px; padding: 1px 7px; margin-right: 4px; border: 1px solid currentColor; white-space: nowrap; }
+.tag.teu { color: var(--teu); } .tag.modificat { color: var(--mod); } .tag.claude { color: var(--cla); }
+.tag.nou { color: var(--new); background: var(--new-soft); } .tag.canvi { color: var(--chg); background: var(--chg-soft); } .tag.tret { color: var(--gone); background: var(--gone-soft); }
+.tag.ok { color: var(--muted); }
+.sesshead .meta { color: var(--muted); font-size: 14px; }
+.note { font-style: italic; color: var(--muted); margin: 6px 0 14px; }
+.block { border-left: 4px solid var(--line); }
+.block.nou { border-left-color: var(--new); }
+.block.canvi { border-left-color: var(--chg); }
+.block.tret { border-left-color: var(--gone); background: var(--gone-soft); }
+.bhead { display: flex; gap: 10px; align-items: baseline; }
+.bnum { font-weight: 800; color: var(--brand); font-size: 18px; min-width: 18px; }
+.btitle { flex: 1; font-weight: 650; font-size: 17px; }
+.bmin { text-align: right; white-space: nowrap; font-weight: 700; color: var(--brand); }
+.bmin small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.tags { margin: 6px 0 4px 28px; }
+.field { margin: 8px 0 0 28px; }
+.field b { color: var(--brand); font-size: 13px; text-transform: uppercase; letter-spacing: .03em; display: block; }
+.old { background: var(--chg-soft); border-radius: 8px; padding: 8px 10px; margin: 10px 0 0 28px; font-size: 14px; }
+.old .field { margin-left: 0; }
+.old del { color: var(--muted); }
+.actions { display: flex; gap: 8px; margin: 12px 0 0 28px; flex-wrap: wrap; }
+button.btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 7px 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+button.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.btn.primary { color: #0f141a; } }
+button.btn.sel { outline: 2px solid var(--brand); outline-offset: 1px; }
+button.link { background: none; border: 0; color: var(--brand); font: inherit; font-size: 14px; font-weight: 600; padding: 0; cursor: pointer; margin: 8px 0 0 28px; }
+.legend { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
+.empty { color: var(--muted); text-align: center; padding: 30px 0; }
+textarea { width: 100%; min-height: 120px; font: 13px/1.4 ui-monospace, Consolas, monospace; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 8px; }
+.seg { display: flex; gap: 6px; margin-bottom: 12px; }
+.seg button { flex: 1; }
+</style>
+</head>
+<body>
+<header>
+  <button id="back" aria-label="Enrere" hidden>‹</button>
+  <h1 id="title">Vòlei 26-27</h1>
+</header>
+<main id="app"><p class="empty">Carregant…</p></main>
+<nav class="tabs">
+  <a href="#/" data-t="inici"><span class="ico">🏐</span>Inici</a>
+  <a href="#/dimarts" data-t="dimarts"><span class="ico">1</span>Dimarts</a>
+  <a href="#/dijous" data-t="dijous"><span class="ico">2</span>Dijous</a>
+  <a href="#/canvis" data-t="canvis"><span class="ico">✎</span>Canvis<span class="dot" id="ncanvis" hidden></span></a>
+</nav>
+<script>
+const FAM = { D: 'Dits i col·locació', B: 'Braços, recepció i defensa', S: 'Saque', R: 'Remat', BL: 'Bloqueig', C: 'Col·locadors', J: 'Jugada', G: 'Jocs' };
+const ORIGEN = { teu: 'Teu', modificat: 'Teu, modificat', claude: 'De Claude' };
+const LABEL = { titol: 'Títol', codi: 'Codi', min: 'Minuts', franja: 'Franja', lloc: 'Lloc', com: 'Com es fa', dosi: 'Dosi', muntatge: 'Muntatge' };
+let D, E;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const decisions = () => store.get('volei.decisions', {});
+const fetsLocal = () => store.get('volei.fets', {});
+const isFet = c => (c in fetsLocal()) ? fetsLocal()[c] : E.fets.includes(c);
+const byCode = c => D.sessions.find(s => s.codi === c);
+const num = c => +c.slice(2);
+const changeId = (s, i) => `${s.codi}#${i}`;
+
+function codesOf(b) { return (b.codi || '').split('+').map(x => x.trim()).filter(Boolean); }
+function origenTags(b) {
+  return codesOf(b).map(c => E.origen[c] ? `<span class="tag ${E.origen[c]}" title="${esc(ORIGEN[E.origen[c]])}">${esc(c)} · ${esc(ORIGEN[E.origen[c]])}</span>` : '').join('');
+}
+function kind(b) { return b.tret ? 'tret' : b.nou ? 'nou' : (b.abans || b.mogut) ? 'canvi' : ''; }
+function allChanges() {
+  const out = [];
+  D.sessions.forEach(s => s.blocs.forEach((b, i) => { if (kind(b)) out.push({ s, b, i, id: changeId(s, i) }); }));
+  return out;
+}
+function pendingChanges() { const d = decisions(); return allChanges().filter(c => !d[c.id]); }
+
+function next(dia) {
+  return D.sessions.filter(s => s.dia === dia && !isFet(s.codi)).sort((a, b) => num(a.codi) - num(b.codi))[0];
+}
+
+function sessRow(s) {
+  const pend = pendingChanges().filter(c => c.s === s).length;
+  return `<a class="card ${isFet(s.codi) ? 'fet' : ''}" href="#/s/${s.codi}"><div class="row">
+    <span class="code">${s.codi}</span><span class="grow">${esc(s.titol)}</span>
+    ${pend ? `<span class="tag canvi">${pend} canvi${pend > 1 ? 's' : ''}</span>` : ''}
+    ${isFet(s.codi) ? '<span class="tag ok">✓ fet</span>' : ''}</div></a>`;
+}
+
+function fields(b) {
+  return ['com', 'dosi', 'muntatge'].filter(k => b[k]).map(k =>
+    `<div class="field">${k === 'com' ? '' : `<b>${LABEL[k]}</b>`}${esc(b[k])}</div>`).join('');
+}
+
+function blockCard(s, b, i) {
+  const k = kind(b), id = changeId(s, i), dec = decisions()[id];
+  if (k === 'tret') {
+    const a = b.abans;
+    return `<div class="card block tret"><div class="bhead"><span class="bnum">–</span>
+      <span class="btitle"><s>${esc(a.titol)}</s></span><span class="bmin">${a.min ?? ''} min</span></div>
+      <div class="tags"><span class="tag tret">Tret</span><span class="code">${esc(a.codi)}</span></div>
+      <details class="field"><summary>Veure què hi havia</summary>${fields(a).replaceAll('class="field"', 'class="field" style="margin-left:0"')}</details>
+      ${review(id, dec)}</div>`;
+  }
+  const old = b.abans ? `<div class="old" hidden id="old-${i}"><b style="font-size:13px">COM ERA ABANS</b>${
+    Object.keys(b.abans).map(f => `<div class="field"><b>${LABEL[f]}</b><del>${esc(b.abans[f])}</del></div>`).join('')}</div>` : '';
+  return `<div class="card block ${k}" id="b${i}">
+    <div class="bhead"><span class="bnum">${b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
+      <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span></div>
+    <div class="tags">${b.codi ? `<span class="code">${esc(b.codi)}</span> ` : ''}${k === 'nou' ? '<span class="tag nou">Nou</span>' : ''}${k === 'canvi' ? `<span class="tag canvi">${b.mogut ? `Mogut (abans era el bloc ${b.mogut})` : 'Canviat'}</span>` : ''}${origenTags(b)}</div>
+    ${fields(b)}
+    ${b.lloc ? `<div class="field"><b>Lloc</b>${esc(b.lloc)}</div>` : ''}
+    ${b.abans ? `<button class="link" onclick="const o=document.getElementById('old-${i}');o.hidden=!o.hidden;this.textContent=o.hidden?'Veure com era abans':'Amagar com era'">Veure com era abans</button>${old}` : ''}
+    ${k ? review(id, dec) : ''}
+  </div>`;
+}
+
+function review(id, dec) {
+  return `<div class="actions">
+    <button class="btn ${dec === 'ok' ? 'sel primary' : ''}" onclick="decide('${id}','ok')">D'acord</button>
+    <button class="btn ${dec === 'torna' ? 'sel' : ''}" onclick="decide('${id}','torna')">Torna-ho com estava</button>
+    ${dec ? `<button class="btn" onclick="decide('${id}',null)">Desfés</button>` : ''}</div>`;
+}
+
+window.decide = (id, v) => {
+  const d = decisions(); if (v) d[id] = v; else delete d[id];
+  store.set('volei.decisions', d); const y = scrollY; render(); scrollTo(0, y);
+};
+window.toggleFet = c => {
+  const f = fetsLocal(); f[c] = !isFet(c); store.set('volei.fets', f); render();
+};
+
+function viewHome() {
+  const t = next('dimarts'), j = next('dijous'), p = pendingChanges().length;
+  return `<h2>Pròxims entrenaments</h2>
+  <div class="next">
+    ${t ? `<a class="card" href="#/s/${t.codi}"><div class="kicker">Dimarts · 1 pista</div><div class="big"><span class="code">${t.codi}</span> ${esc(t.titol)}</div><div class="meta">${t.min} min · ${t.blocs.filter(b => !b.tret).length} blocs</div></a>` : ''}
+    ${j ? `<a class="card" href="#/s/${j.codi}"><div class="kicker">Dijous · 2 pistes</div><div class="big"><span class="code">${j.codi}</span> ${esc(j.titol)}</div><div class="meta">${j.min} min · ${j.blocs.filter(b => !b.tret).length} blocs</div></a>` : ''}
+  </div>
+  ${p ? `<a class="card" href="#/canvis" style="border-left:4px solid var(--chg)"><b>${p} canvi${p > 1 ? 's' : ''} per revisar</b><div class="meta">Toca per veure'ls</div></a>` : ''}
+  <h3>Què volen dir els codis</h3>
+  <div class="card legend">${Object.entries(FAM).map(([k, v]) => `<span class="code">${k}</span><span>${v}</span>`).join('')}</div>
+  <h3>Etiquetes d'origen</h3>
+  <div class="card legend">
+    <span class="tag teu">Teu</span><span>Exercici teu, de Notion o dels teus apunts</span>
+    <span class="tag modificat">Teu, modificat</span><span>Parteix d'un teu però està canviat</span>
+    <span class="tag claude">De Claude</span><span>Inventat per Claude</span>
+  </div>`;
+}
+
+function viewList(dia) {
+  const ss = D.sessions.filter(s => s.dia === dia).sort((a, b) => num(a.codi) - num(b.codi));
+  return `<h2>${dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'}</h2><div class="list">${ss.map(sessRow).join('')}</div>`;
+}
+
+function viewSession(c) {
+  const s = byCode(c); if (!s) return `<p class="empty">No trobo ${esc(c)}</p>`;
+  const blocs = s.blocs.map((b, i) => blockCard(s, b, i)).join('');
+  return `<div class="sesshead"><h2><span class="code">${s.codi}</span> ${esc(s.titol)}</h2>
+    <div class="meta">${s.dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'} · ${s.min} min</div></div>
+    ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : ''}
+    ${blocs}
+    ${s.notaFinal ? `<p class="note">${esc(s.notaFinal)}</p>` : ''}
+    <div class="actions" style="margin-left:0"><button class="btn ${isFet(s.codi) ? '' : 'primary'}" onclick="toggleFet('${s.codi}')">${isFet(s.codi) ? '✓ Fet · desmarcar' : 'Marcar com a fet'}</button></div>`;
+}
+
+function viewChanges() {
+  const all = allChanges(), d = decisions();
+  if (!all.length) return `<h2>Canvis</h2><p class="empty">No hi ha cap canvi per revisar.</p>`;
+  const groups = {};
+  all.forEach(c => (groups[c.s.codi] ||= []).push(c));
+  const answered = all.filter(c => d[c.id]);
+  return `<h2>Canvis</h2>
+  <p class="meta">Cada canvi que fa Claude surt aquí fins que el revises. Toca la sessió per veure'l sencer.</p>
+  ${Object.entries(groups).map(([code, cs]) => {
+    const s = byCode(code), pend = cs.filter(c => !d[c.id]).length;
+    return `<a class="card" href="#/s/${code}"><div class="row"><span class="code">${code}</span><span class="grow">${esc(s.titol)}</span>
+      ${pend ? `<span class="tag canvi">${pend} per revisar</span>` : '<span class="tag ok">✓ revisat</span>'}</div>
+      <div class="meta" style="margin-top:4px">${cs.map(c => { const b = c.b.tret ? c.b.abans : c.b; return `${kind(c.b) === 'tret' ? 'Tret' : kind(c.b) === 'nou' ? 'Nou' : 'Canviat'}: ${esc(b.codi || b.titol)}`; }).join(' · ')}</div></a>`;
+  }).join('')}
+  <h3>Enviar a Claude</h3>
+  <div class="card"><p style="margin-top:0">Quan hagis revisat, copia aquest text i enganxa'l a Claude perquè apliqui el que has decidit.</p>
+  <textarea id="out" readonly>${esc(report())}</textarea>
+  <div class="actions" style="margin-left:0"><button class="btn primary" onclick="copyReport(this)">Copiar</button></div></div>`;
+}
+
+function report() {
+  const d = decisions(), lines = [];
+  allChanges().filter(c => d[c.id]).forEach(c => {
+    const b = c.b.tret ? c.b.abans : c.b;
+    lines.push(`${c.s.codi} bloc ${b.n ?? '?'} (${b.codi || b.titol}, ${kind(c.b)}): ${d[c.id] === 'ok' ? "D'ACORD" : 'TORNA-HO COM ESTAVA'}`);
+  });
+  const f = fetsLocal(), fl = Object.keys(f).filter(k => f[k] !== E.fets.includes(k));
+  if (fl.length) lines.push('Sessions marcades: ' + fl.map(k => `${k} ${f[k] ? 'FET' : 'NO FET'}`).join(', '));
+  return lines.length ? lines.join('\n') : 'Encara no has revisat cap canvi.';
+}
+window.copyReport = async btn => {
+  const t = $('#out'); try { await navigator.clipboard.writeText(t.value); } catch { t.select(); document.execCommand('copy'); }
+  btn.textContent = 'Copiat ✓'; setTimeout(() => btn.textContent = 'Copiar', 1500);
+};
+
+function render() {
+  const h = location.hash.replace(/^#\/?/, '');
+  const [r, arg] = h.split('/');
+  let html, tab = 'inici', title = 'Vòlei 26-27';
+  if (r === 's') { html = viewSession(arg); tab = byCode(arg)?.dia; title = arg; }
+  else if (r === 'dimarts' || r === 'dijous') { html = viewList(r); tab = r; }
+  else if (r === 'canvis') { html = viewChanges(); tab = 'canvis'; title = 'Canvis'; }
+  else html = viewHome();
+  $('#app').innerHTML = html;
+  $('#title').textContent = title;
+  $('#back').hidden = r !== 's';
+  document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('on', a.dataset.t === tab));
+  const p = pendingChanges().length, n = $('#ncanvis'); n.hidden = !p; n.textContent = p;
+}
+
+$('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
+addEventListener('hashchange', () => { render(); scrollTo(0, 0); });
+Promise.all(['data/sessions.json', 'data/estat.json'].map(u => fetch(u, { cache: 'no-cache' }).then(r => r.json())))
+  .then(([d, e]) => { D = d; E = e; render(); })
+  .catch(() => { $('#app').innerHTML = '<p class="empty">No s\'han pogut carregar les sessions. Comprova la connexió.</p>'; });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
