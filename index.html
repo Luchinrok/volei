@@ -79,7 +79,15 @@ button.btn.sel { outline: 2px solid var(--brand); outline-offset: 1px; }
 button.link { background: none; border: 0; color: var(--brand); font: inherit; font-size: 14px; font-weight: 600; padding: 0; cursor: pointer; margin: 8px 0 0 28px; }
 .legend { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
 .empty { color: var(--muted); text-align: center; padding: 30px 0; }
-textarea { width: 100%; min-height: 120px; font: 13px/1.4 ui-monospace, Consolas, monospace; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 8px; }
+textarea { width: 100%; min-height: 110px; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 8px; }
+.selbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.selbar .grow { flex: 1; color: var(--muted); font-size: 14px; }
+.selbar.bottom { position: fixed; left: 0; right: 0; bottom: 64px; margin: 0; padding: 10px 16px; background: var(--card); border-top: 1px solid var(--line); z-index: 4; justify-content: center; }
+.selrow { cursor: pointer; padding: 11px 14px; }
+.chk { width: 20px; height: 20px; accent-color: var(--brand); }
+.chkline { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.chkline input { width: 18px; height: 18px; accent-color: var(--brand); }
+button.btn:disabled { opacity: .45; }
 .seg { display: flex; gap: 6px; margin-bottom: 12px; }
 .seg button { flex: 1; }
 </style>
@@ -105,8 +113,47 @@ const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
-const fetsLocal = () => store.get('volei.fets', {});
-const isFet = c => (c in fetsLocal()) ? fetsLocal()[c] : E.fets.includes(c);
+// Comentaris i sessions fetes es guarden com a "issues" del repositori de GitHub:
+// així es veuen des de qualsevol mòbil i Claude els pot llegir.
+const REPO = 'Luchinrok/volei';
+const CODE = /\bD[TJ]\d\d\b/g;
+let ISSUES = store.get('volei.issues', []);
+let sel = null;   // sessions seleccionades a la llista (null = fora del mode selecció)
+
+function actions() {
+  // [{codi, fet, t}] de més antic a més nou: estat.json, issues de GitHub i marques locals pendents
+  const out = E.fets.map(c => ({ codi: c, fet: true, t: 0 }));
+  [...ISSUES].sort((a, b) => a.t - b.t).forEach(i => {
+    if (/^No fetes?:/i.test(i.title)) (i.title.match(CODE) || []).forEach(c => out.push({ codi: c, fet: false, t: i.t }));
+    else if (/^Fetes?:/i.test(i.title) || /· feta?$/i.test(i.title)) (i.title.match(CODE) || []).forEach(c => out.push({ codi: c, fet: true, t: i.t }));
+  });
+  Object.entries(store.get('volei.fets2', {})).forEach(([c, v]) => out.push({ codi: c, fet: v.fet, t: v.t }));
+  return out.sort((a, b) => a.t - b.t);
+}
+function isFet(c) { let f = false; actions().forEach(a => { if (a.codi === c) f = a.fet; }); return f; }
+function comments(c) { return ISSUES.filter(i => /^Comentari/i.test(i.title) && (i.title.match(CODE) || []).includes(c)).sort((a, b) => b.t - a.t); }
+
+function loadIssues() {
+  return fetch(`https://api.github.com/repos/${REPO}/issues?state=all&per_page=100&sort=created&direction=desc`)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(list => {
+      ISSUES = list.filter(i => !i.pull_request).map(i => ({ title: i.title, body: i.body || '', t: Date.parse(i.created_at) }));
+      store.set('volei.issues', ISSUES);
+      // les marques locals que ja surten a GitHub ja no calen
+      const loc = store.get('volei.fets2', {}), newest = Math.max(0, ...ISSUES.map(i => i.t));
+      Object.keys(loc).forEach(c => { if (loc[c].t < newest - 60000) delete loc[c]; });
+      store.set('volei.fets2', loc);
+      render();
+    }).catch(() => {});
+}
+function openIssue(title, body) {
+  window.open(`https://github.com/${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`, '_blank');
+}
+function markLocal(codes, fet) {
+  const loc = store.get('volei.fets2', {}), t = Date.now();
+  codes.forEach(c => loc[c] = { fet, t });
+  store.set('volei.fets2', loc);
+}
 const byCode = c => D.sessions.find(s => s.codi === c);
 const num = c => +c.slice(2);
 
@@ -115,9 +162,15 @@ function next(dia) {
 }
 
 function sessRow(s) {
-  return `<a class="card ${isFet(s.codi) ? 'fet' : ''}" href="#/s/${s.codi}"><div class="row">
+  const n = comments(s.codi).length;
+  const inner = `<div class="row">
+    ${sel ? `<input type="checkbox" class="chk" ${sel.has(s.codi) ? 'checked' : ''}>` : ''}
     <span class="code">${s.codi}</span><span class="grow">${esc(s.titol)}</span>
-    ${isFet(s.codi) ? '<span class="tag ok">✓ fet</span>' : ''}</div></a>`;
+    ${n ? `<span class="tag ok">💬 ${n}</span>` : ''}
+    ${isFet(s.codi) ? '<span class="tag ok">✓ feta</span>' : ''}</div>`;
+  return sel
+    ? `<div class="card selrow ${isFet(s.codi) ? 'fet' : ''}" onclick="pick('${s.codi}')">${inner}</div>`
+    : `<a class="card ${isFet(s.codi) ? 'fet' : ''}" href="#/s/${s.codi}">${inner}</a>`;
 }
 
 function fields(b) {
@@ -135,9 +188,25 @@ function blockCard(s, b, i) {
   </div>`;
 }
 
-window.toggleFet = c => {
-  const f = fetsLocal(); f[c] = !isFet(c); store.set('volei.fets', f); render();
+window.pick = c => { sel.has(c) ? sel.delete(c) : sel.add(c); render(); };
+window.selMode = on => { sel = on ? new Set() : null; render(); };
+window.selAll = dia => { D.sessions.filter(s => s.dia === dia).forEach(s => sel.add(s.codi)); render(); };
+window.markSel = fet => {
+  const codes = [...sel].sort((a, b) => num(a) - num(b));
+  if (!codes.length) return;
+  markLocal(codes, fet);
+  openIssue(`${fet ? 'Fetes' : 'No fetes'}: ${codes.join(' ')}`, "Marcades des de l'app.");
+  sel = null; render();
 };
+window.sendComment = c => {
+  const txt = $('#com').value.trim(), fet = $('#comfet').checked;
+  if (!txt && !fet) { $('#com').focus(); return; }
+  if (fet) markLocal([c], true);
+  openIssue(`Comentari ${c}${fet ? ' · feta' : ''}`, txt || '(sense comentari)');
+  store.set('volei.draft.' + c, '');
+  render();
+};
+window.saveDraft = (c, v) => store.set('volei.draft.' + c, v);
 
 function viewHome() {
   const t = next('dimarts'), j = next('dijous');
@@ -152,7 +221,14 @@ function viewHome() {
 
 function viewList(dia) {
   const ss = D.sessions.filter(s => s.dia === dia).sort((a, b) => num(a.codi) - num(b.codi));
-  return `<h2>${dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'}</h2><div class="list">${ss.map(sessRow).join('')}</div>`;
+  const bar = sel
+    ? `<div class="selbar"><span class="grow">${sel.size} seleccionades</span>
+        <button class="btn" onclick="selAll('${dia}')">Totes</button>
+        <button class="btn" onclick="selMode(false)">Cancel·la</button></div>
+       <div class="selbar bottom"><button class="btn primary" onclick="markSel(true)" ${sel.size ? '' : 'disabled'}>✓ Marca com a fetes</button>
+        <button class="btn" onclick="markSel(false)" ${sel.size ? '' : 'disabled'}>Com a no fetes</button></div>`
+    : `<div class="selbar"><span class="grow"></span><button class="btn" onclick="selMode(true)">Marcar fetes</button></div>`;
+  return `<h2>${dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'}</h2>${bar}<div class="list">${ss.map(sessRow).join('')}</div>`;
 }
 
 function viewSession(c) {
@@ -163,7 +239,14 @@ function viewSession(c) {
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : ''}
     ${blocs}
     ${s.notaFinal ? `<p class="note">${esc(s.notaFinal)}</p>` : ''}
-    <div class="actions" style="margin-left:0"><button class="btn ${isFet(s.codi) ? '' : 'primary'}" onclick="toggleFet('${s.codi}')">${isFet(s.codi) ? '✓ Fet · desmarcar' : 'Marcar com a fet'}</button></div>`;
+    <h3>Comentaris de l'entreno</h3>
+    ${comments(s.codi).map(i => `<div class="card comment"><div class="meta">${new Date(i.t).toLocaleDateString('ca')}${/· feta?$/i.test(i.title) ? ' · marcada com a feta' : ''}</div>${esc(i.body).replace(/\n/g, '<br>')}</div>`).join('')}
+    <div class="card">
+      <textarea id="com" placeholder="Com ha anat? Què canviaries? Quin exercici no heu fet?" oninput="saveDraft('${s.codi}', this.value)">${esc(store.get('volei.draft.' + s.codi, ''))}</textarea>
+      <label class="chkline"><input type="checkbox" id="comfet" ${isFet(s.codi) ? '' : 'checked'}> Marca-la com a feta</label>
+      <div class="actions" style="margin-left:0"><button class="btn primary" onclick="sendComment('${s.codi}')">Envia</button></div>
+      <p class="meta" style="margin:8px 0 0">S'obrirà GitHub amb el comentari ja escrit: només cal prémer <b>Create</b>. Els comentaris són públics, com la web: millor no posar-hi noms de jugadors.</p>
+    </div>`;
 }
 
 function render() {
@@ -182,8 +265,9 @@ function render() {
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
 addEventListener('hashchange', () => { render(); scrollTo(0, 0); });
 Promise.all(['data/sessions.json', 'data/estat.json'].map(u => fetch(u, { cache: 'no-cache' }).then(r => r.json())))
-  .then(([d, e]) => { D = d; E = e; render(); })
+  .then(([d, e]) => { D = d; E = e; render(); loadIssues(); })
   .catch(() => { $('#app').innerHTML = '<p class="empty">No s\'han pogut carregar les sessions. Comprova la connexió.</p>'; });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && D) loadIssues(); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
