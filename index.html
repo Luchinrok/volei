@@ -12,15 +12,13 @@
 :root {
   --bg: #f4f6f9; --card: #ffffff; --ink: #17202b; --muted: #5b6878; --line: #dfe4ea;
   --brand: #1F4E79; --brand-soft: #e6eef7;
-  --new: #1d7a46; --new-soft: #e3f4ea; --chg: #9a6400; --chg-soft: #fdf3dc; --gone: #8a8f96; --gone-soft: #eef0f2;
-  --teu: #1d7a46; --mod: #9a6400; --cla: #7a4fb0;
+  --si: #1d7a46; --si-soft: #e3f4ea; --avisa: #6b7480; --avisa-soft: #eef0f2; --no: #c0322b; --no-soft: #fbe6e4;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0f141a; --card: #18202a; --ink: #e8edf3; --muted: #9aa7b6; --line: #2a3542;
     --brand: #7fb3e6; --brand-soft: #1c2d40;
-    --new: #6cd39a; --new-soft: #16301f; --chg: #f0bf5a; --chg-soft: #3a2e12; --gone: #8a95a3; --gone-soft: #1f2731;
-    --teu: #6cd39a; --mod: #f0bf5a; --cla: #c4a2f0;
+    --si: #6cd39a; --si-soft: #16301f; --avisa: #9aa7b6; --avisa-soft: #1f2731; --no: #ff7b72; --no-soft: #3a1a18;
   }
 }
 * { box-sizing: border-box; }
@@ -32,10 +30,9 @@ header h1 { font-size: 18px; margin: 0; flex: 1; font-weight: 650; }
 header button { background: none; border: 0; color: #fff; font-size: 22px; padding: 0 6px; cursor: pointer; }
 main { max-width: 760px; margin: 0 auto; padding: 16px; }
 nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
-nav.tabs a { flex: 1; text-align: center; padding: 10px 4px 12px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 600; position: relative; }
+nav.tabs a { flex: 1; text-align: center; padding: 10px 4px 12px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 600; }
 nav.tabs a.on { color: var(--brand); }
 nav.tabs a .ico { display: block; font-size: 20px; line-height: 1.2; }
-.dot { position: absolute; top: 6px; left: 50%; margin-left: 10px; background: var(--chg); color: #fff; border-radius: 9px; font-size: 11px; padding: 0 6px; }
 h2 { font-size: 20px; margin: 4px 0 12px; }
 h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 22px 0 8px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
@@ -45,21 +42,15 @@ a.card { display: block; color: inherit; text-decoration: none; }
 .next .card { border-left: 4px solid var(--brand); }
 .kicker { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 .big { font-size: 18px; font-weight: 650; margin-top: 2px; }
+.meta { color: var(--muted); font-size: 14px; }
 .row { display: flex; align-items: center; gap: 10px; }
 .row .grow { flex: 1; min-width: 0; }
 .code { font-family: ui-monospace, Consolas, monospace; font-weight: 700; color: var(--brand); }
-.list a.card { padding: 11px 14px; }
+.list a.card, .list .card { padding: 11px 14px; }
 .list .fet { opacity: .55; }
-.tag { display: inline-block; font-size: 12px; font-weight: 650; border-radius: 6px; padding: 1px 7px; margin-right: 4px; border: 1px solid currentColor; white-space: nowrap; }
-.tag.teu { color: var(--teu); } .tag.modificat { color: var(--mod); } .tag.claude { color: var(--cla); }
-.tag.nou { color: var(--new); background: var(--new-soft); } .tag.canvi { color: var(--chg); background: var(--chg-soft); } .tag.tret { color: var(--gone); background: var(--gone-soft); }
-.tag.ok { color: var(--muted); }
-.sesshead .meta { color: var(--muted); font-size: 14px; }
+.tag { display: inline-block; font-size: 12px; font-weight: 650; border-radius: 6px; padding: 1px 7px; border: 1px solid currentColor; white-space: nowrap; color: var(--muted); }
 .note { font-style: italic; color: var(--muted); margin: 6px 0 14px; }
 .block { border-left: 4px solid var(--line); }
-.block.nou { border-left-color: var(--new); }
-.block.canvi { border-left-color: var(--chg); }
-.block.tret { border-left-color: var(--gone); background: var(--gone-soft); }
 .bhead { display: flex; gap: 10px; align-items: baseline; }
 .bnum { font-weight: 800; color: var(--brand); font-size: 18px; min-width: 18px; }
 .btitle { flex: 1; font-weight: 650; font-size: 17px; }
@@ -68,28 +59,44 @@ a.card { display: block; color: inherit; text-decoration: none; }
 .tags { margin: 6px 0 4px 28px; }
 .field { margin: 8px 0 0 28px; }
 .field b { color: var(--brand); font-size: 13px; text-transform: uppercase; letter-spacing: .03em; display: block; }
-.old { background: var(--chg-soft); border-radius: 8px; padding: 8px 10px; margin: 10px 0 0 28px; font-size: 14px; }
-.old .field { margin-left: 0; }
-.old del { color: var(--muted); }
-.actions { display: flex; gap: 8px; margin: 12px 0 0 28px; flex-wrap: wrap; }
-button.btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 7px 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+.actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+button.btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 8px 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
 button.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.btn.primary { color: #0f141a; } }
-button.btn.sel { outline: 2px solid var(--brand); outline-offset: 1px; }
-button.link { background: none; border: 0; color: var(--brand); font: inherit; font-size: 14px; font-weight: 600; padding: 0; cursor: pointer; margin: 8px 0 0 28px; }
+button.btn:disabled { opacity: .45; }
+button.btn.danger { color: var(--no); }
 .legend { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
 .empty { color: var(--muted); text-align: center; padding: 30px 0; }
-textarea { width: 100%; min-height: 110px; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 8px; }
+textarea, input[type=text], input[type=date], select { width: 100%; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 8px; }
+textarea { min-height: 110px; }
+label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
 .selbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .selbar .grow { flex: 1; color: var(--muted); font-size: 14px; }
 .selbar.bottom { position: fixed; left: 0; right: 0; bottom: 64px; margin: 0; padding: 10px 16px; background: var(--card); border-top: 1px solid var(--line); z-index: 4; justify-content: center; }
-.selrow { cursor: pointer; padding: 11px 14px; }
+.selrow { cursor: pointer; }
 .chk { width: 20px; height: 20px; accent-color: var(--brand); }
 .chkline { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
 .chkline input { width: 18px; height: 18px; accent-color: var(--brand); }
-button.btn:disabled { opacity: .45; }
-.seg { display: flex; gap: 6px; margin-bottom: 12px; }
-.seg button { flex: 1; }
+.comment .meta { margin-bottom: 4px; }
+/* Assistència */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.stat b { display: block; font-size: 22px; color: var(--brand); }
+.stat span { font-size: 12px; color: var(--muted); }
+.pl { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.pl:last-child { border-bottom: 0; }
+.pl .nom { flex: 1; min-width: 0; font-weight: 600; }
+.pl .nom.no { color: var(--no); }
+.tri { display: flex; gap: 4px; }
+.tri button { font: inherit; font-size: 13px; font-weight: 650; border-radius: 8px; padding: 6px 9px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.tri button.on.si { background: var(--si-soft); border-color: var(--si); color: var(--si); }
+.tri button.on.avisa { background: var(--avisa-soft); border-color: var(--avisa); color: var(--ink); }
+.tri button.on.no { background: var(--no-soft); border-color: var(--no); color: var(--no); }
+.bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; width: 70px; }
+.bar i { display: block; height: 100%; background: var(--si); }
+.pct { width: 44px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.red { color: var(--no); font-weight: 700; }
+.warn { border-left: 4px solid var(--no); }
 </style>
 </head>
 <body>
@@ -102,61 +109,76 @@ button.btn:disabled { opacity: .45; }
   <a href="#/" data-t="inici"><span class="ico">🏐</span>Inici</a>
   <a href="#/dimarts" data-t="dimarts"><span class="ico">1</span>Dimarts</a>
   <a href="#/dijous" data-t="dijous"><span class="ico">2</span>Dijous</a>
+  <a href="#/assistencia" data-t="assistencia"><span class="ico">✓</span>Assistència</a>
 </nav>
-<script>
+<script type="module">
+// ---------------------------------------------------------------------------
+// Sessions: data/sessions.json (generat des del Word).
+// Sessions fetes, comentaris i assistència: Firebase (projecte volei-2627-dc),
+// sota /equips/{clau}. La clau no és al codi: s'entra un cop per mòbil amb
+// l'enllaç #clau=... i es guarda al dispositiu.
+// ---------------------------------------------------------------------------
+const FB = {
+  apiKey: 'AIzaSyDZ-zg7S9keWerVos9f_D4zqsdYFVGXVaM',
+  authDomain: 'volei-2627-dc.firebaseapp.com',
+  projectId: 'volei-2627-dc',
+  storageBucket: 'volei-2627-dc.firebasestorage.app',
+  messagingSenderId: '447113557075',
+  appId: '1:447113557075:web:8b34eb13e92ce04a8ec2a6'
+};
 const FAM = { D: 'Dits i col·locació', B: 'Braços, recepció i defensa', S: 'Saque', R: 'Remat', BL: 'Bloqueig', C: 'Col·locadors', J: 'Jugada', G: 'Jocs' };
 const LABEL = { dosi: 'Dosi', muntatge: 'Muntatge' };
-let D, E;
+const EST = { si: 'Ve', avisa: 'Avisa', no: 'No avisa' };
+
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
-// Comentaris i sessions fetes es guarden com a "issues" del repositori de GitHub:
-// així es veuen des de qualsevol mòbil i Claude els pot llegir.
-const REPO = 'Luchinrok/volei';
-const CODE = /\bD[TJ]\d\d\b/g;
-let ISSUES = store.get('volei.issues', []);
-let sel = null;   // sessions seleccionades a la llista (null = fora del mode selecció)
-
-function actions() {
-  // [{codi, fet, t}] de més antic a més nou: estat.json, issues de GitHub i marques locals pendents
-  const out = E.fets.map(c => ({ codi: c, fet: true, t: 0 }));
-  [...ISSUES].sort((a, b) => a.t - b.t).forEach(i => {
-    if (/^No fetes?:/i.test(i.title)) (i.title.match(CODE) || []).forEach(c => out.push({ codi: c, fet: false, t: i.t }));
-    else if (/^Fetes?:/i.test(i.title) || /· feta?$/i.test(i.title)) (i.title.match(CODE) || []).forEach(c => out.push({ codi: c, fet: true, t: i.t }));
-  });
-  Object.entries(store.get('volei.fets2', {})).forEach(([c, v]) => out.push({ codi: c, fet: v.fet, t: v.t }));
-  return out.sort((a, b) => a.t - b.t);
-}
-function isFet(c) { let f = false; actions().forEach(a => { if (a.codi === c) f = a.fet; }); return f; }
-function comments(c) { return ISSUES.filter(i => /^Comentari/i.test(i.title) && (i.title.match(CODE) || []).includes(c)).sort((a, b) => b.t - a.t); }
-
-function loadIssues() {
-  return fetch(`https://api.github.com/repos/${REPO}/issues?state=all&per_page=100&sort=created&direction=desc`)
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(list => {
-      ISSUES = list.filter(i => !i.pull_request).map(i => ({ title: i.title, body: i.body || '', t: Date.parse(i.created_at) }));
-      store.set('volei.issues', ISSUES);
-      // les marques locals que ja surten a GitHub ja no calen
-      const loc = store.get('volei.fets2', {}), newest = Math.max(0, ...ISSUES.map(i => i.t));
-      Object.keys(loc).forEach(c => { if (loc[c].t < newest - 60000) delete loc[c]; });
-      store.set('volei.fets2', loc);
-      render();
-    }).catch(() => {});
-}
-function openIssue(title, body) {
-  window.open(`https://github.com/${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`, '_blank');
-}
-function markLocal(codes, fet) {
-  const loc = store.get('volei.fets2', {}), t = Date.now();
-  codes.forEach(c => loc[c] = { fet, t });
-  store.set('volei.fets2', loc);
-}
-const byCode = c => D.sessions.find(s => s.codi === c);
 const num = c => +c.slice(2);
+const avui = () => new Date().toISOString().slice(0, 10);
+const dataCa = d => new Date(d + 'T12:00').toLocaleDateString('ca', { weekday: 'short', day: 'numeric', month: 'short' });
 
+// clau des de l'enllaç
+const m = location.hash.match(/clau=([A-Za-z0-9]{24,})/);
+if (m) { store.set('volei.clau', m[1]); history.replaceState(null, '', location.pathname + (location.hash.replace(/[?&]?clau=[A-Za-z0-9]+/, '') || '#/')); }
+const CLAU = store.get('volei.clau', null);
+
+let D, E;                                            // sessions.json, estat.json
+let FETS = {}, COMS = [], JUG = [], ASS = [];        // dades de Firebase
+let fs = null, db = null;
+let sel = null;                                      // selecció múltiple de sessions
+let editAss = null;                                  // entreno d'assistència en edició
+
+const byCode = c => D.sessions.find(s => s.codi === c);
+const isFet = c => (c in FETS) ? FETS[c].fet : E.fets.includes(c);
+const comments = c => COMS.filter(x => x.codi === c).sort((a, b) => b.t - a.t);
+const col = name => fs.collection(db, 'equips', CLAU, name);
+const ref = (name, id) => fs.doc(db, 'equips', CLAU, name, id);
+
+async function initFirebase() {
+  if (!CLAU) return;
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
+    fs = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
+    db = fs.initializeFirestore(initializeApp(FB), { localCache: fs.persistentLocalCache() });
+    fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); });
+    fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
+    fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); });
+    fs.onSnapshot(col('assistencia'), q => { ASS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.data.localeCompare(a.data)); render(); });
+  } catch (e) { console.error(e); }
+}
+
+function setFets(codes, fet) {
+  if (!db) return;
+  const t = Date.now(), patch = {};
+  codes.forEach(c => { patch[c] = { fet, t }; FETS[c] = { fet, t }; });
+  fs.setDoc(ref('estat', 'fets'), patch, { merge: true });
+  render();
+}
+
+// ------------------------------------------------------------------ sessions
 function next(dia) {
   return D.sessions.filter(s => s.dia === dia && !isFet(s.codi)).sort((a, b) => num(a.codi) - num(b.codi))[0];
 }
@@ -166,8 +188,8 @@ function sessRow(s) {
   const inner = `<div class="row">
     ${sel ? `<input type="checkbox" class="chk" ${sel.has(s.codi) ? 'checked' : ''}>` : ''}
     <span class="code">${s.codi}</span><span class="grow">${esc(s.titol)}</span>
-    ${n ? `<span class="tag ok">💬 ${n}</span>` : ''}
-    ${isFet(s.codi) ? '<span class="tag ok">✓ feta</span>' : ''}</div>`;
+    ${n ? `<span class="tag">💬 ${n}</span>` : ''}
+    ${isFet(s.codi) ? '<span class="tag">✓ feta</span>' : ''}</div>`;
   return sel
     ? `<div class="card selrow ${isFet(s.codi) ? 'fet' : ''}" onclick="pick('${s.codi}')">${inner}</div>`
     : `<a class="card ${isFet(s.codi) ? 'fet' : ''}" href="#/s/${s.codi}">${inner}</a>`;
@@ -178,7 +200,7 @@ function fields(b) {
     `<div class="field">${k === 'com' ? '' : `<b>${LABEL[k]}</b>`}${esc(b[k])}</div>`).join('');
 }
 
-function blockCard(s, b, i) {
+function blockCard(b) {
   return `<div class="card block">
     <div class="bhead"><span class="bnum">${b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
       <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span></div>
@@ -188,40 +210,21 @@ function blockCard(s, b, i) {
   </div>`;
 }
 
-window.pick = c => { sel.has(c) ? sel.delete(c) : sel.add(c); render(); };
-window.selMode = on => { sel = on ? new Set() : null; render(); };
-window.selAll = dia => { D.sessions.filter(s => s.dia === dia).forEach(s => sel.add(s.codi)); render(); };
-window.markSel = fet => {
-  const codes = [...sel].sort((a, b) => num(a) - num(b));
-  if (!codes.length) return;
-  markLocal(codes, fet);
-  openIssue(`${fet ? 'Fetes' : 'No fetes'}: ${codes.join(' ')}`, "Marcades des de l'app.");
-  sel = null; render();
-};
-window.sendComment = c => {
-  const txt = $('#com').value.trim(), fet = $('#comfet').checked;
-  if (!txt && !fet) { $('#com').focus(); return; }
-  if (fet) markLocal([c], true);
-  openIssue(`Comentari ${c}${fet ? ' · feta' : ''}`, txt || '(sense comentari)');
-  store.set('volei.draft.' + c, '');
-  render();
-};
-window.saveDraft = (c, v) => store.set('volei.draft.' + c, v);
+const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil.</b><div class="meta">Per ${what} obre una vegada l'enllaç amb la clau que et va passar Claude.</div></div>`;
 
 function viewHome() {
   const t = next('dimarts'), j = next('dijous');
+  const card = (s, k) => s ? `<a class="card" href="#/s/${s.codi}"><div class="kicker">${k}</div><div class="big"><span class="code">${s.codi}</span> ${esc(s.titol)}</div><div class="meta">${s.min} min · ${s.blocs.filter(b => !b.tret).length} blocs</div></a>` : '';
   return `<h2>Pròxims entrenaments</h2>
-  <div class="next">
-    ${t ? `<a class="card" href="#/s/${t.codi}"><div class="kicker">Dimarts · 1 pista</div><div class="big"><span class="code">${t.codi}</span> ${esc(t.titol)}</div><div class="meta">${t.min} min · ${t.blocs.filter(b => !b.tret).length} blocs</div></a>` : ''}
-    ${j ? `<a class="card" href="#/s/${j.codi}"><div class="kicker">Dijous · 2 pistes</div><div class="big"><span class="code">${j.codi}</span> ${esc(j.titol)}</div><div class="meta">${j.min} min · ${j.blocs.filter(b => !b.tret).length} blocs</div></a>` : ''}
-  </div>
+  <div class="next">${card(t, 'Dimarts · 1 pista')}${card(j, 'Dijous · 2 pistes')}</div>
+  ${CLAU ? '' : needKey('marcar sessions, escriure comentaris i portar l\'assistència,')}
   <h3>Què volen dir els codis</h3>
   <div class="card legend">${Object.entries(FAM).map(([k, v]) => `<span class="code">${k}</span><span>${v}</span>`).join('')}</div>`;
 }
 
 function viewList(dia) {
   const ss = D.sessions.filter(s => s.dia === dia).sort((a, b) => num(a.codi) - num(b.codi));
-  const bar = sel
+  const bar = !CLAU ? '' : sel
     ? `<div class="selbar"><span class="grow">${sel.size} seleccionades</span>
         <button class="btn" onclick="selAll('${dia}')">Totes</button>
         <button class="btn" onclick="selMode(false)">Cancel·la</button></div>
@@ -233,41 +236,137 @@ function viewList(dia) {
 
 function viewSession(c) {
   const s = byCode(c); if (!s) return `<p class="empty">No trobo ${esc(c)}</p>`;
-  const blocs = s.blocs.filter(b => !b.tret).map((b, i) => blockCard(s, b, i)).join('');
-  return `<div class="sesshead"><h2><span class="code">${s.codi}</span> ${esc(s.titol)}</h2>
-    <div class="meta">${s.dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'} · ${s.min} min</div></div>
-    ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : ''}
-    ${blocs}
+  const coms = comments(c).map(x => `<div class="card comment"><div class="meta">${new Date(x.t).toLocaleDateString('ca')}${x.aplicat ? ' · aplicat per Claude' : ''}</div>${esc(x.text).replace(/\n/g, '<br>')}</div>`).join('');
+  return `<h2><span class="code">${s.codi}</span> ${esc(s.titol)}</h2>
+    <div class="meta">${s.dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'} · ${s.min} min</div>
+    ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
+    ${s.blocs.filter(b => !b.tret).map(blockCard).join('')}
     ${s.notaFinal ? `<p class="note">${esc(s.notaFinal)}</p>` : ''}
     <h3>Comentaris de l'entreno</h3>
-    ${comments(s.codi).map(i => `<div class="card comment"><div class="meta">${new Date(i.t).toLocaleDateString('ca')}${/· feta?$/i.test(i.title) ? ' · marcada com a feta' : ''}</div>${esc(i.body).replace(/\n/g, '<br>')}</div>`).join('')}
-    <div class="card">
-      <textarea id="com" placeholder="Com ha anat? Què canviaries? Quin exercici no heu fet?" oninput="saveDraft('${s.codi}', this.value)">${esc(store.get('volei.draft.' + s.codi, ''))}</textarea>
-      <label class="chkline"><input type="checkbox" id="comfet" ${isFet(s.codi) ? '' : 'checked'}> Marca-la com a feta</label>
-      <div class="actions" style="margin-left:0"><button class="btn primary" onclick="sendComment('${s.codi}')">Envia</button></div>
-      <p class="meta" style="margin:8px 0 0">S'obrirà GitHub amb el comentari ja escrit: només cal prémer <b>Create</b>. Els comentaris són públics, com la web: millor no posar-hi noms de jugadors.</p>
-    </div>`;
+    ${coms}
+    ${CLAU ? `<div class="card">
+      <textarea id="com" placeholder="Com ha anat? Què canviaries? Quin exercici no heu fet?" oninput="saveDraft('${c}', this.value)">${esc(store.get('volei.draft.' + c, ''))}</textarea>
+      <div class="actions"><button class="btn primary" onclick="sendComment('${c}')">Desa el comentari</button>
+      <button class="btn" onclick="toggleFet('${c}')">${isFet(c) ? '✓ Feta · desmarca' : 'Marca-la com a feta'}</button></div>
+    </div>` : needKey('escriure comentaris')}`;
 }
 
+window.pick = c => { sel.has(c) ? sel.delete(c) : sel.add(c); render(); };
+window.selMode = on => { sel = on ? new Set() : null; render(); };
+window.selAll = dia => { D.sessions.filter(s => s.dia === dia).forEach(s => sel.add(s.codi)); render(); };
+window.markSel = fet => { setFets([...sel], fet); sel = null; render(); };
+window.toggleFet = c => setFets([c], !isFet(c));
+window.saveDraft = (c, v) => store.set('volei.draft.' + c, v);
+window.sendComment = c => {
+  const txt = $('#com').value.trim();
+  if (!txt) { $('#com').focus(); return; }
+  fs.addDoc(col('comentaris'), { codi: c, text: txt, t: Date.now() });
+  store.set('volei.draft.' + c, '');
+  $('#com').value = '';
+};
+
+// -------------------------------------------------------------- assistència
+function statsJug() {
+  // per jugador: entrenos des que hi és, vingudes, avisa, no avisa
+  return JUG.filter(j => j.actiu !== false).map(j => {
+    let tot = 0, si = 0, av = 0, no = 0;
+    ASS.forEach(a => { const e = a.estat?.[j.id]; if (!e) return; tot++; if (e === 'si') si++; else if (e === 'avisa') av++; else no++; });
+    return { ...j, tot, si, av, no, pct: tot ? Math.round(100 * si / tot) : null };
+  }).sort((a, b) => (b.pct ?? -1) - (a.pct ?? -1) || a.nom.localeCompare(b.nom, 'ca'));
+}
+const venen = a => Object.values(a.estat || {}).filter(e => e === 'si').length;
+const noAvisen = a => Object.values(a.estat || {}).filter(e => e === 'no').length;
+
+function viewAssistencia() {
+  if (!CLAU) return `<h2>Assistència</h2>${needKey('portar l\'assistència')}`;
+  if (editAss) return viewEditAss();
+  const st = statsJug(), mitjana = ASS.length ? (ASS.reduce((s, a) => s + venen(a), 0) / ASS.length) : 0;
+  return `<h2>Assistència</h2>
+  <div class="stats">
+    <div class="stat"><b>${ASS.length}</b><span>entrenos</span></div>
+    <div class="stat"><b>${mitjana ? mitjana.toFixed(1).replace('.', ',') : '–'}</b><span>de mitjana</span></div>
+    <div class="stat"><b>${JUG.filter(j => j.actiu !== false).length}</b><span>jugadors</span></div>
+  </div>
+  <button class="btn primary" style="width:100%;padding:12px" onclick="newAss()">+ Passar llista d'avui</button>
+  <h3>Jugadors</h3>
+  <div class="card">${st.length ? st.map(j => `<div class="pl">
+      <span class="nom ${j.no ? 'no' : ''}">${esc(j.nom)}</span>
+      ${j.no ? `<span class="red" title="Faltes sense avisar">✗${j.no}</span>` : ''}
+      <span class="bar"><i style="width:${j.pct ?? 0}%"></i></span><span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
+    </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</div>
+  <p class="meta">% = entrenos que ha vingut sobre els que s'han passat llista. En vermell, qui ha faltat alguna vegada sense avisar (✗ = quantes).</p>
+  <h3>Entrenos</h3>
+  <div class="list">${ASS.map(a => `<div class="card selrow" onclick="openAss('${a.id}')"><div class="row">
+      <span class="grow"><b>${dataCa(a.data)}</b> ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}</span>
+      <span>${venen(a)} venen</span>${noAvisen(a) ? `<span class="red">✗${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
+  <h3>Afegir jugador</h3>
+  <div class="card"><div class="row"><input type="text" id="nounom" placeholder="Nom"><button class="btn" onclick="addJug()">Afegeix</button></div></div>`;
+}
+
+function viewEditAss() {
+  const a = editAss, ss = D.sessions.slice().sort((x, y) => x.dia.localeCompare(y.dia) || num(x.codi) - num(y.codi));
+  const actius = JUG.filter(j => j.actiu !== false || a.estat[j.id]);
+  return `<h2>${a.id ? 'Llista del ' + dataCa(a.data) : 'Passar llista'}</h2>
+  <div class="card">
+    <label class="lbl">Data</label><input type="date" value="${a.data}" onchange="editAss.data=this.value">
+    <label class="lbl">Sessió que heu fet</label>
+    <select onchange="editAss.sessio=this.value"><option value="">—</option>${ss.map(s => `<option value="${s.codi}" ${a.sessio === s.codi ? 'selected' : ''}>${s.codi} · ${esc(s.titol)}</option>`).join('')}</select>
+  </div>
+  <div class="card">
+    <div class="meta" style="margin-bottom:6px"><b>${Object.values(a.estat).filter(e => e === 'si').length}</b> venen · ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen · <span class="red">${Object.values(a.estat).filter(e => e === 'no').length} sense avisar</span></div>
+    ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${esc(j.nom)}</span><span class="tri">
+      ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" onclick="setEst('${j.id}','${e}')">${EST[e]}</button>`).join('')}
+    </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}
+  </div>
+  <div class="actions"><button class="btn primary" onclick="saveAss()">Desa</button><button class="btn" onclick="editAss=null;render()">Cancel·la</button>
+  ${a.id ? `<button class="btn danger" onclick="delAss()">Esborra</button>` : ''}</div>`;
+}
+
+window.newAss = () => {
+  const d = avui(), dia = new Date(d + 'T12:00').getDay() === 2 ? 'dimarts' : 'dijous';
+  const estat = {}; JUG.filter(j => j.actiu !== false).forEach(j => estat[j.id] = 'si');
+  editAss = { data: d, sessio: next(dia)?.codi || '', estat }; render(); scrollTo(0, 0);
+};
+window.openAss = id => { const a = ASS.find(x => x.id === id); editAss = JSON.parse(JSON.stringify(a)); render(); scrollTo(0, 0); };
+window.setEst = (jid, e) => { editAss.estat[jid] = e; const y = scrollY; render(); scrollTo(0, y); };
+window.saveAss = () => {
+  const a = editAss, id = a.id || a.data;
+  fs.setDoc(ref('assistencia', id), { data: a.data, sessio: a.sessio || '', estat: a.estat });
+  if (a.sessio && !isFet(a.sessio)) setFets([a.sessio], true);
+  editAss = null; render();
+};
+window.delAss = () => { if (confirm('Esborrar aquesta llista?')) { fs.deleteDoc(ref('assistencia', editAss.id)); editAss = null; render(); } };
+window.addJug = () => {
+  const n = $('#nounom').value.trim(); if (!n) return;
+  fs.addDoc(col('jugadors'), { nom: n, actiu: true });
+  $('#nounom').value = '';
+};
+
+// ------------------------------------------------------------------- render
 function render() {
-  const h = location.hash.replace(/^#\/?/, '');
-  const [r, arg] = h.split('/');
+  if (!D) return;
+  const [r, arg] = location.hash.replace(/^#\/?/, '').split('/');
   let html, tab = 'inici', title = 'Vòlei 26-27';
   if (r === 's') { html = viewSession(arg); tab = byCode(arg)?.dia; title = arg; }
   else if (r === 'dimarts' || r === 'dijous') { html = viewList(r); tab = r; }
+  else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
   else html = viewHome();
+  // no repintar mentre s'escriu un comentari
+  const a = document.activeElement;
+  if (a && (a.id === 'com' || a.id === 'nounom') && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   $('#title').textContent = title;
   $('#back').hidden = r !== 's';
-  document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('on', a.dataset.t === tab));
+  document.querySelectorAll('nav.tabs a').forEach(x => x.classList.toggle('on', x.dataset.t === tab));
 }
+window.render = render;
+Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
-addEventListener('hashchange', () => { render(); scrollTo(0, 0); });
+addEventListener('hashchange', () => { sel = null; editAss = null; render(); scrollTo(0, 0); });
 Promise.all(['data/sessions.json', 'data/estat.json'].map(u => fetch(u, { cache: 'no-cache' }).then(r => r.json())))
-  .then(([d, e]) => { D = d; E = e; render(); loadIssues(); })
+  .then(([d, e]) => { D = d; E = e; render(); initFirebase(); })
   .catch(() => { $('#app').innerHTML = '<p class="empty">No s\'han pogut carregar les sessions. Comprova la connexió.</p>'; });
-document.addEventListener('visibilitychange', () => { if (!document.hidden && D) loadIssues(); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
