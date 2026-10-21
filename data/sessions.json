@@ -13,7 +13,7 @@
   {
    "setmana": 3,
    "dimarts": "DT03",
-   "dijous": "DJ07"
+   "dijous": "DJ08"
   },
   {
    "setmana": 4,
@@ -23,7 +23,7 @@
   {
    "setmana": 5,
    "dimarts": "DT04",
-   "dijous": "DJ06"
+   "dijous": "DJ07"
   },
   {
    "setmana": 6,
@@ -33,132 +33,132 @@
   {
    "setmana": 7,
    "dimarts": "DT07",
-   "dijous": "DJ05"
+   "dijous": "DJ06"
   },
   {
    "setmana": 8,
    "dimarts": "DT08",
-   "dijous": "DJ08"
+   "dijous": "DJ09"
   },
   {
    "setmana": 9,
    "dimarts": "DT09",
-   "dijous": "DJ10"
+   "dijous": "DJ11"
   },
   {
    "setmana": 10,
    "dimarts": "DT10",
-   "dijous": "DJ09"
+   "dijous": "DJ10"
   },
   {
    "setmana": 11,
    "dimarts": "DT11",
-   "dijous": "DJ13"
+   "dijous": "DJ14"
   },
   {
    "setmana": 12,
    "dimarts": "DT12",
-   "dijous": "DJ14"
+   "dijous": "DJ15"
   },
   {
    "setmana": 13,
    "dimarts": "DT13",
-   "dijous": "DJ15"
+   "dijous": "DJ16"
   },
   {
    "setmana": 14,
    "dimarts": "DT14",
-   "dijous": "DJ12"
+   "dijous": "DJ13"
   },
   {
    "setmana": 15,
    "dimarts": "DT15",
-   "dijous": "DJ11"
+   "dijous": "DJ12"
   },
   {
    "setmana": 16,
    "dimarts": "DT16",
-   "dijous": "DJ16"
+   "dijous": "DJ17"
   },
   {
    "setmana": 17,
    "dimarts": "DT17",
-   "dijous": "DJ18"
+   "dijous": "DJ19"
   },
   {
    "setmana": 18,
    "dimarts": "DT18",
-   "dijous": "DJ17"
+   "dijous": "DJ18"
   },
   {
    "setmana": 19,
    "dimarts": "DT19",
-   "dijous": "DJ19"
+   "dijous": "DJ20"
   },
   {
    "setmana": 20,
    "dimarts": "DT20",
-   "dijous": "DJ20"
+   "dijous": "DJ21"
   },
   {
    "setmana": 21,
    "dimarts": "DT21",
-   "dijous": "DJ23"
+   "dijous": "DJ24"
   },
   {
    "setmana": 22,
    "dimarts": "DT22",
-   "dijous": "DJ22"
+   "dijous": "DJ23"
   },
   {
    "setmana": 23,
    "dimarts": "DT23",
-   "dijous": "DJ21"
+   "dijous": "DJ22"
   },
   {
    "setmana": 24,
    "dimarts": "DT24",
-   "dijous": "DJ24"
+   "dijous": "DJ25"
   },
   {
    "setmana": 25,
    "dimarts": "DT25",
-   "dijous": "DJ26"
+   "dijous": "DJ27"
   },
   {
    "setmana": 26,
    "dimarts": "DT26",
-   "dijous": "DJ25"
+   "dijous": "DJ26"
   },
   {
    "setmana": 27,
    "dimarts": "DT27",
-   "dijous": "DJ27"
+   "dijous": "DJ28"
   },
   {
    "setmana": 28,
    "dimarts": "DT28",
-   "dijous": "DJ29"
+   "dijous": "DJ30"
   },
   {
    "setmana": 29,
    "dimarts": "DT29",
-   "dijous": "DJ28"
+   "dijous": "DJ29"
   },
   {
    "setmana": 30,
    "dimarts": "DT30",
-   "dijous": "DJ31"
+   "dijous": "DJ32"
   },
   {
    "setmana": 31,
    "dimarts": "DT31",
-   "dijous": "DJ30"
+   "dijous": "DJ31"
   },
   {
    "setmana": 32,
    "dimarts": "DT32",
-   "dijous": "DJ32"
+   "dijous": "DJ33"
   }
  ],
  "sessions": [
@@ -1258,7 +1258,7 @@
   {
    "codi": "DJ05",
    "dia": "dijous",
-   "titol": "Joc per posicions",
+   "titol": "Tècnica a la xarxa",
    "min": 85,
    "nota": "",
    "notaFinal": "",
@@ -1270,7 +1270,7 @@
      "min": 5,
      "franja": "min 0-5",
      "lloc": "Les dues pistes.",
-     "com": "Dijous 22/10 es fan només aquests tres primers exercicis (25 min) i després partit; la resta passa al dijous següent. El teu. Parelles a la xarxa, un a cada banda. Tècnica de saque: un passa la pilota per sota de la xarxa i l'altre l'agafa amb els braços ben estirats; aquest la passa per dalt i el primer l'agafa amb els braços ben estirats. Cal moure les cames per simular una defensa.",
+     "com": "El teu. Parelles a la xarxa, un a cada banda. Tècnica de saque: un passa la pilota per sota de la xarxa i l'altre l'agafa amb els braços ben estirats; aquest la passa per dalt i el primer l'agafa amb els braços ben estirats. Cal moure les cames per simular una defensa.",
      "dosi": "Uns 5 minuts.",
      "muntatge": "Parelles, un a cada banda de la xarxa, repartides per les dues pistes.",
      "nou": true
@@ -1301,99 +1301,113 @@
     },
     {
      "n": 4,
+     "titol": "Partit",
+     "codi": "",
+     "min": 60,
+     "franja": "min 25-85",
+     "lloc": "Les dues pistes.",
+     "com": "El Negre juga el seu partit. El Groc fa partit entre ells.",
+     "dosi": "La resta de l'entreno.",
+     "muntatge": "Una pista per a cada partit.",
+     "nou": true
+    }
+   ]
+  },
+  {
+   "codi": "DJ06",
+   "dia": "dijous",
+   "titol": "Joc per posicions",
+   "min": 85,
+   "nota": "",
+   "notaFinal": "",
+   "blocs": [
+    {
+     "n": 1,
      "titol": "Quatre tocs i una passa enrere",
      "codi": "D20",
      "min": 10,
-     "franja": "min 25-35",
+     "franja": "min 0-10",
      "lloc": "",
      "com": "Ben junts, 4 tocs de dits cadascú. Sense aturar la pilota, una passa enrere i 4 tocs més, fins a la línia. Després tornem ajuntant-nos. PROGRESSIÓ: (1) anada i tornada de dits. (2) Anada i tornada de braços. (3) Anada de dits i tornada de braços. (4) Anada i tornada de dits a passe directe.",
      "dosi": "Una volta per pas, uns 2 minuts i mig cadascuna.",
      "muntatge": "Parelles escampades.",
      "abans": {
-      "franja": "min 0-10",
       "muntatge": "9 parelles escampades."
      }
     },
     {
-     "n": 5,
+     "n": 2,
      "titol": "Saque, recepció i defensa creuada",
      "codi": "J10",
      "min": 10,
-     "franja": "min 35-45",
+     "franja": "min 10-20",
      "lloc": "Una pista per grup.",
      "com": "Trios. El primer serveix des del seu camp. El segon, a l'altre camp, recepciona i agafa la pilota a dalt amb les mans, com si se la col·locés a ell mateix. Tot seguit el tercer, que està a Z2 del camp del que ha servit, li remata. El que ha servit defensa alta, el tercer li col·loca i ell remata. Cada cicle té per tant dues parts: primer saque i recepció, i tot seguit defensa, col·locació i remat. ROTACIÓ: qui ha servit passa a Z2, qui era a Z2 passa a recepcionar i qui recepcionava passa a servir.",
      "dosi": "×5 cicles complets per jugador a cada rol, o sigui 15 cicles per trio. Es rota cada 5 cicles.",
      "muntatge": "A cada pista, dos trios treballant, un a cada meitat de la pista partida al llarg, i els que sobren recullen pilotes. Els que recullen entren a cada canvi de rol.",
      "abans": {
-      "franja": "min 10-20",
       "muntatge": "A cada pista, dos trios treballant, un a cada meitat de la pista partida al llarg, i quatre més que recullen pilotes. Nou per pista, o sigui els 18 dins. Els que recullen entren a cada canvi de rol."
      }
     },
     {
-     "n": 6,
+     "n": 3,
      "titol": "Col·loca sempre el de Z1",
      "codi": "J12",
      "min": 15,
-     "franja": "min 45-60",
+     "franja": "min 20-35",
      "lloc": "",
      "com": "Quatre per camp (Z1, Z2, Z4, Z6). Col·loca sempre el de Z1, a Z2 o a Z4, i s'intercanvia amb aquell. Fila a Z6: el de Z6 va a Z1 i aquest es mou a on ha col·locat. El remat sempre a Z5, així pot col·locar el de Z1.",
      "dosi": "2 punts i fora, i entren els següents.",
      "muntatge": "A cada pista, quatre per camp (Z1, Z2, Z4, Z6) més la fila de Z6. Els que esperen són la fila i entren contínuament.",
      "abans": {
-      "franja": "min 20-35",
       "com": "Quatre per camp (Z1, Z2, Z4, Z6). Col·loca sempre el de Z1, a Z2 o a Z4, i s'intercanvia amb aquell. Fila a Z6: el de Z6 va a Z1 i aquest es mou a on ha col·locat. Atac sempre en diagonal o línia.",
       "dosi": "4 minuts per grup de quatre.",
       "muntatge": "A cada pista, quatre per camp (Z1, Z2, Z4, Z6) més la fila de Z6. Nou per pista, o sigui els 18 ocupats. Els que esperen són la fila i entren contínuament."
      }
     },
     {
-     "n": 7,
+     "n": 4,
      "titol": "2x2 a mitja pista sense saltar",
      "codi": "G25",
      "min": 20,
-     "franja": "min 60-80",
+     "franja": "min 35-55",
      "lloc": "",
      "com": "2x2 a mitja pista i sense saltar en cap moment, ni per rematar ni per bloquejar. Tres tocs lliures i punt directe. Com que no es pot saltar, l'únic camí per guanyar el punt és col·locar la pilota on l'altre no arriba, i això és exactament el que es vol al començament.",
      "dosi": "Sets a 10 punts, entrada contínua.",
      "muntatge": "Parteix cada pista al llarg en dues mitges pistes. Amb dues pistes surten quatre partits de 2x2, i els que sobren entren a cada punt.",
      "abans": {
-      "franja": "min 35-55",
       "muntatge": "Parteix cada pista al llarg en dues mitges pistes. Amb dues pistes surten quatre partits de 2x2, o sigui 16 jugant i dos en cua que entren a cada punt."
      }
     },
     {
-     "n": 8,
+     "n": 5,
      "titol": "Servei-recepció per rotacions",
      "codi": "J26",
      "min": 15,
-     "franja": "min 80-95",
+     "franja": "min 55-70",
      "lloc": "",
      "com": "Sis jugadors al camp en posicions de partit. La resta serveix des de l'altre camp sense parar, amb un parell recollint pilotes. Tres serveis a la rotació actual, els sis roten una posició, tres serveis més, i així fins a completar les sis rotacions (18 serveis). Cada pilota es juga fins a l'atac, no només fins a la recepció. El circuit sencer es fa dos cops.",
      "dosi": "3 serveis per rotació, sis rotacions (18 serveis). Circuit repetit dos cops.",
-     "muntatge": "Sis per posicions rebent. La resta serveix des de l'altre camp amb dos recollint. Es canvien els sis en acabar el circuit.",
-     "abans": {
-      "franja": "min 55-70"
-     }
+     "muntatge": "Sis per posicions rebent. La resta serveix des de l'altre camp amb dos recollint. Es canvien els sis en acabar el circuit."
     },
     {
-     "n": 9,
+     "n": 6,
      "titol": "Defensa del free ball",
      "codi": "J27",
      "min": 15,
-     "franja": "min 95-110",
+     "franja": "min 70-85",
      "lloc": "",
      "com": "Es treballa només la situació de pilota fàcil rebuda: qui la reclama, on va, qui s'obre a atacar. Vint repeticions per equip.",
      "dosi": "20 free balls per equip, amb rotació entre repetició i repetició.",
      "muntatge": "Les dues pistes, barrejats, un equip a cada camp segons quants sigueu. Tu entres les pilotes a una pista i, a l'altra, les entra un jugador que es canvia cada 5 repeticions.",
      "abans": {
-      "franja": "min 70-85",
       "muntatge": "Pista 1: sis per camp fent l'exercici sencer, 12 jugadors, i tu entrant les pilotes. Pista 2: els altres 6 fan el mateix a 3x3, entrant-se les pilotes entre ells. A la meitat del bloc es canvien de pista."
      }
     }
    ]
   },
   {
-   "codi": "DJ06",
+   "codi": "DJ07",
    "dia": "dijous",
    "titol": "Transició",
    "min": 85,
@@ -1502,7 +1516,7 @@
    ]
   },
   {
-   "codi": "DJ07",
+   "codi": "DJ08",
    "dia": "dijous",
    "titol": "Defensa d'equip",
    "min": 85,
@@ -1578,7 +1592,7 @@
    ]
   },
   {
-   "codi": "DJ08",
+   "codi": "DJ09",
    "dia": "dijous",
    "titol": "Competició interna",
    "min": 85,
@@ -2498,7 +2512,7 @@
    ]
   },
   {
-   "codi": "DJ09",
+   "codi": "DJ10",
    "dia": "dijous",
    "titol": "Complex 1 amb pressió",
    "min": 85,
@@ -2574,7 +2588,7 @@
    ]
   },
   {
-   "codi": "DJ10",
+   "codi": "DJ11",
    "dia": "dijous",
    "titol": "Transició i complex 2",
    "min": 85,
@@ -2661,7 +2675,7 @@
    ]
   },
   {
-   "codi": "DJ11",
+   "codi": "DJ12",
    "dia": "dijous",
    "titol": "Atac de zaguer",
    "min": 85,
@@ -2737,7 +2751,7 @@
    ]
   },
   {
-   "codi": "DJ12",
+   "codi": "DJ13",
    "dia": "dijous",
    "titol": "Servei i recepció per equips",
    "min": 85,
@@ -2813,7 +2827,7 @@
    ]
   },
   {
-   "codi": "DJ13",
+   "codi": "DJ14",
    "dia": "dijous",
    "titol": "Bloc doble",
    "min": 85,
@@ -2900,7 +2914,7 @@
    ]
   },
   {
-   "codi": "DJ14",
+   "codi": "DJ15",
    "dia": "dijous",
    "titol": "Free ball i pilota fàcil",
    "min": 85,
@@ -2976,7 +2990,7 @@
    ]
   },
   {
-   "codi": "DJ15",
+   "codi": "DJ16",
    "dia": "dijous",
    "titol": "Rotacions a fons",
    "min": 85,
@@ -3058,7 +3072,7 @@
    ]
   },
   {
-   "codi": "DJ16",
+   "codi": "DJ17",
    "dia": "dijous",
    "titol": "Competició del bloc 2",
    "min": 85,
@@ -3929,7 +3943,7 @@
    ]
   },
   {
-   "codi": "DJ17",
+   "codi": "DJ18",
    "dia": "dijous",
    "titol": "Complex 1 amb lectura",
    "min": 85,
@@ -4005,7 +4019,7 @@
    ]
   },
   {
-   "codi": "DJ18",
+   "codi": "DJ19",
    "dia": "dijous",
    "titol": "Complex 2 a fons",
    "min": 85,
@@ -4081,7 +4095,7 @@
    ]
   },
   {
-   "codi": "DJ19",
+   "codi": "DJ20",
    "dia": "dijous",
    "titol": "Les sis rotacions",
    "min": 85,
@@ -4157,7 +4171,7 @@
    ]
   },
   {
-   "codi": "DJ20",
+   "codi": "DJ21",
    "dia": "dijous",
    "titol": "Atac de zaguer i primer temps",
    "min": 85,
@@ -4233,7 +4247,7 @@
    ]
   },
   {
-   "codi": "DJ21",
+   "codi": "DJ22",
    "dia": "dijous",
    "titol": "Bloc, continuïtat i jugada",
    "min": 85,
@@ -4309,7 +4323,7 @@
    ]
   },
   {
-   "codi": "DJ22",
+   "codi": "DJ23",
    "dia": "dijous",
    "titol": "Ritme alt",
    "min": 85,
@@ -4385,7 +4399,7 @@
    ]
   },
   {
-   "codi": "DJ23",
+   "codi": "DJ24",
    "dia": "dijous",
    "titol": "Comunicació sota partit",
    "min": 85,
@@ -4461,7 +4475,7 @@
    ]
   },
   {
-   "codi": "DJ24",
+   "codi": "DJ25",
    "dia": "dijous",
    "titol": "Competició del bloc 3",
    "min": 85,
@@ -5321,7 +5335,7 @@
    ]
   },
   {
-   "codi": "DJ25",
+   "codi": "DJ26",
    "dia": "dijous",
    "titol": "Partit amb condicions",
    "min": 85,
@@ -5397,7 +5411,7 @@
    ]
   },
   {
-   "codi": "DJ26",
+   "codi": "DJ27",
    "dia": "dijous",
    "titol": "Les rotacions febles",
    "min": 85,
@@ -5473,7 +5487,7 @@
    ]
   },
   {
-   "codi": "DJ27",
+   "codi": "DJ28",
    "dia": "dijous",
    "titol": "Bloc, defensa i contraatac",
    "min": 85,
@@ -5560,7 +5574,7 @@
    ]
   },
   {
-   "codi": "DJ28",
+   "codi": "DJ29",
    "dia": "dijous",
    "titol": "Punts finals per equips",
    "min": 85,
@@ -5642,7 +5656,7 @@
    ]
   },
   {
-   "codi": "DJ29",
+   "codi": "DJ30",
    "dia": "dijous",
    "titol": "Joc lliure organitzat",
    "min": 85,
@@ -5718,7 +5732,7 @@
    ]
   },
   {
-   "codi": "DJ30",
+   "codi": "DJ31",
    "dia": "dijous",
    "titol": "Simulació de partit",
    "min": 85,
@@ -5794,7 +5808,7 @@
    ]
   },
   {
-   "codi": "DJ31",
+   "codi": "DJ32",
    "dia": "dijous",
    "titol": "Complex 1 i complex 2 encadenats",
    "min": 85,
@@ -5870,7 +5884,7 @@
    ]
   },
   {
-   "codi": "DJ32",
+   "codi": "DJ33",
    "dia": "dijous",
    "titol": "Competició final",
    "min": 85,
