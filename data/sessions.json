@@ -1264,6 +1264,18 @@
    "notaFinal": "",
    "blocs": [
     {
+     "n": 0,
+     "titol": "Per sota i per sobre de la xarxa (dijous 22/10)",
+     "codi": "B45",
+     "min": 45,
+     "franja": "min 0-45",
+     "lloc": "Les dues pistes.",
+     "com": "El teu. Dijous 22/10 només es fa aquest exercici i després partit; la resta de la sessió passa al dijous següent. Parelles a la xarxa, un a cada banda. PROGRESSIÓ: (1) Tècnica de saque: un passa la pilota per sota de la xarxa i l'altre l'agafa amb els braços ben estirats; aquest la passa per dalt i el primer l'agafa amb els braços ben estirats. Cal moure les cames per simular una defensa. (2) Igual però amb toc de braços: un fa control-passe per sota de la xarxa i l'altre control-passe per sobre de la xarxa. (3) Un fa control fent picar la pilota a la xarxa i, amb el segon toc, la tira per sota la xarxa; l'altre fa control de braços i la passa de dits. (4) Toc de braços, col·locació i remat fent el moviment de canell.",
+     "dosi": "Uns 11 minuts per part. Si amb això ja teniu 45 minuts, pareu aquí.",
+     "muntatge": "Parelles, un a cada banda de la xarxa, repartides per les dues pistes.",
+     "nou": true
+    },
+    {
      "n": 1,
      "titol": "Quatre tocs i una passa enrere",
      "codi": "D20",
