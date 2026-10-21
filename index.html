@@ -101,6 +101,9 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 #timer { position: fixed; left: 0; right: 0; bottom: 64px; z-index: 6; background: var(--card); border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(0,0,0,.12); padding: 10px 16px 12px; }
 #timer[hidden] { display: none; }
 #timer .digits { font: 700 44px/1 ui-monospace, Consolas, monospace; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+#timer .digits input { font: inherit; color: inherit; width: 2.3ch; text-align: center; border: 0; border-bottom: 2px dashed var(--line); background: transparent; padding: 0; }
+#timer .digits input:focus { outline: none; border-bottom-color: var(--brand); }
+#timer .hint { text-align: center; font-size: 12px; color: var(--muted); }
 #timer .digits.end { color: var(--no); animation: blink 1s steps(2) infinite; }
 @keyframes blink { 50% { opacity: .3; } }
 #timer .lab { text-align: center; color: var(--muted); font-size: 13px; min-height: 18px; }
@@ -148,9 +151,9 @@ button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 
 <div id="timer" hidden>
   <button class="btn" id="tstop" hidden onclick="alarmStop()">🔕 Atura l'alarma</button>
   <div class="lab" id="tlab"></div>
-  <div class="digits" id="tdig">00:00</div>
+  <div class="digits" id="tdig"><input id="tm" inputmode="numeric" value="00" onfocus="this.select()" onchange="timerEdit()">:<input id="ts" inputmode="numeric" value="00" onfocus="this.select()" onchange="timerEdit()"></div>
+  <div class="hint" id="thint">Toca els números per canviar-los</div>
   <div class="actions"><button class="btn primary" id="tgo" onclick="timerGo()">▶ Comença</button><button class="btn" onclick="timerReset()">↺ Zero</button><button class="btn" onclick="timerToggle(false)">Amaga</button></div>
-  <div class="tset"><input type="number" id="tmin" min="0" max="180" inputmode="numeric" value="10"> min <input type="number" id="tsec" min="0" max="59" inputmode="numeric" value="0"> s <button class="btn" onclick="timerCustom()">Posa</button></div>
   <div class="presets"><button onclick="timerSet(0,'Cronòmetre')">Cronòmetre</button><button onclick="timerSet(1)">1 min</button><button onclick="timerSet(3)">3 min</button><button onclick="timerSet(5)">5 min</button><button onclick="timerSet(10)">10 min</button><button onclick="timerSet(15)">15 min</button></div>
 </div>
 <nav class="tabs">
@@ -397,10 +400,6 @@ function viewAssistencia() {
       <span class="bar"><i style="width:${j.pct ?? 0}%"></i></span><span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
     </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</div>
   <p class="meta">% = entrenos que ha vingut sobre els que s'han passat llista. En vermell, qui ha faltat alguna vegada sense avisar (✗ = quantes).</p>
-  <h3>Entrenos</h3>
-  <div class="list">${ASS.map(a => `<div class="card selrow" onclick="openAss('${a.id}')"><div class="row">
-      <span class="grow"><b>${dataCa(a.data)}</b> ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}</span>
-      <span>${venen(a)} venen</span>${noAvisen(a) ? `<span class="red">✗${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
   <h3>Equip</h3>
   ${editEquip ? `<div class="card">
     ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
@@ -414,17 +413,22 @@ function viewAssistencia() {
     <div class="row" style="margin-top:10px"><input type="text" id="nounom" placeholder="Nom del jugador nou"><button class="btn" onclick="addJug()">Afegeix</button></div>
     <p class="meta" style="margin:8px 0 0">Dies: Dt+Dj, només dimarts o només dijous (els altres dies no surt a la llista ni li compta la falta). ✕ treu de l'equip però guarda el que ja ha fet; ↺ el torna a posar.</p>
     <div class="actions"><button class="btn primary" onclick="editEquip=false;render()">Fet</button></div>
-  </div>` : `<button class="btn" style="width:100%;padding:10px" onclick="editEquip=true;render()">✎ Editar equip</button>`}`;
+  </div>` : `<button class="btn" style="width:100%;padding:10px" onclick="editEquip=true;render()">✎ Editar equip</button>`}
+  <h3>Entrenos</h3>
+  <div class="list">${ASS.map(a => `<div class="card selrow" onclick="openAss('${a.id}')"><div class="row">
+      <span class="grow"><b>${dataCa(a.data)}</b> ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}</span>
+      <span>${venen(a)} venen</span>${noAvisen(a) ? `<span class="red">✗${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
+`;
 }
 
 function viewEditAss() {
   const a = editAss, ss = D.sessions.slice().sort((x, y) => x.dia.localeCompare(y.dia) || num(x.codi) - num(y.codi));
   const actius = JUG.filter(j => a.estat[j.id] || (j.actiu !== false && ve(j, a.data)));
-  return `<h2>${a.id ? 'Llista del ' + dataCa(a.data) : 'Passar llista'}</h2>
+  return `<h2>Llista del ${dataCa(a.data)}</h2>
   <div class="card">
-    <label class="lbl">Data</label><input type="date" value="${a.data}" onchange="editAss.data=this.value;render()">
+    <label class="lbl">Data</label><input type="date" value="${a.data}" onchange="assDate(this.value)">
     <label class="lbl">Sessió que heu fet</label>
-    <select onchange="editAss.sessio=this.value"><option value="">—</option>${ss.map(s => `<option value="${s.codi}" ${a.sessio === s.codi ? 'selected' : ''}>${s.codi} · ${esc(s.titol)}</option>`).join('')}</select>
+    <select onchange="assSessio(this.value)"><option value="">—</option>${ss.map(s => `<option value="${s.codi}" ${a.sessio === s.codi ? 'selected' : ''}>${s.codi} · ${esc(s.titol)}</option>`).join('')}</select>
   </div>
   <div class="card">
     <div class="meta" style="margin-bottom:6px"><b>${Object.values(a.estat).filter(e => e === 'si').length}</b> venen · ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen · <span class="red">${Object.values(a.estat).filter(e => e === 'no').length} sense avisar</span></div>
@@ -432,22 +436,34 @@ function viewEditAss() {
       ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" onclick="setEst('${j.id}','${e}')">${EST[e]}</button>`).join('')}
     </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}
   </div>
-  <div class="actions"><button class="btn primary" onclick="saveAss()">Desa</button><button class="btn" onclick="editAss=null;render()">Cancel·la</button>
-  ${a.id ? `<button class="btn danger" onclick="delAss()">Esborra</button>` : ''}</div>`;
+  <p class="meta">Es desa sol a cada toc.</p>
+  <div class="actions"><button class="btn primary" onclick="editAss=null;render()">Fet</button>
+  <button class="btn danger" onclick="delAss()">Esborra la llista</button></div>`;
 }
 
+function assWrite() {
+  const a = editAss;
+  fs.setDoc(ref('assistencia', a.id), { data: a.data, sessio: a.sessio || '', estat: a.estat });
+  if (a.sessio && !isFet(a.sessio)) setFets([a.sessio], true);
+}
 window.newAss = () => {
-  const d = avui(), dia = new Date(d + 'T12:00').getDay() === 2 ? 'dimarts' : 'dijous';
+  const d = avui(), ja = ASS.find(x => x.id === d);
+  if (ja) return openAss(d);                                   // ja hi ha llista d'avui: s'obre
+  const dia = new Date(d + 'T12:00').getDay() === 2 ? 'dimarts' : 'dijous';
   const estat = {}; JUG.filter(j => j.actiu !== false && ve(j, d)).forEach(j => estat[j.id] = 'si');
-  editAss = { data: d, sessio: next(dia)?.codi || '', estat }; render(); scrollTo(0, 0);
+  editAss = { id: d, data: d, sessio: next(dia)?.codi || '', estat }; assWrite(); render(); scrollTo(0, 0);
 };
 window.openAss = id => { const a = ASS.find(x => x.id === id); editAss = JSON.parse(JSON.stringify(a)); render(); scrollTo(0, 0); };
-window.setEst = (jid, e) => { editAss.estat[jid] = e; const y = scrollY; render(); scrollTo(0, y); };
-window.saveAss = () => {
-  const a = editAss, id = a.id || a.data;
-  fs.setDoc(ref('assistencia', id), { data: a.data, sessio: a.sessio || '', estat: a.estat });
-  if (a.sessio && !isFet(a.sessio)) setFets([a.sessio], true);
-  editAss = null; render();
+window.setEst = (jid, e) => {
+  editAss.estat[jid] = e; fs.updateDoc(ref('assistencia', editAss.id), { ['estat.' + jid]: e });
+  const y = scrollY; render(); scrollTo(0, y);
+};
+window.assSessio = v => { editAss.sessio = v; assWrite(); };
+window.assDate = d => {
+  if (!d || d === editAss.id) return;
+  if (ASS.some(x => x.id === d)) { alert('Ja hi ha una llista per a aquest dia.'); return render(); }
+  fs.deleteDoc(ref('assistencia', editAss.id));
+  editAss.id = editAss.data = d; assWrite(); render();
 };
 window.delAss = () => { if (confirm('Esborrar aquesta llista?')) { fs.deleteDoc(ref('assistencia', editAss.id)); editAss = null; render(); } };
 window.jugSet = (id, patch) => { if (patch.nom === '') return render(); fs.setDoc(ref('jugadors', id), patch, { merge: true }); };
@@ -458,76 +474,99 @@ window.addJug = () => {
 };
 
 // ---------------------------------------------------------------- cronòmetre
-// mode compte enrere (dur > 0) o cronòmetre (dur = 0). Continua encara que canviïs de pantalla.
-const T = { dur: 0, start: 0, acc: 0, run: false, lab: '', beeped: false, tick: null, lock: null };
-const fmt = ms => { const s = Math.max(0, Math.round(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+// Compte enrere (dur > 0) o cronòmetre (dur = 0). Continua encara que canviïs de pantalla.
+// L'alarma és un fitxer d'àudio que es reprodueix des del principi: silenci fins al final del
+// compte enrere i després l'alarma. Com que és àudio normal, sona encara que bloquegis el mòbil.
+const T = { dur: 0, start: 0, acc: 0, run: false, lab: '', beeped: false, tick: null };
+const two = n => String(n).padStart(2, '0');
+const fmt = ms => { const s = Math.max(0, Math.round(ms / 1000)); return two(Math.floor(s / 60)) + ':' + two(s % 60); };
 const elapsed = () => T.acc + (T.run ? Date.now() - T.start : 0);
-// Alarma: forta i contínua fins que es prem "Atura". L'àudio es desbloqueja quan prems Comença
-// (els mòbils no deixen sonar res si no ve d'un toc de pantalla).
-let AC = null, OUT = null, ALARM = null;
-function audioOn() {
+const PLAYER = new Audio(); PLAYER.preload = 'auto';
+let AUDIO_URL = null, AC = null, ALARM = null;
+
+function wav(silenceSec) {
+  // WAV 8 bits, 8 kHz: silenci + 15 segons d'alarma (4 xiulets aguts cada 1,1 s)
+  const R = 8000, alarm = 15, n = Math.round((silenceSec + alarm) * R), buf = new Uint8Array(44 + n), v = new DataView(buf.buffer);
+  const str = (o, t) => [...t].forEach((c, i) => buf[o + i] = c.charCodeAt(0));
+  str(0, 'RIFF'); v.setUint32(4, 36 + n, true); str(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, R, true); v.setUint32(28, R, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); str(36, 'data'); v.setUint32(40, n, true);
+  buf.fill(128, 44);
+  const s0 = Math.round(silenceSec * R);
+  for (let i = s0; i < n; i++) {
+    const t = (i - s0) / R, c = t % 1.1, k = Math.floor(c / .18);
+    if (k < 4 && c - k * .18 < .13) { const f = k % 2 ? 2600 : 2000; buf[44 + i] = ((i * f / R) % 1) < .5 ? 250 : 6; }
+  }
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+function audioArm() {
+  // es crida en prémer Comença (els mòbils només deixen sonar àudio que surt d'un toc)
+  if (AUDIO_URL) URL.revokeObjectURL(AUDIO_URL);
+  AUDIO_URL = wav(Math.max(0, (T.dur - elapsed()) / 1000));
+  PLAYER.src = AUDIO_URL; PLAYER.currentTime = 0;
+  PLAYER.play().catch(() => {});
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({ title: T.lab || 'Compte enrere', artist: 'Vòlei 26-27' });
+    navigator.mediaSession.setActionHandler('pause', () => { if (T.run) timerGo(); });
+    navigator.mediaSession.setActionHandler('stop', () => alarmStop());
+  }
+}
+function webBeepFallback() {
+  // per si el fitxer no ha pogut sonar: xiulets amb WebAudio mentre l'app és oberta
   try {
-    if (!AC) {
-      AC = new (window.AudioContext || window.webkitAudioContext)();
-      const comp = AC.createDynamicsCompressor(); comp.threshold.value = -30; comp.ratio.value = 12;
-      OUT = AC.createGain(); OUT.gain.value = 1; OUT.connect(comp); comp.connect(AC.destination);
-    }
-    if (AC.state === 'suspended') AC.resume();
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)(); AC.resume();
+    const go = () => { const t0 = AC.currentTime; [0, .18, .36, .54].forEach((d, i) => { const o = AC.createOscillator(), g = AC.createGain(); o.type = 'square'; o.frequency.value = i % 2 ? 2600 : 2000; g.gain.value = 1; o.connect(g); g.connect(AC.destination); o.start(t0 + d); o.stop(t0 + d + .13); }); };
+    go(); ALARM = setInterval(go, 1100); setTimeout(alarmStop, 15000);
   } catch {}
 }
-function burst() {
-  if (!AC) return;
-  const t0 = AC.currentTime;
-  [0, .18, .36, .54].forEach((d, i) => {
-    const o = AC.createOscillator(), g = AC.createGain();
-    o.type = 'square'; o.frequency.value = i % 2 ? 2600 : 2000;
-    g.gain.setValueAtTime(0, t0 + d); g.gain.linearRampToValueAtTime(1, t0 + d + .01); g.gain.setValueAtTime(1, t0 + d + .13); g.gain.linearRampToValueAtTime(0, t0 + d + .15);
-    o.connect(g); g.connect(OUT); o.start(t0 + d); o.stop(t0 + d + .16);
-  });
-}
 function alarmStart() {
-  if (ALARM) return;
-  audioOn(); burst();
-  try { navigator.vibrate?.([500, 200, 500, 200, 500]); } catch {}
-  const t = Date.now();
-  ALARM = setInterval(() => {
-    if (Date.now() - t > 180000) return alarmStop();            // com a molt 3 minuts
-    burst(); try { navigator.vibrate?.([500, 200, 500]); } catch {}
-  }, 1100);
+  const ok = !PLAYER.paused && PLAYER.currentTime > 0;
+  if (!ok) webBeepFallback();
+  try { navigator.vibrate?.([500, 200, 500, 200, 500, 200, 500]); } catch {}
   $('#tstop').hidden = false;
 }
-window.alarmStop = () => { clearInterval(ALARM); ALARM = null; try { navigator.vibrate?.(0); } catch {} $('#tstop').hidden = true; };
+window.alarmStop = () => {
+  PLAYER.pause(); clearInterval(ALARM); ALARM = null;
+  try { navigator.vibrate?.(0); } catch {}
+  $('#tstop').hidden = true;
+  if (T.dur && T.run && T.dur - elapsed() <= 0) { T.run = false; T.acc = T.dur; clearInterval(T.tick); timerPaint(); }
+};
 function timerPaint() {
-  const e = elapsed(), left = T.dur - e, end = T.dur && left <= 0;
-  $('#tdig').textContent = T.dur ? (end ? '-' + fmt(-left) : fmt(left)) : fmt(e);
-  $('#tdig').classList.toggle('end', !!end);
+  const e = elapsed(), left = T.dur - e, end = T.dur && left <= 0, dig = $('#tdig');
+  const show = T.run || e ? (T.dur ? fmt(Math.abs(left)) : fmt(e)) : (T.dur ? fmt(T.dur) : '00:00');
+  const [mm, ss] = show.split(':');
+  if (document.activeElement !== $('#tm')) { $('#tm').value = (end ? '-' : '') + mm; $('#tm').style.width = ($('#tm').value.length + .3) + 'ch'; }
+  if (document.activeElement !== $('#ts')) $('#ts').value = ss;
+  $('#tm').readOnly = $('#ts').readOnly = T.run;
+  $('#thint').hidden = T.run;
+  dig.classList.toggle('end', !!end);
   $('#tlab').textContent = T.lab;
   $('#tgo').textContent = T.run ? '⏸ Pausa' : (e ? '▶ Continua' : '▶ Comença');
   $('#tbtn').textContent = T.run ? '⏱•' : '⏱';
   if (end && !T.beeped) { T.beeped = true; alarmStart(); }
 }
-async function wake(on) { try { if (on && 'wakeLock' in navigator) T.lock = await navigator.wakeLock.request('screen'); else { T.lock?.release(); T.lock = null; } } catch {} }
+window.timerEdit = () => {
+  const m = Math.max(0, parseInt($('#tm').value.replace('-', '')) || 0), sc = Math.min(59, Math.max(0, parseInt($('#ts').value) || 0));
+  timerSet((m * 60 + sc) / 60, m || sc ? '' : 'Cronòmetre');
+};
 window.timerToggle = show => {
-  const el = $('#timer'), v = show ?? el.hidden; if (!v) alarmStop(); el.hidden = !v; document.body.classList.toggle('timer-on', v); timerPaint();
+  const el = $('#timer'), v = show ?? el.hidden; el.hidden = !v; document.body.classList.toggle('timer-on', v); timerPaint();
 };
 window.timerSet = (min, lab, go) => {
-  if (min) { $('#tmin').value = Math.floor(min); $('#tsec').value = Math.round((min % 1) * 60); }
-  alarmStop(); T.dur = Math.round(min * 60000); T.acc = 0; T.run = false; T.beeped = false; T.lab = lab || (min ? `Compte enrere ${min} min` : 'Cronòmetre');
+  alarmStop(); PLAYER.removeAttribute('src');
+  T.dur = Math.round(min * 60000); T.acc = 0; T.run = false; T.beeped = false; clearInterval(T.tick);
+  T.lab = lab || (min ? 'Compte enrere' : 'Cronòmetre');
   timerToggle(true); if (go) timerGo(); else timerPaint();
 };
-window.timerCustom = () => {
-  const m = Math.max(0, +$('#tmin').value || 0), sc = Math.min(59, Math.max(0, +$('#tsec').value || 0)), tot = m + sc / 60;
-  if (!tot) return timerSet(0, 'Cronòmetre');
-  timerSet(tot, `Compte enrere ${m ? m + ' min' : ''}${m && sc ? ' ' : ''}${sc ? sc + ' s' : ''}`);
-};
 window.timerGo = () => {
-  audioOn(); alarmStop();
-  if (T.run) { T.acc = elapsed(); T.run = false; clearInterval(T.tick); wake(false); }
-  else { T.start = Date.now(); T.run = true; T.tick = setInterval(timerPaint, 250); wake(true); }
+  if (T.run) { T.acc = elapsed(); T.run = false; clearInterval(T.tick); PLAYER.pause(); }
+  else {
+    if (T.dur && T.dur - elapsed() <= 0) { T.acc = 0; T.beeped = false; }   // tornar a començar un compte acabat
+    T.start = Date.now(); T.run = true; T.tick = setInterval(timerPaint, 250);
+    if (T.dur) audioArm();
+  }
   timerPaint();
 };
-window.timerReset = () => { alarmStop(); T.acc = 0; T.beeped = false; if (T.run) T.start = Date.now(); timerPaint(); };
-document.addEventListener('visibilitychange', () => { if (!document.hidden && T.run) wake(true); });
+window.timerReset = () => { alarmStop(); T.acc = 0; T.beeped = false; if (T.run) { T.start = Date.now(); if (T.dur) audioArm(); } timerPaint(); };
 
 // ------------------------------------------------------------------- render
 function render() {
