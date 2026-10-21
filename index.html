@@ -94,6 +94,10 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 .tri button.on.no { background: var(--no-soft); border-color: var(--no); color: var(--no); }
 .bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; width: 70px; }
 .bar i { display: block; height: 100%; background: var(--si); }
+.pct.mes { width: 64px; color: var(--muted); }
+.pct.mes.baixa { color: var(--no); }
+.phead { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding-top: 0; }
+.phead .pct { font-weight: 600; }
 .pct { width: 44px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 .red { color: var(--no); font-weight: 700; }
 .warn { border-left: 4px solid var(--no); }
@@ -373,11 +377,13 @@ const fetes = () => ASS.filter(a => a.data <= avui());   // llistes de dies que 
 function statsJug() {
   // per jugador: entrenos des que hi és, vingudes, avisa, no avisa
   return JUG.filter(j => j.actiu !== false).map(j => {
-    let tot = 0, si = 0, av = 0, no = 0;
+    let tot = 0, si = 0, av = 0, no = 0, totM = 0, siM = 0;
+    const mes = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);   // últims 30 dies
     fetes().forEach(a => { const e = a.estat?.[j.id]; if (!e) return;
       if (e !== 'si' && !ve(j, a.data)) return;   // els dies que no li toca venir no compten
-      tot++; if (e === 'si') si++; else if (e === 'avisa') av++; else no++; });
-    return { ...j, tot, si, av, no, pct: tot ? Math.round(100 * si / tot) : null };
+      tot++; if (e === 'si') si++; else if (e === 'avisa') av++; else no++;
+      if (a.data >= mes) { totM++; if (e === 'si') siM++; } });
+    return { ...j, tot, si, av, no, pct: tot ? Math.round(100 * si / tot) : null, pctM: totM ? Math.round(100 * siM / totM) : null };
   }).sort((a, b) => (b.pct ?? -1) - (a.pct ?? -1) || a.nom.localeCompare(b.nom, 'ca'));
 }
 const venen = a => Object.values(a.estat || {}).filter(e => e === 'si').length;
@@ -395,12 +401,13 @@ function viewAssistencia() {
   </div>
   <button class="btn primary" style="width:100%;padding:12px" onclick="newAss()">+ Passar llista d'avui</button>
   <h3>Jugadors</h3>
-  <div class="card">${st.length ? st.map(j => `<div class="pl">
+  <div class="card">${st.length ? `<div class="pl phead"><span class="nom"></span><span class="pct" style="width:auto">Temporada</span><span class="pct mes">Últim mes</span></div>` : ''}${st.length ? st.map(j => `<div class="pl">
       <span class="nom ${j.no ? 'no' : ''}">${esc(j.nom)}${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</span>
       ${j.no ? `<span class="red" title="Faltes sense avisar">✗${j.no}</span>` : ''}
       <span class="bar"><i style="width:${j.pct ?? 0}%"></i></span><span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
+      <span class="pct mes ${j.pctM != null && j.pct != null && j.pctM < j.pct - 10 ? 'baixa' : ''}">${j.pctM ?? '–'}${j.pctM != null ? '%' : ''}</span>
     </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</div>
-  <p class="meta">% = entrenos que ha vingut sobre els que s'han passat llista. En vermell, qui ha faltat alguna vegada sense avisar (✗ = quantes).</p>
+  <p class="meta">% = entrenos que ha vingut sobre els que s'han passat llista, des de l'inici de la temporada i dels últims 30 dies (en vermell si l'últim mes baixa més de 10 punts). En vermell, qui ha faltat alguna vegada sense avisar (✗ = quantes).</p>
   <h3>Equip</h3>
   ${editEquip ? `<div class="card">
     ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
