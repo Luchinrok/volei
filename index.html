@@ -132,6 +132,13 @@ button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 
 .edit-pl input[type=text] { flex: 1; min-width: 120px; }
 .edit-pl label { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
 .inactiu { opacity: .55; }
+.dd { display: flex; gap: 3px; flex: none; }
+.dd button { font: inherit; font-size: 12px; font-weight: 700; width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; padding: 0; }
+.dd button.on { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); }
+.cfgday { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.cfgday:last-child { border-bottom: 0; }
+.cfgday span { flex: 1; font-weight: 600; }
+.cfgday select { width: auto; }
 .edit-pl { flex-wrap: nowrap; }
 .edit-pl input[type=text] { min-width: 0; padding: 6px 8px; }
 .edit-pl select { width: auto; padding: 6px 4px; font-size: 14px; flex: none; }
@@ -151,6 +158,7 @@ button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 
   <button id="back" aria-label="Enrere" hidden>‹</button>
   <h1 id="title">Vòlei 26-27</h1>
   <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()">⏱</button>
+  <button aria-label="Configuració" onclick="location.hash='#/config'">⚙</button>
 </header>
 <main id="app"><p class="empty">Carregant…</p></main>
 <div id="timer" hidden>
@@ -161,12 +169,7 @@ button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 
   <div class="actions"><button class="btn primary" id="tgo" onclick="timerGo()">▶ Comença</button><button class="btn" onclick="timerReset()">↺ Zero</button><button class="btn" onclick="timerToggle(false)">Amaga</button></div>
   <div class="presets"><button onclick="timerSet(0,'Cronòmetre')">Cronòmetre</button><button onclick="timerSet(1)">1 min</button><button onclick="timerSet(3)">3 min</button><button onclick="timerSet(5)">5 min</button><button onclick="timerSet(10)">10 min</button><button onclick="timerSet(15)">15 min</button></div>
 </div>
-<nav class="tabs">
-  <a href="#/" data-t="inici"><span class="ico">🏐</span>Inici</a>
-  <a href="#/dimarts" data-t="dimarts"><span class="ico">1</span>Dimarts</a>
-  <a href="#/dijous" data-t="dijous"><span class="ico">2</span>Dijous</a>
-  <a href="#/assistencia" data-t="assistencia"><span class="ico">✓</span>Assistència</a>
-</nav>
+<nav class="tabs" id="tabs"></nav>
 <script type="module">
 // ---------------------------------------------------------------------------
 // Sessions: data/sessions.json (generat des del Word).
@@ -201,17 +204,32 @@ const m = location.hash.match(/clau=([A-Za-z0-9]{24,})/);
 if (m) { store.set('volei.clau', m[1]); history.replaceState(null, '', location.pathname + (location.hash.replace(/[?&]?clau=[A-Za-z0-9]+/, '') || '#/')); }
 const CLAU = store.get('volei.clau', null);
 
-let D, E;                                            // sessions.json, estat.json
+// Temporades: config a /equips/{clau}/config/app; dades de cada temporada a /equips/{clau}/temporades/{T}/...
+// Cada dia d'entreno (dl..dv) es lliga a una família de sessions: DT = 1 pista, DJ = 2 pistes.
+const DIES = { 1: 'Dilluns', 2: 'Dimarts', 3: 'Dimecres', 4: 'Dijous', 5: 'Divendres' };
+const CURT = { 1: 'Dl', 2: 'Dt', 3: 'Dc', 4: 'Dj', 5: 'Dv' };
+const PISTES = { DT: '1 pista', DJ: '2 pistes' };
+const CFG_DEF = { actual: '26-27', temporades: { '26-27': { dies: { 2: 'DT', 4: 'DJ' }, sessions: 'data/sessions.json' } } };
+let CFG = CFG_DEF, TEMP = store.get('volei.temp', null);
+const tcfg = () => CFG.temporades[TEMP] || CFG.temporades[CFG.actual] || CFG_DEF.temporades['26-27'];
+const fam = s => s.codi.slice(0, 2);
+const diesDe = f => Object.keys(tcfg().dies).filter(d => tcfg().dies[d] === f).map(Number).sort();
+const famLabel = f => diesDe(f).map(d => DIES[d]).join(' i ') || (f === 'DT' ? 'Sessions DT' : 'Sessions DJ');
+const famDia = data => tcfg().dies[new Date(data + 'T12:00').getDay()] || null;
+
+let D;                                               // sessions de la temporada
 let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}; // dades de Firebase (NOF: exercicis no fets)
+let UNSUB = [];
 let fs = null, db = null;
 let sel = null;                                      // selecció múltiple de sessions
 let editAss = null;                                  // entreno d'assistència en edició
 
 const byCode = c => D.sessions.find(s => s.codi === c);
-const isFet = c => (c in FETS) ? FETS[c].fet : E.fets.includes(c);
+const isFet = c => !!FETS[c]?.fet;
 const comments = c => COMS.filter(x => x.codi === c).sort((a, b) => b.t - a.t);
-const col = name => fs.collection(db, 'equips', CLAU, name);
-const ref = (name, id) => fs.doc(db, 'equips', CLAU, name, id);
+const col = name => fs.collection(db, 'equips', CLAU, 'temporades', TEMP, name);
+const ref = (name, id) => fs.doc(db, 'equips', CLAU, 'temporades', TEMP, name, id);
+const cfgRef = () => fs.doc(db, 'equips', CLAU, 'config', 'app');
 
 async function initFirebase() {
   if (!CLAU) return;
@@ -219,13 +237,27 @@ async function initFirebase() {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
     fs = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
     db = fs.initializeFirestore(initializeApp(FB), { localCache: fs.persistentLocalCache() });
-    fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); });
-    fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
-    fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); });
-    fs.onSnapshot(col('ordre'), q => { ORD = {}; q.docs.forEach(d => ORD[d.id] = d.data().ordre); render(); });
-    fs.onSnapshot(col('exercicis'), q => { NOF = {}; q.docs.forEach(d => NOF[d.id] = d.data()); render(); });
-    fs.onSnapshot(col('assistencia'), q => { ASS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.data.localeCompare(a.data)); render(); });
+    fs.onSnapshot(cfgRef(), d => {
+      CFG = d.exists() ? d.data() : CFG_DEF;
+      if (!CFG.temporades?.[TEMP]) TEMP = CFG.actual;
+      openSeason();
+    });
   } catch (e) { console.error(e); }
+}
+async function openSeason() {
+  // sessions i dades de la temporada triada
+  const file = tcfg().sessions || 'data/sessions.json';
+  if (D?.__file !== file) { try { D = await (await fetch(file, { cache: 'no-cache' })).json(); D.__file = file; } catch {} }
+  if (UNSUB.__t === TEMP) return render();
+  UNSUB.forEach(u => u()); UNSUB = []; UNSUB.__t = TEMP;
+  FETS = {}; COMS = []; JUG = []; ASS = []; NOF = {}; ORD = {};
+  UNSUB.push(fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); }));
+  UNSUB.push(fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); }));
+  UNSUB.push(fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); }));
+  UNSUB.push(fs.onSnapshot(col('ordre'), q => { ORD = {}; q.docs.forEach(d => ORD[d.id] = d.data().ordre); render(); }));
+  UNSUB.push(fs.onSnapshot(col('exercicis'), q => { NOF = {}; q.docs.forEach(d => NOF[d.id] = d.data()); render(); }));
+  UNSUB.push(fs.onSnapshot(col('assistencia'), q => { ASS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.data.localeCompare(a.data)); render(); }));
+  render();
 }
 
 function setFets(codes, fet) {
@@ -237,8 +269,8 @@ function setFets(codes, fet) {
 }
 
 // ------------------------------------------------------------------ sessions
-function next(dia) {
-  return D.sessions.filter(s => s.dia === dia && !isFet(s.codi)).sort((a, b) => num(a.codi) - num(b.codi))[0];
+function next(f) {
+  return D.sessions.filter(s => fam(s) === f && !isFet(s.codi)).sort((a, b) => num(a.codi) - num(b.codi))[0];
 }
 
 function sessRow(s) {
@@ -295,17 +327,16 @@ Object.defineProperty(window, 'nofEdit', { get: () => nofEdit, set: v => { nofEd
 const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil.</b><div class="meta">Per ${what} obre una vegada l'enllaç amb la clau que et va passar Claude.</div></div>`;
 
 function viewHome() {
-  const t = next('dimarts'), j = next('dijous');
-  const card = (s, k) => s ? `<a class="card" href="#/s/${s.codi}"><div class="kicker">${k}</div><div class="big"><span class="code">${s.codi}</span> ${esc(s.titol)}</div><div class="meta">${s.min} min · ${s.blocs.filter(b => !b.tret).length} blocs</div></a>` : '';
+  const card = f => { const s = next(f); return s && diesDe(f).length ? `<a class="card" href="#/s/${s.codi}"><div class="kicker">${famLabel(f)} · ${PISTES[f]}</div><div class="big"><span class="code">${s.codi}</span> ${esc(s.titol)}</div><div class="meta">${s.min} min · ${s.blocs.filter(b => !b.tret).length} blocs</div></a>` : ''; };
   return `<h2>Pròxims entrenaments</h2>
-  <div class="next">${card(t, 'Dimarts · 1 pista')}${card(j, 'Dijous · 2 pistes')}</div>
+  <div class="next">${card('DT')}${card('DJ')}</div>
   ${CLAU ? '' : needKey('marcar sessions, escriure comentaris i portar l\'assistència,')}
   <h3>Què volen dir els codis</h3>
   <div class="card legend">${Object.entries(FAM).map(([k, v]) => `<span class="code">${k}</span><span>${v}</span>`).join('')}</div>`;
 }
 
 function viewList(dia) {
-  const ss = D.sessions.filter(s => s.dia === dia).sort((a, b) => num(a.codi) - num(b.codi));
+  const ss = D.sessions.filter(s => fam(s) === dia).sort((a, b) => num(a.codi) - num(b.codi));
   const bar = !CLAU ? '' : sel
     ? `<div class="selbar"><span class="grow">${sel.size} seleccionades</span>
         <button class="btn" onclick="selAll('${dia}')">Totes</button>
@@ -313,7 +344,7 @@ function viewList(dia) {
        <div class="selbar bottom"><button class="btn primary" onclick="markSel(true)" ${sel.size ? '' : 'disabled'}>✓ Marca com a fetes</button>
         <button class="btn" onclick="markSel(false)" ${sel.size ? '' : 'disabled'}>Com a no fetes</button></div>`
     : `<div class="selbar"><span class="grow"></span><button class="btn" onclick="selMode(true)">Marcar fetes</button></div>`;
-  return `<h2>${dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'}</h2>${bar}<div class="list">${ss.map(sessRow).join('')}</div>`;
+  return `<h2>${famLabel(dia)} · ${PISTES[dia]}</h2>${bar}<div class="list">${ss.map(sessRow).join('')}</div>`;
 }
 
 let ordering = false;
@@ -339,7 +370,7 @@ function viewSession(c) {
   const bs = blocsOrdenats(s);
   const coms = comments(c).map(x => `<div class="card comment"><div class="meta">${new Date(x.t).toLocaleDateString('ca')}${x.aplicat ? ' · aplicat per Claude' : ''}</div>${esc(x.text).replace(/\n/g, '<br>')}</div>`).join('');
   return `<h2><span class="code">${s.codi}</span> ${esc(s.titol)}</h2>
-    <div class="meta">${s.dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'} · ${s.min} min</div>
+    <div class="meta">${famLabel(fam(s))} · ${PISTES[fam(s)]} · ${s.min} min</div>
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
     ${CLAU ? `<div class="selbar"><span class="grow">${ORD[c] ? 'Ordre canviat per tu' : ''}</span>
       ${ORD[c] && ordering ? `<button class="btn" onclick="resetOrder('${c}')">Ordre original</button>` : ''}
@@ -357,7 +388,7 @@ function viewSession(c) {
 
 window.pick = c => { sel.has(c) ? sel.delete(c) : sel.add(c); render(); };
 window.selMode = on => { sel = on ? new Set() : null; render(); };
-window.selAll = dia => { D.sessions.filter(s => s.dia === dia).forEach(s => sel.add(s.codi)); render(); };
+window.selAll = f => { D.sessions.filter(s => fam(s) === f).forEach(s => sel.add(s.codi)); render(); };
 window.markSel = fet => { setFets([...sel], fet); sel = null; render(); };
 window.toggleFet = c => setFets([c], !isFet(c));
 window.saveDraft = (c, v) => store.set('volei.draft.' + c, v);
@@ -370,8 +401,16 @@ window.sendComment = c => {
 };
 
 // -------------------------------------------------------------- assistència
-const diesOf = j => j.dies || (j.nomesDijous ? 'dijous' : 'tots');           // tots | dimarts | dijous
-const ve = (j, data) => { const d = diesOf(j); if (d === 'tots') return true; return (new Date(data + 'T12:00').getDay() === 2 ? 'dimarts' : 'dijous') === d; };
+// dies que ve cada jugador: llista de dies de la setmana (1 = dilluns ... 5 = divendres); sense llista = tots
+const diesJug = j => j.diesEntreno || (j.dies === 'dimarts' ? [2] : j.dies === 'dijous' || j.nomesDijous ? [4] : null);
+const ve = (j, data) => { const d = diesJug(j); return !d || d.includes(new Date(data + 'T12:00').getDay()); };
+window.toggleDia = (id, d) => {
+  const j = JUG.find(x => x.id === id), all = Object.keys(tcfg().dies).map(Number);
+  let cur = diesJug(j) || all.slice();
+  cur = cur.includes(d) ? cur.filter(x => x !== d) : [...cur, d].sort();
+  if (!cur.length) return;
+  jugSet(id, { diesEntreno: all.every(x => cur.includes(x)) ? null : cur, dies: null, nomesDijous: null });
+};
 const EQ = { N: 'Negre', G: 'Groc', NG: 'Negre i Groc' };
 let editEquip = false;
 const fetes = () => ASS.filter(a => a.data <= avui());   // llistes de dies que ja han passat
@@ -413,14 +452,13 @@ function viewAssistencia() {
   ${editEquip ? `<div class="card">
     ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
       <input type="text" value="${esc(j.nom)}" onchange="jugSet('${j.id}', {nom: this.value.trim()})">
-      <select onchange="jugSet('${j.id}', {dies: this.value, nomesDijous: false})" title="Quins dies ve">
-        ${[['tots', 'Dt+Dj'], ['dimarts', 'Dt'], ['dijous', 'Dj']].map(([v, t]) => `<option value="${v}" ${diesOf(j) === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      <span class="dd" title="Quins dies ve">${Object.keys(tcfg().dies).map(Number).sort().map(d => `<button class="${!diesJug(j) || diesJug(j).includes(d) ? 'on' : ''}" onclick="toggleDia('${j.id}', ${d})">${CURT[d]}</button>`).join('')}</span>
       <select onchange="jugSet('${j.id}', {equip: this.value})" title="Equip">
         ${[['', '–'], ['N', 'Negre'], ['G', 'Groc'], ['NG', 'N+G']].map(([v, t]) => `<option value="${v}" ${(j.equip || '') === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
       ${j.actiu === false ? `<button class="x back" title="Torna'l a l'equip" onclick="jugSet('${j.id}', {actiu: true})">↺</button>` : `<button class="x" title="Treu de l'equip" onclick="if(confirm('Treure ${esc(j.nom).replace(/'/g, '')} de l\'equip? El que ja ha fet es guarda.')) jugSet('${j.id}', {actiu: false})">✕</button>`}
     </div>`).join('')}
     <div class="row" style="margin-top:10px"><input type="text" id="nounom" placeholder="Nom del jugador nou"><button class="btn" onclick="addJug()">Afegeix</button></div>
-    <p class="meta" style="margin:8px 0 0">Dies: Dt+Dj, només dimarts o només dijous (els altres dies no surt a la llista ni li compta la falta). ✕ treu de l'equip però guarda el que ja ha fet; ↺ el torna a posar.</p>
+    <p class="meta" style="margin:8px 0 0">Dies: toca els dies que ve (els altres dies no surt a la llista ni li compta la falta). ✕ treu de l'equip però guarda el que ja ha fet; ↺ el torna a posar.</p>
     <div class="actions"><button class="btn primary" onclick="editEquip=false;render()">Fet</button></div>
   </div>` : `<button class="btn" style="width:100%;padding:10px" onclick="editEquip=true;render()">✎ Editar equip</button>`}
   <h3>Entrenos</h3>
@@ -431,7 +469,7 @@ function viewAssistencia() {
 }
 
 function viewEditAss() {
-  const a = editAss, ss = D.sessions.slice().sort((x, y) => x.dia.localeCompare(y.dia) || num(x.codi) - num(y.codi));
+  const a = editAss, ss = D.sessions.slice().sort((x, y) => fam(x).localeCompare(fam(y)) || num(x.codi) - num(y.codi));
   const actius = JUG.filter(j => a.estat[j.id] || (j.actiu !== false && ve(j, a.data)));
   return `<h2>Llista del ${dataCa(a.data)}</h2>
   <div class="card">
@@ -458,9 +496,9 @@ function assWrite() {
 window.newAss = () => {
   const d = avui(), ja = ASS.find(x => x.id === d);
   if (ja) return openAss(d);                                   // ja hi ha llista d'avui: s'obre
-  const dia = new Date(d + 'T12:00').getDay() === 2 ? 'dimarts' : 'dijous';
+  const f = famDia(d);
   const estat = {}; JUG.filter(j => j.actiu !== false && ve(j, d)).forEach(j => estat[j.id] = 'si');
-  editAss = { id: d, data: d, sessio: next(dia)?.codi || '', estat }; assWrite(); render(); scrollTo(0, 0);
+  editAss = { id: d, data: d, sessio: f ? next(f)?.codi || '' : '', estat }; assWrite(); render(); scrollTo(0, 0);
 };
 window.openAss = id => { const a = ASS.find(x => x.id === id); editAss = JSON.parse(JSON.stringify(a)); render(); scrollTo(0, 0); };
 window.setEst = (jid, e) => {
@@ -481,6 +519,47 @@ window.addJug = () => {
   const n = $('#nounom').value.trim(); if (!n) return;
   fs.addDoc(col('jugadors'), { nom: n, actiu: true });
   $('#nounom').value = '';
+};
+
+// ------------------------------------------------------------- configuració
+function viewConfig() {
+  if (!CLAU) return `<h2>Configuració</h2>${needKey('canviar la configuració')}`;
+  const ts = Object.keys(CFG.temporades).sort();
+  return `<h2>Configuració</h2>
+  <h3>Temporada</h3>
+  <div class="card">
+    <select onchange="setTemp(this.value)">${ts.map(t => `<option ${t === TEMP ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>
+    <label class="lbl">Temporada nova</label>
+    <div class="row"><input type="text" id="noutemp" placeholder="Per exemple 27-28"><button class="btn" onclick="newTemp()">Crea-la</button></div>
+    <p class="meta" style="margin:8px 0 0">La temporada nova comença amb l'equip actual (els que no has tret) i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p>
+  </div>
+  <h3>Dies d'entreno · temporada ${esc(TEMP)}</h3>
+  <div class="card">${[1, 2, 3, 4, 5].map(d => `<div class="cfgday"><span>${DIES[d]}</span>
+    <select onchange="setDia(${d}, this.value)">
+      <option value="" ${!tcfg().dies[d] ? 'selected' : ''}>No s'entrena</option>
+      <option value="DT" ${tcfg().dies[d] === 'DT' ? 'selected' : ''}>Sí · 1 pista</option>
+      <option value="DJ" ${tcfg().dies[d] === 'DJ' ? 'selected' : ''}>Sí · 2 pistes</option>
+    </select></div>`).join('')}
+    <p class="meta" style="margin:8px 0 0">Els dies d'1 pista fan les sessions DT i els de 2 pistes les DJ.</p>
+  </div>`;
+}
+window.setTemp = t => { TEMP = t; store.set('volei.temp', t); openSeason(); };
+window.setDia = (d, v) => {
+  const dies = { ...tcfg().dies }; if (v) dies[d] = v; else delete dies[d];
+  if (!Object.keys(dies).length) { alert('Com a mínim hi ha d\'haver un dia d\'entreno.'); return render(); }
+  fs.updateDoc(cfgRef(), new fs.FieldPath('temporades', TEMP, 'dies'), dies);   // substitueix el mapa sencer (merge no esborraria dies)
+};
+window.newTemp = async () => {
+  const t = $('#noutemp').value.trim();
+  if (!/^[\w-]{2,20}$/.test(t)) { alert('Posa un nom curt, per exemple 27-28.'); return; }
+  if (CFG.temporades[t]) { alert('Aquesta temporada ja existeix.'); return; }
+  if (!confirm(`Crear la temporada ${t}?`)) return;
+  const nova = { ...tcfg() }, equip = JUG.filter(j => j.actiu !== false);
+  const ant = TEMP; TEMP = t;
+  await Promise.all(equip.map(j => { const { id, ...dades } = j; return fs.setDoc(ref('jugadors', id), dades); }));
+  TEMP = ant;
+  await fs.setDoc(cfgRef(), { actual: t, temporades: { [t]: nova } }, { merge: true });
+  setTemp(t);
 };
 
 // ---------------------------------------------------------------- cronòmetre
@@ -515,7 +594,7 @@ function audioArm() {
   PLAYER.src = AUDIO_URL; PLAYER.currentTime = 0;
   PLAYER.play().catch(() => {});
   if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({ title: T.lab || 'Compte enrere', artist: 'Vòlei 26-27' });
+    navigator.mediaSession.metadata = new MediaMetadata({ title: T.lab || 'Compte enrere', artist: 'Vòlei ' + TEMP });
     navigator.mediaSession.setActionHandler('pause', () => { if (T.run) timerGo(); });
     navigator.mediaSession.setActionHandler('stop', () => alarmStop());
   }
@@ -581,18 +660,23 @@ window.timerReset = () => { alarmStop(); T.acc = 0; T.beeped = false; if (T.run)
 // ------------------------------------------------------------------- render
 function render() {
   if (!D) return;
-  const [r, arg] = location.hash.replace(/^#\/?/, '').split('/');
-  let html, tab = 'inici', title = 'Vòlei 26-27';
-  if (r === 's') { html = viewSession(arg); tab = byCode(arg)?.dia; title = arg; }
-  else if (r === 'dimarts' || r === 'dijous') { html = viewList(r); tab = r; }
+  let [r, arg] = location.hash.replace(/^#\/?/, '').split('/');
+  if (r === 'dimarts') { r = 'f'; arg = 'DT'; } else if (r === 'dijous') { r = 'f'; arg = 'DJ'; }   // enllaços antics
+  let html, tab = 'inici', title = 'Vòlei ' + TEMP;
+  if (r === 's') { html = viewSession(arg); tab = byCode(arg) ? fam(byCode(arg)) : ''; title = arg; }
+  else if (r === 'f') { html = viewList(arg); tab = arg; }
   else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
+  else if (r === 'config') { html = viewConfig(); tab = ''; title = 'Configuració'; }
   else html = viewHome();
+  $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">🏐</span>Inici</a>
+    ${['DT', 'DJ'].filter(f => diesDe(f).length).map(f => `<a href="#/f/${f}" data-t="${f}"><span class="ico">${f === 'DT' ? 1 : 2}</span>${diesDe(f).map(d => CURT[d]).join('+') === 'Dt' ? 'Dimarts' : diesDe(f).map(d => CURT[d]).join('+') === 'Dj' ? 'Dijous' : diesDe(f).length === 1 ? DIES[diesDe(f)[0]] : diesDe(f).map(d => CURT[d]).join(' + ')}</a>`).join('')}
+    <a href="#/assistencia" data-t="assistencia"><span class="ico">✓</span>Assistència</a>`;
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
-  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
+  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   $('#title').textContent = title;
-  $('#back').hidden = r !== 's';
+  $('#back').hidden = r !== 's' && r !== 'config';
   document.querySelectorAll('nav.tabs a').forEach(x => x.classList.toggle('on', x.dataset.t === tab));
 }
 window.render = render;
@@ -601,8 +685,9 @@ Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editA
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
 addEventListener('hashchange', () => { sel = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; render(); scrollTo(0, 0); });
-Promise.all(['data/sessions.json', 'data/estat.json'].map(u => fetch(u, { cache: 'no-cache' }).then(r => r.json())))
-  .then(([d, e]) => { D = d; E = e; render(); initFirebase(); })
+TEMP = TEMP || CFG.actual;
+fetch(tcfg().sessions, { cache: 'no-cache' }).then(r => r.json())
+  .then(d => { D = d; D.__file = tcfg().sessions; render(); initFirebase(); })
   .catch(() => { $('#app').innerHTML = '<p class="empty">No s\'han pogut carregar les sessions. Comprova la connexió.</p>'; });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
