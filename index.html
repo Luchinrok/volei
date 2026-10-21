@@ -98,6 +98,7 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 .pct.mes.baixa { color: var(--no); }
 .phead { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding-top: 0; }
 .phead .pct { font-weight: 600; }
+.pl .pct:not(.mes) { width: 80px; }
 .pct { width: 44px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 .red { color: var(--no); font-weight: 700; }
 .warn { border-left: 4px solid var(--no); }
@@ -401,10 +402,10 @@ function viewAssistencia() {
   </div>
   <button class="btn primary" style="width:100%;padding:12px" onclick="newAss()">+ Passar llista d'avui</button>
   <h3>Jugadors</h3>
-  <div class="card">${st.length ? `<div class="pl phead"><span class="nom"></span><span class="pct" style="width:auto">Temporada</span><span class="pct mes">Últim mes</span></div>` : ''}${st.length ? st.map(j => `<div class="pl">
+  <div class="card">${st.length ? `<div class="pl phead"><span class="nom"></span><span class="pct" style="width:80px">Temporada</span><span class="pct mes">Últim mes</span></div>` : ''}${st.length ? st.map(j => `<div class="pl">
       <span class="nom ${j.no ? 'no' : ''}">${esc(j.nom)}${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</span>
       ${j.no ? `<span class="red" title="Faltes sense avisar">✗${j.no}</span>` : ''}
-      <span class="bar"><i style="width:${j.pct ?? 0}%"></i></span><span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
+      <span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
       <span class="pct mes ${j.pctM != null && j.pct != null && j.pctM < j.pct - 10 ? 'baixa' : ''}">${j.pctM ?? '–'}${j.pctM != null ? '%' : ''}</span>
     </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</div>
   <p class="meta">% = entrenos que ha vingut sobre els que s'han passat llista, des de l'inici de la temporada i dels últims 30 dies (en vermell si l'últim mes baixa més de 10 punts). En vermell, qui ha faltat alguna vegada sense avisar (✗ = quantes).</p>
