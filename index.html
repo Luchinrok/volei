@@ -122,6 +122,18 @@ button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 
 .edit-pl input[type=text] { flex: 1; min-width: 120px; }
 .edit-pl label { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
 .inactiu { opacity: .55; }
+.edit-pl { flex-wrap: nowrap; }
+.edit-pl input[type=text] { min-width: 0; padding: 6px 8px; }
+.edit-pl select { width: auto; padding: 6px 4px; font-size: 14px; flex: none; }
+.edit-pl .x { flex: none; width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--no); font-size: 16px; font-weight: 700; cursor: pointer; }
+.edit-pl .x.back { color: var(--si); }
+.eq { font-size: 11px; font-weight: 700; border-radius: 4px; padding: 0 4px; margin-left: 4px; border: 1px solid var(--line); color: var(--muted); vertical-align: 1px; }
+.tset { display: flex; gap: 6px; align-items: center; justify-content: center; margin-top: 8px; }
+.tset input { width: 64px; text-align: center; padding: 6px; }
+.ord { display: flex; gap: 4px; margin-left: 8px; }
+.ord button { width: 34px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--brand); font-size: 15px; cursor: pointer; }
+.ord button:disabled { opacity: .3; }
+.moved { font-size: 12px; color: var(--muted); margin-left: 28px; }
 </style>
 </head>
 <body>
@@ -135,6 +147,7 @@ button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 
   <div class="lab" id="tlab"></div>
   <div class="digits" id="tdig">00:00</div>
   <div class="actions"><button class="btn primary" id="tgo" onclick="timerGo()">▶ Comença</button><button class="btn" onclick="timerReset()">↺ Zero</button><button class="btn" onclick="timerToggle(false)">Amaga</button></div>
+  <div class="tset"><input type="number" id="tmin" min="0" max="180" inputmode="numeric" value="10"> min <input type="number" id="tsec" min="0" max="59" inputmode="numeric" value="0"> s <button class="btn" onclick="timerCustom()">Posa</button></div>
   <div class="presets"><button onclick="timerSet(0,'Cronòmetre')">Cronòmetre</button><button onclick="timerSet(1)">1 min</button><button onclick="timerSet(3)">3 min</button><button onclick="timerSet(5)">5 min</button><button onclick="timerSet(10)">10 min</button><button onclick="timerSet(15)">15 min</button></div>
 </div>
 <nav class="tabs">
@@ -178,7 +191,7 @@ if (m) { store.set('volei.clau', m[1]); history.replaceState(null, '', location.
 const CLAU = store.get('volei.clau', null);
 
 let D, E;                                            // sessions.json, estat.json
-let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}; // dades de Firebase (NOF: exercicis no fets)
+let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}; // dades de Firebase (NOF: exercicis no fets)
 let fs = null, db = null;
 let sel = null;                                      // selecció múltiple de sessions
 let editAss = null;                                  // entreno d'assistència en edició
@@ -198,6 +211,7 @@ async function initFirebase() {
     fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); });
     fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
     fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); });
+    fs.onSnapshot(col('ordre'), q => { ORD = {}; q.docs.forEach(d => ORD[d.id] = d.data().ordre); render(); });
     fs.onSnapshot(col('exercicis'), q => { NOF = {}; q.docs.forEach(d => NOF[d.id] = d.data()); render(); });
     fs.onSnapshot(col('assistencia'), q => { ASS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.data.localeCompare(a.data)); render(); });
   } catch (e) { console.error(e); }
@@ -236,7 +250,7 @@ function fields(b) {
 const MOTIU = { repetitiu: 'Repetitiu', altredia: 'Un altre dia', noviable: 'No viable' };
 let nofEdit = null;   // {id, motiu, text} mentre s'omple el formulari de "no l'hem fet"
 
-function blockCard(b, s) {
+function blockCard(b, s, ord) {
   const id = `${s.codi}-${b.n}`, nf = NOF[id], ed = nofEdit?.id === id ? nofEdit : null;
   const nofHtml = nf && !ed
     ? `<div class="nofetbox"><b>No l'hem fet${nf.motiu ? ' · ' + MOTIU[nf.motiu] : ''}</b>${nf.text ? `<div>${esc(nf.text)}</div>` : ''}</div>`
@@ -247,13 +261,14 @@ function blockCard(b, s) {
       <div class="actions"><button class="btn primary" onclick="nofSave('${s.codi}', ${b.n})">Desa</button><button class="btn" onclick="nofEdit=null;render()">Cancel·la</button></div></div>` : '';
   return `<div class="card block ${nf ? 'nofet' : ''}">
     <div class="bhead"><span class="bnum">${b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
-      <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span></div>
-    ${b.codi ? `<div class="tags"><span class="code">${esc(b.codi)}</span></div>` : ''}
+      <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span>
+      ${ord ? `<span class="ord"><button ${ord.first ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, -1)">▲</button><button ${ord.last ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, 1)">▼</button></span>` : ''}</div>
+    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code">${esc(b.codi)}</span></div>` : ''}
     ${fields(b)}
     ${b.lloc ? `<div class="field"><b>Lloc</b>${esc(b.lloc)}</div>` : ''}
-    ${nofHtml}${form}
-    <div class="bfoot">${b.min ? `<button class="chip" onclick="timerSet(${b.min}, '${esc((b.codi || b.titol).replace(/'/g, ''))}', true)">⏱ ${b.min} min</button>` : ''}
-      ${CLAU && !ed ? (nf ? `<button class="small" onclick="nofDel('${id}')">Sí que l'hem fet</button>` : `<button class="small" onclick="nofOpen('${id}')">No l'hem fet</button>`) : ''}</div>
+    ${nofHtml}${form}`}
+    ${ord ? '' : `<div class="bfoot">${b.min ? `<button class="chip" onclick="timerSet(${b.min}, '${esc((b.codi || b.titol).replace(/'/g, ''))}', true)">⏱ ${b.min} min</button>` : ''}
+      ${CLAU && !ed ? (nf ? `<button class="small" onclick="nofDel('${id}')">Sí que l'hem fet</button>` : `<button class="small" onclick="nofOpen('${id}')">No l'hem fet</button>`) : ''}</div>`}
   </div>`;
 }
 window.nofOpen = id => { nofEdit = { id, motiu: '', text: '' }; render(); };
@@ -290,13 +305,35 @@ function viewList(dia) {
   return `<h2>${dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'}</h2>${bar}<div class="list">${ss.map(sessRow).join('')}</div>`;
 }
 
+let ordering = false;
+function blocsOrdenats(s) {
+  // ordre guardat a Firebase (si l'entrenador l'ha canviat); franges recalculades
+  const bs = s.blocs.filter(b => !b.tret), o = ORD[s.codi];
+  if (!o) return bs;
+  const out = o.map(n => bs.find(b => b.n === n)).filter(Boolean).concat(bs.filter(b => !o.includes(b.n)));
+  let t = 0;
+  return out.map(b => { const f = `min ${t}-${t + (b.min || 0)}`; t += b.min || 0; return { ...b, franja: f }; });
+}
+window.moveBlock = (c, n, d) => {
+  const s = byCode(c), ns = blocsOrdenats(s).map(b => b.n), i = ns.indexOf(n), j = i + d;
+  if (j < 0 || j >= ns.length) return;
+  [ns[i], ns[j]] = [ns[j], ns[i]];
+  ORD[c] = ns; fs.setDoc(ref('ordre', c), { ordre: ns, t: Date.now() }); render();
+};
+window.resetOrder = c => { delete ORD[c]; fs.deleteDoc(ref('ordre', c)); render(); };
+window.toggleOrdering = () => { ordering = !ordering; render(); };
+
 function viewSession(c) {
   const s = byCode(c); if (!s) return `<p class="empty">No trobo ${esc(c)}</p>`;
+  const bs = blocsOrdenats(s);
   const coms = comments(c).map(x => `<div class="card comment"><div class="meta">${new Date(x.t).toLocaleDateString('ca')}${x.aplicat ? ' · aplicat per Claude' : ''}</div>${esc(x.text).replace(/\n/g, '<br>')}</div>`).join('');
   return `<h2><span class="code">${s.codi}</span> ${esc(s.titol)}</h2>
     <div class="meta">${s.dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'} · ${s.min} min</div>
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
-    ${s.blocs.filter(b => !b.tret).map(b => blockCard(b, s)).join('')}
+    ${CLAU ? `<div class="selbar"><span class="grow">${ORD[c] ? 'Ordre canviat per tu' : ''}</span>
+      ${ORD[c] && ordering ? `<button class="btn" onclick="resetOrder('${c}')">Ordre original</button>` : ''}
+      <button class="btn ${ordering ? 'primary' : ''}" onclick="toggleOrdering()">${ordering ? 'Fet' : '↕ Canviar l\'ordre'}</button></div>` : ''}
+    ${bs.map((b, i) => blockCard(b, s, ordering ? { first: i === 0, last: i === bs.length - 1 } : null)).join('')}
     ${s.notaFinal ? `<p class="note">${esc(s.notaFinal)}</p>` : ''}
     <h3>Comentaris de l'entreno</h3>
     ${coms}
@@ -322,12 +359,16 @@ window.sendComment = c => {
 };
 
 // -------------------------------------------------------------- assistència
+const diesOf = j => j.dies || (j.nomesDijous ? 'dijous' : 'tots');           // tots | dimarts | dijous
+const ve = (j, data) => { const d = diesOf(j); if (d === 'tots') return true; return (new Date(data + 'T12:00').getDay() === 2 ? 'dimarts' : 'dijous') === d; };
+const EQ = { N: 'Negre', G: 'Groc', NG: 'Negre i Groc' };
+let editEquip = false;
 function statsJug() {
   // per jugador: entrenos des que hi és, vingudes, avisa, no avisa
   return JUG.filter(j => j.actiu !== false).map(j => {
     let tot = 0, si = 0, av = 0, no = 0;
     ASS.forEach(a => { const e = a.estat?.[j.id]; if (!e) return;
-      if (j.nomesDijous && e !== 'si' && new Date(a.data + 'T12:00').getDay() === 2) return;   // els dimarts no li compten
+      if (e !== 'si' && !ve(j, a.data)) return;   // els dies que no li toca venir no compten
       tot++; if (e === 'si') si++; else if (e === 'avisa') av++; else no++; });
     return { ...j, tot, si, av, no, pct: tot ? Math.round(100 * si / tot) : null };
   }).sort((a, b) => (b.pct ?? -1) - (a.pct ?? -1) || a.nom.localeCompare(b.nom, 'ca'));
@@ -348,7 +389,7 @@ function viewAssistencia() {
   <button class="btn primary" style="width:100%;padding:12px" onclick="newAss()">+ Passar llista d'avui</button>
   <h3>Jugadors</h3>
   <div class="card">${st.length ? st.map(j => `<div class="pl">
-      <span class="nom ${j.no ? 'no' : ''}">${esc(j.nom)}</span>
+      <span class="nom ${j.no ? 'no' : ''}">${esc(j.nom)}${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</span>
       ${j.no ? `<span class="red" title="Faltes sense avisar">✗${j.no}</span>` : ''}
       <span class="bar"><i style="width:${j.pct ?? 0}%"></i></span><span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
     </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</div>
@@ -358,24 +399,27 @@ function viewAssistencia() {
       <span class="grow"><b>${dataCa(a.data)}</b> ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}</span>
       <span>${venen(a)} venen</span>${noAvisen(a) ? `<span class="red">✗${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
   <h3>Equip</h3>
-  <div class="card">
+  ${editEquip ? `<div class="card">
     ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
       <input type="text" value="${esc(j.nom)}" onchange="jugSet('${j.id}', {nom: this.value.trim()})">
-      <label><input type="checkbox" ${j.nomesDijous ? 'checked' : ''} onchange="jugSet('${j.id}', {nomesDijous: this.checked})"> Només dijous</label>
-      ${j.actiu === false ? `<button class="small" onclick="jugSet('${j.id}', {actiu: true})">Torna a l'equip</button>` : `<button class="small" onclick="if(confirm('Treure ${esc(j.nom).replace(/'/g, '')} de l\'equip? L\'historial d\'assistència es manté.')) jugSet('${j.id}', {actiu: false})">Treu</button>`}
+      <select onchange="jugSet('${j.id}', {dies: this.value, nomesDijous: false})" title="Quins dies ve">
+        ${[['tots', 'Dt+Dj'], ['dimarts', 'Dt'], ['dijous', 'Dj']].map(([v, t]) => `<option value="${v}" ${diesOf(j) === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      <select onchange="jugSet('${j.id}', {equip: this.value})" title="Equip">
+        ${[['', '–'], ['N', 'Negre'], ['G', 'Groc'], ['NG', 'N+G']].map(([v, t]) => `<option value="${v}" ${(j.equip || '') === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      ${j.actiu === false ? `<button class="x back" title="Torna'l a l'equip" onclick="jugSet('${j.id}', {actiu: true})">↺</button>` : `<button class="x" title="Treu de l'equip" onclick="if(confirm('Treure ${esc(j.nom).replace(/'/g, '')} de l\'equip? El que ja ha fet es guarda.')) jugSet('${j.id}', {actiu: false})">✕</button>`}
     </div>`).join('')}
     <div class="row" style="margin-top:10px"><input type="text" id="nounom" placeholder="Nom del jugador nou"><button class="btn" onclick="addJug()">Afegeix</button></div>
-    <p class="meta" style="margin:8px 0 0">«Només dijous»: no surt a la llista dels dimarts i no li compten com a falta. «Treu»: deixa de sortir a les llistes però es guarda el que ja ha fet.</p>
-  </div>`;
+    <p class="meta" style="margin:8px 0 0">Dies: Dt+Dj, només dimarts o només dijous (els altres dies no surt a la llista ni li compta la falta). ✕ treu de l'equip però guarda el que ja ha fet; ↺ el torna a posar.</p>
+    <div class="actions"><button class="btn primary" onclick="editEquip=false;render()">Fet</button></div>
+  </div>` : `<button class="btn" style="width:100%;padding:10px" onclick="editEquip=true;render()">✎ Editar equip</button>`}`;
 }
 
 function viewEditAss() {
   const a = editAss, ss = D.sessions.slice().sort((x, y) => x.dia.localeCompare(y.dia) || num(x.codi) - num(y.codi));
-  const dt = new Date(a.data + 'T12:00').getDay() === 2;
-  const actius = JUG.filter(j => a.estat[j.id] || (j.actiu !== false && !(dt && j.nomesDijous)));
+  const actius = JUG.filter(j => a.estat[j.id] || (j.actiu !== false && ve(j, a.data)));
   return `<h2>${a.id ? 'Llista del ' + dataCa(a.data) : 'Passar llista'}</h2>
   <div class="card">
-    <label class="lbl">Data</label><input type="date" value="${a.data}" onchange="editAss.data=this.value">
+    <label class="lbl">Data</label><input type="date" value="${a.data}" onchange="editAss.data=this.value;render()">
     <label class="lbl">Sessió que heu fet</label>
     <select onchange="editAss.sessio=this.value"><option value="">—</option>${ss.map(s => `<option value="${s.codi}" ${a.sessio === s.codi ? 'selected' : ''}>${s.codi} · ${esc(s.titol)}</option>`).join('')}</select>
   </div>
@@ -391,7 +435,7 @@ function viewEditAss() {
 
 window.newAss = () => {
   const d = avui(), dia = new Date(d + 'T12:00').getDay() === 2 ? 'dimarts' : 'dijous';
-  const estat = {}; JUG.filter(j => j.actiu !== false && !(dia === 'dimarts' && j.nomesDijous)).forEach(j => estat[j.id] = 'si');
+  const estat = {}; JUG.filter(j => j.actiu !== false && ve(j, d)).forEach(j => estat[j.id] = 'si');
   editAss = { data: d, sessio: next(dia)?.codi || '', estat }; render(); scrollTo(0, 0);
 };
 window.openAss = id => { const a = ASS.find(x => x.id === id); editAss = JSON.parse(JSON.stringify(a)); render(); scrollTo(0, 0); };
@@ -433,8 +477,14 @@ window.timerToggle = show => {
   const el = $('#timer'), v = show ?? el.hidden; el.hidden = !v; document.body.classList.toggle('timer-on', v); timerPaint();
 };
 window.timerSet = (min, lab, go) => {
-  T.dur = min * 60000; T.acc = 0; T.run = false; T.beeped = false; T.lab = lab || (min ? `Compte enrere ${min} min` : 'Cronòmetre');
+  if (min) { $('#tmin').value = Math.floor(min); $('#tsec').value = Math.round((min % 1) * 60); }
+  T.dur = Math.round(min * 60000); T.acc = 0; T.run = false; T.beeped = false; T.lab = lab || (min ? `Compte enrere ${min} min` : 'Cronòmetre');
   timerToggle(true); if (go) timerGo(); else timerPaint();
+};
+window.timerCustom = () => {
+  const m = Math.max(0, +$('#tmin').value || 0), sc = Math.min(59, Math.max(0, +$('#tsec').value || 0)), tot = m + sc / 60;
+  if (!tot) return timerSet(0, 'Cronòmetre');
+  timerSet(tot, `Compte enrere ${m ? m + ' min' : ''}${m && sc ? ' ' : ''}${sc ? sc + ' s' : ''}`);
 };
 window.timerGo = () => {
   if (T.run) { T.acc = elapsed(); T.run = false; clearInterval(T.tick); wake(false); }
@@ -462,10 +512,11 @@ function render() {
   document.querySelectorAll('nav.tabs a').forEach(x => x.classList.toggle('on', x.dataset.t === tab));
 }
 window.render = render;
+Object.defineProperty(window, 'editEquip', { get: () => editEquip, set: v => { editEquip = v; } });
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
-addEventListener('hashchange', () => { sel = null; editAss = null; nofEdit = null; render(); scrollTo(0, 0); });
+addEventListener('hashchange', () => { sel = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; render(); scrollTo(0, 0); });
 Promise.all(['data/sessions.json', 'data/estat.json'].map(u => fetch(u, { cache: 'no-cache' }).then(r => r.json())))
   .then(([d, e]) => { D = d; E = e; render(); initFirebase(); })
   .catch(() => { $('#app').innerHTML = '<p class="empty">No s\'han pogut carregar les sessions. Comprova la connexió.</p>'; });
