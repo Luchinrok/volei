@@ -369,11 +369,12 @@ const diesOf = j => j.dies || (j.nomesDijous ? 'dijous' : 'tots');           // 
 const ve = (j, data) => { const d = diesOf(j); if (d === 'tots') return true; return (new Date(data + 'T12:00').getDay() === 2 ? 'dimarts' : 'dijous') === d; };
 const EQ = { N: 'Negre', G: 'Groc', NG: 'Negre i Groc' };
 let editEquip = false;
+const fetes = () => ASS.filter(a => a.data <= avui());   // llistes de dies que ja han passat
 function statsJug() {
   // per jugador: entrenos des que hi és, vingudes, avisa, no avisa
   return JUG.filter(j => j.actiu !== false).map(j => {
     let tot = 0, si = 0, av = 0, no = 0;
-    ASS.forEach(a => { const e = a.estat?.[j.id]; if (!e) return;
+    fetes().forEach(a => { const e = a.estat?.[j.id]; if (!e) return;
       if (e !== 'si' && !ve(j, a.data)) return;   // els dies que no li toca venir no compten
       tot++; if (e === 'si') si++; else if (e === 'avisa') av++; else no++; });
     return { ...j, tot, si, av, no, pct: tot ? Math.round(100 * si / tot) : null };
@@ -385,10 +386,10 @@ const noAvisen = a => Object.values(a.estat || {}).filter(e => e === 'no').lengt
 function viewAssistencia() {
   if (!CLAU) return `<h2>Assistència</h2>${needKey('portar l\'assistència')}`;
   if (editAss) return viewEditAss();
-  const st = statsJug(), mitjana = ASS.length ? (ASS.reduce((s, a) => s + venen(a), 0) / ASS.length) : 0;
+  const st = statsJug(), F = fetes(), mitjana = F.length ? (F.reduce((s, a) => s + venen(a), 0) / F.length) : 0;
   return `<h2>Assistència</h2>
   <div class="stats">
-    <div class="stat"><b>${ASS.length}</b><span>entrenos</span></div>
+    <div class="stat"><b>${F.length}</b><span>entrenos</span></div>
     <div class="stat"><b>${mitjana ? mitjana.toFixed(1).replace('.', ',') : '–'}</b><span>de mitjana</span></div>
     <div class="stat"><b>${JUG.filter(j => j.actiu !== false).length}</b><span>jugadors</span></div>
   </div>
@@ -417,7 +418,7 @@ function viewAssistencia() {
   <h3>Entrenos</h3>
   <div class="list">${ASS.map(a => `<div class="card selrow" onclick="openAss('${a.id}')"><div class="row">
       <span class="grow"><b>${dataCa(a.data)}</b> ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}</span>
-      <span>${venen(a)} venen</span>${noAvisen(a) ? `<span class="red">✗${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
+      <span>${a.data > avui() ? '<span class="tag">previst</span> ' : ''}${venen(a)} venen</span>${noAvisen(a) ? `<span class="red">✗${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
 `;
 }
 
@@ -444,7 +445,7 @@ function viewEditAss() {
 function assWrite() {
   const a = editAss;
   fs.setDoc(ref('assistencia', a.id), { data: a.data, sessio: a.sessio || '', estat: a.estat });
-  if (a.sessio && !isFet(a.sessio)) setFets([a.sessio], true);
+  if (a.sessio && a.data <= avui() && !isFet(a.sessio)) setFets([a.sessio], true);   // només si l'entreno ja ha passat
 }
 window.newAss = () => {
   const d = avui(), ja = ASS.find(x => x.id === d);
@@ -463,6 +464,7 @@ window.assDate = d => {
   if (!d || d === editAss.id) return;
   if (ASS.some(x => x.id === d)) { alert('Ja hi ha una llista per a aquest dia.'); return render(); }
   fs.deleteDoc(ref('assistencia', editAss.id));
+  if (d > avui()) editAss.sessio = '';   // un dia futur no porta sessió proposada
   editAss.id = editAss.data = d; assWrite(); render();
 };
 window.delAss = () => { if (confirm('Esborrar aquesta llista?')) { fs.deleteDoc(ref('assistencia', editAss.id)); editAss = null; render(); } };
