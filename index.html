@@ -108,6 +108,8 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 #timer .presets { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
 #timer .presets button { font: inherit; font-size: 13px; border-radius: 999px; padding: 4px 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
 body.timer-on { padding-bottom: 260px; }
+#tstop { display: block; width: 100%; padding: 14px; margin-bottom: 8px; font-size: 18px; background: var(--no); border-color: var(--no); color: #fff; }
+#tstop[hidden] { display: none; }
 .chip { font: inherit; font-size: 13px; font-weight: 650; border-radius: 999px; padding: 3px 10px; border: 1px solid var(--brand); background: var(--brand-soft); color: var(--brand); cursor: pointer; }
 /* Exercici no fet */
 .block.nofet { opacity: .75; border-left-color: var(--no); }
@@ -144,6 +146,7 @@ button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 
 </header>
 <main id="app"><p class="empty">Carregant…</p></main>
 <div id="timer" hidden>
+  <button class="btn" id="tstop" hidden onclick="alarmStop()">🔕 Atura l'alarma</button>
   <div class="lab" id="tlab"></div>
   <div class="digits" id="tdig">00:00</div>
   <div class="actions"><button class="btn primary" id="tgo" onclick="timerGo()">▶ Comença</button><button class="btn" onclick="timerReset()">↺ Zero</button><button class="btn" onclick="timerToggle(false)">Amaga</button></div>
@@ -459,10 +462,41 @@ window.addJug = () => {
 const T = { dur: 0, start: 0, acc: 0, run: false, lab: '', beeped: false, tick: null, lock: null };
 const fmt = ms => { const s = Math.max(0, Math.round(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
 const elapsed = () => T.acc + (T.run ? Date.now() - T.start : 0);
-function beep() {
-  try { const c = new (window.AudioContext || window.webkitAudioContext)(); [0, .35, .7].forEach(d => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = 880; o.connect(g); g.connect(c.destination); g.gain.setValueAtTime(.4, c.currentTime + d); o.start(c.currentTime + d); o.stop(c.currentTime + d + .25); }); } catch {}
-  try { navigator.vibrate?.([400, 150, 400, 150, 400]); } catch {}
+// Alarma: forta i contínua fins que es prem "Atura". L'àudio es desbloqueja quan prems Comença
+// (els mòbils no deixen sonar res si no ve d'un toc de pantalla).
+let AC = null, OUT = null, ALARM = null;
+function audioOn() {
+  try {
+    if (!AC) {
+      AC = new (window.AudioContext || window.webkitAudioContext)();
+      const comp = AC.createDynamicsCompressor(); comp.threshold.value = -30; comp.ratio.value = 12;
+      OUT = AC.createGain(); OUT.gain.value = 1; OUT.connect(comp); comp.connect(AC.destination);
+    }
+    if (AC.state === 'suspended') AC.resume();
+  } catch {}
 }
+function burst() {
+  if (!AC) return;
+  const t0 = AC.currentTime;
+  [0, .18, .36, .54].forEach((d, i) => {
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'square'; o.frequency.value = i % 2 ? 2600 : 2000;
+    g.gain.setValueAtTime(0, t0 + d); g.gain.linearRampToValueAtTime(1, t0 + d + .01); g.gain.setValueAtTime(1, t0 + d + .13); g.gain.linearRampToValueAtTime(0, t0 + d + .15);
+    o.connect(g); g.connect(OUT); o.start(t0 + d); o.stop(t0 + d + .16);
+  });
+}
+function alarmStart() {
+  if (ALARM) return;
+  audioOn(); burst();
+  try { navigator.vibrate?.([500, 200, 500, 200, 500]); } catch {}
+  const t = Date.now();
+  ALARM = setInterval(() => {
+    if (Date.now() - t > 180000) return alarmStop();            // com a molt 3 minuts
+    burst(); try { navigator.vibrate?.([500, 200, 500]); } catch {}
+  }, 1100);
+  $('#tstop').hidden = false;
+}
+window.alarmStop = () => { clearInterval(ALARM); ALARM = null; try { navigator.vibrate?.(0); } catch {} $('#tstop').hidden = true; };
 function timerPaint() {
   const e = elapsed(), left = T.dur - e, end = T.dur && left <= 0;
   $('#tdig').textContent = T.dur ? (end ? '-' + fmt(-left) : fmt(left)) : fmt(e);
@@ -470,15 +504,15 @@ function timerPaint() {
   $('#tlab').textContent = T.lab;
   $('#tgo').textContent = T.run ? '⏸ Pausa' : (e ? '▶ Continua' : '▶ Comença');
   $('#tbtn').textContent = T.run ? '⏱•' : '⏱';
-  if (end && !T.beeped) { T.beeped = true; beep(); }
+  if (end && !T.beeped) { T.beeped = true; alarmStart(); }
 }
 async function wake(on) { try { if (on && 'wakeLock' in navigator) T.lock = await navigator.wakeLock.request('screen'); else { T.lock?.release(); T.lock = null; } } catch {} }
 window.timerToggle = show => {
-  const el = $('#timer'), v = show ?? el.hidden; el.hidden = !v; document.body.classList.toggle('timer-on', v); timerPaint();
+  const el = $('#timer'), v = show ?? el.hidden; if (!v) alarmStop(); el.hidden = !v; document.body.classList.toggle('timer-on', v); timerPaint();
 };
 window.timerSet = (min, lab, go) => {
   if (min) { $('#tmin').value = Math.floor(min); $('#tsec').value = Math.round((min % 1) * 60); }
-  T.dur = Math.round(min * 60000); T.acc = 0; T.run = false; T.beeped = false; T.lab = lab || (min ? `Compte enrere ${min} min` : 'Cronòmetre');
+  alarmStop(); T.dur = Math.round(min * 60000); T.acc = 0; T.run = false; T.beeped = false; T.lab = lab || (min ? `Compte enrere ${min} min` : 'Cronòmetre');
   timerToggle(true); if (go) timerGo(); else timerPaint();
 };
 window.timerCustom = () => {
@@ -487,11 +521,12 @@ window.timerCustom = () => {
   timerSet(tot, `Compte enrere ${m ? m + ' min' : ''}${m && sc ? ' ' : ''}${sc ? sc + ' s' : ''}`);
 };
 window.timerGo = () => {
+  audioOn(); alarmStop();
   if (T.run) { T.acc = elapsed(); T.run = false; clearInterval(T.tick); wake(false); }
   else { T.start = Date.now(); T.run = true; T.tick = setInterval(timerPaint, 250); wake(true); }
   timerPaint();
 };
-window.timerReset = () => { T.acc = 0; T.beeped = false; if (T.run) T.start = Date.now(); timerPaint(); };
+window.timerReset = () => { alarmStop(); T.acc = 0; T.beeped = false; if (T.run) T.start = Date.now(); timerPaint(); };
 document.addEventListener('visibilitychange', () => { if (!document.hidden && T.run) wake(true); });
 
 // ------------------------------------------------------------------- render
