@@ -97,14 +97,46 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 .pct { width: 44px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 .red { color: var(--no); font-weight: 700; }
 .warn { border-left: 4px solid var(--no); }
+/* Cronòmetre */
+#timer { position: fixed; left: 0; right: 0; bottom: 64px; z-index: 6; background: var(--card); border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(0,0,0,.12); padding: 10px 16px 12px; }
+#timer[hidden] { display: none; }
+#timer .digits { font: 700 44px/1 ui-monospace, Consolas, monospace; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+#timer .digits.end { color: var(--no); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .3; } }
+#timer .lab { text-align: center; color: var(--muted); font-size: 13px; min-height: 18px; }
+#timer .actions { justify-content: center; margin-top: 8px; }
+#timer .presets { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+#timer .presets button { font: inherit; font-size: 13px; border-radius: 999px; padding: 4px 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+body.timer-on { padding-bottom: 260px; }
+.chip { font: inherit; font-size: 13px; font-weight: 650; border-radius: 999px; padding: 3px 10px; border: 1px solid var(--brand); background: var(--brand-soft); color: var(--brand); cursor: pointer; }
+/* Exercici no fet */
+.block.nofet { opacity: .75; border-left-color: var(--no); }
+.nofetbox { margin: 10px 0 0 28px; padding: 8px 10px; border-radius: 8px; background: var(--no-soft); font-size: 14px; }
+.motius { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.motius button { font: inherit; font-size: 13px; border-radius: 999px; padding: 4px 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+.motius button.on { border-color: var(--no); color: var(--no); background: var(--no-soft); font-weight: 650; }
+.bfoot { display: flex; gap: 8px; margin: 10px 0 0 28px; flex-wrap: wrap; }
+button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 8px; padding: 4px 10px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+/* Equip */
+.edit-pl { display: flex; align-items: center; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.edit-pl input[type=text] { flex: 1; min-width: 120px; }
+.edit-pl label { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.inactiu { opacity: .55; }
 </style>
 </head>
 <body>
 <header>
   <button id="back" aria-label="Enrere" hidden>‹</button>
   <h1 id="title">Vòlei 26-27</h1>
+  <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()">⏱</button>
 </header>
 <main id="app"><p class="empty">Carregant…</p></main>
+<div id="timer" hidden>
+  <div class="lab" id="tlab"></div>
+  <div class="digits" id="tdig">00:00</div>
+  <div class="actions"><button class="btn primary" id="tgo" onclick="timerGo()">▶ Comença</button><button class="btn" onclick="timerReset()">↺ Zero</button><button class="btn" onclick="timerToggle(false)">Amaga</button></div>
+  <div class="presets"><button onclick="timerSet(0,'Cronòmetre')">Cronòmetre</button><button onclick="timerSet(1)">1 min</button><button onclick="timerSet(3)">3 min</button><button onclick="timerSet(5)">5 min</button><button onclick="timerSet(10)">10 min</button><button onclick="timerSet(15)">15 min</button></div>
+</div>
 <nav class="tabs">
   <a href="#/" data-t="inici"><span class="ico">🏐</span>Inici</a>
   <a href="#/dimarts" data-t="dimarts"><span class="ico">1</span>Dimarts</a>
@@ -146,7 +178,7 @@ if (m) { store.set('volei.clau', m[1]); history.replaceState(null, '', location.
 const CLAU = store.get('volei.clau', null);
 
 let D, E;                                            // sessions.json, estat.json
-let FETS = {}, COMS = [], JUG = [], ASS = [];        // dades de Firebase
+let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}; // dades de Firebase (NOF: exercicis no fets)
 let fs = null, db = null;
 let sel = null;                                      // selecció múltiple de sessions
 let editAss = null;                                  // entreno d'assistència en edició
@@ -166,6 +198,7 @@ async function initFirebase() {
     fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); });
     fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
     fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); });
+    fs.onSnapshot(col('exercicis'), q => { NOF = {}; q.docs.forEach(d => NOF[d.id] = d.data()); render(); });
     fs.onSnapshot(col('assistencia'), q => { ASS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.data.localeCompare(a.data)); render(); });
   } catch (e) { console.error(e); }
 }
@@ -200,15 +233,38 @@ function fields(b) {
     `<div class="field">${k === 'com' ? '' : `<b>${LABEL[k]}</b>`}${esc(b[k])}</div>`).join('');
 }
 
-function blockCard(b) {
-  return `<div class="card block">
+const MOTIU = { repetitiu: 'Repetitiu', altredia: 'Un altre dia', noviable: 'No viable' };
+let nofEdit = null;   // {id, motiu, text} mentre s'omple el formulari de "no l'hem fet"
+
+function blockCard(b, s) {
+  const id = `${s.codi}-${b.n}`, nf = NOF[id], ed = nofEdit?.id === id ? nofEdit : null;
+  const nofHtml = nf && !ed
+    ? `<div class="nofetbox"><b>No l'hem fet${nf.motiu ? ' · ' + MOTIU[nf.motiu] : ''}</b>${nf.text ? `<div>${esc(nf.text)}</div>` : ''}</div>`
+    : '';
+  const form = ed ? `<div class="nofetbox"><b>Per què no l'heu fet?</b>
+      <div class="motius">${Object.entries(MOTIU).map(([k, v]) => `<button class="${ed.motiu === k ? 'on' : ''}" onclick="nofMotiu('${k}')">${v}</button>`).join('')}</div>
+      <input type="text" id="noftxt" placeholder="Comentari (opcional)" value="${esc(ed.text)}">
+      <div class="actions"><button class="btn primary" onclick="nofSave('${s.codi}', ${b.n})">Desa</button><button class="btn" onclick="nofEdit=null;render()">Cancel·la</button></div></div>` : '';
+  return `<div class="card block ${nf ? 'nofet' : ''}">
     <div class="bhead"><span class="bnum">${b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
       <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span></div>
     ${b.codi ? `<div class="tags"><span class="code">${esc(b.codi)}</span></div>` : ''}
     ${fields(b)}
     ${b.lloc ? `<div class="field"><b>Lloc</b>${esc(b.lloc)}</div>` : ''}
+    ${nofHtml}${form}
+    <div class="bfoot">${b.min ? `<button class="chip" onclick="timerSet(${b.min}, '${esc((b.codi || b.titol).replace(/'/g, ''))}', true)">⏱ ${b.min} min</button>` : ''}
+      ${CLAU && !ed ? (nf ? `<button class="small" onclick="nofDel('${id}')">Sí que l'hem fet</button>` : `<button class="small" onclick="nofOpen('${id}')">No l'hem fet</button>`) : ''}</div>
   </div>`;
 }
+window.nofOpen = id => { nofEdit = { id, motiu: '', text: '' }; render(); };
+window.nofMotiu = k => { nofEdit.text = $('#noftxt')?.value || ''; nofEdit.motiu = k; render(); };
+window.nofSave = (sc, n) => {
+  const s = byCode(sc), b = s.blocs.find(x => x.n === n);
+  fs.setDoc(ref('exercicis', nofEdit.id), { sessio: sc, n, codi: b.codi || '', titol: b.titol, motiu: nofEdit.motiu, text: ($('#noftxt')?.value || '').trim(), t: Date.now() });
+  nofEdit = null; render();
+};
+window.nofDel = id => { fs.deleteDoc(ref('exercicis', id)); };
+Object.defineProperty(window, 'nofEdit', { get: () => nofEdit, set: v => { nofEdit = v; } });
 
 const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil.</b><div class="meta">Per ${what} obre una vegada l'enllaç amb la clau que et va passar Claude.</div></div>`;
 
@@ -240,7 +296,7 @@ function viewSession(c) {
   return `<h2><span class="code">${s.codi}</span> ${esc(s.titol)}</h2>
     <div class="meta">${s.dia === 'dimarts' ? 'Dimarts · 1 pista' : 'Dijous · 2 pistes'} · ${s.min} min</div>
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
-    ${s.blocs.filter(b => !b.tret).map(blockCard).join('')}
+    ${s.blocs.filter(b => !b.tret).map(b => blockCard(b, s)).join('')}
     ${s.notaFinal ? `<p class="note">${esc(s.notaFinal)}</p>` : ''}
     <h3>Comentaris de l'entreno</h3>
     ${coms}
@@ -270,7 +326,9 @@ function statsJug() {
   // per jugador: entrenos des que hi és, vingudes, avisa, no avisa
   return JUG.filter(j => j.actiu !== false).map(j => {
     let tot = 0, si = 0, av = 0, no = 0;
-    ASS.forEach(a => { const e = a.estat?.[j.id]; if (!e) return; tot++; if (e === 'si') si++; else if (e === 'avisa') av++; else no++; });
+    ASS.forEach(a => { const e = a.estat?.[j.id]; if (!e) return;
+      if (j.nomesDijous && e !== 'si' && new Date(a.data + 'T12:00').getDay() === 2) return;   // els dimarts no li compten
+      tot++; if (e === 'si') si++; else if (e === 'avisa') av++; else no++; });
     return { ...j, tot, si, av, no, pct: tot ? Math.round(100 * si / tot) : null };
   }).sort((a, b) => (b.pct ?? -1) - (a.pct ?? -1) || a.nom.localeCompare(b.nom, 'ca'));
 }
@@ -299,13 +357,22 @@ function viewAssistencia() {
   <div class="list">${ASS.map(a => `<div class="card selrow" onclick="openAss('${a.id}')"><div class="row">
       <span class="grow"><b>${dataCa(a.data)}</b> ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}</span>
       <span>${venen(a)} venen</span>${noAvisen(a) ? `<span class="red">✗${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
-  <h3>Afegir jugador</h3>
-  <div class="card"><div class="row"><input type="text" id="nounom" placeholder="Nom"><button class="btn" onclick="addJug()">Afegeix</button></div></div>`;
+  <h3>Equip</h3>
+  <div class="card">
+    ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
+      <input type="text" value="${esc(j.nom)}" onchange="jugSet('${j.id}', {nom: this.value.trim()})">
+      <label><input type="checkbox" ${j.nomesDijous ? 'checked' : ''} onchange="jugSet('${j.id}', {nomesDijous: this.checked})"> Només dijous</label>
+      ${j.actiu === false ? `<button class="small" onclick="jugSet('${j.id}', {actiu: true})">Torna a l'equip</button>` : `<button class="small" onclick="if(confirm('Treure ${esc(j.nom).replace(/'/g, '')} de l\'equip? L\'historial d\'assistència es manté.')) jugSet('${j.id}', {actiu: false})">Treu</button>`}
+    </div>`).join('')}
+    <div class="row" style="margin-top:10px"><input type="text" id="nounom" placeholder="Nom del jugador nou"><button class="btn" onclick="addJug()">Afegeix</button></div>
+    <p class="meta" style="margin:8px 0 0">«Només dijous»: no surt a la llista dels dimarts i no li compten com a falta. «Treu»: deixa de sortir a les llistes però es guarda el que ja ha fet.</p>
+  </div>`;
 }
 
 function viewEditAss() {
   const a = editAss, ss = D.sessions.slice().sort((x, y) => x.dia.localeCompare(y.dia) || num(x.codi) - num(y.codi));
-  const actius = JUG.filter(j => j.actiu !== false || a.estat[j.id]);
+  const dt = new Date(a.data + 'T12:00').getDay() === 2;
+  const actius = JUG.filter(j => a.estat[j.id] || (j.actiu !== false && !(dt && j.nomesDijous)));
   return `<h2>${a.id ? 'Llista del ' + dataCa(a.data) : 'Passar llista'}</h2>
   <div class="card">
     <label class="lbl">Data</label><input type="date" value="${a.data}" onchange="editAss.data=this.value">
@@ -324,7 +391,7 @@ function viewEditAss() {
 
 window.newAss = () => {
   const d = avui(), dia = new Date(d + 'T12:00').getDay() === 2 ? 'dimarts' : 'dijous';
-  const estat = {}; JUG.filter(j => j.actiu !== false).forEach(j => estat[j.id] = 'si');
+  const estat = {}; JUG.filter(j => j.actiu !== false && !(dia === 'dimarts' && j.nomesDijous)).forEach(j => estat[j.id] = 'si');
   editAss = { data: d, sessio: next(dia)?.codi || '', estat }; render(); scrollTo(0, 0);
 };
 window.openAss = id => { const a = ASS.find(x => x.id === id); editAss = JSON.parse(JSON.stringify(a)); render(); scrollTo(0, 0); };
@@ -336,11 +403,46 @@ window.saveAss = () => {
   editAss = null; render();
 };
 window.delAss = () => { if (confirm('Esborrar aquesta llista?')) { fs.deleteDoc(ref('assistencia', editAss.id)); editAss = null; render(); } };
+window.jugSet = (id, patch) => { if (patch.nom === '') return render(); fs.setDoc(ref('jugadors', id), patch, { merge: true }); };
 window.addJug = () => {
   const n = $('#nounom').value.trim(); if (!n) return;
   fs.addDoc(col('jugadors'), { nom: n, actiu: true });
   $('#nounom').value = '';
 };
+
+// ---------------------------------------------------------------- cronòmetre
+// mode compte enrere (dur > 0) o cronòmetre (dur = 0). Continua encara que canviïs de pantalla.
+const T = { dur: 0, start: 0, acc: 0, run: false, lab: '', beeped: false, tick: null, lock: null };
+const fmt = ms => { const s = Math.max(0, Math.round(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+const elapsed = () => T.acc + (T.run ? Date.now() - T.start : 0);
+function beep() {
+  try { const c = new (window.AudioContext || window.webkitAudioContext)(); [0, .35, .7].forEach(d => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = 880; o.connect(g); g.connect(c.destination); g.gain.setValueAtTime(.4, c.currentTime + d); o.start(c.currentTime + d); o.stop(c.currentTime + d + .25); }); } catch {}
+  try { navigator.vibrate?.([400, 150, 400, 150, 400]); } catch {}
+}
+function timerPaint() {
+  const e = elapsed(), left = T.dur - e, end = T.dur && left <= 0;
+  $('#tdig').textContent = T.dur ? (end ? '-' + fmt(-left) : fmt(left)) : fmt(e);
+  $('#tdig').classList.toggle('end', !!end);
+  $('#tlab').textContent = T.lab;
+  $('#tgo').textContent = T.run ? '⏸ Pausa' : (e ? '▶ Continua' : '▶ Comença');
+  $('#tbtn').textContent = T.run ? '⏱•' : '⏱';
+  if (end && !T.beeped) { T.beeped = true; beep(); }
+}
+async function wake(on) { try { if (on && 'wakeLock' in navigator) T.lock = await navigator.wakeLock.request('screen'); else { T.lock?.release(); T.lock = null; } } catch {} }
+window.timerToggle = show => {
+  const el = $('#timer'), v = show ?? el.hidden; el.hidden = !v; document.body.classList.toggle('timer-on', v); timerPaint();
+};
+window.timerSet = (min, lab, go) => {
+  T.dur = min * 60000; T.acc = 0; T.run = false; T.beeped = false; T.lab = lab || (min ? `Compte enrere ${min} min` : 'Cronòmetre');
+  timerToggle(true); if (go) timerGo(); else timerPaint();
+};
+window.timerGo = () => {
+  if (T.run) { T.acc = elapsed(); T.run = false; clearInterval(T.tick); wake(false); }
+  else { T.start = Date.now(); T.run = true; T.tick = setInterval(timerPaint, 250); wake(true); }
+  timerPaint();
+};
+window.timerReset = () => { T.acc = 0; T.beeped = false; if (T.run) T.start = Date.now(); timerPaint(); };
+document.addEventListener('visibilitychange', () => { if (!document.hidden && T.run) wake(true); });
 
 // ------------------------------------------------------------------- render
 function render() {
@@ -353,7 +455,7 @@ function render() {
   else html = viewHome();
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
-  if (a && (a.id === 'com' || a.id === 'nounom') && $('#app').contains(a)) return;
+  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   $('#title').textContent = title;
   $('#back').hidden = r !== 's';
@@ -363,7 +465,7 @@ window.render = render;
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
-addEventListener('hashchange', () => { sel = null; editAss = null; render(); scrollTo(0, 0); });
+addEventListener('hashchange', () => { sel = null; editAss = null; nofEdit = null; render(); scrollTo(0, 0); });
 Promise.all(['data/sessions.json', 'data/estat.json'].map(u => fetch(u, { cache: 'no-cache' }).then(r => r.json())))
   .then(([d, e]) => { D = d; E = e; render(); initFirebase(); })
   .catch(() => { $('#app').innerHTML = '<p class="empty">No s\'han pogut carregar les sessions. Comprova la connexió.</p>'; });
