@@ -231,7 +231,7 @@ a.nomlink { color: inherit; text-decoration: none; }
 .cp.guanyat { border: 3px solid #22b35e; padding: 1px 0; }
 .cp.perdut { border: 3px solid #ef4136; padding: 1px 0; }
 .cp i { font-style: normal; font-size: 11px; line-height: 1; }
-.cp .rv { width: 100%; overflow-wrap: anywhere; hyphens: auto; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cp .rv { width: 100%; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .cp .hr { font-size: 10px; opacity: .8; }
 .callegend i.w { background: transparent; border: 3px solid #22b35e; } .callegend i.l { background: transparent; border: 3px solid #ef4136; }
 .callegend i.n { border-color: #5a6372; }
@@ -941,8 +941,17 @@ function calendari(ps, card) {
   ${calDia && ps.some(p => p.data === calDia) ? `<div class="daypanel"><h3>${dataCa(calDia)}</h3>${ps.filter(p => p.data === calDia).map(card).join('')}
     <button class="btn" style="width:100%" onclick="newPartit('${calDia}')">+ Un altre partit aquest dia</button></div>` : ''}`;
 }
+function ajustaNoms() {
+  // cap paraula del rival es parteix: si una no hi cap, es fa la lletra més petita
+  document.querySelectorAll('.cp .rv').forEach(el => {
+    el.style.fontSize = ''; let f = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollWidth > el.clientWidth + 1 && f > 7) { f -= .5; el.style.fontSize = f + 'px'; }
+  });
+}
+addEventListener('resize', () => ajustaNoms());
 function muntaCalendari() {
   // es crida després de cada render: el calendari es torna a pintar sencer
+  ajustaNoms();
   try { CALSW?.destroy(true, false); } catch {}
   CALSW = null;
   const el = $('#calsw'); if (!el || !window.Swiper) return;
