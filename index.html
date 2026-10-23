@@ -613,7 +613,8 @@ function viewJugador(id) {
 }
 
 // ------------------------------------------------------------- partits
-const guany = p => { const m = /^(\d+)-(\d+)$/.exec(p.resultat || ''); return m ? (+m[1] > +m[2] ? 'guanyat' : +m[1] < +m[2] ? 'perdut' : '') : ''; };
+// el resultat s'escriu com sempre: primer el local. A fora, el primer número és el del rival.
+const guany = p => { const m = /^(\d+)-(\d+)$/.exec(p.resultat || ''); if (!m) return ''; let [a, b] = [+m[1], +m[2]]; if (p.lloc === 'fora') [a, b] = [b, a]; return a > b ? 'guanyat' : a < b ? 'perdut' : ''; };
 let parFiltre = store.get('volei.parfiltre', '');
 let parVista = store.get('volei.parvista', 'llista'), calMes = null;   // calMes: 'AAAA-MM'
 window.parVeure = v => { parVista = v; store.set('volei.parvista', v); render(); };
@@ -697,8 +698,8 @@ function viewPartit(id) {
       <div><label class="lbl">On</label><select onchange="parSet('${id}','lloc',this.value)"><option value="casa" ${p.lloc !== 'fora' ? 'selected' : ''}>A casa</option><option value="fora" ${p.lloc === 'fora' ? 'selected' : ''}>Fora</option></select></div>
     </div>
     <label class="lbl">Rival</label><input type="text" id="rival" value="${esc(p.rival || '')}" onchange="parSet('${id}','rival',this.value.trim())">
-    <label class="lbl">Punts per set (nosaltres - ells)${p.resultat ? ` · <b style="color:var(--ink)">Resultat ${esc(p.resultat)}</b>` : ''}</label>
-    <div class="sets">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? (+v[0] > +v[1] ? 'guanyat' : 'perdut') : '';
+    <label class="lbl">Punts per set (${p.lloc === 'fora' ? `local (${esc(p.rival || 'ells')}) - nosaltres` : `nosaltres - ${esc(p.rival || 'ells')}`})${p.resultat ? ` · <b style="color:var(--ink)">Resultat ${esc(p.resultat)}</b>` : ''}</label>
+    <div class="sets">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? ((+v[0] > +v[1]) !== (p.lloc === 'fora') ? 'guanyat' : 'perdut') : '';
       return `<div class="setrow ${g}"><span>Set ${n}</span><input inputmode="numeric" id="pa${n}" value="${v[0] ?? ''}" onchange="setPunts('${id}', ${n})"><b>-</b><input inputmode="numeric" id="pb${n}" value="${v[1] ?? ''}" onchange="setPunts('${id}', ${n})"></div>`; }).join('')}</div>
   </div>
   <h3>Convocats · ${conv.size}</h3>
