@@ -924,7 +924,7 @@ function viewPartit(id) {
     <div><label>Lliure</label><select onchange="posSet('${id}', 'L', this.value)"><option value="">—</option>
     ${convs.filter(j => pos.L === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos.L === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div></div>
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
-    ${setActiu > 1 ? `<button class="btn" onclick="copySet('${id}')">Copia el set ${setActiu - 1}</button>` : ''}
+    ${[1, 2, 3, 4, 5].filter(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)).map(n => `<button class="btn" onclick="copySet('${id}', ${n})">Copia el set ${n}</button>`).join('')}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
   <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats que encara no tenen posició en aquest set).</p>
   <p class="meta">✓ Tot el partit es desa sol a cada canvi; no cal cap botó.</p>
@@ -943,7 +943,11 @@ window.rotate = id => {   // rotació: Z2->Z1, Z3->Z2, Z4->Z3, Z5->Z4, Z6->Z5, Z
   if (o.L) n.L = o.L;
   setPos(id, n);
 };
-window.copySet = id => setPos(id, { ...((PAR.find(x => x.id === id).sets || {})[setActiu - 1] || {}) });
+window.copySet = (id, n) => {
+  const ss = PAR.find(x => x.id === id).sets || {};
+  if (Object.values(ss[setActiu] || {}).some(Boolean) && !confirm(`El set ${setActiu} ja té alineació. La canvio per la del set ${n}?`)) return;
+  setPos(id, { ...(ss[n] || {}) });
+};
 Object.defineProperty(window, 'setActiu', { get: () => setActiu, set: v => { setActiu = v; } });
 
 // pissarra lliure: els 6 jugadors es mouen on vulguis (es guarda només en aquest mòbil)
