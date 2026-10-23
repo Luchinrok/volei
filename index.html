@@ -29,6 +29,13 @@
     --f-D: #6aa8f5; --f-B: #3fd1a8; --f-S: #b197fc; --f-R: #ff8c4a; --f-BL: #f06595; --f-C: #3bc9db; --f-J: #8c9bff; --f-G: #ffc14d;
   }
 }
+:root[data-theme="dark"] {
+    --bg: #0d1219; --card: #161e29; --ink: #e8edf3; --muted: #9aa7b6; --line: #263241;
+    --brand: #8cbcf0; --brand-soft: #1a2c42; --accent: #f5c518; --accent-ink: #14202e;
+    --si: #6cd39a; --si-soft: #14301f; --avisa: #9aa7b6; --avisa-soft: #1f2731; --no: #ff7b72; --no-soft: #3a1a18;
+    --shadow: none;
+    --f-D: #6aa8f5; --f-B: #3fd1a8; --f-S: #b197fc; --f-R: #ff8c4a; --f-BL: #f06595; --f-C: #3bc9db; --f-J: #8c9bff; --f-G: #ffc14d;
+}
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
 body { font: 16px/1.5 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding-bottom: 80px; }
@@ -80,6 +87,7 @@ button.btn, a.btn { font: inherit; font-size: 15px; font-weight: 600; border-rad
 button.btn:active, a.btn:active, .tri button:active, .seg button:active { transform: scale(.96); }
 button.btn.primary, a.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.btn.primary { color: #0f141a; } }
+:root[data-theme="dark"] button.btn.primary { color: #0f141a; }
 button.btn:disabled { opacity: .45; }
 button.btn.danger { color: var(--no); }
 .legend { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
@@ -106,7 +114,8 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 .pl .nom { flex: 1; min-width: 0; font-weight: 600; }
 .pl .nom.no { color: var(--no); }
 .tri { display: flex; gap: 4px; }
-.tri button { font: inherit; font-size: 14px; font-weight: 650; border-radius: 10px; padding: 8px 10px; min-height: 40px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.tri button { font: inherit; font-size: 22px; line-height: 1; border-radius: 12px; width: 48px; height: 44px; padding: 0; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; filter: grayscale(1); opacity: .35; }
+.tri button.on { filter: none; opacity: 1; border-width: 2px; }
 .tri button.on.si { background: var(--si-soft); border-color: var(--si); color: var(--si); }
 .tri button.on.avisa { background: var(--avisa-soft); border-color: var(--avisa); color: var(--ink); }
 .tri button.on.no { background: var(--no-soft); border-color: var(--no); color: var(--no); }
@@ -200,26 +209,29 @@ a.nomlink { color: inherit; text-decoration: none; }
 .calnav b { font: 800 20px/1 var(--head); }
 .calsw { overflow: hidden; padding: 2px; }
 .calsw .swiper-slide { background: var(--bg); }
-.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
-.ch { text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); padding: 2px 0; }
-.cd { min-height: 64px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 2px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
-.cd.buit { background: transparent; border: 0; }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); background: var(--card); border-radius: 10px; overflow: hidden; }
+.ch { text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); padding: 5px 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-transform: uppercase; }
+.cd { min-height: 76px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 3px 2px; display: flex; flex-direction: column; gap: 3px; overflow: hidden; min-width: 0; }
+.cd.buit { background: var(--bg); opacity: .5; }
+.cd.sel { background: var(--brand-soft); }
+.cd .dn { font-size: 12px; color: var(--muted); font-weight: 700; text-align: center; line-height: 22px; }
+.cd.avui .dn { background: var(--brand); color: var(--card); border-radius: 50%; width: 22px; height: 22px; margin: 0 auto; }
 .cd:not(.buit) { cursor: pointer; }
 .cd:not(.buit):active { background: var(--brand-soft); }
-.cd.avui { border-color: var(--brand); border-width: 2px; }
-.cd.sel { background: var(--brand-soft); border-color: var(--brand); }
 .daypanel { margin-top: 12px; }
 .convchips { display: flex; flex-wrap: wrap; gap: 6px; }
 .cchip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; font-weight: 600; }
 .cchip .av { width: 26px; height: 26px; font-size: 12px; }
-.cd .dn { font-size: 12px; color: var(--muted); font-weight: 600; }
-.cp { display: flex; align-items: center; gap: 2px; font: 700 11px/1.1 var(--head); border-radius: 6px; padding: 3px 3px 3px 4px; border: 1px solid; min-height: 22px; }
-.cp .rv { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cp .ll { flex: none; font-size: 9px; font-style: normal; line-height: 1; }
-.cp.guanyat { border: 3px solid #22b35e; padding: 1px 1px 1px 2px; }
-.cp.perdut { border: 3px solid #ef4136; padding: 1px 1px 1px 2px; }
-.callegend i.w, .callegend i.l { background: var(--card); border: 3px solid #22b35e; }
-.callegend i.l { border-color: #ef4136; }
+.cp { display: block; border-radius: 5px; overflow: hidden; font: 700 12px/1.2 var(--head); border: 1px solid transparent; }
+.cp.eqN { background: #000; color: #fff; border-color: #5a6372; }
+.cp.eqG { background: #f5c518; color: #14181f; border-color: #d9a90f; }
+.cp .cr { display: flex; justify-content: space-between; align-items: center; gap: 2px; padding: 1px 3px; font-size: 11px; }
+.cp .cr.guanyat { background: #1f9d55; color: #fff; }
+.cp .cr.perdut { background: #e03131; color: #fff; }
+.cp .cr i { font-style: normal; font-size: 9px; }
+.cp .rv { display: block; padding: 1px 3px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.callegend i.w { background: #1f9d55; border: 0; } .callegend i.l { background: #e03131; border: 0; }
+.callegend i.n { border-color: #5a6372; }
 .gd.guanyat { background: #22b35e; } .gd.perdut { background: #ef4136; }
 .callegend { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px; font-size: 13px; color: var(--muted); }
 .callegend span { display: inline-flex; align-items: center; gap: 5px; }
@@ -237,7 +249,7 @@ a.card.mc.mG { border-left-color: #f5c518; }
 .nw { white-space: nowrap; }
 .mteams i { font: 600 12px/1 Barlow, sans-serif; color: var(--muted); font-style: normal; }
 .nos { font: 800 13px/1 var(--head); text-transform: uppercase; letter-spacing: .05em; border-radius: 6px; padding: 4px 7px; }
-.nos.n { background: #14181f; color: #f5c518; } .nos.g { background: #f5c518; color: #14181f; }
+.nos.n { background: #14181f; color: #f5c518; box-shadow: inset 0 0 0 1px #5a6372; } .nos.g { background: #f5c518; color: #14181f; }
 .mbody .meta { font-size: 13px; }
 .parc { display: flex; gap: 4px; flex-wrap: wrap; }
 .parc i { font: 700 12px/1 var(--head); font-style: normal; border-radius: 5px; padding: 3px 5px; }
@@ -333,7 +345,6 @@ details.card[open] summary { margin-bottom: 10px; }
 @keyframes fall { to { transform: translate(var(--dx), 105vh) rotate(var(--rot)); opacity: .7; } }
 .view { animation: rise .22s ease-out both; }
 @keyframes rise { from { transform: translateY(8px); } }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cp.eqN { border-color: #8a96a6; } }
 @media (prefers-reduced-motion: reduce) { .view { animation: none; } .confetti { display: none; } }
 .motius.lliure button.on { border-color: #d9a90f; color: var(--accent-ink); background: var(--accent); }
 /* Llistes de sessions */
@@ -364,6 +375,24 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 /* Passar llista */
 .counts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .counts .est { font-size: 14px; padding: 4px 10px; border-radius: 999px; }
+/* Fitxa del jugador */
+.jcard { display: flex; align-items: center; gap: 14px; }
+.jcard h2 { margin: 0 0 6px; }
+.jtags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pill { font-size: 13px; font-weight: 600; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+.rings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 10px; }
+.ring { aspect-ratio: 1; border-radius: 50%; background: conic-gradient(var(--brand) calc(var(--p) * 1%), var(--line) 0); display: grid; place-items: center; max-width: 120px; margin: 0 auto; width: 100%; }
+.ring > div { width: 78%; aspect-ratio: 1; border-radius: 50%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.ring b { font: 800 26px/1 var(--head); color: var(--brand); }
+.ring span { font-size: 11px; color: var(--muted); font-weight: 600; }
+.streak { display: flex; flex-wrap: wrap; gap: 4px; }
+.streak i { width: 18px; height: 18px; border-radius: 4px; background: var(--line); }
+.streak i.si { background: #22b35e; } .streak i.avisa { background: #f08c00; } .streak i.no { background: #e03131; }
+.hist .nos { padding: 3px 6px; }
+/* Configuració */
+.seg.mini { margin: 0; flex: none; }
+.seg.mini button { flex: none; font-size: 13px; padding: 6px 10px; min-height: 34px; }
+.cfgday { padding: 8px 0; }
 </style>
 </head>
 <body>
@@ -404,8 +433,10 @@ const FB = {
 const FAM = { D: 'Dits i col·locació', B: 'Braços, recepció i defensa', S: 'Saque', R: 'Remat', BL: 'Bloqueig', C: 'Col·locadors', J: 'Jugada', G: 'Jocs' };
 const LABEL = { dosi: 'Dosi', muntatge: 'Muntatge' };
 const EST = { si: 'Ve', avisa: 'Avisa', no: 'No avisa' };
+const ESTI = { si: '✅', avisa: '❌', no: '💀' };
 
 const $ = s => document.querySelector(s);
+const tema = t => { if (t === 'clar' || t === 'fosc') document.documentElement.dataset.theme = t === 'clar' ? 'light' : 'dark'; else delete document.documentElement.dataset.theme; };
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
@@ -424,6 +455,7 @@ const dataCa = d => new Date(d + 'T12:00').toLocaleDateString('ca', { weekday: '
 const m = location.hash.match(/clau=([A-Za-z0-9]{24,})/);
 if (m) { store.set('volei.clau', m[1]); history.replaceState(null, '', location.pathname + (location.hash.replace(/[?&]?clau=[A-Za-z0-9]+/, '') || '#/')); }
 const CLAU = store.get('volei.clau', null);
+tema(store.get('volei.tema', 'auto'));
 
 // Temporades: config a /equips/{clau}/config/app; dades de cada temporada a /equips/{clau}/temporades/{T}/...
 // Cada dia d'entreno (dl..dv) es lliga a una família de sessions: DT = 1 pista, DJ = 2 pistes.
@@ -735,12 +767,12 @@ function viewAssistencia() {
   <h3>Jugadors</h3>
   <div class="card">${st.length ? `<div class="pl phead"><span class="nom"></span><span class="pct" style="width:80px">Temporada</span><span class="pct mes">Últim mes</span></div>` : ''}${st.length ? st.map(j => `<div class="pl">
       <span class="nom ${j.no ? 'no' : ''}">${av(j)}<a class="nomlink" href="#/j/${j.id}">${esc(j.nom)}</a>${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</span>
-      ${j.no ? `<span class="red" title="Faltes sense avisar">✗${j.no}</span>` : ''}
+      ${j.no ? `<span class="red" title="Faltes sense avisar">💀${j.no}</span>` : ''}
       <span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
       <span class="pct mes ${j.pctM != null && j.pct != null && j.pctM < j.pct - 10 ? 'baixa' : ''}">${j.pctM ?? '–'}${j.pctM != null ? '%' : ''}</span>
     </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</div>
   ${statsJug(true).length ? `<p class="meta">Ja no hi són: ${statsJug(true).map(j => `<a href="#/j/${j.id}">${esc(j.nom)}</a> (${j.pct ?? '–'}${j.pct != null ? '%' : ''})`).join(', ')}</p>` : ''}
-  <p class="meta">Toca un nom per veure els seus entrenos i partits. % = entrenos que ha vingut sobre els que s'han passat llista, des de l'inici de la temporada i dels últims 30 dies (en vermell si l'últim mes baixa més de 10 punts). En vermell, qui ha faltat alguna vegada sense avisar (✗ = quantes).</p>
+  <p class="meta">Toca un nom per veure els seus entrenos i partits. % = entrenos que ha vingut sobre els que s'han passat llista, des de l'inici de la temporada i dels últims 30 dies (en vermell si l'últim mes baixa més de 10 punts). En vermell, qui ha faltat alguna vegada sense avisar (💀 = quantes).</p>
   <h3>Equip</h3>
   ${editEquip ? `<div class="card">
     ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
@@ -757,7 +789,7 @@ function viewAssistencia() {
   <h3>Entrenos</h3>
   <div class="list">${ASS.map(a => `<div class="card selrow" onclick="openAss('${a.id}')"><div class="row">
       <span class="grow"><b>${dataCa(a.data)}</b> ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}</span>
-      <span>${a.data > avui() ? '<span class="tag">previst</span> ' : ''}${venen(a)} venen</span>${noAvisen(a) ? `<span class="red">✗${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
+      <span>${a.data > avui() ? '<span class="tag">previst</span> ' : ''}✅ ${venen(a)}</span>${noAvisen(a) ? `<span class="red">💀${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
 `;
 }
 
@@ -771,9 +803,9 @@ function viewEditAss() {
     <select onchange="assSessio(this.value)"><option value="">—</option>${ss.map(s => `<option value="${s.codi}" ${a.sessio === s.codi ? 'selected' : ''}>${s.codi} · ${esc(s.titol)}</option>`).join('')}</select>
   </div>
   <div class="card">
-    <div class="counts"><span class="est si">✓ ${Object.values(a.estat).filter(e => e === 'si').length} venen</span><span class="est avisa">✉ ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen</span><span class="est no">✗ ${Object.values(a.estat).filter(e => e === 'no').length} sense avisar</span></div>
+    <div class="counts"><span class="est si">✅ ${Object.values(a.estat).filter(e => e === 'si').length} venen</span><span class="est avisa">❌ ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen</span><span class="est no">💀 ${Object.values(a.estat).filter(e => e === 'no').length} no avisen</span></div>
     ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}${esc(j.nom)}</span><span class="tri">
-      ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" onclick="setEst('${j.id}','${e}')">${EST[e]}</button>`).join('')}
+      ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" title="${EST[e]}" aria-label="${EST[e]}" onclick="setEst('${j.id}','${e}')">${ESTI[e]}</button>`).join('')}
     </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}
   </div>
   <p class="meta">Es desa sol a cada toc.</p>
@@ -831,27 +863,32 @@ function statsPartits(id, eq) {
   }));
   return { j: JUG.find(x => x.id === id), tot: ps.length, N: ps.filter(p => p.equip === 'N').length, G: ps.filter(p => p.equip === 'G').length, sets, jugats, pct: sets ? Math.round(100 * jugats / sets) : null };
 }
+const anell = (pct, lab) => `<div class="ring" style="--p:${pct ?? 0}"><div><b>${pct ?? '–'}${pct != null ? '%' : ''}</b><span>${lab}</span></div></div>`;
 function viewJugador(id) {
   const j = JUG.find(x => x.id === id); if (!j) return '<p class="empty">No trobo aquest jugador.</p>';
   const st = statsJug(j.actiu === false).find(x => x.id === id) || {};
   const llistes = ASS.filter(a => a.estat?.[id]).sort((a, b) => b.data.localeCompare(a.data));
-  const ps = partitsDe(id);
-  return `<div class="jhead">${av(j, true)}<h2>${esc(j.nom)} ${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</h2></div>
-  ${j.actiu === false ? '<p class="meta">Ja no és a l\'equip. Es guarda el seu historial.</p>' : ''}
-  <div class="stats">
-    <div class="stat"><b>${st.pct ?? '–'}${st.pct != null ? '%' : ''}</b><span>temporada</span></div>
-    <div class="stat"><b>${st.pctM ?? '–'}${st.pctM != null ? '%' : ''}</b><span>últim mes</span></div>
-    <div class="stat"><b>${ps.length}</b><span>partits${statsPartits(id).pct != null ? ` · ${statsPartits(id).pct}% sets` : ''}</span></div>
-  </div>
-  <div class="meta" style="margin-bottom:10px">${st.si || 0} entrenos vingut · ${st.av || 0} ha avisat · <span class="red">${st.no || 0} sense avisar</span></div>
-  <div class="card row"><span class="grow"><b>A l'equip des del</b><div class="meta">Abans d'aquest dia no surt a les llistes ni li compten les faltes.</div></span>
-    <input type="date" style="width:auto" value="${j.alta || ''}" onchange="jugSet('${j.id}', {alta: this.value || null})"></div>
+  const ps = partitsDe(id), sp = statsPartits(id), dj = diesJug(j);
+  const eqs = j.equip === 'NG' ? ['N', 'G'] : j.equip ? [j.equip] : [];
+  return `<div class="card jcard ${j.actiu === false ? 'inactiu' : ''}">
+    ${av(j, true)}<div class="grow"><h2>${esc(j.nom)}</h2>
+    <div class="jtags">${eqs.map(e => `<span class="nos ${e === 'G' ? 'g' : 'n'}">${EQN[e]}</span>`).join('')}
+      <span class="pill">📅 ${dj ? dj.map(d => CURT[d]).join(' + ') : 'Tots els dies'}</span>
+      ${j.actiu === false ? '<span class="pill">Ja no és a l\'equip</span>' : ''}</div></div></div>
+  <div class="rings">${anell(st.pct, 'temporada')}${anell(st.pctM, 'últim mes')}${anell(sp.pct, 'sets jugats')}</div>
+  <div class="counts" style="justify-content:center"><span class="est si">✅ ${st.si || 0} ve</span><span class="est avisa">❌ ${st.av || 0} avisa</span><span class="est no">💀 ${st.no || 0} no avisa</span><span class="est">🏆 ${ps.length} partits</span></div>
   <h3>Entrenos</h3>
-  <div class="card">${llistes.map(a => { const e = a.estat[id], compta = e === 'si' || ve(j, a.data);
+  ${llistes.length ? `<div class="card"><div class="streak">${llistes.slice().reverse().map(a => `<i class="${a.estat[id]}" title="${dataCa(a.data)} · ${EST[a.estat[id]]}"></i>`).join('')}</div>
+    <div class="meta" style="margin-top:6px">Cada quadre és un entreno, del més antic al més nou.</div></div>
+  <details class="card"><summary>Veure tots els entrenos (${llistes.length})</summary>${llistes.map(a => { const e = a.estat[id], compta = e === 'si' || ve(j, a.data);
     return `<div class="hist"><span class="grow">${dataCa(a.data)} ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}${a.data > avui() ? ' <span class="tag">previst</span>' : ''}</span>
-      <span class="est ${e}">${EST[e]}</span>${compta ? '' : '<span class="meta" title="No li toca venir aquest dia">no compta</span>'}</div>`; }).join('') || '<p class="meta" style="margin:0">Cap llista encara.</p>'}</div>
+      <span class="est ${e}">${ESTI[e]} ${EST[e]}</span>${compta ? '' : '<span class="meta" title="No li toca venir aquest dia">no compta</span>'}</div>`; }).join('')}</details>`
+  : '<div class="card"><p class="meta" style="margin:0">Cap llista encara.</p></div>'}
   <h3>Partits</h3>
-  <div class="card">${ps.map(p => `<a class="hist nomlink" href="#/p/${p.id}"><span class="grow">${dataCa(p.data)} · ${esc(p.rival || 'Partit')}</span><span class="tag ${p.equip === 'G' ? 'eqG' : 'eqN'}">${EQN[p.equip] || ''}</span></a>`).join('') || '<p class="meta" style="margin:0">Encara no l\'has convocat a cap partit.</p>'}</div>`;
+  <div class="card">${ps.map(p => { const g = guany(p); return `<a class="hist nomlink" href="#/p/${p.id}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${p.equip === 'G' ? 'G' : 'N'}</span><span class="grow">${dataCa(p.data)} · ${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || 'Partit')}</span>${p.resultat ? `<b class="res ${g}">${esc(p.resultat)}</b>` : ''}</a>`; }).join('') || '<p class="meta" style="margin:0">Encara no l\'has convocat a cap partit.</p>'}</div>
+  <h3>Dades</h3>
+  <div class="card row"><span class="grow"><b>A l'equip des del</b><div class="meta">Abans d'aquest dia no surt a les llistes ni li compten les faltes.</div></span>
+    <input type="date" style="width:auto" value="${j.alta || ''}" onchange="jugSet('${j.id}', {alta: this.value || null})"></div>`;
 }
 
 // ------------------------------------------------------------- partits
@@ -886,7 +923,7 @@ function mesHtml(ym, ps) {
   for (let i = 0; i < off; i++) cel.push('<div class="cd buit"></div>');
   for (let d = 1; d <= dies; d++) {
     const iso = `${ym}-${two(d)}`, dp = ps.filter(p => p.data === iso);
-    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''} ${iso === calDia ? 'sel' : ''}" onclick="calToca('${iso}')"><span class="dn">${d}</span>${dp.map(p => `<span class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'} ${guany(p)}" title="${EQN[p.equip] || ''}"><span class="rv">${esc(p.rival || 'Partit')}</span><i class="ll">${p.lloc === 'fora' ? '🚌' : '🏠'}</i></span>`).join('')}</div>`);
+    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''} ${iso === calDia ? 'sel' : ''}" onclick="calToca('${iso}')"><span class="dn">${d}</span>${dp.map(p => { const g = guany(p); return `<span class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'}" title="${EQN[p.equip] || ''}"><span class="cr ${g}">${g === 'guanyat' ? '✓ Guanyat' : g === 'perdut' ? '✗ Perdut' : esc(p.hora || '')}<i>${p.lloc === 'fora' ? '🚌' : '🏠'}</i></span><span class="rv">${esc(p.rival || 'Partit')}</span></span>`; }).join('')}</div>`);
   }
   while (cel.length < 42) cel.push('<div class="cd buit"></div>');   // sempre 6 setmanes: totes les cares del cub fan la mateixa alçada
   return `<div class="cal">${['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map(d => `<div class="ch">${d}</div>`).join('')}${cel.join('')}</div>`;
@@ -897,7 +934,7 @@ function calendari(ps, card) {
   CALMESOS = window.Swiper ? mesosTemporada(ps) : [calMes];
   return `<div class="calnav"><button class="btn" onclick="calMou(-1)" aria-label="Mes anterior">‹</button><b id="calnom">${nomMes(calMes)}</b><button class="btn" onclick="calMou(1)" aria-label="Mes següent">›</button></div>
   ${window.Swiper ? `<div class="swiper calsw" id="calsw"><div class="swiper-wrapper">${CALMESOS.map(ym => `<div class="swiper-slide">${mesHtml(ym, ps)}</div>`).join('')}</div></div>` : mesHtml(calMes, ps)}
-  <div class="callegend"><span style="flex-basis:100%;justify-content:center">${window.Swiper ? '👈 Llisca per canviar de mes 👉 · ' : ''}Toca un partit per veure'l · toca un dia buit per crear-ne un</span><span><i class="n"></i>Negre</span><span><i class="g"></i>Groc</span><span><i class="w"></i>Guanyat</span><span><i class="l"></i>Perdut</span><span>🏠 A casa</span><span>🚌 A fora</span></div>
+  <div class="callegend"><span style="flex-basis:100%;justify-content:center">${window.Swiper ? '👈 Llisca per canviar de mes 👉 · ' : ''}Toca un partit per veure'l · toca un dia buit per crear-ne un</span><span><i class="n"></i>Negre</span><span><i class="g"></i>Groc</span><span><i class="w"></i>✓ Guanyat</span><span><i class="l"></i>✗ Perdut</span><span>🏠 A casa</span><span>🚌 A fora</span></div>
   ${calDia && ps.some(p => p.data === calDia) ? `<div class="daypanel"><h3>${dataCa(calDia)}</h3>${ps.filter(p => p.data === calDia).map(card).join('')}
     <button class="btn" style="width:100%" onclick="newPartit('${calDia}')">+ Un altre partit aquest dia</button></div>` : ''}`;
 }
@@ -1157,26 +1194,28 @@ document.addEventListener('pointerup', () => {
 
 // ------------------------------------------------------------- configuració
 function viewConfig() {
-  if (!CLAU) return `<h2>Configuració</h2>${needKey('canviar la configuració')}`;
+  const t = store.get('volei.tema', 'auto');
+  const temaHtml = `<h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>`;
+  if (!CLAU) return `<h2>Configuració</h2>${temaHtml}${needKey('canviar la configuració')}`;
   const ts = Object.keys(CFG.temporades).sort();
   return `<h2>Configuració</h2>
   <h3>Temporada</h3>
   <div class="card">
-    <select onchange="setTemp(this.value)">${ts.map(t => `<option ${t === TEMP ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>
-    <label class="lbl">Temporada nova</label>
-    <div class="row"><input type="text" id="noutemp" placeholder="Per exemple 27-28"><button class="btn" onclick="newTemp()">Crea-la</button></div>
-    <p class="meta" style="margin:8px 0 0">La temporada nova comença amb l'equip actual (els que no has tret) i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p>
+    <div class="seg" style="margin:0">${ts.map(x => `<button class="${x === TEMP ? 'on' : ''}" onclick="setTemp('${esc(x)}')">${x === CFG.actual ? '⭐ ' : ''}${esc(x)}</button>`).join('')}</div>
+    <details style="margin-top:12px"><summary class="meta" style="cursor:pointer">＋ Crear una temporada nova</summary>
+    <div class="row" style="margin-top:8px"><input type="text" id="noutemp" placeholder="Per exemple 27-28"><button class="btn primary" onclick="newTemp()">Crea-la</button></div>
+    <p class="meta" style="margin:8px 0 0">Comença amb l'equip actual (els que no has tret) i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p></details>
   </div>
-  <h3>Dies d'entreno · temporada ${esc(TEMP)}</h3>
+  <h3>Dies d'entreno · ${esc(TEMP)}</h3>
   <div class="card">${[1, 2, 3, 4, 5].map(d => `<div class="cfgday"><span>${DIES[d]}</span>
-    <select onchange="setDia(${d}, this.value)">
-      <option value="" ${!tcfg().dies[d] ? 'selected' : ''}>No s'entrena</option>
-      <option value="DT" ${tcfg().dies[d] === 'DT' ? 'selected' : ''}>Sí · 1 pista</option>
-      <option value="DJ" ${tcfg().dies[d] === 'DJ' ? 'selected' : ''}>Sí · 2 pistes</option>
-    </select></div>`).join('')}
+    <div class="seg mini">${[['', 'No'], ['DT', '1 pista'], ['DJ', '2 pistes']].map(([v, l]) => `<button class="${(tcfg().dies[d] || '') === v ? 'on' : ''}" onclick="setDia(${d}, '${v}')">${l}</button>`).join('')}</div></div>`).join('')}
     <p class="meta" style="margin:8px 0 0">Els dies d'1 pista fan les sessions DT i els de 2 pistes les DJ.</p>
-  </div>`;
+  </div>
+  ${temaHtml}
+  <h3>Aquest mòbil</h3>
+  <div class="card row"><span class="grow"><b>✓ Connectat a l'equip</b><div class="meta">Les dades es guarden al núvol i es veuen a tots els mòbils amb la clau.</div></span></div>`;
 }
+window.setTema = v => { store.set('volei.tema', v); tema(v); render(); };
 window.setTemp = t => { TEMP = t; store.set('volei.temp', t); openSeason(); };
 window.setDia = (d, v) => {
   const dies = { ...tcfg().dies }; if (v) dies[d] = v; else delete dies[d];
