@@ -42,7 +42,7 @@ body { font: 16px/1.5 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans
 header { position: sticky; top: 0; z-index: 5; background: linear-gradient(120deg, #14325a 0%, #0c2340 70%); color: #fff; padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 8px; box-shadow: inset 0 -4px 0 var(--accent); overflow: hidden; }
 header::after { content: ''; position: absolute; right: -26px; top: -30px; width: 110px; height: 110px; border-radius: 50%; border: 10px solid rgba(255,255,255,.06); box-shadow: inset 18px 0 0 -8px rgba(255,255,255,.05); pointer-events: none; }
 header h1 { font: 800 22px/1.1 var(--head); text-transform: uppercase; letter-spacing: .03em; margin: 0; flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-header h1 .ball { flex: none; width: 24px; height: 24px; }
+header h1 .ball { flex: none; font-size: 17px; letter-spacing: -1px; text-transform: none; }
 header button { background: rgba(255,255,255,.1); border: 0; color: #fff; font-size: 20px; width: 40px; height: 40px; border-radius: 12px; padding: 0; cursor: pointer; display: grid; place-items: center; position: relative; z-index: 1; }
 header button:active { background: rgba(255,255,255,.22); }
 header button[hidden] { display: none; }
@@ -410,7 +410,7 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 <body>
 <header>
   <button id="back" aria-label="Enrere" hidden>‹</button>
-  <h1><svg class="ball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10" fill="#f5c518" stroke="#fff"/><path d="M12 2c-1 4 0 7 3 9.5M2.6 9c4-.8 7 .4 9.4 3M6 20c1.5-3.8 3.6-6 6-8 2.4 1.6 5.6 2 9.6 1" stroke="#14325a"/></svg><span id="title">Vòlei 26-27</span></h1>
+  <h1><span class="ball">🏐💪🏼💛🖤</span><span id="title">Vòlei 26-27</span></h1>
   <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()">⏱</button>
   <button aria-label="Configuració" onclick="location.hash='#/config'">⚙</button>
 </header>
