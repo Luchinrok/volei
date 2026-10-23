@@ -396,6 +396,14 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .seg.mini { margin: 0; flex: none; }
 .seg.mini button { flex: none; font-size: 13px; padding: 6px 10px; min-height: 34px; }
 .cfgday { padding: 8px 0; }
+/* Pròxims partits a l'inici */
+.pxlist { padding: 4px 14px; }
+.pxl { display: block; padding: 9px 0; border-bottom: 1px solid var(--line); color: inherit; text-decoration: none; }
+.pxl:last-child { border-bottom: 0; }
+.pxd { display: block; font-size: 13px; font-weight: 700; color: var(--muted); }
+.pxt { display: block; font: 700 18px/1.25 var(--head); }
+.nosn { border-radius: 5px; padding: 0 5px; }
+.nosn.n { background: #14181f; color: #fff; box-shadow: inset 0 0 0 1px #5a6372; } .nosn.g { background: #f5c518; color: #14181f; }
 </style>
 </head>
 <body>
@@ -637,15 +645,20 @@ function viewHome() {
       <div class="dots">${fams.map(k => `<i class="f-${k}">${FAM[k]}</i>`).join('')}</div>
       <div class="prog"><span class="pb"><i style="width:${Math.round(100 * fetes / tot)}%"></i></span>${fetes} de ${tot} fetes</div></a>`;
   };
-  const pp = PAR.find(p => p.data >= avui());
+  // pròxims partits: «Dijous 5/11 20:00 Sant Pere Groc vs Aloges» (sempre el local primer)
+  const prox = PAR.filter(p => p.data >= avui());
+  const nos = p => `<span class="nosn ${p.equip === 'G' ? 'g' : 'n'}">${esc(((CFG.club || '') + ' ' + (EQN[p.equip] || '')).trim())}</span>`;
+  const linia = p => { const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString('ca', { weekday: 'long' }), riv = `<span>${esc(p.rival || 'Rival?')}</span>`;
+    return `<a class="pxl" href="#/p/${p.id}"><span class="pxd">${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + esc(p.hora) : ''}</span>
+      <span class="pxt">${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}</span></a>`; };
   return `<div class="hello"><h2>${salutacio()}! 👋</h2><span>${new Date().toLocaleDateString('ca', { weekday: 'long', day: 'numeric', month: 'long' })}</span></div>
   <div class="heros">${['DT', 'DJ'].map(f => [f, properDia(f)]).filter(([, d]) => d).sort((a, b) => a[1].i - b[1].i).map(([f]) => hero(f)).join('')}</div>
   ${CLAU ? `<div class="quick">
     <button onclick="goLlista()"><span class="qi">📋</span>Passar llista</button>
     <button onclick="timerToggle(true)"><span class="qi">⏱️</span>Cronòmetre</button>
     <a href="#/pissarra"><span class="qi">🏐</span>Pissarra</a></div>
-  ${pp ? `<h3>Pròxim partit</h3><a class="card mcard" href="#/p/${pp.id}"><span class="badge ${pp.equip === 'G' ? 'eqG' : 'eqN'}">${pp.equip === 'G' ? 'G' : 'N'}</span>
-    <span class="grow"><b>${pp.lloc === 'fora' ? 'A ' : 'Contra '}${esc(pp.rival || '—')}</b><br><span class="meta">${dataCa(pp.data)}${pp.hora ? ' · ' + esc(pp.hora) : ''} · ${EQN[pp.equip] || ''} · ${(pp.convocats || []).length} convocats</span></span></a>` : ''}`
+  <h3>Pròxims partits</h3>
+  <div class="card pxlist">${prox.map(linia).join('') || '<p class="meta" style="margin:0">Cap partit planificat. Afegeix-los a Partits.</p>'}</div>`
   : needKey('marcar sessions, escriure comentaris i portar l\'assistència,')}
   <details class="card"><summary>Què volen dir els codis</summary>
   <div class="legend">${Object.entries(FAM).map(([k, v]) => `<span class="code fam f-${k}">${k}</span><span>${v}</span>`).join('')}</div></details>`;
@@ -1218,6 +1231,10 @@ function viewConfig() {
     <div class="row" style="margin-top:8px"><input type="text" id="noutemp" placeholder="Per exemple 27-28"><button class="btn primary" onclick="newTemp()">Crea-la</button></div>
     <p class="meta" style="margin:8px 0 0">Comença amb l'equip actual (els que no has tret) i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p></details>
   </div>
+  <h3>Club</h3>
+  <div class="card"><label class="lbl" style="margin-top:0">Nom del club</label>
+    <input type="text" id="club" value="${esc(CFG.club || '')}" placeholder="Per exemple Sant Pere" onchange="setClub(this.value)">
+    <p class="meta" style="margin:8px 0 0">Surt davant de Negre i Groc als pròxims partits («Sant Pere Groc vs Aloges»).</p></div>
   <h3>Dies d'entreno · ${esc(TEMP)}</h3>
   <div class="card">${[1, 2, 3, 4, 5].map(d => `<div class="cfgday"><span>${DIES[d]}</span>
     <div class="seg mini">${[['', 'No'], ['DT', '1 pista'], ['DJ', '2 pistes']].map(([v, l]) => `<button class="${(tcfg().dies[d] || '') === v ? 'on' : ''}" onclick="setDia(${d}, '${v}')">${l}</button>`).join('')}</div></div>`).join('')}
@@ -1227,6 +1244,7 @@ function viewConfig() {
   <h3>Aquest mòbil</h3>
   <div class="card row"><span class="grow"><b>✓ Connectat a l'equip</b><div class="meta">Les dades es guarden al núvol i es veuen a tots els mòbils amb la clau.</div></span></div>`;
 }
+window.setClub = v => fs.updateDoc(cfgRef(), { club: v.trim() });
 window.setTema = v => { store.set('volei.tema', v); tema(v); render(); };
 window.setTemp = t => { TEMP = t; store.set('volei.temp', t); openSeason(); };
 window.setDia = (d, v) => {
@@ -1366,7 +1384,7 @@ function render() {
     <a href="#/partits" data-t="partits"><span class="ico">${ICO.partits}</span>Partits</a>`;
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
-  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
+  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   const ruta = r + '/' + arg;
   muntaCalendari();
