@@ -404,6 +404,7 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .pxt { display: block; font: 700 18px/1.25 var(--head); }
 .nosn { border-radius: 5px; padding: 0 5px; }
 .nosn.n { background: #14181f; color: #fff; box-shadow: inset 0 0 0 1px #5a6372; } .nosn.g { background: #f5c518; color: #14181f; }
+.qd { margin-left: 6px; font-size: 11px; font-weight: 700; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 1px 8px; vertical-align: 1px; }
 </style>
 </head>
 <body>
@@ -649,7 +650,7 @@ function viewHome() {
   const prox = PAR.filter(p => p.data >= avui());
   const nos = p => `<span class="nosn ${p.equip === 'G' ? 'g' : 'n'}">${esc(((CFG.club || '') + ' ' + (EQN[p.equip] || '')).trim())}</span>`;
   const linia = p => { const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString('ca', { weekday: 'long' }), riv = `<span>${esc(p.rival || 'Rival?')}</span>`;
-    return `<a class="pxl" href="#/p/${p.id}"><span class="pxd">${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + esc(p.hora) : ''}</span>
+    return `<a class="pxl" href="#/p/${p.id}"><span class="pxd">${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + esc(p.hora) : ''} <span class="qd">${queden(p.data)}</span></span>
       <span class="pxt">${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}</span></a>`; };
   return `<div class="hello"><h2>${salutacio()}! 👋</h2><span>${new Date().toLocaleDateString('ca', { weekday: 'long', day: 'numeric', month: 'long' })}</span></div>
   <div class="heros">${['DT', 'DJ'].map(f => [f, properDia(f)]).filter(([, d]) => d).sort((a, b) => a[1].i - b[1].i).map(([f]) => hero(f)).join('')}</div>
@@ -658,11 +659,33 @@ function viewHome() {
     <button onclick="timerToggle(true)"><span class="qi">⏱️</span>Cronòmetre</button>
     <a href="#/pissarra"><span class="qi">🏐</span>Pissarra</a></div>
   <h3>Pròxims partits</h3>
-  <div class="card pxlist">${prox.map(linia).join('') || '<p class="meta" style="margin:0">Cap partit planificat. Afegeix-los a Partits.</p>'}</div>`
+  <div class="card pxlist">${prox.map(linia).join('') || '<p class="meta" style="margin:0">Cap partit planificat. Afegeix-los a Partits.</p>'}
+    ${prox.length ? `<div class="actions" style="margin:6px 0 10px"><button class="btn primary" style="flex:1" onclick="copiaPartits()">📋 Copia per al WhatsApp</button><button class="btn" onclick="whatsPartits()">💬 Envia</button></div>` : ''}</div>`
   : needKey('marcar sessions, escriure comentaris i portar l\'assistència,')}
   <details class="card"><summary>Què volen dir els codis</summary>
   <div class="legend">${Object.entries(FAM).map(([k, v]) => `<span class="code fam f-${k}">${k}</span><span>${v}</span>`).join('')}</div></details>`;
 }
+// quant falta per a un partit: «Avui», «Demà», «Queden 3 dies», «Queden 2 setmanes»
+function queden(data) {
+  const d = Math.round((new Date(data + 'T12:00') - new Date(avui() + 'T12:00')) / 864e5);
+  if (d <= 0) return 'Avui'; if (d === 1) return 'Demà';
+  if (d < 7) return `Queden ${d} dies`;
+  const w = Math.round(d / 7); return w === 1 ? 'Queda 1 setmana' : `Queden ${w} setmanes`;
+}
+// text dels pròxims partits per enganxar al grup: «Dijous 5/11 20:00 Sant Pere Groc vs Aloges»
+function textPartits() {
+  const nos = p => ((CFG.club || '') + ' ' + (EQN[p.equip] || '')).trim();
+  return 'Propers Partits\n' + PAR.filter(p => p.data >= avui()).map(p => {
+    const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString('ca', { weekday: 'long' }), riv = p.rival || 'Rival?';
+    return `${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv} (${queden(p.data).toLowerCase()})`;
+  }).join('\n');
+}
+window.copiaPartits = async () => {
+  const t = textPartits();
+  try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
+  catch { dialeg(`<textarea readonly style="min-height:140px;font-size:14px" onfocus="this.select()">${esc(t)}</textarea><small>Mantén premut el text per copiar-lo.</small>`, { sol: true, ico: '📋' }); }
+};
+window.whatsPartits = () => { location.href = 'https://wa.me/?text=' + encodeURIComponent(textPartits()); };
 window.goLlista = () => {
   if (location.hash === '#/assistencia') return newAss();
   addEventListener('hashchange', () => newAss(), { once: true });
