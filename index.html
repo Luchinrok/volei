@@ -4,38 +4,53 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Vòlei 26-27</title>
-<meta name="theme-color" content="#1F4E79">
+<meta name="theme-color" content="#14325a">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root {
-  --bg: #f4f6f9; --card: #ffffff; --ink: #17202b; --muted: #5b6878; --line: #dfe4ea;
-  --brand: #1F4E79; --brand-soft: #e6eef7;
-  --si: #1d7a46; --si-soft: #e3f4ea; --avisa: #6b7480; --avisa-soft: #eef0f2; --no: #c0322b; --no-soft: #fbe6e4;
+  --bg: #f1f3f8; --card: #ffffff; --ink: #14202e; --muted: #5d6a7c; --line: #e1e6ee;
+  --brand: #14325a; --brand-soft: #e5edf8; --accent: #f5c518; --accent-ink: #14202e;
+  --si: #17864b; --si-soft: #e1f5e9; --avisa: #6b7480; --avisa-soft: #eef0f3; --no: #c8322a; --no-soft: #fde7e5;
+  --shadow: 0 1px 2px rgba(20,32,46,.06), 0 4px 14px rgba(20,32,46,.06);
+  --head: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  /* un color per família d'exercicis */
+  --f-D: #2f7de1; --f-B: #12a07c; --f-S: #8b5cf6; --f-R: #e8590c; --f-BL: #d6336c; --f-C: #0b9fbd; --f-J: #4c5fd5; --f-G: #e09a00;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f141a; --card: #18202a; --ink: #e8edf3; --muted: #9aa7b6; --line: #2a3542;
-    --brand: #7fb3e6; --brand-soft: #1c2d40;
-    --si: #6cd39a; --si-soft: #16301f; --avisa: #9aa7b6; --avisa-soft: #1f2731; --no: #ff7b72; --no-soft: #3a1a18;
+    --bg: #0d1219; --card: #161e29; --ink: #e8edf3; --muted: #9aa7b6; --line: #263241;
+    --brand: #8cbcf0; --brand-soft: #1a2c42; --accent: #f5c518; --accent-ink: #14202e;
+    --si: #6cd39a; --si-soft: #14301f; --avisa: #9aa7b6; --avisa-soft: #1f2731; --no: #ff7b72; --no-soft: #3a1a18;
+    --shadow: none;
+    --f-D: #6aa8f5; --f-B: #3fd1a8; --f-S: #b197fc; --f-R: #ff8c4a; --f-BL: #f06595; --f-C: #3bc9db; --f-J: #8c9bff; --f-G: #ffc14d;
   }
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
-body { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding-bottom: 72px; }
-header { position: sticky; top: 0; z-index: 5; background: var(--brand); color: #fff; padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 10px; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) header { background: #13263a; } }
-header h1 { font-size: 18px; margin: 0; flex: 1; font-weight: 650; }
-header button { background: none; border: 0; color: #fff; font-size: 22px; padding: 0 6px; cursor: pointer; }
+body { font: 16px/1.5 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding-bottom: 80px; }
+header { position: sticky; top: 0; z-index: 5; background: linear-gradient(120deg, #14325a 0%, #0c2340 70%); color: #fff; padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 8px; box-shadow: inset 0 -4px 0 var(--accent); overflow: hidden; }
+header::after { content: ''; position: absolute; right: -26px; top: -30px; width: 110px; height: 110px; border-radius: 50%; border: 10px solid rgba(255,255,255,.06); box-shadow: inset 18px 0 0 -8px rgba(255,255,255,.05); pointer-events: none; }
+header h1 { font: 800 22px/1.1 var(--head); text-transform: uppercase; letter-spacing: .03em; margin: 0; flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+header h1 .ball { flex: none; width: 24px; height: 24px; }
+header button { background: rgba(255,255,255,.1); border: 0; color: #fff; font-size: 20px; width: 40px; height: 40px; border-radius: 12px; padding: 0; cursor: pointer; display: grid; place-items: center; position: relative; z-index: 1; }
+header button:active { background: rgba(255,255,255,.22); }
+header button[hidden] { display: none; }
+header #tbtn.run { background: var(--accent); color: var(--accent-ink); }
 main { max-width: 760px; margin: 0 auto; padding: 16px; }
-nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
-nav.tabs a { flex: 1; text-align: center; padding: 10px 4px 12px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 600; }
+nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: var(--card); border-top: 1px solid var(--line); padding: 4px 4px env(safe-area-inset-bottom); z-index: 5; box-shadow: 0 -4px 18px rgba(20,32,46,.07); }
+nav.tabs a { flex: 1; text-align: center; padding: 6px 2px 8px; color: var(--muted); text-decoration: none; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+nav.tabs a .ico { display: grid; place-items: center; width: 52px; height: 30px; border-radius: 15px; transition: background .2s; }
+nav.tabs a .ico svg { width: 22px; height: 22px; }
 nav.tabs a.on { color: var(--brand); }
-nav.tabs a .ico { display: block; font-size: 20px; line-height: 1.2; }
-h2 { font-size: 20px; margin: 4px 0 12px; }
-h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 22px 0 8px; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+nav.tabs a.on .ico { background: var(--brand-soft); }
+h2 { font: 800 26px/1.15 var(--head); margin: 4px 0 12px; letter-spacing: .01em; }
+h3 { font: 700 15px/1.2 var(--head); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 24px 0 8px; display: flex; align-items: center; gap: 8px; }
+h3::before { content: ''; width: 14px; height: 4px; border-radius: 2px; background: var(--accent); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
 a.card { display: block; color: inherit; text-decoration: none; }
 .next { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (max-width: 420px) { .next { grid-template-columns: 1fr; } }
@@ -50,25 +65,27 @@ a.card { display: block; color: inherit; text-decoration: none; }
 .list .fet { opacity: .55; }
 .tag { display: inline-block; font-size: 12px; font-weight: 650; border-radius: 6px; padding: 1px 7px; border: 1px solid currentColor; white-space: nowrap; color: var(--muted); }
 .note { font-style: italic; color: var(--muted); margin: 6px 0 14px; }
-.block { border-left: 4px solid var(--line); }
+.block { border-left: 5px solid var(--fc, var(--line)); }
 .bhead { display: flex; gap: 10px; align-items: baseline; }
-.bnum { font-weight: 800; color: var(--brand); font-size: 18px; min-width: 18px; }
+.bnum { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--fc, var(--brand)); color: #fff; font: 800 17px/1 var(--head); align-self: center; }
 .btitle { flex: 1; font-weight: 650; font-size: 17px; }
-.bmin { text-align: right; white-space: nowrap; font-weight: 700; color: var(--brand); }
+.bmin { text-align: right; white-space: nowrap; font: 700 18px/1.1 var(--head); color: var(--brand); }
 .bmin small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
-.tags { margin: 6px 0 4px 28px; }
-.field { margin: 8px 0 0 28px; }
+.tags { margin: 6px 0 4px 40px; }
+.field { margin: 8px 0 0 40px; }
 .field b { color: var(--brand); font-size: 13px; text-transform: uppercase; letter-spacing: .03em; display: block; }
 .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 a.btn { display: inline-block; text-decoration: none; text-align: center; }
-button.btn, a.btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 8px 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+button.btn, a.btn { font: inherit; font-size: 15px; font-weight: 600; border-radius: 12px; padding: 9px 14px; min-height: 42px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; transition: transform .08s; }
+button.btn:active, a.btn:active, .tri button:active, .seg button:active { transform: scale(.96); }
 button.btn.primary, a.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.btn.primary { color: #0f141a; } }
 button.btn:disabled { opacity: .45; }
 button.btn.danger { color: var(--no); }
 .legend { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
 .empty { color: var(--muted); text-align: center; padding: 30px 0; }
-textarea, input[type=text], input[type=date], select { width: 100%; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 8px; }
+textarea, input[type=text], input[type=date], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
+textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
 label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
 .selbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
@@ -81,15 +98,15 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 .comment .meta { margin-bottom: 4px; }
 /* Assistència */
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
-.stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
-.stat b { display: block; font-size: 22px; color: var(--brand); }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; box-shadow: var(--shadow); }
+.stat b { display: block; font: 800 30px/1.1 var(--head); color: var(--brand); }
 .stat span { font-size: 12px; color: var(--muted); }
 .pl { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .pl:last-child { border-bottom: 0; }
 .pl .nom { flex: 1; min-width: 0; font-weight: 600; }
 .pl .nom.no { color: var(--no); }
 .tri { display: flex; gap: 4px; }
-.tri button { font: inherit; font-size: 13px; font-weight: 650; border-radius: 8px; padding: 6px 9px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.tri button { font: inherit; font-size: 14px; font-weight: 650; border-radius: 10px; padding: 8px 10px; min-height: 40px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
 .tri button.on.si { background: var(--si-soft); border-color: var(--si); color: var(--si); }
 .tri button.on.avisa { background: var(--avisa-soft); border-color: var(--avisa); color: var(--ink); }
 .tri button.on.no { background: var(--no-soft); border-color: var(--no); color: var(--no); }
@@ -119,15 +136,15 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 body.timer-on { padding-bottom: 260px; }
 #tstop { display: block; width: 100%; padding: 14px; margin-bottom: 8px; font-size: 18px; background: var(--no); border-color: var(--no); color: #fff; }
 #tstop[hidden] { display: none; }
-.chip { font: inherit; font-size: 13px; font-weight: 650; border-radius: 999px; padding: 3px 10px; border: 1px solid var(--brand); background: var(--brand-soft); color: var(--brand); cursor: pointer; }
+.chip { font: inherit; font-size: 14px; font-weight: 650; border-radius: 999px; padding: 6px 12px; border: 1px solid var(--brand); background: var(--brand-soft); color: var(--brand); cursor: pointer; }
 /* Exercici no fet */
 .block.nofet { opacity: .75; border-left-color: var(--no); }
-.nofetbox { margin: 10px 0 0 28px; padding: 8px 10px; border-radius: 8px; background: var(--no-soft); font-size: 14px; }
+.nofetbox { margin: 10px 0 0 40px; padding: 8px 10px; border-radius: 8px; background: var(--no-soft); font-size: 14px; }
 .motius { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
 .motius button { font: inherit; font-size: 13px; border-radius: 999px; padding: 4px 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
 .motius button.on { border-color: var(--no); color: var(--no); background: var(--no-soft); font-weight: 650; }
-.bfoot { display: flex; gap: 8px; margin: 10px 0 0 28px; flex-wrap: wrap; }
-button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 8px; padding: 4px 10px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.bfoot { display: flex; gap: 8px; margin: 12px 0 0 40px; flex-wrap: wrap; }
+button.small { font: inherit; font-size: 14px; font-weight: 600; border-radius: 999px; padding: 6px 12px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
 /* Equip */
 .edit-pl { display: flex; align-items: center; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .edit-pl input[type=text] { flex: 1; min-width: 120px; }
@@ -151,7 +168,7 @@ a.nomlink { color: inherit; text-decoration: none; }
 .est.no { background: var(--no-soft); color: var(--no); }
 /* Partits */
 .seg { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-.seg button { flex: 1; font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 7px 8px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.seg button { flex: 1; font: inherit; font-size: 15px; font-weight: 600; border-radius: 12px; padding: 8px; min-height: 40px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
 .seg button.on { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
 .eqN { background: #17202b; color: #fff; border-color: #17202b; }
 .eqG { background: #f2c230; color: #17202b; border-color: #d9a90f; }
@@ -166,35 +183,69 @@ a.nomlink { color: inherit; text-decoration: none; }
 .setrow.guanyat { background: var(--si-soft); }
 .setrow.perdut { background: var(--no-soft); }
 .calnav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.calnav b { text-transform: capitalize; }
+.calnav b { font: 800 20px/1 var(--head); }
+.calsw { overflow: hidden; padding: 2px; }
+.calsw .swiper-slide { background: var(--bg); }
 .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
 .ch { text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); padding: 2px 0; }
-.cd { min-height: 58px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 2px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.cd { min-height: 64px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 2px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 .cd.buit { background: transparent; border: 0; }
+.cd:not(.buit) { cursor: pointer; }
+.cd:not(.buit):active { background: var(--brand-soft); }
 .cd.avui { border-color: var(--brand); border-width: 2px; }
 .cd .dn { font-size: 12px; color: var(--muted); font-weight: 600; }
-.cp { display: block; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 1px 2px; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid; }
-.pc.guanyat { border-left: 5px solid var(--si); }
-.pc.perdut { border-left: 5px solid var(--no); }
+.cp { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1px 2px; font-size: 11px; font-weight: 700; border-radius: 6px; padding: 2px 3px; text-decoration: none; overflow: hidden; border: 1px solid; line-height: 1.15; }
+.cp .rv { grid-column: 1 / -1; font-size: 10px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp .eqb { flex: none; font: 800 10px/1 var(--head); width: 13px; height: 13px; border-radius: 3px; display: grid; place-items: center; }
+.cp.eqN .eqb { background: #f5c518; color: #14202e; } .cp.eqG .eqb { background: #14181f; color: #f5c518; }
+.cp .r { white-space: nowrap; }
+.cp .gd { flex: none; width: 7px; height: 7px; border-radius: 50%; }
+.gd.guanyat { background: #22b35e; } .gd.perdut { background: #ef4136; }
+.callegend { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.callegend span { display: inline-flex; align-items: center; gap: 5px; }
+.callegend i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 1px solid #14181f; }
+.callegend i.n { background: #14181f; } .callegend i.g { background: #f5c518; }
+.callegend i.gd { width: 9px; height: 9px; border: 0; border-radius: 50%; }
+a.card.mc { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 12px; align-items: center; border-left: 7px solid #14181f; padding: 12px; }
+a.card.mc.mG { border-left-color: #f5c518; }
+.mdate { display: flex; flex-direction: column; align-items: center; background: var(--brand-soft); border-radius: 12px; padding: 6px 0; line-height: 1.05; }
+.mdate b { font: 800 26px/1 var(--head); color: var(--brand); }
+.mdate small { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: .04em; }
+.mbody { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.mteams { display: flex; align-items: center; gap: 6px; font: 700 19px/1.2 var(--head); flex-wrap: wrap; }
+.mteams i { font: 600 12px/1 Barlow, sans-serif; color: var(--muted); font-style: normal; }
+.nos { font: 800 13px/1 var(--head); text-transform: uppercase; letter-spacing: .05em; border-radius: 6px; padding: 4px 7px; }
+.nos.n { background: #14181f; color: #f5c518; } .nos.g { background: #f5c518; color: #14181f; }
+.mbody .meta { font-size: 13px; }
+.parc { display: flex; gap: 4px; flex-wrap: wrap; }
+.parc i { font: 700 12px/1 var(--head); font-style: normal; border-radius: 5px; padding: 3px 5px; }
+.parc i.w { background: var(--si-soft); color: var(--si); } .parc i.l { background: var(--no-soft); color: var(--no); }
+.mres { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.score { font: 800 30px/1 var(--head); letter-spacing: .02em; }
+.score.guanyat, .mres small.guanyat { color: var(--si); } .score.perdut, .mres small.perdut { color: var(--no); }
+.mres small { font-size: 12px; font-weight: 700; color: var(--muted); }
+.mres small.falta { background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 4px 9px; white-space: nowrap; }
 .res { border-radius: 6px; padding: 2px 8px; }
 .res.guanyat { background: var(--si-soft); color: var(--si); }
 .res.perdut { background: var(--no-soft); color: var(--no); }
-.cp.guanyat { box-shadow: inset 4px 0 0 #1d9a52; padding-left: 6px; }
-.cp.perdut { box-shadow: inset 4px 0 0 #d23b31; padding-left: 6px; }
 .ptab { display: grid; grid-template-columns: minmax(0, 1fr) 44px 48px 40px 52px; align-items: center; gap: 4px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
 .ptab:last-child { border-bottom: 0; }
 .ptab > :not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
 .ptab.phead { font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); font-weight: 600; padding-top: 0; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 /* Camp */
-.court { position: relative; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 1 / 1; background: #e9a066; border: 3px solid #fff; outline: 1px solid var(--line); border-radius: 4px; touch-action: none; user-select: none; }
+.court { position: relative; width: calc(100% - 28px); max-width: 400px; margin: 22px auto 14px; aspect-ratio: 1 / 1; background: radial-gradient(120% 90% at 50% 0%, #f0975a 0%, #e07434 70%); border: 3px solid #fff; outline: 12px solid #2f6db3; border-radius: 2px; touch-action: none; user-select: none; box-shadow: 0 10px 30px 12px rgba(0,0,0,.2); }
 .court::before { content: ''; position: absolute; left: 0; right: 0; top: 33.3%; border-top: 2px solid #fff; }
-.court .net { position: absolute; left: -3px; right: -3px; top: -9px; height: 9px; background: repeating-linear-gradient(90deg, #333 0 3px, #eee 3px 7px); border-radius: 2px; }
-.court .zl { position: absolute; transform: translate(-50%, -50%); color: rgba(255,255,255,.75); font-weight: 800; font-size: 22px; pointer-events: none; }
-.tok { position: absolute; transform: translate(-50%, -50%); width: 58px; height: 58px; border-radius: 50%; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; font-weight: 700; line-height: 1.1; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: grab; touch-action: none; padding: 2px; overflow: hidden; }
+.court .net { position: absolute; left: -14px; right: -14px; top: -10px; height: 10px; background: repeating-linear-gradient(90deg, #222 0 2px, #f4f4f4 2px 6px); border-top: 3px solid #fff; border-radius: 2px; box-shadow: 0 3px 4px rgba(0,0,0,.25); }
+.court .net::before, .court .net::after { content: ''; position: absolute; top: -6px; width: 6px; height: 18px; background: #f5c518; border-radius: 3px; }
+.court .net::before { left: 0; } .court .net::after { right: 0; }
+.court .zl { position: absolute; transform: translate(-50%, -50%); color: rgba(255,255,255,.55); font: 800 24px/1 var(--head); pointer-events: none; }
+.tok { position: absolute; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; background: #14325a; border: 3px solid #fff; color: #fff; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; font-weight: 700; line-height: 1.1; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: grab; touch-action: none; padding: 2px; overflow: hidden; }
 .tok.buit { background: rgba(255,255,255,.35); color: #fff; box-shadow: none; border: 2px dashed #fff; }
 .tok.lib { width: auto; height: 26px; border-radius: 13px; padding: 0 10px; background: #f2c230; color: #17202b; cursor: default; font-size: 12px; }
-.tok.drag { cursor: grabbing; z-index: 3; box-shadow: 0 6px 14px rgba(0,0,0,.4); }
+.tok.drag { cursor: grabbing; z-index: 3; box-shadow: 0 10px 20px rgba(0,0,0,.45); transform: translate(-50%, -50%) scale(1.12); }
+.court.eqN .tok:not(.buit):not(.lib) { background: #14181f; color: #fff; border-color: #f5c518; }
+.court.eqG .tok:not(.buit):not(.lib) { background: #f5c518; color: #14202e; border-color: #14181f; }
 .posgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
 .posgrid label { font-size: 12px; font-weight: 700; color: var(--muted); }
 .posgrid select { padding: 6px 4px; font-size: 14px; }
@@ -209,17 +260,67 @@ a.nomlink { color: inherit; text-decoration: none; }
 .ord { display: flex; gap: 4px; margin-left: 8px; }
 .ord button { width: 34px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--brand); font-size: 15px; cursor: pointer; }
 .ord button:disabled { opacity: .3; }
-.moved { font-size: 12px; color: var(--muted); margin-left: 28px; }
+.moved { font-size: 12px; color: var(--muted); margin-left: 40px; }
+/* Inici */
+.hello { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 2px 0 12px; }
+.hello h2 { margin: 0; }
+.hello span { color: var(--muted); font-size: 14px; }
+.hero { position: relative; overflow: hidden; display: block; color: #fff; text-decoration: none; border-radius: 20px; padding: 16px; margin-bottom: 12px; background: linear-gradient(135deg, #1b4a85 0%, #14325a 55%, #0c2340 100%); box-shadow: 0 8px 24px rgba(20,50,90,.25); }
+.hero.dj { background: linear-gradient(135deg, #0f7a64 0%, #0d5a54 55%, #0a3d42 100%); box-shadow: 0 8px 24px rgba(13,90,84,.25); }
+.hero::after { content: ''; position: absolute; right: -40px; bottom: -50px; width: 170px; height: 170px; border-radius: 50%; border: 16px solid rgba(255,255,255,.07); }
+.hero .when { display: inline-block; font: 800 13px/1 var(--head); letter-spacing: .08em; text-transform: uppercase; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 5px 10px; }
+.hero .when.later { background: rgba(255,255,255,.16); color: #fff; }
+.hero .kick { font-size: 13px; opacity: .85; margin-top: 10px; }
+.hero .t { font: 800 26px/1.1 var(--head); margin: 2px 0 8px; }
+.hero .t b { color: var(--accent); }
+.hero .dots { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+.hero .dots i { font: 700 12px/1 var(--head); font-style: normal; padding: 3px 6px; border-radius: 6px; background: rgba(255,255,255,.14); border-bottom: 2px solid var(--fc); }
+.hero .prog { display: flex; align-items: center; gap: 10px; font-size: 13px; opacity: .9; }
+.hero .prog .pb { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.18); overflow: hidden; }
+.hero .prog .pb i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+@media (min-width: 640px) { .heros { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .heros .hero { margin: 0; } }
+.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 4px; }
+.quick button, .quick a { font: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 4px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow); }
+.quick .qi { font-size: 24px; line-height: 1; }
+.quick button:active, .quick a:active { transform: scale(.96); }
+a.card.mcard { display: flex; align-items: center; gap: 12px; }
+.mcard .badge { flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font: 800 22px/1 var(--head); border: 2px solid #14181f; }
+.mcard .badge.eqN { background: #14181f; color: #f5c518; } .mcard .badge.eqG { background: #f5c518; color: #14181f; }
+details.card summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+details.card summary::-webkit-details-marker { display: none; }
+details.card summary::after { content: '▾'; color: var(--muted); }
+details.card[open] summary::after { content: '▴'; }
+details.card[open] summary { margin-bottom: 10px; }
+/* Famílies d'exercicis */
+.f-D { --fc: var(--f-D); } .f-B { --fc: var(--f-B); } .f-S { --fc: var(--f-S); } .f-R { --fc: var(--f-R); } .f-BL { --fc: var(--f-BL); } .f-C { --fc: var(--f-C); } .f-J { --fc: var(--f-J); } .f-G { --fc: var(--f-G); }
+.code.fam { color: var(--fc); background: color-mix(in srgb, var(--fc) 13%, transparent); border-radius: 6px; padding: 1px 7px; }
+.legend .code.fam { text-align: center; }
+/* Avatars */
+.av { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: 700 14px/1 var(--head); color: #fff; background: hsl(var(--h) 52% 45%); letter-spacing: .02em; }
+.av.lg { width: 56px; height: 56px; font-size: 24px; }
+.pl .nom, .conv .grow { display: flex; align-items: center; gap: 8px; }
+.jhead { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.jhead h2 { margin: 0; }
+/* Avís de desat i celebració */
+#toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 66px); transform: translate(-50%, -16px); opacity: 0; pointer-events: none; z-index: 20; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 999px; transition: opacity .2s, transform .2s; box-shadow: 0 6px 16px rgba(0,0,0,.2); }
+#toast.on { opacity: .95; transform: translate(-50%, 0); }
+.confetti { position: fixed; top: -14px; width: 9px; height: 14px; z-index: 30; pointer-events: none; border-radius: 2px; animation: fall linear forwards; }
+@keyframes fall { to { transform: translate(var(--dx), 105vh) rotate(var(--rot)); opacity: .7; } }
+.view { animation: rise .22s ease-out both; }
+@keyframes rise { from { transform: translateY(8px); } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cp.eqN { border-color: #8a96a6; } }
+@media (prefers-reduced-motion: reduce) { .view { animation: none; } .confetti { display: none; } }
 </style>
 </head>
 <body>
 <header>
   <button id="back" aria-label="Enrere" hidden>‹</button>
-  <h1 id="title">Vòlei 26-27</h1>
+  <h1><svg class="ball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10" fill="#f5c518" stroke="#fff"/><path d="M12 2c-1 4 0 7 3 9.5M2.6 9c4-.8 7 .4 9.4 3M6 20c1.5-3.8 3.6-6 6-8 2.4 1.6 5.6 2 9.6 1" stroke="#14325a"/></svg><span id="title">Vòlei 26-27</span></h1>
   <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()">⏱</button>
   <button aria-label="Configuració" onclick="location.hash='#/config'">⚙</button>
 </header>
 <main id="app"><p class="empty">Carregant…</p></main>
+<div id="toast" role="status"></div>
 <div id="timer" hidden>
   <button class="btn" id="tstop" hidden onclick="alarmStop()">🔕 Atura l'alarma</button>
   <div class="lab" id="tlab"></div>
@@ -255,6 +356,11 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
 const num = c => +c.slice(2);
+const famC = c => (/^(BL|[DBSRCJG])\d/.exec(c || '') || [])[1] || '';   // família d'un codi d'exercici (D5 -> D, BL1 -> BL)
+const hue = t => [...t].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+const inicials = n => (n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+const av = (j, lg) => `<span class="av ${lg ? 'lg' : ''}" style="--h:${hue(j.nom || '')}" aria-hidden="true">${esc(inicials(j.nom))}</span>`;
+const ICO = {"inici": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/></svg>", "pista": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 12h18\"/><path d=\"M3 8.5h18\" stroke-dasharray=\"2 2\" opacity=\".6\"/></svg>", "pistes": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"9\" height=\"14\" rx=\"1.5\"/><rect x=\"13\" y=\"5\" width=\"9\" height=\"14\" rx=\"1.5\"/><path d=\"M2 12h9M13 12h9\"/></svg>", "ass": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"9\" cy=\"8\" r=\"3.5\"/><path d=\"M2.5 20c.8-3.6 3.3-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4\"/><path d=\"M15 18l2.2 2.2L22 15.4\"/></svg>", "partits": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7 4h10v5a5 5 0 0 1-10 0z\"/><path d=\"M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5\"/><path d=\"M12 14v3M8.5 20h7l-1-3h-5z\"/></svg>"};
 const avui = () => new Date().toISOString().slice(0, 10);
 const dataCa = d => new Date(d + 'T12:00').toLocaleDateString('ca', { weekday: 'short', day: 'numeric', month: 'short' });
 
@@ -294,7 +400,10 @@ async function initFirebase() {
   if (!CLAU) return;
   try {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
-    fs = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
+    const mod = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
+    // cada escriptura avisa amb un «✓ Desat» petit (tot es desa sol)
+    const avisa = f => (...a) => { desat(); return f(...a); };
+    fs = { ...mod, setDoc: avisa(mod.setDoc), updateDoc: avisa(mod.updateDoc), addDoc: avisa(mod.addDoc), deleteDoc: avisa(mod.deleteDoc) };
     db = fs.initializeFirestore(initializeApp(FB), { localCache: fs.persistentLocalCache() });
     fs.onSnapshot(cfgRef(), d => {
       CFG = d.exists() ? d.data() : CFG_DEF;
@@ -362,11 +471,12 @@ function blockCard(b, s, ord) {
       <div class="motius">${Object.entries(MOTIU).map(([k, v]) => `<button class="${ed.motiu === k ? 'on' : ''}" onclick="nofMotiu('${k}')">${v}</button>`).join('')}</div>
       <input type="text" id="noftxt" placeholder="Comentari (opcional)" value="${esc(ed.text)}">
       <div class="actions"><button class="btn primary" onclick="nofSave('${s.codi}', ${b.n})">Desa</button><button class="btn" onclick="nofEdit=null;render()">Cancel·la</button></div></div>` : '';
-  return `<div class="card block ${nf ? 'nofet' : ''}">
+  const fc = famC(b.codi);
+  return `<div class="card block ${nf ? 'nofet' : ''} ${fc ? 'f-' + fc : ''}">
     <div class="bhead"><span class="bnum">${b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
       <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span>
       ${ord ? `<span class="ord"><button ${ord.first ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, -1)">▲</button><button ${ord.last ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, 1)">▼</button></span>` : ''}</div>
-    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code">${esc(b.codi)}</span></div>` : ''}
+    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}</div>` : ''}
     ${fields(b)}
     ${b.lloc ? `<div class="field"><b>Lloc</b>${esc(b.lloc)}</div>` : ''}
     ${nofHtml}${form}`}
@@ -384,16 +494,61 @@ window.nofSave = (sc, n) => {
 window.nofDel = id => { fs.deleteDoc(ref('exercicis', id)); };
 Object.defineProperty(window, 'nofEdit', { get: () => nofEdit, set: v => { nofEdit = v; } });
 
+let toastT = null;
+function desat(txt = '✓ Desat') {
+  const t = $('#toast'); if (!t) return;
+  t.textContent = txt; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 1300);
+}
+function festa() {
+  // pluja de confeti groc, negre i blau quan una sessió queda feta
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cols = ['#f5c518', '#14181f', '#2f7de1', '#ffffff', '#e8590c'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('i'); c.className = 'confetti';
+    c.style.cssText = `left:${Math.random() * 100}vw;background:${cols[i % cols.length]};--dx:${(Math.random() - .5) * 160}px;--rot:${Math.random() * 900 - 450}deg;animation-duration:${1.6 + Math.random() * 1.4}s;animation-delay:${Math.random() * .3}s`;
+    document.body.appendChild(c); setTimeout(() => c.remove(), 3500);
+  }
+}
 const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil.</b><div class="meta">Per ${what} obre una vegada l'enllaç amb la clau que et va passar Claude.</div></div>`;
 
-function viewHome() {
-  const card = f => { const s = next(f); return s && diesDe(f).length ? `<a class="card" href="#/s/${s.codi}"><div class="kicker">${famLabel(f)} · ${PISTES[f]}</div><div class="big"><span class="code">${s.codi}</span> ${esc(s.titol)}</div><div class="meta">${s.min} min · ${s.blocs.filter(b => !b.tret).length} blocs</div></a>` : ''; };
-  return `<h2>Pròxims entrenaments</h2>
-  <div class="next">${card('DT')}${card('DJ')}</div>
-  ${CLAU ? '' : needKey('marcar sessions, escriure comentaris i portar l\'assistència,')}
-  <h3>Què volen dir els codis</h3>
-  <div class="card legend">${Object.entries(FAM).map(([k, v]) => `<span class="code">${k}</span><span>${v}</span>`).join('')}</div>`;
+// pròxim dia d'entreno d'una família (avui inclòs)
+function properDia(f) {
+  const ds = diesDe(f); if (!ds.length) return null;
+  for (let i = 0; i < 7; i++) { const d = new Date(Date.now() + i * 864e5); if (ds.includes(d.getDay())) return { i, iso: d.toISOString().slice(0, 10) }; }
+  return null;
 }
+const salutacio = () => { const h = new Date().getHours(); return h < 6 ? 'Bona nit' : h < 14 ? 'Bon dia' : h < 21 ? 'Bona tarda' : 'Bona nit'; };
+function viewHome() {
+  const hero = f => {
+    const s = next(f), pd = properDia(f); if (!s || !pd) return '';
+    const tot = D.sessions.filter(x => fam(x) === f).length, fetes = D.sessions.filter(x => fam(x) === f && isFet(x.codi)).length;
+    const when = pd.i === 0 ? 'Avui' : pd.i === 1 ? 'Demà' : dataCa(pd.iso);
+    const fams = [...new Set(s.blocs.filter(b => !b.tret).map(b => famC(b.codi)).filter(Boolean))];
+    return `<a class="hero ${f === 'DJ' ? 'dj' : ''}" href="#/s/${s.codi}">
+      <span class="when ${pd.i > 1 ? 'later' : ''}">${when}</span>
+      <div class="kick">${famLabel(f)} · ${PISTES[f]} · ${s.min} min</div>
+      <div class="t"><b>${s.codi}</b> ${esc(s.titol)}</div>
+      <div class="dots">${fams.map(k => `<i class="f-${k}">${FAM[k]}</i>`).join('')}</div>
+      <div class="prog"><span class="pb"><i style="width:${Math.round(100 * fetes / tot)}%"></i></span>${fetes} de ${tot} fetes</div></a>`;
+  };
+  const pp = PAR.find(p => p.data >= avui());
+  return `<div class="hello"><h2>${salutacio()}! 👋</h2><span>${new Date().toLocaleDateString('ca', { weekday: 'long', day: 'numeric', month: 'long' })}</span></div>
+  <div class="heros">${['DT', 'DJ'].map(f => [f, properDia(f)]).filter(([, d]) => d).sort((a, b) => a[1].i - b[1].i).map(([f]) => hero(f)).join('')}</div>
+  ${CLAU ? `<div class="quick">
+    <button onclick="goLlista()"><span class="qi">📋</span>Passar llista</button>
+    <button onclick="timerToggle(true)"><span class="qi">⏱️</span>Cronòmetre</button>
+    <a href="#/pissarra"><span class="qi">🏐</span>Pissarra</a></div>
+  ${pp ? `<h3>Pròxim partit</h3><a class="card mcard" href="#/p/${pp.id}"><span class="badge ${pp.equip === 'G' ? 'eqG' : 'eqN'}">${pp.equip === 'G' ? 'G' : 'N'}</span>
+    <span class="grow"><b>${pp.lloc === 'fora' ? 'A ' : 'Contra '}${esc(pp.rival || '—')}</b><br><span class="meta">${dataCa(pp.data)}${pp.hora ? ' · ' + esc(pp.hora) : ''} · ${EQN[pp.equip] || ''} · ${(pp.convocats || []).length} convocats</span></span></a>` : ''}`
+  : needKey('marcar sessions, escriure comentaris i portar l\'assistència,')}
+  <details class="card"><summary>Què volen dir els codis</summary>
+  <div class="legend">${Object.entries(FAM).map(([k, v]) => `<span class="code fam f-${k}">${k}</span><span>${v}</span>`).join('')}</div></details>`;
+}
+window.goLlista = () => {
+  if (location.hash === '#/assistencia') return newAss();
+  addEventListener('hashchange', () => newAss(), { once: true });
+  location.hash = '#/assistencia';
+};
 
 function viewList(dia) {
   const ss = D.sessions.filter(s => fam(s) === dia).sort((a, b) => num(a.codi) - num(b.codi));
@@ -449,8 +604,8 @@ function viewSession(c) {
 window.pick = c => { sel.has(c) ? sel.delete(c) : sel.add(c); render(); };
 window.selMode = on => { sel = on ? new Set() : null; render(); };
 window.selAll = f => { D.sessions.filter(s => fam(s) === f).forEach(s => sel.add(s.codi)); render(); };
-window.markSel = fet => { setFets([...sel], fet); sel = null; render(); };
-window.toggleFet = c => setFets([c], !isFet(c));
+window.markSel = fet => { setFets([...sel], fet); if (fet) festa(); sel = null; render(); };
+window.toggleFet = c => { if (!isFet(c)) festa(); setFets([c], !isFet(c)); };
 window.saveDraft = (c, v) => store.set('volei.draft.' + c, v);
 window.sendComment = c => {
   const txt = $('#com').value.trim();
@@ -502,7 +657,7 @@ function viewAssistencia() {
   <button class="btn primary" style="width:100%;padding:12px" onclick="newAss()">+ Passar llista d'avui</button>
   <h3>Jugadors</h3>
   <div class="card">${st.length ? `<div class="pl phead"><span class="nom"></span><span class="pct" style="width:80px">Temporada</span><span class="pct mes">Últim mes</span></div>` : ''}${st.length ? st.map(j => `<div class="pl">
-      <span class="nom ${j.no ? 'no' : ''}"><a class="nomlink" href="#/j/${j.id}">${esc(j.nom)}</a>${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</span>
+      <span class="nom ${j.no ? 'no' : ''}">${av(j)}<a class="nomlink" href="#/j/${j.id}">${esc(j.nom)}</a>${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</span>
       ${j.no ? `<span class="red" title="Faltes sense avisar">✗${j.no}</span>` : ''}
       <span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
       <span class="pct mes ${j.pctM != null && j.pct != null && j.pctM < j.pct - 10 ? 'baixa' : ''}">${j.pctM ?? '–'}${j.pctM != null ? '%' : ''}</span>
@@ -540,7 +695,7 @@ function viewEditAss() {
   </div>
   <div class="card">
     <div class="meta" style="margin-bottom:6px"><b>${Object.values(a.estat).filter(e => e === 'si').length}</b> venen · ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen · <span class="red">${Object.values(a.estat).filter(e => e === 'no').length} sense avisar</span></div>
-    ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${esc(j.nom)}</span><span class="tri">
+    ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}${esc(j.nom)}</span><span class="tri">
       ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" onclick="setEst('${j.id}','${e}')">${EST[e]}</button>`).join('')}
     </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}
   </div>
@@ -597,7 +752,7 @@ function viewJugador(id) {
   const st = statsJug(j.actiu === false).find(x => x.id === id) || {};
   const llistes = ASS.filter(a => a.estat?.[id]).sort((a, b) => b.data.localeCompare(a.data));
   const ps = partitsDe(id);
-  return `<h2>${esc(j.nom)} ${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</h2>
+  return `<div class="jhead">${av(j, true)}<h2>${esc(j.nom)} ${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</h2></div>
   ${j.actiu === false ? '<p class="meta">Ja no és a l\'equip. Es guarda el seu historial.</p>' : ''}
   <div class="stats">
     <div class="stat"><b>${st.pct ?? '–'}${st.pct != null ? '%' : ''}</b><span>temporada</span></div>
@@ -619,27 +774,81 @@ const guany = p => { const m = /^(\d+)-(\d+)$/.exec(p.resultat || ''); if (!m) r
 let parFiltre = store.get('volei.parfiltre', '');
 let parVista = store.get('volei.parvista', 'llista'), calMes = null;   // calMes: 'AAAA-MM'
 window.parVeure = v => { parVista = v; store.set('volei.parvista', v); render(); };
-window.calMou = d => { const [y, m] = calMes.split('-').map(Number), t = new Date(y, m - 1 + d, 1); calMes = `${t.getFullYear()}-${two(t.getMonth() + 1)}`; render(); };
-function calendari(ps) {
-  if (!calMes) { const f = ps.find(p => p.data >= avui()); calMes = (f ? f.data : avui()).slice(0, 7); }
-  const [y, m] = calMes.split('-').map(Number), first = new Date(y, m - 1, 1), dies = new Date(y, m, 0).getDate();
+// Calendari: un mes per pàgina; es llisca a esquerra i dreta (Swiper, efecte cub, com al Buyte).
+// Swiper es carrega només quan s'obre el calendari; sense connexió queden les fletxes.
+let CALSW = null, CALMESOS = [], swiperCarregant = false;
+const nomMes = ym => { const [y, m] = ym.split('-').map(Number), t = new Date(y, m - 1, 1).toLocaleDateString('ca', { month: 'long' }); return t[0].toUpperCase() + t.slice(1) + ' ' + y; };
+const sumaMes = (ym, d) => { const [y, m] = ym.split('-').map(Number), t = new Date(y, m - 1 + d, 1); return `${t.getFullYear()}-${two(t.getMonth() + 1)}`; };
+function carregaSwiper() {
+  if (window.Swiper || swiperCarregant) return; swiperCarregant = true;
+  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdn.jsdelivr.net/npm/swiper@11.1.14/swiper-bundle.min.css'; document.head.appendChild(l);
+  const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/swiper@11.1.14/swiper-bundle.min.js';
+  sc.onload = () => render(); sc.onerror = () => { swiperCarregant = false; }; document.head.appendChild(sc);
+}
+function mesosTemporada(ps) {
+  // de setembre a juliol de la temporada (26-27 -> 2026-09 .. 2027-07), més els mesos amb partits fora d'aquest marge
+  const y0 = 2000 + (parseInt(TEMP) || new Date().getFullYear() % 100);
+  let ini = `${y0}-09`, fi = `${y0 + 1}-07`;
+  ps.forEach(p => { const ym = p.data.slice(0, 7); if (ym < ini) ini = ym; if (ym > fi) fi = ym; });
+  if (calMes < ini) ini = calMes; if (calMes > fi) fi = calMes;
+  const out = []; for (let ym = ini; ym <= fi; ym = sumaMes(ym, 1)) out.push(ym);
+  return out;
+}
+function mesHtml(ym, ps) {
+  const [y, m] = ym.split('-').map(Number), first = new Date(y, m - 1, 1), dies = new Date(y, m, 0).getDate();
   const off = (first.getDay() + 6) % 7, cel = [];
   for (let i = 0; i < off; i++) cel.push('<div class="cd buit"></div>');
   for (let d = 1; d <= dies; d++) {
-    const iso = `${calMes}-${two(d)}`, dp = ps.filter(p => p.data === iso);
-    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''}"><span class="dn">${d}</span>${dp.map(p => `<a class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'} ${guany(p)}" href="#/p/${p.id}">${p.resultat ? esc(p.resultat) + ' ' : ''}${esc((p.rival || 'Partit').slice(0, 9))}</a>`).join('')}</div>`);
+    const iso = `${ym}-${two(d)}`, dp = ps.filter(p => p.data === iso);
+    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''}" onclick="calNou(event, '${iso}')"><span class="dn">${d}</span>${dp.map(p => `<a class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'}" href="#/p/${p.id}" title="${EQN[p.equip] || ''}"><i class="eqb">${p.equip === 'G' ? 'G' : 'N'}</i><span class="r">${esc(p.resultat || p.hora || '')}</span>${guany(p) ? `<i class="gd ${guany(p)}"></i>` : '<i></i>'}<span class="rv">${esc(p.rival || 'Partit')}</span></a>`).join('')}</div>`);
   }
-  const mes = first.toLocaleDateString('ca', { month: 'long' }), nom = mes[0].toUpperCase() + mes.slice(1) + ' ' + y;
-  return `<div class="calnav"><button class="btn" onclick="calMou(-1)">‹</button><b>${nom}</b><button class="btn" onclick="calMou(1)">›</button></div>
-  <div class="cal">${['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map(d => `<div class="ch">${d}</div>`).join('')}${cel.join('')}</div>`;
+  while (cel.length < 42) cel.push('<div class="cd buit"></div>');   // sempre 6 setmanes: totes les cares del cub fan la mateixa alçada
+  return `<div class="cal">${['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map(d => `<div class="ch">${d}</div>`).join('')}${cel.join('')}</div>`;
 }
+function calendari(ps) {
+  if (!calMes) { const f = ps.find(p => p.data >= avui()); calMes = (f ? f.data : avui()).slice(0, 7); }
+  carregaSwiper();
+  CALMESOS = window.Swiper ? mesosTemporada(ps) : [calMes];
+  return `<div class="calnav"><button class="btn" onclick="calMou(-1)" aria-label="Mes anterior">‹</button><b id="calnom">${nomMes(calMes)}</b><button class="btn" onclick="calMou(1)" aria-label="Mes següent">›</button></div>
+  ${window.Swiper ? `<div class="swiper calsw" id="calsw"><div class="swiper-wrapper">${CALMESOS.map(ym => `<div class="swiper-slide">${mesHtml(ym, ps)}</div>`).join('')}</div></div>` : mesHtml(calMes, ps)}
+  <div class="callegend"><span style="flex-basis:100%;justify-content:center">${window.Swiper ? '👈 Llisca per canviar de mes 👉 · ' : ''}Toca un dia per afegir-hi un partit</span><span><i class="n"></i>N · Negre</span><span><i class="g"></i>G · Groc</span><span><i class="gd guanyat"></i>Guanyat</span><span><i class="gd perdut"></i>Perdut</span></div>`;
+}
+function muntaCalendari() {
+  // es crida després de cada render: el calendari es torna a pintar sencer
+  try { CALSW?.destroy(true, false); } catch {}
+  CALSW = null;
+  const el = $('#calsw'); if (!el || !window.Swiper) return;
+  CALSW = new Swiper(el, {
+    effect: 'cube', grabCursor: true, initialSlide: Math.max(0, CALMESOS.indexOf(calMes)),
+    cubeEffect: { shadow: false, slideShadows: true },
+    on: { slideChange: sw => { calMes = CALMESOS[sw.activeIndex]; const n = $('#calnom'); if (n) n.textContent = nomMes(calMes); } }
+  });
+}
+window.calMou = d => {
+  if (CALSW) return d < 0 ? CALSW.slidePrev() : CALSW.slideNext();
+  calMes = sumaMes(calMes, d); render();
+};
+// tocar un dia buit del calendari crea un partit aquell dia (tocar un partit l'obre)
+window.calNou = (e, iso) => { if (e.target.closest('.cp')) return; if (confirm(`Partit nou el ${dataCa(iso)}?`)) newPartit(iso); };
+window.majuscula = el => { const v = el.value; if (v && v[0] !== v[0].toUpperCase()) el.value = v[0].toUpperCase() + v.slice(1); };
 window.parFilt = f => { parFiltre = f; store.set('volei.parfiltre', f); render(); };
 function viewPartits() {
   if (!CLAU) return `<h2>Partits</h2>${needKey('portar els partits')}`;
   const ps = PAR.filter(p => !parFiltre || p.equip === parFiltre);
   const fut = ps.filter(p => p.data >= avui()), pas = ps.filter(p => p.data < avui()).reverse();
-  const card = p => `<a class="card pc ${guany(p)}" href="#/p/${p.id}"><div class="row"><span class="grow"><b>${dataCa(p.data)}</b>${p.hora ? ' · ' + esc(p.hora) : ''}<br>${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || '—')}${p.punts && Object.keys(p.punts).length ? `<br><span class="meta">${Object.keys(p.punts).sort().map(k => p.punts[k].join('-')).join(' · ')}</span>` : ''}</span>
-    <span class="tag ${p.equip === 'G' ? 'eqG' : 'eqN'}">${EQN[p.equip] || '?'}</span><span class="meta">${(p.convocats || []).length} conv.</span>${p.resultat ? `<b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</div></a>`;
+  const card = p => {
+    // targeta de partit: data, local contra visitant (sempre el local primer), marcador i parcials
+    const dt = new Date(p.data + 'T12:00'), g = guany(p), nos = `<span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${EQN[p.equip] || '?'}</span>`, riv = `<span>${esc(p.rival || 'Rival?')}</span>`;
+    const dies = Math.round((dt - new Date(avui() + 'T12:00')) / 864e5);
+    const falta = dies === 0 ? 'Avui!' : dies === 1 ? 'Demà' : `D'aquí ${dies} dies`;
+    const parc = Object.keys(p.punts || {}).sort().map(k => { const [a, b] = p.punts[k]; if (a === '' || b === '') return ''; const w = (+a > +b) !== (p.lloc === 'fora'); return `<i class="${w ? 'w' : 'l'}">${a}-${b}</i>`; }).join('');
+    return `<a class="card mc ${p.equip === 'G' ? 'mG' : 'mN'}" href="#/p/${p.id}">
+      <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
+      <span class="mbody"><span class="mteams">${p.lloc === 'fora' ? riv + '<i>vs</i>' + nos : nos + '<i>vs</i>' + riv}</span>
+        <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' · ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'} · 👥 ${(p.convocats || []).length}</span>
+        ${parc ? `<span class="parc">${parc}</span>` : ''}</span>
+      <span class="mres">${p.resultat ? `<b class="score ${g}">${esc(p.resultat)}</b><small class="${g}">${g === 'guanyat' ? 'Guanyat' : g === 'perdut' ? 'Perdut' : ''}</small>` : dies >= 0 ? `<small class="falta">${falta}</small>` : '<small>Sense resultat</small>'}</span></a>`;
+  };
   const comptes = JUG.filter(j => j.actiu !== false).map(j => statsPartits(j.id, parFiltre)).sort((a, b) => b.tot - a.tot || (b.pct ?? -1) - (a.pct ?? -1) || a.j.nom.localeCompare(b.j.nom, 'ca'));
   return `<h2>Partits</h2>
   <div class="seg">${[['', 'Tots'], ['N', 'Negre'], ['G', 'Groc']].map(([v, t]) => `<button class="${parFiltre === v ? 'on' : ''}" onclick="parFilt('${v}')">${t}</button>`).join('')}</div>
@@ -652,8 +861,8 @@ function viewPartits() {
     ${comptes.map(c => `<div class="ptab"><a class="nomlink" href="#/j/${c.j.id}">${esc(c.j.nom)}</a><b>${c.tot}</b><span>${c.N}</span><span>${c.G}</span><span>${c.pct ?? '–'}${c.pct != null ? '%' : ''}</span></div>`).join('')}</div>
   <p class="meta">% sets: dels sets amb alineació posada als partits on estava convocat, en quants ha sortit al camp. El lliure compta com que juga el set.</p>`;
 }
-window.newPartit = async () => {
-  const d = await fs.addDoc(col('partits'), { data: avui(), hora: '', equip: parFiltre || 'N', rival: '', lloc: 'casa', convocats: [], sets: {}, resultat: '' });
+window.newPartit = async (data = avui()) => {
+  const d = await fs.addDoc(col('partits'), { data, hora: '20:00', equip: parFiltre || 'N', rival: '', lloc: 'casa', convocats: [], sets: {}, resultat: '' });
   location.hash = '#/p/' + d.id;
 };
 const parRef = id => ref('partits', id);
@@ -674,9 +883,9 @@ window.parDel = id => { if (confirm('Esborrar aquest partit?')) { fs.deleteDoc(p
 let setActiu = 1;
 const curt = n => (n || '').split(' ')[0].slice(0, 8);
 const ZONES = { 4: [17, 22], 3: [50, 22], 2: [83, 22], 5: [17, 72], 6: [50, 72], 1: [83, 72] };
-function court(pos, lineup) {
+function court(pos, lineup, eq) {
   // pos: {1..6: jugador}. lineup = true: arrossegar un jugador a una altra zona els intercanvia
-  return `<div class="court" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
+  return `<div class="court ${eq ? 'eq' + eq : ''}" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
     ${Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y + 14}%">${z}</span>`).join('')}
     ${Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]);
       return `<div class="tok ${j ? '' : 'buit'}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? esc(curt(j.nom)) : ''}</div>`; }).join('')}
@@ -699,17 +908,17 @@ function viewPartit(id) {
       <div><label class="lbl">Equip</label><select onchange="parSet('${id}','equip',this.value)">${Object.entries(EQN).map(([v, t]) => `<option value="${v}" ${p.equip === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
       <div><label class="lbl">On</label><select onchange="parSet('${id}','lloc',this.value)"><option value="casa" ${p.lloc !== 'fora' ? 'selected' : ''}>A casa</option><option value="fora" ${p.lloc === 'fora' ? 'selected' : ''}>Fora</option></select></div>
     </div>
-    <label class="lbl">Rival</label><input type="text" id="rival" value="${esc(p.rival || '')}" onchange="parSet('${id}','rival',this.value.trim())">
+    <label class="lbl">Rival</label><input type="text" id="rival" autocapitalize="words" value="${esc(p.rival || '')}" oninput="majuscula(this)" onchange="parSet('${id}','rival',this.value.trim())">
     <label class="lbl">Punts per set (${p.lloc === 'fora' ? `local (${esc(p.rival || 'ells')}) - nosaltres` : `nosaltres - ${esc(p.rival || 'ells')}`})${p.resultat ? ` · <b style="color:var(--ink)">Resultat ${esc(p.resultat)}</b>` : ''}</label>
     <div class="sets">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? ((+v[0] > +v[1]) !== (p.lloc === 'fora') ? 'guanyat' : 'perdut') : '';
       return `<div class="setrow ${g}"><span>Set ${n}</span><input inputmode="numeric" id="pa${n}" value="${v[0] ?? ''}" onchange="setPunts('${id}', ${n})"><b>-</b><input inputmode="numeric" id="pb${n}" value="${v[1] ?? ''}" onchange="setPunts('${id}', ${n})"></div>`; }).join('')}</div>
   </div>
   <h3>Convocats · ${conv.size}</h3>
   <div class="card">${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
-    <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${esc(j.nom)}</span>${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}</div>
+    <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${esc(j.nom)}</span>${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}</div>
   <h3>Alineació</h3>
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
-  ${court(pos, true)}
+  ${court(pos, true, p.equip)}
   <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Z${z}</label><select onchange="posSet('${id}', ${z}, this.value)"><option value="">—</option>
     ${convs.filter(j => pos[z] === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('')}
     <div><label>Lliure</label><select onchange="posSet('${id}', 'L', this.value)"><option value="">—</option>
@@ -746,7 +955,7 @@ function viewPissarra(id) {
   const toks = Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]), s2 = saved?.[z];
     return `<div class="tok" data-z="${z}" style="left:${s2 ? s2[0] : x}%;top:${s2 ? s2[1] : y}%">${j ? esc(curt(j.nom)) : z}</div>`; }).join('');
   return `<h2>Pissarra${p ? ' · ' + esc(p.rival || '') + ' · set ' + setActiu : ''}</h2>
-  <div class="court" id="court" data-mode="free" data-key="${key}"><div class="net"></div>${toks}</div>
+  <div class="court ${p ? 'eq' + p.equip : ''}" id="court" data-mode="free" data-key="${key}"><div class="net"></div>${toks}</div>
   <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Fitxa ${z}</label><select onchange="pisNom('${key}', ${z}, this.value)"><option value="">${z}</option>
     ${triables.filter(j => pos[z] === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('')}</div>
   <div class="actions"><button class="btn" onclick="store_del('${id || 'lliure'}')">↺ Torna a les posicions</button>${p ? `<a class="btn" style="text-decoration:none" href="#/p/${id}">Torna al partit</a>` : ''}</div>
@@ -895,7 +1104,7 @@ function timerPaint() {
   dig.classList.toggle('end', !!end);
   $('#tlab').textContent = T.lab;
   $('#tgo').textContent = T.run ? '⏸ Pausa' : (e ? '▶ Continua' : '▶ Comença');
-  $('#tbtn').textContent = T.run ? '⏱•' : '⏱';
+  $('#tbtn').classList.toggle('run', T.run);
   if (end && !T.beeped) { T.beeped = true; alarmStart(); }
 }
 window.timerEdit = () => {
@@ -923,6 +1132,7 @@ window.timerGo = () => {
 window.timerReset = () => { alarmStop(); T.acc = 0; T.beeped = false; if (T.run) { T.start = Date.now(); if (T.dur) audioArm(); } timerPaint(); };
 
 // ------------------------------------------------------------------- render
+let lastRuta = null;
 function render() {
   if (!D) return;
   let [r, arg] = location.hash.replace(/^#\/?/, '').split('/');
@@ -937,14 +1147,17 @@ function render() {
   else if (r === 'p') { html = viewPartit(arg); tab = 'partits'; title = 'Partit'; }
   else if (r === 'pissarra') { html = viewPissarra(arg); tab = 'partits'; title = 'Pissarra'; }
   else html = viewHome();
-  $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">🏐</span>Inici</a>
-    ${['DT', 'DJ'].filter(f => diesDe(f).length).map(f => `<a href="#/f/${f}" data-t="${f}"><span class="ico">${f === 'DT' ? 1 : 2}</span>${diesDe(f).map(d => CURT[d]).join('+') === 'Dt' ? 'Dimarts' : diesDe(f).map(d => CURT[d]).join('+') === 'Dj' ? 'Dijous' : diesDe(f).length === 1 ? DIES[diesDe(f)[0]] : diesDe(f).map(d => CURT[d]).join(' + ')}</a>`).join('')}
-    <a href="#/assistencia" data-t="assistencia"><span class="ico">✓</span>Assistència</a>
-    <a href="#/partits" data-t="partits"><span class="ico">🏆</span>Partits</a>`;
+  $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">${ICO.inici}</span>Inici</a>
+    ${['DT', 'DJ'].filter(f => diesDe(f).length).map(f => `<a href="#/f/${f}" data-t="${f}"><span class="ico">${f === 'DT' ? ICO.pista : ICO.pistes}</span>${diesDe(f).map(d => CURT[d]).join('+') === 'Dt' ? 'Dimarts' : diesDe(f).map(d => CURT[d]).join('+') === 'Dj' ? 'Dijous' : diesDe(f).length === 1 ? DIES[diesDe(f)[0]] : diesDe(f).map(d => CURT[d]).join(' + ')}</a>`).join('')}
+    <a href="#/assistencia" data-t="assistencia"><span class="ico">${ICO.ass}</span>Assistència</a>
+    <a href="#/partits" data-t="partits"><span class="ico">${ICO.partits}</span>Partits</a>`;
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
   if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
+  const ruta = r + '/' + arg;
+  muntaCalendari();
+  if (ruta !== lastRuta) { lastRuta = ruta; const ap = $('#app'); ap.classList.remove('view'); void ap.offsetWidth; ap.classList.add('view'); }
   $('#title').textContent = title;
   $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra'].includes(r);
   document.querySelectorAll('nav.tabs a').forEach(x => x.classList.toggle('on', x.dataset.t === tab));
