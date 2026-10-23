@@ -42,7 +42,7 @@ body { font: 16px/1.5 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans
 header { position: sticky; top: 0; z-index: 5; background: linear-gradient(120deg, #14325a 0%, #0c2340 70%); color: #fff; padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 8px; box-shadow: inset 0 -4px 0 var(--accent); overflow: hidden; }
 header::after { content: ''; position: absolute; right: -26px; top: -30px; width: 110px; height: 110px; border-radius: 50%; border: 10px solid rgba(255,255,255,.06); box-shadow: inset 18px 0 0 -8px rgba(255,255,255,.05); pointer-events: none; }
 header h1 { font: 800 22px/1.1 var(--head); text-transform: uppercase; letter-spacing: .03em; margin: 0; flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-header h1 .ball { flex: none; width: 24px; height: 24px; }
+header h1 .ball { flex: none; width: 28px; height: 28px; }
 header button { background: rgba(255,255,255,.1); border: 0; color: #fff; font-size: 20px; width: 40px; height: 40px; border-radius: 12px; padding: 0; cursor: pointer; display: grid; place-items: center; position: relative; z-index: 1; }
 header button:active { background: rgba(255,255,255,.22); }
 header button[hidden] { display: none; }
@@ -402,8 +402,8 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .pxl:last-child { border-bottom: 0; }
 .pxd { display: block; font-size: 13px; font-weight: 700; color: var(--muted); }
 .pxt { display: block; font: 700 18px/1.25 var(--head); }
-.nosn { border-radius: 5px; padding: 0 5px; }
-.nosn.n { background: #14181f; color: #fff; box-shadow: inset 0 0 0 1px #5a6372; } .nosn.g { background: #f5c518; color: #14181f; }
+.nosn { border-radius: 5px; padding: 0 5px; border: 1px solid; }
+.nosn.n { background: #14181f; color: #fff; border-color: #14181f; } .nosn.g { background: #f5c518; color: #14181f; border-color: #14181f; }
 .qd { margin-left: 4px; font-size: 12px; font-weight: 400; font-style: italic; color: var(--muted); opacity: .8; }
 .qd::before { content: '· '; }
 .mbox img + .actions { margin-top: 12px; }
@@ -413,7 +413,7 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 <body>
 <header>
   <button id="back" aria-label="Enrere" hidden>‹</button>
-  <h1><svg class="ball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10" fill="#f5c518" stroke="#fff"/><path d="M12 2c-1 4 0 7 3 9.5M2.6 9c4-.8 7 .4 9.4 3M6 20c1.5-3.8 3.6-6 6-8 2.4 1.6 5.6 2 9.6 1" stroke="#14325a"/></svg><span id="title">Vòlei 26-27</span></h1>
+  <h1><svg class="ball" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="#f5c518"/><path d="M11.1 7.1a16.55 16.55 0 0 1 10.9 4"/><path d="M12 12a12.6 12.6 0 0 1-8.7 5"/><path d="M16.8 13.6a16.55 16.55 0 0 1-9 7.5"/><path d="M20.7 17a12.8 12.8 0 0 0-8.7-5 13.3 13.3 0 0 1 0-10"/><path d="M6.3 3.8a16.55 16.55 0 0 0 1.9 11.5"/></svg><span id="title">Vòlei 26-27</span></h1>
   <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()">⏱</button>
   <button aria-label="Configuració" onclick="location.hash='#/config'">⚙</button>
 </header>
@@ -663,7 +663,7 @@ function viewHome() {
     <a href="#/pissarra"><span class="qi">🏐</span>Pissarra</a></div>
   <h3>Pròxims partits</h3>
   <div class="card pxlist">${prox.map(linia).join('') || '<p class="meta" style="margin:0">Cap partit planificat. Afegeix-los a Partits.</p>'}
-    ${prox.length ? `<div class="actions" style="margin:6px 0 10px"><button class="btn primary" style="flex:1" onclick="copiaPartits()">📋 Copia per al WhatsApp</button><button class="btn" onclick="whatsPartits()">💬 Envia</button><button class="btn" onclick="imatgePartits()">🖼️ Imatge</button></div>` : ''}</div>`
+    ${prox.length ? `<div class="actions" style="margin:6px 0 8px"><button class="btn primary" style="flex:1" onclick="copiaPartits()">📋 Copia el text per al WhatsApp</button></div><div class="actions" style="margin:0 0 10px"><button class="btn" style="flex:1" onclick="copiaImatge()">🖼️ Copia imatge</button><button class="btn" style="flex:1" onclick="desaImatge()">⬇️ Desa imatge</button></div>` : ''}</div>`
   : needKey('marcar sessions, escriure comentaris i portar l\'assistència,')}
   <details class="card"><summary>Què volen dir els codis</summary>
   <div class="legend">${Object.entries(FAM).map(([k, v]) => `<span class="code fam f-${k}">${k}</span><span>${v}</span>`).join('')}</div></details>`;
@@ -678,7 +678,7 @@ function queden(data) {
 // text dels pròxims partits per enganxar al grup: «Dijous 5/11 20:00 Sant Pere Groc vs Aloges»
 function textPartits() {
   const nos = p => ((CFG.club || '') + ' ' + (EQN[p.equip] || '')).trim();
-  return '*Propers Partits*\n' + PAR.filter(p => p.data >= avui()).map(p => {
+  return '*Propers Partits* 🏐💪🏼💛🖤\n' + PAR.filter(p => p.data >= avui()).map(p => {
     const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString('ca', { weekday: 'long' }), riv = p.rival || 'Rival?';
     return `${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}`;
   }).join('\n');
@@ -688,73 +688,91 @@ window.copiaPartits = async () => {
   try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
   catch { dialeg(`<textarea readonly style="min-height:140px;font-size:14px" onfocus="this.select()">${esc(t)}</textarea><small>Mantén premut el text per copiar-lo.</small>`, { sol: true, ico: '📋' }); }
 };
-// imatge dels pròxims partits (per compartir al grup en lloc del text)
+// imatge dels pròxims partits, estil cartell (per enganxar al grup)
+const BALLP = ["M11.1 7.1a16.55 16.55 0 0 1 10.9 4", "M12 12a12.6 12.6 0 0 1-8.7 5", "M16.8 13.6a16.55 16.55 0 0 1-9 7.5", "M20.7 17a12.8 12.8 0 0 0-8.7-5 13.3 13.3 0 0 1 0-10", "M6.3 3.8a16.55 16.55 0 0 0 1.9 11.5"];
+function pilota(x, X, Y, R, alpha = 1) {
+  x.save(); x.globalAlpha = alpha; x.translate(X - R, Y - R); x.scale(R / 12, R / 12);
+  x.beginPath(); x.arc(12, 12, 10, 0, 7); x.fillStyle = '#f5c518'; x.fill();
+  x.lineWidth = 1.6; x.strokeStyle = '#111'; x.lineCap = 'round'; x.stroke(); BALLP.forEach(d => x.stroke(new Path2D(d)));
+  x.restore();
+}
 async function dibuixaPartits() {
-  try { await Promise.all(['800 60px "Barlow Condensed"', '700 40px "Barlow Condensed"', '600 30px Barlow'].map(f => document.fonts.load(f))); } catch {}
-  const ps = PAR.filter(p => p.data >= avui()), W = 1080, HEAD = 250, ROW = 170, FOOT = 90;
-  const c = document.createElement('canvas'); c.width = W; c.height = HEAD + ps.length * ROW + FOOT + 20;
+  try { await Promise.all(['800 60px "Barlow Condensed"', '700 40px "Barlow Condensed"', '500 30px "Barlow Condensed"'].map(f => document.fonts.load(f))); } catch {}
+  const ps = PAR.filter(p => p.data >= avui()), W = 1080, HEAD = 300, ROW = 190, FOOT = 120;
+  const c = document.createElement('canvas'); c.width = W; c.height = HEAD + ps.length * ROW + FOOT;
   const x = c.getContext('2d'), F = '"Barlow Condensed", "Arial Narrow", sans-serif';
   const rr = (X, Y, w, h, r) => { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); };
-  // fons i capçalera
-  x.fillStyle = '#f1f3f8'; x.fillRect(0, 0, W, c.height);
-  const g = x.createLinearGradient(0, 0, W, HEAD); g.addColorStop(0, '#1b4a85'); g.addColorStop(1, '#0c2340');
-  x.fillStyle = g; x.fillRect(0, 0, W, HEAD);
-  x.strokeStyle = 'rgba(255,255,255,.07)'; x.lineWidth = 26; x.beginPath(); x.arc(W - 70, 40, 150, 0, 7); x.stroke();
-  x.fillStyle = '#f5c518'; x.fillRect(0, HEAD - 12, W, 12);
-  x.fillStyle = '#f5c518'; x.beginPath(); x.arc(110, 118, 48, 0, 7); x.fill();
-  x.strokeStyle = '#14325a'; x.lineWidth = 6; x.beginPath(); x.arc(110, 118, 48, 0, 7); x.stroke();
-  x.beginPath(); x.moveTo(110, 70); x.quadraticCurveTo(100, 115, 140, 145); x.moveTo(64, 104); x.quadraticCurveTo(105, 98, 112, 128); x.moveTo(80, 158); x.quadraticCurveTo(100, 125, 156, 128); x.stroke();
-  x.fillStyle = '#fff'; x.font = `800 84px ${F}`; x.textBaseline = 'alphabetic'; x.fillText('PROPERS PARTITS', 190, 140);
-  x.fillStyle = 'rgba(255,255,255,.75)'; x.font = `600 34px ${F}`; x.fillText(((CFG.club || 'Vòlei') + ' · temporada ' + TEMP).toUpperCase(), 192, 190);
+  // fons: blau fosc amb línies de pista i una pilota gegant de marca d'aigua
+  const g = x.createLinearGradient(0, 0, W * .4, c.height); g.addColorStop(0, '#163a68'); g.addColorStop(1, '#08182c');
+  x.fillStyle = g; x.fillRect(0, 0, W, c.height);
+  x.strokeStyle = 'rgba(255,255,255,.05)'; x.lineWidth = 6;
+  for (let k = -c.height; k < W; k += 90) { x.beginPath(); x.moveTo(k, 0); x.lineTo(k + c.height * .6, c.height); x.stroke(); }
+  pilota(x, W - 120, 150, 230, .10);
+  // capçalera
+  pilota(x, 120, 130, 62);
+  x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+  x.fillStyle = '#fff'; x.font = `800 112px ${F}`; x.fillText('PROPERS PARTITS', 205, 168);
+  x.fillStyle = '#f5c518'; x.font = `700 40px ${F}`; x.fillText(((CFG.club || 'Vòlei') + '  ·  temporada ' + TEMP).toUpperCase(), 210, 222);
+  x.fillStyle = '#f5c518'; x.fillRect(60, HEAD - 34, 140, 8);
   // un partit per fila
+  // equips (el local primer); la mateixa mida de lletra a totes les files
+  const parelles = p => { const nos = ((CFG.club || '') + ' ' + (EQN[p.equip] || '')).trim().toUpperCase(), riv = (p.rival || 'Rival?').toUpperCase();
+    return p.lloc === 'fora' ? [[riv, 0], ['VS', 2], [nos, 1]] : [[nos, 1], ['VS', 2], [riv, 0]]; };
+  const fnt = (k, sz) => `${k === 2 ? 700 : 800} ${k === 2 ? sz * .55 : sz}px ${F}`;
+  const ample = (parts, sz) => parts.reduce((t, [txt, k]) => { x.font = fnt(k, sz); return t + x.measureText(txt).width + (k === 1 ? 32 : 0) + (k === 2 ? 36 : 0); }, 0);
+  let MIDA = 58; while (ps.some(p => ample(parelles(p), MIDA) > W - 120 - 250 - 30) && MIDA > 28) MIDA -= 2;
   ps.forEach((p, i) => {
-    const Y = HEAD + 20 + i * ROW, d = new Date(p.data + 'T12:00');
-    x.fillStyle = '#fff'; x.shadowColor = 'rgba(20,32,46,.10)'; x.shadowBlur = 18; x.shadowOffsetY = 4; rr(40, Y, W - 80, ROW - 20, 26); x.fill(); x.shadowColor = 'transparent';
-    x.fillStyle = p.equip === 'G' ? '#f5c518' : '#14181f'; rr(40, Y, 14, ROW - 20, 7); x.fill();
-    // bloc de data
-    x.fillStyle = '#e5edf8'; rr(80, Y + 18, 114, ROW - 56, 18); x.fill();
-    x.textAlign = 'center'; x.fillStyle = '#5d6a7c'; x.font = `700 24px ${F}`;
-    x.fillText(d.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '').toUpperCase(), 137, Y + 50);
-    x.fillStyle = '#14325a'; x.font = `800 56px ${F}`; x.fillText(String(d.getDate()), 137, Y + 100);
-    x.fillStyle = '#5d6a7c'; x.font = `700 22px ${F}`; x.fillText(d.toLocaleDateString('ca', { month: 'short' }).replace('.', '').toUpperCase(), 137, Y + 124);
+    const Y = HEAD + i * ROW, d = new Date(p.data + 'T12:00'), H = ROW - 26;
+    x.fillStyle = 'rgba(255,255,255,.07)'; rr(60, Y, W - 120, H, 28); x.fill();
+    x.strokeStyle = 'rgba(255,255,255,.12)'; x.lineWidth = 2; rr(60, Y, W - 120, H, 28); x.stroke();
+    // data en groc
+    x.fillStyle = '#f5c518'; rr(60, Y, 150, H, 28); x.fill(); x.fillRect(180, Y, 30, H);
+    x.textAlign = 'center'; x.fillStyle = '#14181f';
+    x.font = `700 28px ${F}`; x.fillText(d.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '').toUpperCase(), 135, Y + 44);
+    x.font = `800 72px ${F}`; x.fillText(String(d.getDate()), 135, Y + 112);
+    x.font = `700 26px ${F}`; x.fillText(d.toLocaleDateString('ca', { month: 'short' }).replace('.', '').toUpperCase(), 135, Y + 144);
     x.textAlign = 'left';
-    // dia i hora
+    // hora i lloc
+    x.fillStyle = 'rgba(255,255,255,.7)'; x.font = `600 32px ${F}`;
     const dia = d.toLocaleDateString('ca', { weekday: 'long' });
-    x.fillStyle = '#5d6a7c'; x.font = `600 30px ${F}`;
-    x.fillText(`${dia[0].toUpperCase() + dia.slice(1)}${p.hora ? ' · ' + p.hora : ''} · ${p.lloc === 'fora' ? 'a fora' : 'a casa'}`, 226, Y + 56);
-    // equips: el local primer; el nostre, en una etiqueta del color de l'equip
-    const nos = ((CFG.club || '') + ' ' + (EQN[p.equip] || '')).trim(), riv = p.rival || 'Rival?';
-    const parts = p.lloc === 'fora' ? [[riv, 0], [' vs ', 2], [nos, 1]] : [[nos, 1], [' vs ', 2], [riv, 0]];
-    let size = 50, avail = W - 80 - 226 - 30;
-    const mida = sz => parts.reduce((t, [txt, k]) => { x.font = `${k === 2 ? 500 : 800} ${k === 2 ? sz * .7 : sz}px ${F}`; return t + x.measureText(txt).width + (k === 1 ? 28 : 0); }, 0);
-    while (mida(size) > avail && size > 26) size -= 2;
-    let X = 226; const base = Y + 112;
+    x.fillText(`${dia.toUpperCase()}${p.hora ? '  ·  ' + p.hora : ''}  ·  ${p.lloc === 'fora' ? 'A FORA' : 'A CASA'}`, 250, Y + 56);
+    // equips (el local primer); el nostre en una etiqueta del color de l'equip
+    const parts = parelles(p), size = MIDA;
+    let X = 250; const base = Y + 128;
     parts.forEach(([txt, k]) => {
-      x.font = `${k === 2 ? 500 : 800} ${k === 2 ? size * .7 : size}px ${F}`;
-      const w = x.measureText(txt).width;
-      if (k === 1) { x.fillStyle = p.equip === 'G' ? '#f5c518' : '#14181f'; rr(X, base - size * .88, w + 28, size * 1.12, 10); x.fill(); x.fillStyle = p.equip === 'G' ? '#14181f' : '#fff'; x.fillText(txt, X + 14, base); X += w + 28; }
-      else { x.fillStyle = k === 2 ? '#8a96a6' : '#14202e'; x.fillText(txt, X, base); X += w; }
+      x.font = fnt(k, size); const w = x.measureText(txt).width;
+      if (k === 1) {
+        x.fillStyle = p.equip === 'G' ? '#f5c518' : '#000'; rr(X, base - size * .9, w + 32, size * 1.18, 12); x.fill();
+        if (p.equip !== 'G') { x.strokeStyle = '#f5c518'; x.lineWidth = 3; rr(X, base - size * .9, w + 32, size * 1.18, 12); x.stroke(); }
+        x.fillStyle = p.equip === 'G' ? '#14181f' : '#fff'; x.fillText(txt, X + 16, base); X += w + 32;
+      } else if (k === 2) { x.fillStyle = '#f5c518'; x.fillText(txt, X + 18, base - size * .12); X += w + 36; }
+      else { x.fillStyle = '#fff'; x.fillText(txt, X, base); X += w; }
     });
   });
-  x.fillStyle = '#8a96a6'; x.font = `600 26px ${F}`; x.textAlign = 'center';
-  x.fillText('🏐  Som-hi!', W / 2, c.height - 40);
+  // peu
+  x.fillStyle = 'rgba(255,255,255,.55)'; x.font = `600 30px ${F}`; x.textAlign = 'center';
+  x.fillText('SOM-HI, ' + (CFG.club || 'EQUIP').toUpperCase() + '!  🏐💪🏼💛🖤', W / 2, c.height - 50);
   return c;
 }
-let IMG = null;
-window.imatgePartits = async () => {
-  const c = await dibuixaPartits();
-  IMG = await new Promise(r => c.toBlob(r, 'image/png'));
-  const url = URL.createObjectURL(IMG), pot = !!navigator.canShare?.({ files: [new File([IMG], 'partits.png', { type: 'image/png' })] });
-  dialeg(`<img src="${url}" alt="Propers partits" style="width:100%;border-radius:12px;box-shadow:var(--shadow)">
-    <div class="actions" style="justify-content:center">${pot ? '<button class="btn primary" onclick="imgComparteix()">📤 Comparteix</button>' : ''}<button class="btn" onclick="imgCopia()">📋 Copia</button><a class="btn" style="text-decoration:none" href="${url}" download="propers-partits.png">⬇️ Desa</a></div>`,
-    { sol: true, ok: 'Tanca', ico: '🖼️' });
+const nomImatge = () => { const d = new Date(); return `Propers partits ${two(d.getDate())}-${two(d.getMonth() + 1)}-${d.getFullYear()}.png`; };
+const blobPartits = () => dibuixaPartits().then(c => new Promise(r => c.toBlob(r, 'image/png')));
+window.copiaImatge = async () => {
+  // el ClipboardItem es crea dins del toc (amb una promesa) perquè Safari i Chrome ho deixin fer
+  const bp = blobPartits();
+  try {
+    if (!window.ClipboardItem || !navigator.clipboard?.write) throw new Error('no');
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': bp })]);
+    desat('✓ Imatge copiada. Enganxa-la al WhatsApp');
+  } catch {
+    const f = new File([await bp], nomImatge(), { type: 'image/png' });
+    if (navigator.canShare?.({ files: [f] })) { try { await navigator.share({ files: [f] }); } catch {} return; }
+    dialeg('Aquest navegador no deixa copiar imatges.<br><small>Toca «⬇️ Desa imatge» i envia-la des de la galeria. Amb Chrome sí que es pot copiar directament.</small>', { sol: true, ico: '🖼️' });
+  }
 };
-window.imgComparteix = async () => { try { await navigator.share({ files: [new File([IMG], 'propers-partits.png', { type: 'image/png' })] }); } catch {} };
-window.imgCopia = async () => {
-  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': IMG })]); desat('✓ Imatge copiada'); }
-  catch { desat('Aquest mòbil no deixa copiar imatges: fes servir Comparteix o Desa'); }
+window.desaImatge = async () => {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(await blobPartits()); a.download = nomImatge();
+  document.body.appendChild(a); a.click(); a.remove(); desat('⬇️ ' + nomImatge());
 };
-window.whatsPartits = () => { location.href = 'https://wa.me/?text=' + encodeURIComponent(textPartits()); };
 window.goLlista = () => {
   if (location.hash === '#/assistencia') return newAss();
   addEventListener('hashchange', () => newAss(), { once: true });
