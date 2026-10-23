@@ -159,6 +159,12 @@ a.nomlink { color: inherit; text-decoration: none; }
 .conv:last-child { border-bottom: 0; }
 .conv input { width: 20px; height: 20px; accent-color: var(--brand); }
 .conv .grow { flex: 1; }
+.sets { display: grid; gap: 6px; }
+.setrow { display: grid; grid-template-columns: 60px 1fr auto 1fr; align-items: center; gap: 8px; padding: 2px 6px; border-radius: 8px; }
+.setrow span { font-size: 14px; font-weight: 600; color: var(--muted); }
+.setrow input { text-align: center; padding: 6px; }
+.setrow.guanyat { background: var(--si-soft); }
+.setrow.perdut { background: var(--no-soft); }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 /* Camp */
 .court { position: relative; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 1 / 1; background: #e9a066; border: 3px solid #fff; outline: 1px solid var(--line); border-radius: 4px; touch-action: none; user-select: none; }
@@ -586,7 +592,7 @@ function viewPartits() {
   if (!CLAU) return `<h2>Partits</h2>${needKey('portar els partits')}`;
   const ps = PAR.filter(p => !parFiltre || p.equip === parFiltre);
   const fut = ps.filter(p => p.data >= avui()), pas = ps.filter(p => p.data < avui()).reverse();
-  const card = p => `<a class="card" href="#/p/${p.id}"><div class="row"><span class="grow"><b>${dataCa(p.data)}</b>${p.hora ? ' · ' + esc(p.hora) : ''}<br>${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || '—')}</span>
+  const card = p => `<a class="card" href="#/p/${p.id}"><div class="row"><span class="grow"><b>${dataCa(p.data)}</b>${p.hora ? ' · ' + esc(p.hora) : ''}<br>${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || '—')}${p.punts && Object.keys(p.punts).length ? `<br><span class="meta">${Object.keys(p.punts).sort().map(k => p.punts[k].join('-')).join(' · ')}</span>` : ''}</span>
     <span class="tag ${p.equip === 'G' ? 'eqG' : 'eqN'}">${EQN[p.equip] || '?'}</span><span class="meta">${(p.convocats || []).length} conv.</span>${p.resultat ? `<b>${esc(p.resultat)}</b>` : ''}</div></a>`;
   const comptes = JUG.filter(j => j.actiu !== false).map(j => ({ j, n: partitsDe(j.id).filter(p => !parFiltre || p.equip === parFiltre).length })).sort((a, b) => b.n - a.n || a.j.nom.localeCompare(b.j.nom, 'ca'));
   return `<h2>Partits</h2>
@@ -606,6 +612,13 @@ window.parSet = (id, k, v) => fs.updateDoc(parRef(id), { [k]: v });
 window.parConv = (id, jid, on) => {
   const p = PAR.find(x => x.id === id), c = new Set(p.convocats || []);
   on ? c.add(jid) : c.delete(jid); p.convocats = [...c]; fs.updateDoc(parRef(id), { convocats: p.convocats }); render();
+};
+window.setPunts = (id, n) => {
+  const p = PAR.find(x => x.id === id), a = $('#pa' + n).value.trim(), b = $('#pb' + n).value.trim();
+  const punts = { ...(p.punts || {}) }; if (a === '' && b === '') delete punts[n]; else punts[n] = [a === '' ? '' : +a, b === '' ? '' : +b];
+  let g = 0, q = 0; Object.values(punts).forEach(([x, y]) => { if (x !== '' && y !== '') x > y ? g++ : q++; });
+  p.punts = punts; p.resultat = g + q ? `${g}-${q}` : '';
+  fs.updateDoc(parRef(id), { punts, resultat: p.resultat }); render();
 };
 window.parDel = id => { if (confirm('Esborrar aquest partit?')) { fs.deleteDoc(parRef(id)); location.hash = '#/partits'; } };
 
@@ -637,7 +650,9 @@ function viewPartit(id) {
       <div><label class="lbl">On</label><select onchange="parSet('${id}','lloc',this.value)"><option value="casa" ${p.lloc !== 'fora' ? 'selected' : ''}>A casa</option><option value="fora" ${p.lloc === 'fora' ? 'selected' : ''}>Fora</option></select></div>
     </div>
     <label class="lbl">Rival</label><input type="text" id="rival" value="${esc(p.rival || '')}" onchange="parSet('${id}','rival',this.value.trim())">
-    <label class="lbl">Resultat</label><input type="text" id="resultat" placeholder="3-1" value="${esc(p.resultat || '')}" onchange="parSet('${id}','resultat',this.value.trim())">
+    <label class="lbl">Punts per set (nosaltres - ells)${p.resultat ? ` · <b style="color:var(--ink)">Resultat ${esc(p.resultat)}</b>` : ''}</label>
+    <div class="sets">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? (+v[0] > +v[1] ? 'guanyat' : 'perdut') : '';
+      return `<div class="setrow ${g}"><span>Set ${n}</span><input inputmode="numeric" id="pa${n}" value="${v[0] ?? ''}" onchange="setPunts('${id}', ${n})"><b>-</b><input inputmode="numeric" id="pb${n}" value="${v[1] ?? ''}" onchange="setPunts('${id}', ${n})"></div>`; }).join('')}</div>
   </div>
   <h3>Convocats · ${conv.size}</h3>
   <div class="card">${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
@@ -866,7 +881,7 @@ function render() {
     <a href="#/partits" data-t="partits"><span class="ico">🏆</span>Partits</a>`;
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
-  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'rival' || a.id === 'resultat' || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
+  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   $('#title').textContent = title;
   $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra'].includes(r);
