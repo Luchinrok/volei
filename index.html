@@ -42,7 +42,7 @@ body { font: 16px/1.5 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans
 header { position: sticky; top: 0; z-index: 5; background: linear-gradient(120deg, #14325a 0%, #0c2340 70%); color: #fff; padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 8px; box-shadow: inset 0 -4px 0 var(--accent); overflow: hidden; }
 header::after { content: ''; position: absolute; right: -26px; top: -30px; width: 110px; height: 110px; border-radius: 50%; border: 10px solid rgba(255,255,255,.06); box-shadow: inset 18px 0 0 -8px rgba(255,255,255,.05); pointer-events: none; }
 header h1 { font: 800 22px/1.1 var(--head); text-transform: uppercase; letter-spacing: .03em; margin: 0; flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-header h1 .ball { flex: none; font-size: 17px; letter-spacing: -1px; text-transform: none; }
+header h1 .ball { flex: none; width: 24px; height: 24px; }
 header button { background: rgba(255,255,255,.1); border: 0; color: #fff; font-size: 20px; width: 40px; height: 40px; border-radius: 12px; padding: 0; cursor: pointer; display: grid; place-items: center; position: relative; z-index: 1; }
 header button:active { background: rgba(255,255,255,.22); }
 header button[hidden] { display: none; }
@@ -404,13 +404,14 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .pxt { display: block; font: 700 18px/1.25 var(--head); }
 .nosn { border-radius: 5px; padding: 0 5px; }
 .nosn.n { background: #14181f; color: #fff; box-shadow: inset 0 0 0 1px #5a6372; } .nosn.g { background: #f5c518; color: #14181f; }
-.qd { margin-left: 6px; font-size: 11px; font-weight: 700; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 1px 8px; vertical-align: 1px; }
+.qd { margin-left: 4px; font-size: 12px; font-weight: 400; font-style: italic; color: var(--muted); opacity: .8; }
+.qd::before { content: '· '; }
 </style>
 </head>
 <body>
 <header>
   <button id="back" aria-label="Enrere" hidden>‹</button>
-  <h1><span class="ball">🏐💪🏼💛🖤</span><span id="title">Vòlei 26-27</span></h1>
+  <h1><svg class="ball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10" fill="#f5c518" stroke="#fff"/><path d="M12 2c-1 4 0 7 3 9.5M2.6 9c4-.8 7 .4 9.4 3M6 20c1.5-3.8 3.6-6 6-8 2.4 1.6 5.6 2 9.6 1" stroke="#14325a"/></svg><span id="title">Vòlei 26-27</span></h1>
   <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()">⏱</button>
   <button aria-label="Configuració" onclick="location.hash='#/config'">⚙</button>
 </header>
@@ -677,7 +678,7 @@ function textPartits() {
   const nos = p => ((CFG.club || '') + ' ' + (EQN[p.equip] || '')).trim();
   return 'Propers Partits\n' + PAR.filter(p => p.data >= avui()).map(p => {
     const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString('ca', { weekday: 'long' }), riv = p.rival || 'Rival?';
-    return `${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv} (${queden(p.data).toLowerCase()})`;
+    return `${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}`;
   }).join('\n');
 }
 window.copiaPartits = async () => {
