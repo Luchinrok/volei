@@ -342,7 +342,7 @@ details.card[open] summary { margin-bottom: 10px; }
 .jhead { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .jhead h2 { margin: 0; }
 /* Avís de desat i celebració */
-#toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 66px); transform: translate(-50%, -16px); opacity: 0; pointer-events: none; z-index: 20; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 999px; transition: opacity .2s, transform .2s; box-shadow: 0 6px 16px rgba(0,0,0,.2); }
+#toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 66px); transform: translate(-50%, -16px); opacity: 0; pointer-events: none; z-index: 50; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 999px; transition: opacity .2s, transform .2s; box-shadow: 0 6px 16px rgba(0,0,0,.2); }
 #toast.on { opacity: .95; transform: translate(-50%, 0); }
 .confetti { position: fixed; top: -14px; width: 9px; height: 14px; z-index: 30; pointer-events: none; border-radius: 2px; animation: fall linear forwards; }
 @keyframes fall { to { transform: translate(var(--dx), 105vh) rotate(var(--rot)); opacity: .7; } }
@@ -406,6 +406,8 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .nosn.n { background: #14181f; color: #fff; box-shadow: inset 0 0 0 1px #5a6372; } .nosn.g { background: #f5c518; color: #14181f; }
 .qd { margin-left: 4px; font-size: 12px; font-weight: 400; font-style: italic; color: var(--muted); opacity: .8; }
 .qd::before { content: '· '; }
+.mbox img + .actions { margin-top: 12px; }
+.mbox:has(img) { max-width: 460px; }
 </style>
 </head>
 <body>
@@ -661,7 +663,7 @@ function viewHome() {
     <a href="#/pissarra"><span class="qi">🏐</span>Pissarra</a></div>
   <h3>Pròxims partits</h3>
   <div class="card pxlist">${prox.map(linia).join('') || '<p class="meta" style="margin:0">Cap partit planificat. Afegeix-los a Partits.</p>'}
-    ${prox.length ? `<div class="actions" style="margin:6px 0 10px"><button class="btn primary" style="flex:1" onclick="copiaPartits()">📋 Copia per al WhatsApp</button><button class="btn" onclick="whatsPartits()">💬 Envia</button></div>` : ''}</div>`
+    ${prox.length ? `<div class="actions" style="margin:6px 0 10px"><button class="btn primary" style="flex:1" onclick="copiaPartits()">📋 Copia per al WhatsApp</button><button class="btn" onclick="whatsPartits()">💬 Envia</button><button class="btn" onclick="imatgePartits()">🖼️ Imatge</button></div>` : ''}</div>`
   : needKey('marcar sessions, escriure comentaris i portar l\'assistència,')}
   <details class="card"><summary>Què volen dir els codis</summary>
   <div class="legend">${Object.entries(FAM).map(([k, v]) => `<span class="code fam f-${k}">${k}</span><span>${v}</span>`).join('')}</div></details>`;
@@ -685,6 +687,72 @@ window.copiaPartits = async () => {
   const t = textPartits();
   try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
   catch { dialeg(`<textarea readonly style="min-height:140px;font-size:14px" onfocus="this.select()">${esc(t)}</textarea><small>Mantén premut el text per copiar-lo.</small>`, { sol: true, ico: '📋' }); }
+};
+// imatge dels pròxims partits (per compartir al grup en lloc del text)
+async function dibuixaPartits() {
+  try { await Promise.all(['800 60px "Barlow Condensed"', '700 40px "Barlow Condensed"', '600 30px Barlow'].map(f => document.fonts.load(f))); } catch {}
+  const ps = PAR.filter(p => p.data >= avui()), W = 1080, HEAD = 250, ROW = 170, FOOT = 90;
+  const c = document.createElement('canvas'); c.width = W; c.height = HEAD + ps.length * ROW + FOOT + 20;
+  const x = c.getContext('2d'), F = '"Barlow Condensed", "Arial Narrow", sans-serif';
+  const rr = (X, Y, w, h, r) => { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); };
+  // fons i capçalera
+  x.fillStyle = '#f1f3f8'; x.fillRect(0, 0, W, c.height);
+  const g = x.createLinearGradient(0, 0, W, HEAD); g.addColorStop(0, '#1b4a85'); g.addColorStop(1, '#0c2340');
+  x.fillStyle = g; x.fillRect(0, 0, W, HEAD);
+  x.strokeStyle = 'rgba(255,255,255,.07)'; x.lineWidth = 26; x.beginPath(); x.arc(W - 70, 40, 150, 0, 7); x.stroke();
+  x.fillStyle = '#f5c518'; x.fillRect(0, HEAD - 12, W, 12);
+  x.fillStyle = '#f5c518'; x.beginPath(); x.arc(110, 118, 48, 0, 7); x.fill();
+  x.strokeStyle = '#14325a'; x.lineWidth = 6; x.beginPath(); x.arc(110, 118, 48, 0, 7); x.stroke();
+  x.beginPath(); x.moveTo(110, 70); x.quadraticCurveTo(100, 115, 140, 145); x.moveTo(64, 104); x.quadraticCurveTo(105, 98, 112, 128); x.moveTo(80, 158); x.quadraticCurveTo(100, 125, 156, 128); x.stroke();
+  x.fillStyle = '#fff'; x.font = `800 84px ${F}`; x.textBaseline = 'alphabetic'; x.fillText('PROPERS PARTITS', 190, 140);
+  x.fillStyle = 'rgba(255,255,255,.75)'; x.font = `600 34px ${F}`; x.fillText(((CFG.club || 'Vòlei') + ' · temporada ' + TEMP).toUpperCase(), 192, 190);
+  // un partit per fila
+  ps.forEach((p, i) => {
+    const Y = HEAD + 20 + i * ROW, d = new Date(p.data + 'T12:00');
+    x.fillStyle = '#fff'; x.shadowColor = 'rgba(20,32,46,.10)'; x.shadowBlur = 18; x.shadowOffsetY = 4; rr(40, Y, W - 80, ROW - 20, 26); x.fill(); x.shadowColor = 'transparent';
+    x.fillStyle = p.equip === 'G' ? '#f5c518' : '#14181f'; rr(40, Y, 14, ROW - 20, 7); x.fill();
+    // bloc de data
+    x.fillStyle = '#e5edf8'; rr(80, Y + 18, 114, ROW - 56, 18); x.fill();
+    x.textAlign = 'center'; x.fillStyle = '#5d6a7c'; x.font = `700 24px ${F}`;
+    x.fillText(d.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '').toUpperCase(), 137, Y + 50);
+    x.fillStyle = '#14325a'; x.font = `800 56px ${F}`; x.fillText(String(d.getDate()), 137, Y + 100);
+    x.fillStyle = '#5d6a7c'; x.font = `700 22px ${F}`; x.fillText(d.toLocaleDateString('ca', { month: 'short' }).replace('.', '').toUpperCase(), 137, Y + 124);
+    x.textAlign = 'left';
+    // dia i hora
+    const dia = d.toLocaleDateString('ca', { weekday: 'long' });
+    x.fillStyle = '#5d6a7c'; x.font = `600 30px ${F}`;
+    x.fillText(`${dia[0].toUpperCase() + dia.slice(1)}${p.hora ? ' · ' + p.hora : ''} · ${p.lloc === 'fora' ? 'a fora' : 'a casa'}`, 226, Y + 56);
+    // equips: el local primer; el nostre, en una etiqueta del color de l'equip
+    const nos = ((CFG.club || '') + ' ' + (EQN[p.equip] || '')).trim(), riv = p.rival || 'Rival?';
+    const parts = p.lloc === 'fora' ? [[riv, 0], [' vs ', 2], [nos, 1]] : [[nos, 1], [' vs ', 2], [riv, 0]];
+    let size = 50, avail = W - 80 - 226 - 30;
+    const mida = sz => parts.reduce((t, [txt, k]) => { x.font = `${k === 2 ? 500 : 800} ${k === 2 ? sz * .7 : sz}px ${F}`; return t + x.measureText(txt).width + (k === 1 ? 28 : 0); }, 0);
+    while (mida(size) > avail && size > 26) size -= 2;
+    let X = 226; const base = Y + 112;
+    parts.forEach(([txt, k]) => {
+      x.font = `${k === 2 ? 500 : 800} ${k === 2 ? size * .7 : size}px ${F}`;
+      const w = x.measureText(txt).width;
+      if (k === 1) { x.fillStyle = p.equip === 'G' ? '#f5c518' : '#14181f'; rr(X, base - size * .88, w + 28, size * 1.12, 10); x.fill(); x.fillStyle = p.equip === 'G' ? '#14181f' : '#fff'; x.fillText(txt, X + 14, base); X += w + 28; }
+      else { x.fillStyle = k === 2 ? '#8a96a6' : '#14202e'; x.fillText(txt, X, base); X += w; }
+    });
+  });
+  x.fillStyle = '#8a96a6'; x.font = `600 26px ${F}`; x.textAlign = 'center';
+  x.fillText('🏐  Som-hi!', W / 2, c.height - 40);
+  return c;
+}
+let IMG = null;
+window.imatgePartits = async () => {
+  const c = await dibuixaPartits();
+  IMG = await new Promise(r => c.toBlob(r, 'image/png'));
+  const url = URL.createObjectURL(IMG), pot = !!navigator.canShare?.({ files: [new File([IMG], 'partits.png', { type: 'image/png' })] });
+  dialeg(`<img src="${url}" alt="Propers partits" style="width:100%;border-radius:12px;box-shadow:var(--shadow)">
+    <div class="actions" style="justify-content:center">${pot ? '<button class="btn primary" onclick="imgComparteix()">📤 Comparteix</button>' : ''}<button class="btn" onclick="imgCopia()">📋 Copia</button><a class="btn" style="text-decoration:none" href="${url}" download="propers-partits.png">⬇️ Desa</a></div>`,
+    { sol: true, ok: 'Tanca', ico: '🖼️' });
+};
+window.imgComparteix = async () => { try { await navigator.share({ files: [new File([IMG], 'propers-partits.png', { type: 'image/png' })] }); } catch {} };
+window.imgCopia = async () => {
+  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': IMG })]); desat('✓ Imatge copiada'); }
+  catch { desat('Aquest mòbil no deixa copiar imatges: fes servir Comparteix o Desa'); }
 };
 window.whatsPartits = () => { location.href = 'https://wa.me/?text=' + encodeURIComponent(textPartits()); };
 window.goLlista = () => {
