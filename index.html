@@ -60,8 +60,9 @@ a.card { display: block; color: inherit; text-decoration: none; }
 .field { margin: 8px 0 0 28px; }
 .field b { color: var(--brand); font-size: 13px; text-transform: uppercase; letter-spacing: .03em; display: block; }
 .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-button.btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 8px 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
-button.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+a.btn { display: inline-block; text-decoration: none; text-align: center; }
+button.btn, a.btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 8px 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+button.btn.primary, a.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.btn.primary { color: #0f141a; } }
 button.btn:disabled { opacity: .45; }
 button.btn.danger { color: var(--no); }
@@ -139,6 +140,37 @@ button.small { font: inherit; font-size: 13px; font-weight: 600; border-radius: 
 .cfgday:last-child { border-bottom: 0; }
 .cfgday span { flex: 1; font-weight: 600; }
 .cfgday select { width: auto; }
+/* Jugador */
+a.nomlink { color: inherit; text-decoration: none; }
+.hist { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.hist:last-child { border-bottom: 0; }
+.hist .grow { flex: 1; }
+.est { font-size: 12px; font-weight: 700; border-radius: 6px; padding: 1px 8px; }
+.est.si { background: var(--si-soft); color: var(--si); }
+.est.avisa { background: var(--avisa-soft); color: var(--ink); }
+.est.no { background: var(--no-soft); color: var(--no); }
+/* Partits */
+.seg { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+.seg button { flex: 1; font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 7px 8px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.seg button.on { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
+.eqN { background: #17202b; color: #fff; border-color: #17202b; }
+.eqG { background: #f2c230; color: #17202b; border-color: #d9a90f; }
+.conv { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.conv:last-child { border-bottom: 0; }
+.conv input { width: 20px; height: 20px; accent-color: var(--brand); }
+.conv .grow { flex: 1; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+/* Camp */
+.court { position: relative; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 1 / 1; background: #e9a066; border: 3px solid #fff; outline: 1px solid var(--line); border-radius: 4px; touch-action: none; user-select: none; }
+.court::before { content: ''; position: absolute; left: 0; right: 0; top: 33.3%; border-top: 2px solid #fff; }
+.court .net { position: absolute; left: -3px; right: -3px; top: -9px; height: 9px; background: repeating-linear-gradient(90deg, #333 0 3px, #eee 3px 7px); border-radius: 2px; }
+.court .zl { position: absolute; transform: translate(-50%, -50%); color: rgba(255,255,255,.75); font-weight: 800; font-size: 22px; pointer-events: none; }
+.tok { position: absolute; transform: translate(-50%, -50%); width: 58px; height: 58px; border-radius: 50%; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; font-weight: 700; line-height: 1.1; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: grab; touch-action: none; padding: 2px; overflow: hidden; }
+.tok.buit { background: rgba(255,255,255,.35); color: #fff; box-shadow: none; border: 2px dashed #fff; }
+.tok.drag { cursor: grabbing; z-index: 3; box-shadow: 0 6px 14px rgba(0,0,0,.4); }
+.posgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+.posgrid label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.posgrid select { padding: 6px 4px; font-size: 14px; }
 .edit-pl { flex-wrap: nowrap; }
 .edit-pl input[type=text] { min-width: 0; padding: 6px 8px; }
 .edit-pl select { width: auto; padding: 6px 4px; font-size: 14px; flex: none; }
@@ -218,7 +250,7 @@ const famLabel = f => diesDe(f).map(d => DIES[d]).join(' i ') || (f === 'DT' ? '
 const famDia = data => tcfg().dies[new Date(data + 'T12:00').getDay()] || null;
 
 let D;                                               // sessions de la temporada
-let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}; // dades de Firebase (NOF: exercicis no fets)
+let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}, PAR = []; // dades de Firebase (NOF: exercicis no fets)
 let UNSUB = [];
 let fs = null, db = null;
 let sel = null;                                      // selecció múltiple de sessions
@@ -250,12 +282,13 @@ async function openSeason() {
   if (D?.__file !== file) { try { D = await (await fetch(file, { cache: 'no-cache' })).json(); D.__file = file; } catch {} }
   if (UNSUB.__t === TEMP) return render();
   UNSUB.forEach(u => u()); UNSUB = []; UNSUB.__t = TEMP;
-  FETS = {}; COMS = []; JUG = []; ASS = []; NOF = {}; ORD = {};
+  FETS = {}; COMS = []; JUG = []; ASS = []; NOF = {}; ORD = {}; PAR = [];
   UNSUB.push(fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); }));
   UNSUB.push(fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); }));
   UNSUB.push(fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); }));
   UNSUB.push(fs.onSnapshot(col('ordre'), q => { ORD = {}; q.docs.forEach(d => ORD[d.id] = d.data().ordre); render(); }));
   UNSUB.push(fs.onSnapshot(col('exercicis'), q => { NOF = {}; q.docs.forEach(d => NOF[d.id] = d.data()); render(); }));
+  UNSUB.push(fs.onSnapshot(col('partits'), q => { PAR = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || ''))); render(); }));
   UNSUB.push(fs.onSnapshot(col('assistencia'), q => { ASS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.data.localeCompare(a.data)); render(); }));
   render();
 }
@@ -414,9 +447,9 @@ window.toggleDia = (id, d) => {
 const EQ = { N: 'Negre', G: 'Groc', NG: 'Negre i Groc' };
 let editEquip = false;
 const fetes = () => ASS.filter(a => a.data <= avui());   // llistes de dies que ja han passat
-function statsJug() {
+function statsJug(inactius) {
   // per jugador: entrenos des que hi és, vingudes, avisa, no avisa
-  return JUG.filter(j => j.actiu !== false).map(j => {
+  return JUG.filter(j => inactius ? j.actiu === false : j.actiu !== false).map(j => {
     let tot = 0, si = 0, av = 0, no = 0, totM = 0, siM = 0;
     const mes = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);   // últims 30 dies
     fetes().forEach(a => { const e = a.estat?.[j.id]; if (!e) return;
@@ -442,12 +475,13 @@ function viewAssistencia() {
   <button class="btn primary" style="width:100%;padding:12px" onclick="newAss()">+ Passar llista d'avui</button>
   <h3>Jugadors</h3>
   <div class="card">${st.length ? `<div class="pl phead"><span class="nom"></span><span class="pct" style="width:80px">Temporada</span><span class="pct mes">Últim mes</span></div>` : ''}${st.length ? st.map(j => `<div class="pl">
-      <span class="nom ${j.no ? 'no' : ''}">${esc(j.nom)}${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</span>
+      <span class="nom ${j.no ? 'no' : ''}"><a class="nomlink" href="#/j/${j.id}">${esc(j.nom)}</a>${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</span>
       ${j.no ? `<span class="red" title="Faltes sense avisar">✗${j.no}</span>` : ''}
       <span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
       <span class="pct mes ${j.pctM != null && j.pct != null && j.pctM < j.pct - 10 ? 'baixa' : ''}">${j.pctM ?? '–'}${j.pctM != null ? '%' : ''}</span>
     </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</div>
-  <p class="meta">% = entrenos que ha vingut sobre els que s'han passat llista, des de l'inici de la temporada i dels últims 30 dies (en vermell si l'últim mes baixa més de 10 punts). En vermell, qui ha faltat alguna vegada sense avisar (✗ = quantes).</p>
+  ${statsJug(true).length ? `<p class="meta">Ja no hi són: ${statsJug(true).map(j => `<a href="#/j/${j.id}">${esc(j.nom)}</a> (${j.pct ?? '–'}${j.pct != null ? '%' : ''})`).join(', ')}</p>` : ''}
+  <p class="meta">Toca un nom per veure els seus entrenos i partits. % = entrenos que ha vingut sobre els que s'han passat llista, des de l'inici de la temporada i dels últims 30 dies (en vermell si l'últim mes baixa més de 10 punts). En vermell, qui ha faltat alguna vegada sense avisar (✗ = quantes).</p>
   <h3>Equip</h3>
   ${editEquip ? `<div class="card">
     ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
@@ -470,7 +504,7 @@ function viewAssistencia() {
 
 function viewEditAss() {
   const a = editAss, ss = D.sessions.slice().sort((x, y) => fam(x).localeCompare(fam(y)) || num(x.codi) - num(y.codi));
-  const actius = JUG.filter(j => a.estat[j.id] || (j.actiu !== false && ve(j, a.data)));
+  const actius = JUG.filter(j => a.estat[j.id] || (j.actiu !== false && ve(j, a.data) && (!j.alta || j.alta <= a.data)));
   return `<h2>Llista del ${dataCa(a.data)}</h2>
   <div class="card">
     <label class="lbl">Data</label><input type="date" value="${a.data}" onchange="assDate(this.value)">
@@ -497,7 +531,7 @@ window.newAss = () => {
   const d = avui(), ja = ASS.find(x => x.id === d);
   if (ja) return openAss(d);                                   // ja hi ha llista d'avui: s'obre
   const f = famDia(d);
-  const estat = {}; JUG.filter(j => j.actiu !== false && ve(j, d)).forEach(j => estat[j.id] = 'si');
+  const estat = {}; JUG.filter(j => j.actiu !== false && ve(j, d) && (!j.alta || j.alta <= d)).forEach(j => estat[j.id] = 'si');
   editAss = { id: d, data: d, sessio: f ? next(f)?.codi || '' : '', estat }; assWrite(); render(); scrollTo(0, 0);
 };
 window.openAss = id => { const a = ASS.find(x => x.id === id); editAss = JSON.parse(JSON.stringify(a)); render(); scrollTo(0, 0); };
@@ -517,9 +551,163 @@ window.delAss = () => { if (confirm('Esborrar aquesta llista?')) { fs.deleteDoc(
 window.jugSet = (id, patch) => { if (patch.nom === '') return render(); fs.setDoc(ref('jugadors', id), patch, { merge: true }); };
 window.addJug = () => {
   const n = $('#nounom').value.trim(); if (!n) return;
-  fs.addDoc(col('jugadors'), { nom: n, actiu: true });
+  fs.addDoc(col('jugadors'), { nom: n, actiu: true, alta: avui() });
   $('#nounom').value = '';
 };
+
+// ------------------------------------------------------------- fitxa del jugador
+const EQN = { N: 'Negre', G: 'Groc' };
+const partitsDe = id => PAR.filter(p => (p.convocats || []).includes(id));
+function viewJugador(id) {
+  const j = JUG.find(x => x.id === id); if (!j) return '<p class="empty">No trobo aquest jugador.</p>';
+  const st = statsJug(j.actiu === false).find(x => x.id === id) || {};
+  const llistes = ASS.filter(a => a.estat?.[id]).sort((a, b) => b.data.localeCompare(a.data));
+  const ps = partitsDe(id);
+  return `<h2>${esc(j.nom)} ${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</h2>
+  ${j.actiu === false ? '<p class="meta">Ja no és a l\'equip. Es guarda el seu historial.</p>' : ''}
+  <div class="stats">
+    <div class="stat"><b>${st.pct ?? '–'}${st.pct != null ? '%' : ''}</b><span>temporada</span></div>
+    <div class="stat"><b>${st.pctM ?? '–'}${st.pctM != null ? '%' : ''}</b><span>últim mes</span></div>
+    <div class="stat"><b>${ps.length}</b><span>partits</span></div>
+  </div>
+  <div class="meta" style="margin-bottom:10px">${st.si || 0} entrenos vingut · ${st.av || 0} ha avisat · <span class="red">${st.no || 0} sense avisar</span>${j.alta ? ` · a l'equip des del ${dataCa(j.alta)}` : ''}</div>
+  <h3>Entrenos</h3>
+  <div class="card">${llistes.map(a => { const e = a.estat[id], compta = e === 'si' || ve(j, a.data);
+    return `<div class="hist"><span class="grow">${dataCa(a.data)} ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}${a.data > avui() ? ' <span class="tag">previst</span>' : ''}</span>
+      <span class="est ${e}">${EST[e]}</span>${compta ? '' : '<span class="meta" title="No li toca venir aquest dia">no compta</span>'}</div>`; }).join('') || '<p class="meta" style="margin:0">Cap llista encara.</p>'}</div>
+  <h3>Partits</h3>
+  <div class="card">${ps.map(p => `<a class="hist nomlink" href="#/p/${p.id}"><span class="grow">${dataCa(p.data)} · ${esc(p.rival || 'Partit')}</span><span class="tag ${p.equip === 'G' ? 'eqG' : 'eqN'}">${EQN[p.equip] || ''}</span></a>`).join('') || '<p class="meta" style="margin:0">Encara no l\'has convocat a cap partit.</p>'}</div>`;
+}
+
+// ------------------------------------------------------------- partits
+let parFiltre = store.get('volei.parfiltre', '');
+window.parFilt = f => { parFiltre = f; store.set('volei.parfiltre', f); render(); };
+function viewPartits() {
+  if (!CLAU) return `<h2>Partits</h2>${needKey('portar els partits')}`;
+  const ps = PAR.filter(p => !parFiltre || p.equip === parFiltre);
+  const fut = ps.filter(p => p.data >= avui()), pas = ps.filter(p => p.data < avui()).reverse();
+  const card = p => `<a class="card" href="#/p/${p.id}"><div class="row"><span class="grow"><b>${dataCa(p.data)}</b>${p.hora ? ' · ' + esc(p.hora) : ''}<br>${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || '—')}</span>
+    <span class="tag ${p.equip === 'G' ? 'eqG' : 'eqN'}">${EQN[p.equip] || '?'}</span><span class="meta">${(p.convocats || []).length} conv.</span>${p.resultat ? `<b>${esc(p.resultat)}</b>` : ''}</div></a>`;
+  const comptes = JUG.filter(j => j.actiu !== false).map(j => ({ j, n: partitsDe(j.id).filter(p => !parFiltre || p.equip === parFiltre).length })).sort((a, b) => b.n - a.n || a.j.nom.localeCompare(b.j.nom, 'ca'));
+  return `<h2>Partits</h2>
+  <div class="seg">${[['', 'Tots'], ['N', 'Negre'], ['G', 'Groc']].map(([v, t]) => `<button class="${parFiltre === v ? 'on' : ''}" onclick="parFilt('${v}')">${t}</button>`).join('')}</div>
+  <div class="grid2"><button class="btn primary" style="padding:12px" onclick="newPartit()">+ Partit nou</button><a class="btn" style="padding:12px;text-align:center;text-decoration:none" href="#/pissarra">Pissarra</a></div>
+  <h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Cap partit previst.</p>'}
+  <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}
+  <h3>Convocatòries per jugador${parFiltre ? ' · ' + EQN[parFiltre] : ''}</h3>
+  <div class="card">${comptes.map(({ j, n }) => `<div class="hist"><a class="grow nomlink" href="#/j/${j.id}">${esc(j.nom)}</a><b>${n}</b></div>`).join('')}</div>`;
+}
+window.newPartit = async () => {
+  const d = await fs.addDoc(col('partits'), { data: avui(), hora: '', equip: parFiltre || 'N', rival: '', lloc: 'casa', convocats: [], sets: {}, resultat: '' });
+  location.hash = '#/p/' + d.id;
+};
+const parRef = id => ref('partits', id);
+window.parSet = (id, k, v) => fs.updateDoc(parRef(id), { [k]: v });
+window.parConv = (id, jid, on) => {
+  const p = PAR.find(x => x.id === id), c = new Set(p.convocats || []);
+  on ? c.add(jid) : c.delete(jid); p.convocats = [...c]; fs.updateDoc(parRef(id), { convocats: p.convocats }); render();
+};
+window.parDel = id => { if (confirm('Esborrar aquest partit?')) { fs.deleteDoc(parRef(id)); location.hash = '#/partits'; } };
+
+let setActiu = 1;
+const curt = n => (n || '').split(' ')[0].slice(0, 8);
+const ZONES = { 4: [17, 22], 3: [50, 22], 2: [83, 22], 5: [17, 72], 6: [50, 72], 1: [83, 72] };
+function court(pos, lineup) {
+  // pos: {1..6: jugador}. lineup = true: arrossegar un jugador a una altra zona els intercanvia
+  return `<div class="court" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
+    ${Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y + 14}%">${z}</span>`).join('')}
+    ${Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]);
+      return `<div class="tok ${j ? '' : 'buit'}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? esc(curt(j.nom)) : ''}</div>`; }).join('')}
+  </div>`;
+}
+function viewPartit(id) {
+  const p = PAR.find(x => x.id === id); if (!p) return '<p class="empty">Carregant…</p>';
+  const sets = p.sets || {}, pos = sets[setActiu] || {};
+  const conv = new Set(p.convocats || []);
+  const delEquip = j => j.equip === p.equip || j.equip === 'NG';
+  const actius = JUG.filter(j => j.actiu !== false || conv.has(j.id));
+  const llista = [...actius.filter(delEquip), ...actius.filter(j => !delEquip(j))];
+  const convs = llista.filter(j => conv.has(j.id));
+  return `<h2>${esc(p.rival || 'Partit nou')}</h2>
+  <div class="card">
+    <div class="grid2">
+      <div><label class="lbl">Data</label><input type="date" value="${p.data}" onchange="parSet('${id}','data',this.value)"></div>
+      <div><label class="lbl">Hora</label><input type="text" placeholder="20:30" value="${esc(p.hora || '')}" onchange="parSet('${id}','hora',this.value.trim())"></div>
+      <div><label class="lbl">Equip</label><select onchange="parSet('${id}','equip',this.value)">${Object.entries(EQN).map(([v, t]) => `<option value="${v}" ${p.equip === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div><label class="lbl">On</label><select onchange="parSet('${id}','lloc',this.value)"><option value="casa" ${p.lloc !== 'fora' ? 'selected' : ''}>A casa</option><option value="fora" ${p.lloc === 'fora' ? 'selected' : ''}>Fora</option></select></div>
+    </div>
+    <label class="lbl">Rival</label><input type="text" id="rival" value="${esc(p.rival || '')}" onchange="parSet('${id}','rival',this.value.trim())">
+    <label class="lbl">Resultat</label><input type="text" id="resultat" placeholder="3-1" value="${esc(p.resultat || '')}" onchange="parSet('${id}','resultat',this.value.trim())">
+  </div>
+  <h3>Convocats · ${conv.size}</h3>
+  <div class="card">${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
+    <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${esc(j.nom)}</span>${j.equip ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}</div>
+  <h3>Alineació</h3>
+  <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
+  ${court(pos, true)}
+  <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Z${z}</label><select onchange="posSet('${id}', ${z}, this.value)"><option value="">—</option>
+    ${convs.map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('')}</div>
+  <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
+    ${setActiu > 1 ? `<button class="btn" onclick="copySet('${id}')">Copia el set ${setActiu - 1}</button>` : ''}
+    <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
+  <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats).</p>
+  <div class="actions"><button class="btn danger" onclick="parDel('${id}')">Esborra el partit</button></div>`;
+}
+const setPos = (id, pos) => { const p = PAR.find(x => x.id === id); p.sets = { ...(p.sets || {}), [setActiu]: pos }; fs.updateDoc(parRef(id), { ['sets.' + setActiu]: pos }); render(); };
+window.posSet = (id, z, jid) => {
+  const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) };
+  Object.keys(pos).forEach(k => { if (jid && pos[k] === jid) delete pos[k]; });   // un jugador només en una zona
+  if (jid) pos[z] = jid; else delete pos[z];
+  setPos(id, pos);
+};
+window.rotate = id => {   // rotació: Z2->Z1, Z3->Z2, Z4->Z3, Z5->Z4, Z6->Z5, Z1->Z6
+  const o = (PAR.find(x => x.id === id).sets || {})[setActiu] || {}, n = {};
+  [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 1]].forEach(([a, b]) => { if (o[b]) n[a] = o[b]; });
+  setPos(id, n);
+};
+window.copySet = id => setPos(id, { ...((PAR.find(x => x.id === id).sets || {})[setActiu - 1] || {}) });
+Object.defineProperty(window, 'setActiu', { get: () => setActiu, set: v => { setActiu = v; } });
+
+// pissarra lliure: els 6 jugadors es mouen on vulguis (es guarda només en aquest mòbil)
+function viewPissarra(id) {
+  const p = id && PAR.find(x => x.id === id);
+  const pos = p ? ((p.sets || {})[setActiu] || {}) : {};
+  const saved = store.get('volei.pissarra.' + (id || 'lliure'), null);
+  const toks = Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]), s2 = saved?.[z];
+    return `<div class="tok ${j || !p ? '' : 'buit'}" data-z="${z}" style="left:${s2 ? s2[0] : x}%;top:${s2 ? s2[1] : y}%">${j ? esc(curt(j.nom)) : z}</div>`; }).join('');
+  return `<h2>Pissarra${p ? ' · ' + esc(p.rival || '') + ' · set ' + setActiu : ''}</h2>
+  <div class="court" id="court" data-mode="free" data-key="${id || 'lliure'}"><div class="net"></div>${toks}</div>
+  <div class="actions"><button class="btn" onclick="store_del('${id || 'lliure'}')">↺ Torna a les posicions</button>${p ? `<a class="btn" style="text-decoration:none" href="#/p/${id}">Torna al partit</a>` : ''}</div>
+  <p class="meta">Arrossega els jugadors per veure moviments: recepció, defensa, cobertura… Els canvis de la pissarra no toquen l'alineació.</p>`;
+}
+window.store_del = k => { try { localStorage.removeItem('volei.pissarra.' + k); } catch {} render(); };
+
+// arrossegar fitxes al camp
+let DRAG = null;
+document.addEventListener('pointerdown', e => {
+  const t = e.target.closest('.tok'), c = t?.closest('.court'); if (!t || !c) return;
+  e.preventDefault(); t.setPointerCapture(e.pointerId); t.classList.add('drag');
+  DRAG = { t, c, r: c.getBoundingClientRect() };
+});
+document.addEventListener('pointermove', e => {
+  if (!DRAG) return;
+  const { t, r } = DRAG, x = Math.min(100, Math.max(0, (e.clientX - r.left) / r.width * 100)), y = Math.min(100, Math.max(0, (e.clientY - r.top) / r.height * 100));
+  t.style.left = x + '%'; t.style.top = y + '%'; DRAG.x = x; DRAG.y = y;
+});
+document.addEventListener('pointerup', () => {
+  if (!DRAG) return;
+  const { t, c, x, y } = DRAG; DRAG = null; t.classList.remove('drag');
+  if (x == null) return;
+  const from = +t.dataset.z;
+  if (c.dataset.mode === 'lineup') {
+    const to = +Object.entries(ZONES).sort(([, a], [, b]) => Math.hypot(a[0] - x, a[1] - y) - Math.hypot(b[0] - x, b[1] - y))[0][0];
+    const id = location.hash.split('/')[2], pos = { ...((PAR.find(q => q.id === id).sets || {})[setActiu] || {}) };
+    const a = pos[from], b = pos[to]; if (a) pos[to] = a; else delete pos[to]; if (b) pos[from] = b; else delete pos[from];
+    setPos(id, pos);
+  } else {
+    const k = 'volei.pissarra.' + c.dataset.key, sv = store.get(k, {}) || {}; sv[from] = [x, y]; store.set(k, sv);
+  }
+});
 
 // ------------------------------------------------------------- configuració
 function viewConfig() {
@@ -667,16 +855,21 @@ function render() {
   else if (r === 'f') { html = viewList(arg); tab = arg; }
   else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
   else if (r === 'config') { html = viewConfig(); tab = ''; title = 'Configuració'; }
+  else if (r === 'j') { html = viewJugador(arg); tab = 'assistencia'; title = 'Jugador'; }
+  else if (r === 'partits') { html = viewPartits(); tab = 'partits'; title = 'Partits'; }
+  else if (r === 'p') { html = viewPartit(arg); tab = 'partits'; title = 'Partit'; }
+  else if (r === 'pissarra') { html = viewPissarra(arg); tab = 'partits'; title = 'Pissarra'; }
   else html = viewHome();
   $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">🏐</span>Inici</a>
     ${['DT', 'DJ'].filter(f => diesDe(f).length).map(f => `<a href="#/f/${f}" data-t="${f}"><span class="ico">${f === 'DT' ? 1 : 2}</span>${diesDe(f).map(d => CURT[d]).join('+') === 'Dt' ? 'Dimarts' : diesDe(f).map(d => CURT[d]).join('+') === 'Dj' ? 'Dijous' : diesDe(f).length === 1 ? DIES[diesDe(f)[0]] : diesDe(f).map(d => CURT[d]).join(' + ')}</a>`).join('')}
-    <a href="#/assistencia" data-t="assistencia"><span class="ico">✓</span>Assistència</a>`;
+    <a href="#/assistencia" data-t="assistencia"><span class="ico">✓</span>Assistència</a>
+    <a href="#/partits" data-t="partits"><span class="ico">🏆</span>Partits</a>`;
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
-  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
+  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'rival' || a.id === 'resultat' || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   $('#title').textContent = title;
-  $('#back').hidden = r !== 's' && r !== 'config';
+  $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra'].includes(r);
   document.querySelectorAll('nav.tabs a').forEach(x => x.classList.toggle('on', x.dataset.t === tab));
 }
 window.render = render;
@@ -684,7 +877,7 @@ Object.defineProperty(window, 'editEquip', { get: () => editEquip, set: v => { e
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
-addEventListener('hashchange', () => { sel = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; render(); scrollTo(0, 0); });
+addEventListener('hashchange', () => { sel = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra)\//.test(location.hash)) setActiu = 1; render(); scrollTo(0, 0); });
 TEMP = TEMP || CFG.actual;
 fetch(tcfg().sessions, { cache: 'no-cache' }).then(r => r.json())
   .then(d => { D = d; D.__file = tcfg().sessions; render(); initFirebase(); })
