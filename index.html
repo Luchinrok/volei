@@ -165,6 +165,22 @@ a.nomlink { color: inherit; text-decoration: none; }
 .setrow input { text-align: center; padding: 6px; min-width: 0; width: 100%; }
 .setrow.guanyat { background: var(--si-soft); }
 .setrow.perdut { background: var(--no-soft); }
+.calnav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.calnav b { text-transform: capitalize; }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.ch { text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); padding: 2px 0; }
+.cd { min-height: 58px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 2px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.cd.buit { background: transparent; border: 0; }
+.cd.avui { border-color: var(--brand); border-width: 2px; }
+.cd .dn { font-size: 12px; color: var(--muted); font-weight: 600; }
+.cp { display: block; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 1px 2px; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid; }
+.pc.guanyat { border-left: 5px solid var(--si); }
+.pc.perdut { border-left: 5px solid var(--no); }
+.res { border-radius: 6px; padding: 2px 8px; }
+.res.guanyat { background: var(--si-soft); color: var(--si); }
+.res.perdut { background: var(--no-soft); color: var(--no); }
+.cp.guanyat { box-shadow: inset 4px 0 0 #1d9a52; padding-left: 6px; }
+.cp.perdut { box-shadow: inset 4px 0 0 #d23b31; padding-left: 6px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 /* Camp */
 .court { position: relative; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 1 / 1; background: #e9a066; border: 3px solid #fff; outline: 1px solid var(--line); border-radius: 4px; touch-action: none; user-select: none; }
@@ -586,20 +602,38 @@ function viewJugador(id) {
 }
 
 // ------------------------------------------------------------- partits
+const guany = p => { const m = /^(\d+)-(\d+)$/.exec(p.resultat || ''); return m ? (+m[1] > +m[2] ? 'guanyat' : +m[1] < +m[2] ? 'perdut' : '') : ''; };
 let parFiltre = store.get('volei.parfiltre', '');
+let parVista = store.get('volei.parvista', 'llista'), calMes = null;   // calMes: 'AAAA-MM'
+window.parVeure = v => { parVista = v; store.set('volei.parvista', v); render(); };
+window.calMou = d => { const [y, m] = calMes.split('-').map(Number), t = new Date(y, m - 1 + d, 1); calMes = `${t.getFullYear()}-${two(t.getMonth() + 1)}`; render(); };
+function calendari(ps) {
+  if (!calMes) { const f = ps.find(p => p.data >= avui()); calMes = (f ? f.data : avui()).slice(0, 7); }
+  const [y, m] = calMes.split('-').map(Number), first = new Date(y, m - 1, 1), dies = new Date(y, m, 0).getDate();
+  const off = (first.getDay() + 6) % 7, cel = [];
+  for (let i = 0; i < off; i++) cel.push('<div class="cd buit"></div>');
+  for (let d = 1; d <= dies; d++) {
+    const iso = `${calMes}-${two(d)}`, dp = ps.filter(p => p.data === iso);
+    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''}"><span class="dn">${d}</span>${dp.map(p => `<a class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'} ${guany(p)}" href="#/p/${p.id}">${p.resultat ? esc(p.resultat) + ' ' : ''}${esc((p.rival || 'Partit').slice(0, 9))}</a>`).join('')}</div>`);
+  }
+  const mes = first.toLocaleDateString('ca', { month: 'long' }), nom = mes[0].toUpperCase() + mes.slice(1) + ' ' + y;
+  return `<div class="calnav"><button class="btn" onclick="calMou(-1)">‹</button><b>${nom}</b><button class="btn" onclick="calMou(1)">›</button></div>
+  <div class="cal">${['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map(d => `<div class="ch">${d}</div>`).join('')}${cel.join('')}</div>`;
+}
 window.parFilt = f => { parFiltre = f; store.set('volei.parfiltre', f); render(); };
 function viewPartits() {
   if (!CLAU) return `<h2>Partits</h2>${needKey('portar els partits')}`;
   const ps = PAR.filter(p => !parFiltre || p.equip === parFiltre);
   const fut = ps.filter(p => p.data >= avui()), pas = ps.filter(p => p.data < avui()).reverse();
-  const card = p => `<a class="card" href="#/p/${p.id}"><div class="row"><span class="grow"><b>${dataCa(p.data)}</b>${p.hora ? ' · ' + esc(p.hora) : ''}<br>${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || '—')}${p.punts && Object.keys(p.punts).length ? `<br><span class="meta">${Object.keys(p.punts).sort().map(k => p.punts[k].join('-')).join(' · ')}</span>` : ''}</span>
-    <span class="tag ${p.equip === 'G' ? 'eqG' : 'eqN'}">${EQN[p.equip] || '?'}</span><span class="meta">${(p.convocats || []).length} conv.</span>${p.resultat ? `<b>${esc(p.resultat)}</b>` : ''}</div></a>`;
+  const card = p => `<a class="card pc ${guany(p)}" href="#/p/${p.id}"><div class="row"><span class="grow"><b>${dataCa(p.data)}</b>${p.hora ? ' · ' + esc(p.hora) : ''}<br>${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || '—')}${p.punts && Object.keys(p.punts).length ? `<br><span class="meta">${Object.keys(p.punts).sort().map(k => p.punts[k].join('-')).join(' · ')}</span>` : ''}</span>
+    <span class="tag ${p.equip === 'G' ? 'eqG' : 'eqN'}">${EQN[p.equip] || '?'}</span><span class="meta">${(p.convocats || []).length} conv.</span>${p.resultat ? `<b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</div></a>`;
   const comptes = JUG.filter(j => j.actiu !== false).map(j => ({ j, n: partitsDe(j.id).filter(p => !parFiltre || p.equip === parFiltre).length })).sort((a, b) => b.n - a.n || a.j.nom.localeCompare(b.j.nom, 'ca'));
   return `<h2>Partits</h2>
   <div class="seg">${[['', 'Tots'], ['N', 'Negre'], ['G', 'Groc']].map(([v, t]) => `<button class="${parFiltre === v ? 'on' : ''}" onclick="parFilt('${v}')">${t}</button>`).join('')}</div>
   <div class="grid2"><button class="btn primary" style="padding:12px" onclick="newPartit()">+ Partit nou</button><a class="btn" style="padding:12px;text-align:center;text-decoration:none" href="#/pissarra">Pissarra</a></div>
-  <h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Cap partit previst.</p>'}
-  <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}
+  <div class="seg" style="margin-top:12px">${[['llista', 'Llista'], ['calendari', 'Calendari']].map(([v, t]) => `<button class="${parVista === v ? 'on' : ''}" onclick="parVeure('${v}')">${t}</button>`).join('')}</div>
+  ${parVista === 'calendari' ? calendari(ps) : `<h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Cap partit previst.</p>'}
+  <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}`}
   <h3>Convocatòries per jugador${parFiltre ? ' · ' + EQN[parFiltre] : ''}</h3>
   <div class="card">${comptes.map(({ j, n }) => `<div class="hist"><a class="grow nomlink" href="#/j/${j.id}">${esc(j.nom)}</a><b>${n}</b></div>`).join('')}</div>`;
 }
@@ -686,17 +720,25 @@ Object.defineProperty(window, 'setActiu', { get: () => setActiu, set: v => { set
 
 // pissarra lliure: els 6 jugadors es mouen on vulguis (es guarda només en aquest mòbil)
 function viewPissarra(id) {
-  const p = id && PAR.find(x => x.id === id);
-  const pos = p ? ((p.sets || {})[setActiu] || {}) : {};
-  const saved = store.get('volei.pissarra.' + (id || 'lliure'), null);
+  const p = id && PAR.find(x => x.id === id), key = id || 'lliure';
+  const pos = { ...(p ? ((p.sets || {})[setActiu] || {}) : {}), ...store.get('volei.pissarra.noms.' + key, {}) };
+  const saved = store.get('volei.pissarra.' + key, null);
+  const triables = JUG.filter(j => j.actiu !== false);
   const toks = Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]), s2 = saved?.[z];
-    return `<div class="tok ${j || !p ? '' : 'buit'}" data-z="${z}" style="left:${s2 ? s2[0] : x}%;top:${s2 ? s2[1] : y}%">${j ? esc(curt(j.nom)) : z}</div>`; }).join('');
+    return `<div class="tok" data-z="${z}" style="left:${s2 ? s2[0] : x}%;top:${s2 ? s2[1] : y}%">${j ? esc(curt(j.nom)) : z}</div>`; }).join('');
   return `<h2>Pissarra${p ? ' · ' + esc(p.rival || '') + ' · set ' + setActiu : ''}</h2>
-  <div class="court" id="court" data-mode="free" data-key="${id || 'lliure'}"><div class="net"></div>${toks}</div>
+  <div class="court" id="court" data-mode="free" data-key="${key}"><div class="net"></div>${toks}</div>
+  <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Fitxa ${z}</label><select onchange="pisNom('${key}', ${z}, this.value)"><option value="">${z}</option>
+    ${triables.filter(j => pos[z] === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('')}</div>
   <div class="actions"><button class="btn" onclick="store_del('${id || 'lliure'}')">↺ Torna a les posicions</button>${p ? `<a class="btn" style="text-decoration:none" href="#/p/${id}">Torna al partit</a>` : ''}</div>
-  <p class="meta">Arrossega els jugadors per veure moviments: recepció, defensa, cobertura… Els canvis de la pissarra no toquen l'alineació.</p>`;
+  <p class="meta">Tria el nom de cada fitxa als desplegables i arrossega-les per explicar moviments: recepció, defensa, cobertura… Els canvis de la pissarra no toquen l'alineació del partit.</p>`;
 }
 window.store_del = k => { try { localStorage.removeItem('volei.pissarra.' + k); } catch {} render(); };
+window.pisNom = (k, z, jid) => {
+  const n = store.get('volei.pissarra.noms.' + k, {});
+  Object.keys(n).forEach(q => { if (jid && n[q] === jid) n[q] = ''; });
+  n[z] = jid; store.set('volei.pissarra.noms.' + k, n); render();
+};
 
 // arrossegar fitxes al camp
 let DRAG = null;
