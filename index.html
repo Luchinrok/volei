@@ -676,7 +676,7 @@ function queden(data) {
 // text dels pròxims partits per enganxar al grup: «Dijous 5/11 20:00 Sant Pere Groc vs Aloges»
 function textPartits() {
   const nos = p => ((CFG.club || '') + ' ' + (EQN[p.equip] || '')).trim();
-  return 'Propers Partits\n' + PAR.filter(p => p.data >= avui()).map(p => {
+  return '*Propers Partits*\n' + PAR.filter(p => p.data >= avui()).map(p => {
     const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString('ca', { weekday: 'long' }), riv = p.rival || 'Rival?';
     return `${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}`;
   }).join('\n');
