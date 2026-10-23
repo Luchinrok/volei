@@ -213,12 +213,13 @@ a.nomlink { color: inherit; text-decoration: none; }
 .cchip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; font-weight: 600; }
 .cchip .av { width: 26px; height: 26px; font-size: 12px; }
 .cd .dn { font-size: 12px; color: var(--muted); font-weight: 600; }
-.cp { display: flex; align-items: center; justify-content: space-between; gap: 2px; font: 700 12px/1 var(--head); text-transform: uppercase; letter-spacing: .02em; border-radius: 6px; padding: 3px 3px 3px 5px; border: 1px solid; min-height: 21px; }
-.cp .rv { grid-column: 1 / -1; font-size: 10px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cp .eqb { flex: none; font: 800 10px/1 var(--head); width: 13px; height: 13px; border-radius: 3px; display: grid; place-items: center; }
-.cp.eqN .eqb { background: #f5c518; color: #14202e; } .cp.eqG .eqb { background: #14181f; color: #f5c518; }
-.cp .r { white-space: nowrap; }
-.cp .gd, .callegend i.gd { flex: none; width: 15px; height: 15px; border-radius: 50%; color: #fff; font: 800 11px/15px var(--head); font-style: normal; text-align: center; border: 0; }
+.cp { display: flex; align-items: center; gap: 2px; font: 700 11px/1.1 var(--head); border-radius: 6px; padding: 3px 3px 3px 4px; border: 1px solid; min-height: 22px; }
+.cp .rv { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp .ll { flex: none; font-size: 9px; font-style: normal; line-height: 1; }
+.cp.guanyat { border: 3px solid #22b35e; padding: 1px 1px 1px 2px; }
+.cp.perdut { border: 3px solid #ef4136; padding: 1px 1px 1px 2px; }
+.callegend i.w, .callegend i.l { background: var(--card); border: 3px solid #22b35e; }
+.callegend i.l { border-color: #ef4136; }
 .gd.guanyat { background: #22b35e; } .gd.perdut { background: #ef4136; }
 .callegend { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px; font-size: 13px; color: var(--muted); }
 .callegend span { display: inline-flex; align-items: center; gap: 5px; }
@@ -230,7 +231,10 @@ a.card.mc.mG { border-left-color: #f5c518; }
 .mdate b { font: 800 26px/1 var(--head); color: var(--brand); }
 .mdate small { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: .04em; }
 .mbody { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.mteams { display: flex; align-items: center; gap: 6px; font: 700 19px/1.2 var(--head); flex-wrap: wrap; }
+.mteams { display: flex; align-items: center; gap: 6px; font: 700 19px/1.2 var(--head); min-width: 0; white-space: nowrap; }
+.mteams > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.mteams .nos, .mteams i { flex: none; }
+.nw { white-space: nowrap; }
 .mteams i { font: 600 12px/1 Barlow, sans-serif; color: var(--muted); font-style: normal; }
 .nos { font: 800 13px/1 var(--head); text-transform: uppercase; letter-spacing: .05em; border-radius: 6px; padding: 4px 7px; }
 .nos.n { background: #14181f; color: #f5c518; } .nos.g { background: #f5c518; color: #14181f; }
@@ -332,6 +336,34 @@ details.card[open] summary { margin-bottom: 10px; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cp.eqN { border-color: #8a96a6; } }
 @media (prefers-reduced-motion: reduce) { .view { animation: none; } .confetti { display: none; } }
 .motius.lliure button.on { border-color: #d9a90f; color: var(--accent-ink); background: var(--accent); }
+/* Llistes de sessions */
+h2 .sub { font: 600 15px/1 Barlow, sans-serif; color: var(--muted); margin-left: 6px; }
+.progcard .pct { width: auto; font: 800 22px/1 var(--head); color: var(--brand); }
+.pbar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin-top: 8px; }
+.pbar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--brand), #2f7de1); }
+.sbadge { flex: none; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 12px; background: var(--brand-soft); color: var(--brand); font: 700 11px/1 var(--head); letter-spacing: .05em; }
+.sbadge b { font: 800 21px/1 var(--head); }
+.sbadge.lg { width: 58px; height: 58px; font-size: 13px; } .sbadge.lg b { font-size: 27px; }
+.srow .grow { display: flex; flex-direction: column; gap: 4px; }
+.stit { font-weight: 600; line-height: 1.25; }
+.sfams { display: flex; gap: 3px; }
+.sfams i { width: 16px; height: 5px; border-radius: 3px; background: var(--fc); }
+.sfet { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--si); color: #fff; font-weight: 800; }
+.sprox { flex: none; font: 800 12px/1 var(--head); text-transform: uppercase; letter-spacing: .05em; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 5px 9px; }
+a.card.srow.prox { border: 2px solid var(--accent); }
+.list .fet { opacity: .6; }
+/* Capçalera de sessió */
+.shead { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.shead h2 { margin: 0; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.pills span { font-size: 13px; font-weight: 600; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+.pills .ok { background: var(--si-soft); color: var(--si); border-color: var(--si); }
+.tline { display: flex; gap: 2px; height: 22px; border-radius: 8px; overflow: hidden; margin-bottom: 4px; }
+.tline i { background: var(--fc, var(--muted)); display: grid; place-items: center; min-width: 14px; }
+.tline span { font: 800 12px/1 var(--head); color: #fff; font-style: normal; }
+/* Passar llista */
+.counts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.counts .est { font-size: 14px; padding: 4px 10px; border-radius: 999px; }
 </style>
 </head>
 <body>
@@ -466,16 +498,18 @@ function next(f) {
   return D.sessions.filter(s => fam(s) === f && !isFet(s.codi)).sort((a, b) => num(a.codi) - num(b.codi))[0];
 }
 
-function sessRow(s) {
-  const n = comments(s.codi).length;
+function sessRow(s, prox) {
+  const n = comments(s.codi).length, fet = isFet(s.codi);
+  const fams = [...new Set(s.blocs.filter(b => !b.tret).map(b => famC(b.codi)).filter(Boolean))];
   const inner = `<div class="row">
     ${sel ? `<input type="checkbox" class="chk" ${sel.has(s.codi) ? 'checked' : ''}>` : ''}
-    <span class="code">${s.codi}</span><span class="grow">${esc(s.titol)}</span>
+    <span class="sbadge">${s.codi.slice(0, 2)}<b>${s.codi.slice(2)}</b></span>
+    <span class="grow"><span class="stit">${esc(s.titol)}</span><span class="sfams">${fams.map(k => `<i class="f-${k}" title="${FAM[k]}"></i>`).join('')}</span></span>
     ${n ? `<span class="tag">💬 ${n}</span>` : ''}
-    ${isFet(s.codi) ? '<span class="tag">✓ feta</span>' : ''}</div>`;
+    ${fet ? '<span class="sfet" title="Feta">✓</span>' : prox ? '<span class="sprox">Pròxima</span>' : ''}</div>`;
   return sel
-    ? `<div class="card selrow ${isFet(s.codi) ? 'fet' : ''}" onclick="pick('${s.codi}')">${inner}</div>`
-    : `<a class="card ${isFet(s.codi) ? 'fet' : ''}" href="#/s/${s.codi}">${inner}</a>`;
+    ? `<div class="card srow selrow ${fet ? 'fet' : ''}" onclick="pick('${s.codi}')">${inner}</div>`
+    : `<a class="card srow ${fet ? 'fet' : ''} ${prox ? 'prox' : ''}" href="#/s/${s.codi}">${inner}</a>`;
 }
 
 function fields(b) {
@@ -596,7 +630,11 @@ function viewList(dia) {
        <div class="selbar bottom"><button class="btn primary" onclick="markSel(true)" ${sel.size ? '' : 'disabled'}>✓ Marca com a fetes</button>
         <button class="btn" onclick="markSel(false)" ${sel.size ? '' : 'disabled'}>Com a no fetes</button></div>`
     : `<div class="selbar"><span class="grow"></span><button class="btn" onclick="selMode(true)">Marcar fetes</button></div>`;
-  return `<h2>${famLabel(dia)} · ${PISTES[dia]}</h2>${bar}<div class="list">${ss.map(sessRow).join('')}</div>`;
+  const fetes = ss.filter(s => isFet(s.codi)).length, px = next(dia);
+  return `<h2>${famLabel(dia)} <span class="sub">${PISTES[dia]}</span></h2>
+  <div class="card progcard"><div class="row"><span class="grow"><b>${fetes}</b> de ${ss.length} sessions fetes</span><span class="pct">${ss.length ? Math.round(100 * fetes / ss.length) : 0}%</span></div>
+    <div class="pbar"><i style="width:${ss.length ? 100 * fetes / ss.length : 0}%"></i></div></div>
+  ${bar}<div class="list">${ss.map(s => sessRow(s, px && s.codi === px.codi)).join('')}</div>`;
 }
 
 let ordering = false;
@@ -621,8 +659,10 @@ function viewSession(c) {
   const s = byCode(c); if (!s) return `<p class="empty">No trobo ${esc(c)}</p>`;
   const bs = blocsOrdenats(s);
   const coms = comments(c).map(x => `<div class="card comment"><div class="meta">${new Date(x.t).toLocaleDateString('ca')}${x.aplicat ? ' · aplicat per Claude' : ''}</div>${esc(x.text).replace(/\n/g, '<br>')}</div>`).join('');
-  return `<h2><span class="code">${s.codi}</span> ${esc(s.titol)}</h2>
-    <div class="meta">${famLabel(fam(s))} · ${PISTES[fam(s)]} · ${s.min} min</div>
+  const totMin = bs.reduce((t, b) => t + (b.min || 0), 0) || 1;
+  return `<div class="shead"><span class="sbadge lg">${s.codi.slice(0, 2)}<b>${s.codi.slice(2)}</b></span><h2>${esc(s.titol)}</h2></div>
+    <div class="pills"><span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span><span>⏱ ${s.min} min</span><span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
+    <div class="tline" title="Minuts de cada bloc">${bs.map(b => `<i class="${famC(b.codi) ? 'f-' + famC(b.codi) : ''}" style="flex:${b.min || 0}"><span>${b.n ?? ''}</span></i>`).join('')}</div>
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
     ${CLAU ? `<div class="selbar"><span class="grow">${ORD[c] ? 'Ordre canviat per tu' : ''}</span>
       ${ORD[c] && ordering ? `<button class="btn" onclick="resetOrder('${c}')">Ordre original</button>` : ''}
@@ -731,13 +771,13 @@ function viewEditAss() {
     <select onchange="assSessio(this.value)"><option value="">—</option>${ss.map(s => `<option value="${s.codi}" ${a.sessio === s.codi ? 'selected' : ''}>${s.codi} · ${esc(s.titol)}</option>`).join('')}</select>
   </div>
   <div class="card">
-    <div class="meta" style="margin-bottom:6px"><b>${Object.values(a.estat).filter(e => e === 'si').length}</b> venen · ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen · <span class="red">${Object.values(a.estat).filter(e => e === 'no').length} sense avisar</span></div>
+    <div class="counts"><span class="est si">✓ ${Object.values(a.estat).filter(e => e === 'si').length} venen</span><span class="est avisa">✉ ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen</span><span class="est no">✗ ${Object.values(a.estat).filter(e => e === 'no').length} sense avisar</span></div>
     ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}${esc(j.nom)}</span><span class="tri">
       ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" onclick="setEst('${j.id}','${e}')">${EST[e]}</button>`).join('')}
     </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}
   </div>
   <p class="meta">Es desa sol a cada toc.</p>
-  <div class="actions"><button class="btn primary" onclick="editAss=null;render()">Fet</button>
+  <div class="actions"><button class="btn primary" style="flex:1" onclick="editAss=null;render()">✓ Fet</button>
   <button class="btn danger" onclick="delAss()">Esborra la llista</button></div>`;
 }
 
@@ -846,7 +886,7 @@ function mesHtml(ym, ps) {
   for (let i = 0; i < off; i++) cel.push('<div class="cd buit"></div>');
   for (let d = 1; d <= dies; d++) {
     const iso = `${ym}-${two(d)}`, dp = ps.filter(p => p.data === iso);
-    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''} ${iso === calDia ? 'sel' : ''}" onclick="calToca('${iso}')"><span class="dn">${d}</span>${dp.map(p => `<span class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'}">${EQN[p.equip] || '?'}${guany(p) ? `<i class="gd ${guany(p)}">${guany(p) === 'guanyat' ? '✓' : '✗'}</i>` : ''}</span>`).join('')}</div>`);
+    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''} ${iso === calDia ? 'sel' : ''}" onclick="calToca('${iso}')"><span class="dn">${d}</span>${dp.map(p => `<span class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'} ${guany(p)}" title="${EQN[p.equip] || ''}"><span class="rv">${esc(p.rival || 'Partit')}</span><i class="ll">${p.lloc === 'fora' ? '🚌' : '🏠'}</i></span>`).join('')}</div>`);
   }
   while (cel.length < 42) cel.push('<div class="cd buit"></div>');   // sempre 6 setmanes: totes les cares del cub fan la mateixa alçada
   return `<div class="cal">${['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map(d => `<div class="ch">${d}</div>`).join('')}${cel.join('')}</div>`;
@@ -857,7 +897,7 @@ function calendari(ps, card) {
   CALMESOS = window.Swiper ? mesosTemporada(ps) : [calMes];
   return `<div class="calnav"><button class="btn" onclick="calMou(-1)" aria-label="Mes anterior">‹</button><b id="calnom">${nomMes(calMes)}</b><button class="btn" onclick="calMou(1)" aria-label="Mes següent">›</button></div>
   ${window.Swiper ? `<div class="swiper calsw" id="calsw"><div class="swiper-wrapper">${CALMESOS.map(ym => `<div class="swiper-slide">${mesHtml(ym, ps)}</div>`).join('')}</div></div>` : mesHtml(calMes, ps)}
-  <div class="callegend"><span style="flex-basis:100%;justify-content:center">${window.Swiper ? '👈 Llisca per canviar de mes 👉 · ' : ''}Toca un partit per veure'l · toca un dia buit per crear-ne un</span><span><i class="n"></i>Negre</span><span><i class="g"></i>Groc</span><span><i class="gd guanyat">✓</i>Guanyat</span><span><i class="gd perdut">✗</i>Perdut</span></div>
+  <div class="callegend"><span style="flex-basis:100%;justify-content:center">${window.Swiper ? '👈 Llisca per canviar de mes 👉 · ' : ''}Toca un partit per veure'l · toca un dia buit per crear-ne un</span><span><i class="n"></i>Negre</span><span><i class="g"></i>Groc</span><span><i class="w"></i>Guanyat</span><span><i class="l"></i>Perdut</span><span>🏠 A casa</span><span>🚌 A fora</span></div>
   ${calDia && ps.some(p => p.data === calDia) ? `<div class="daypanel"><h3>${dataCa(calDia)}</h3>${ps.filter(p => p.data === calDia).map(card).join('')}
     <button class="btn" style="width:100%" onclick="newPartit('${calDia}')">+ Un altre partit aquest dia</button></div>` : ''}`;
 }
@@ -897,7 +937,7 @@ function viewPartits() {
     return `<a class="card mc ${p.equip === 'G' ? 'mG' : 'mN'}" href="#/p/${p.id}">
       <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
       <span class="mbody"><span class="mteams">${p.lloc === 'fora' ? riv + '<i>vs</i>' + nos : nos + '<i>vs</i>' + riv}</span>
-        <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' · ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'} · 👥 ${(p.convocats || []).length}</span>
+        <span class="meta">${p.hora ? `<span class="nw">🕗 ${esc(p.hora)}</span> · ` : ''}<span class="nw">${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span> · <span class="nw">👥 ${(p.convocats || []).length}</span></span>
         ${parc ? `<span class="parc">${parc}</span>` : ''}</span>
       <span class="mres">${p.resultat ? `<b class="score ${g}">${esc(p.resultat)}</b><small class="${g}">${g === 'guanyat' ? 'Guanyat' : g === 'perdut' ? 'Perdut' : ''}</small>` : dies >= 0 ? `<small class="falta">${falta}</small>` : '<small>Sense resultat</small>'}</span></a>`;
   };
