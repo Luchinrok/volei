@@ -181,6 +181,10 @@ a.nomlink { color: inherit; text-decoration: none; }
 .res.perdut { background: var(--no-soft); color: var(--no); }
 .cp.guanyat { box-shadow: inset 4px 0 0 #1d9a52; padding-left: 6px; }
 .cp.perdut { box-shadow: inset 4px 0 0 #d23b31; padding-left: 6px; }
+.ptab { display: grid; grid-template-columns: minmax(0, 1fr) 44px 48px 40px 52px; align-items: center; gap: 4px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.ptab:last-child { border-bottom: 0; }
+.ptab > :not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+.ptab.phead { font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); font-weight: 600; padding-top: 0; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 /* Camp */
 .court { position: relative; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 1 / 1; background: #e9a066; border: 3px solid #fff; outline: 1px solid var(--line); border-radius: 4px; touch-action: none; user-select: none; }
@@ -580,6 +584,13 @@ window.addJug = () => {
 // ------------------------------------------------------------- fitxa del jugador
 const EQN = { N: 'Negre', G: 'Groc' };
 const partitsDe = id => PAR.filter(p => (p.convocats || []).includes(id));
+function statsPartits(id, eq) {
+  // partits convocat (total i per equip) i % de sets jugats segons les alineacions
+  const ps = partitsDe(id).filter(p => !eq || p.equip === eq);
+  let sets = 0, jugats = 0;
+  ps.forEach(p => Object.values(p.sets || {}).forEach(pos => { if (Object.values(pos || {}).filter(Boolean).length) { sets++; if (Object.values(pos).includes(id)) jugats++; } }));
+  return { j: JUG.find(x => x.id === id), tot: ps.length, N: ps.filter(p => p.equip === 'N').length, G: ps.filter(p => p.equip === 'G').length, sets, jugats, pct: sets ? Math.round(100 * jugats / sets) : null };
+}
 function viewJugador(id) {
   const j = JUG.find(x => x.id === id); if (!j) return '<p class="empty">No trobo aquest jugador.</p>';
   const st = statsJug(j.actiu === false).find(x => x.id === id) || {};
@@ -590,7 +601,7 @@ function viewJugador(id) {
   <div class="stats">
     <div class="stat"><b>${st.pct ?? '–'}${st.pct != null ? '%' : ''}</b><span>temporada</span></div>
     <div class="stat"><b>${st.pctM ?? '–'}${st.pctM != null ? '%' : ''}</b><span>últim mes</span></div>
-    <div class="stat"><b>${ps.length}</b><span>partits</span></div>
+    <div class="stat"><b>${ps.length}</b><span>partits${statsPartits(id).pct != null ? ` · ${statsPartits(id).pct}% sets` : ''}</span></div>
   </div>
   <div class="meta" style="margin-bottom:10px">${st.si || 0} entrenos vingut · ${st.av || 0} ha avisat · <span class="red">${st.no || 0} sense avisar</span>${j.alta ? ` · a l'equip des del ${dataCa(j.alta)}` : ''}</div>
   <h3>Entrenos</h3>
@@ -627,7 +638,7 @@ function viewPartits() {
   const fut = ps.filter(p => p.data >= avui()), pas = ps.filter(p => p.data < avui()).reverse();
   const card = p => `<a class="card pc ${guany(p)}" href="#/p/${p.id}"><div class="row"><span class="grow"><b>${dataCa(p.data)}</b>${p.hora ? ' · ' + esc(p.hora) : ''}<br>${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || '—')}${p.punts && Object.keys(p.punts).length ? `<br><span class="meta">${Object.keys(p.punts).sort().map(k => p.punts[k].join('-')).join(' · ')}</span>` : ''}</span>
     <span class="tag ${p.equip === 'G' ? 'eqG' : 'eqN'}">${EQN[p.equip] || '?'}</span><span class="meta">${(p.convocats || []).length} conv.</span>${p.resultat ? `<b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</div></a>`;
-  const comptes = JUG.filter(j => j.actiu !== false).map(j => ({ j, n: partitsDe(j.id).filter(p => !parFiltre || p.equip === parFiltre).length })).sort((a, b) => b.n - a.n || a.j.nom.localeCompare(b.j.nom, 'ca'));
+  const comptes = JUG.filter(j => j.actiu !== false).map(j => statsPartits(j.id, parFiltre)).sort((a, b) => b.tot - a.tot || (b.pct ?? -1) - (a.pct ?? -1) || a.j.nom.localeCompare(b.j.nom, 'ca'));
   return `<h2>Partits</h2>
   <div class="seg">${[['', 'Tots'], ['N', 'Negre'], ['G', 'Groc']].map(([v, t]) => `<button class="${parFiltre === v ? 'on' : ''}" onclick="parFilt('${v}')">${t}</button>`).join('')}</div>
   <div class="grid2"><button class="btn primary" style="padding:12px" onclick="newPartit()">+ Partit nou</button><a class="btn" style="padding:12px;text-align:center;text-decoration:none" href="#/pissarra">Pissarra</a></div>
@@ -635,7 +646,9 @@ function viewPartits() {
   ${parVista === 'calendari' ? calendari(ps) : `<h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Cap partit previst.</p>'}
   <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}`}
   <h3>Convocatòries per jugador${parFiltre ? ' · ' + EQN[parFiltre] : ''}</h3>
-  <div class="card">${comptes.map(({ j, n }) => `<div class="hist"><a class="grow nomlink" href="#/j/${j.id}">${esc(j.nom)}</a><b>${n}</b></div>`).join('')}</div>`;
+  <div class="card"><div class="ptab phead"><span></span><span>Total</span><span>Negre</span><span>Groc</span><span>% sets</span></div>
+    ${comptes.map(c => `<div class="ptab"><a class="nomlink" href="#/j/${c.j.id}">${esc(c.j.nom)}</a><b>${c.tot}</b><span>${c.N}</span><span>${c.G}</span><span>${c.pct ?? '–'}${c.pct != null ? '%' : ''}</span></div>`).join('')}</div>
+  <p class="meta">% sets: dels sets amb alineació posada als partits on estava convocat, en quants ha sortit al camp.</p>`;
 }
 window.newPartit = async () => {
   const d = await fs.addDoc(col('partits'), { data: avui(), hora: '', equip: parFiltre || 'N', rival: '', lloc: 'casa', convocats: [], sets: {}, resultat: '' });
