@@ -661,11 +661,12 @@ function viewPartit(id) {
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
   ${court(pos, true)}
   <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Z${z}</label><select onchange="posSet('${id}', ${z}, this.value)"><option value="">—</option>
-    ${convs.map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('')}</div>
+    ${convs.filter(j => pos[z] === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('')}</div>
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
     ${setActiu > 1 ? `<button class="btn" onclick="copySet('${id}')">Copia el set ${setActiu - 1}</button>` : ''}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
-  <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats).</p>
+  <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats que encara no tenen posició en aquest set).</p>
+  <p class="meta">✓ Tot el partit es desa sol a cada canvi; no cal cap botó.</p>
   <div class="actions"><button class="btn danger" onclick="parDel('${id}')">Esborra el partit</button></div>`;
 }
 const setPos = (id, pos) => { const p = PAR.find(x => x.id === id); p.sets = { ...(p.sets || {}), [setActiu]: pos }; fs.updateDoc(parRef(id), { ['sets.' + setActiu]: pos }); render(); };
