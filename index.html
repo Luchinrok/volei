@@ -225,13 +225,14 @@ a.nomlink { color: inherit; text-decoration: none; }
 .convchips { display: flex; flex-wrap: wrap; gap: 6px; }
 .cchip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; font-weight: 600; }
 .cchip .av { width: 26px; height: 26px; font-size: 12px; }
-.cp { display: flex; align-items: center; gap: 2px; border-radius: 5px; overflow: hidden; font: 400 12px/1.2 var(--head); border: 1px solid transparent; padding: 2px 3px; }
+.cp { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1px; border-radius: 5px; font: 400 12px/1.15 var(--head); border: 1px solid transparent; padding: 3px 2px; }
 .cp.eqN { background: #000; color: #fff; border-color: #5a6372; }
 .cp.eqG { background: #f5c518; color: #14181f; border-color: #d9a90f; }
-.cp.guanyat { border: 3px solid #22b35e; padding: 0 1px; }
-.cp.perdut { border: 3px solid #ef4136; padding: 0 1px; }
-.cp i { flex: none; font-style: normal; font-size: 8px; }
-.cp .rv { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cp.guanyat { border: 3px solid #22b35e; padding: 1px 0; }
+.cp.perdut { border: 3px solid #ef4136; padding: 1px 0; }
+.cp i { font-style: normal; font-size: 11px; line-height: 1; }
+.cp .rv { width: 100%; overflow-wrap: anywhere; hyphens: auto; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cp .hr { font-size: 10px; opacity: .8; }
 .callegend i.w { background: transparent; border: 3px solid #22b35e; } .callegend i.l { background: transparent; border: 3px solid #ef4136; }
 .callegend i.n { border-color: #5a6372; }
 .gd.guanyat { background: #22b35e; } .gd.perdut { background: #ef4136; }
@@ -925,7 +926,7 @@ function mesHtml(ym, ps) {
   for (let i = 0; i < off; i++) cel.push('<div class="cd buit"></div>');
   for (let d = 1; d <= dies; d++) {
     const iso = `${ym}-${two(d)}`, dp = ps.filter(p => p.data === iso);
-    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''} ${iso === calDia ? 'sel' : ''}" onclick="calToca('${iso}')"><span class="dn">${d}</span>${dp.map(p => `<span class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'} ${guany(p)}" title="${EQN[p.equip] || ''}"><span class="rv">${esc(p.rival || 'Partit')}</span><i>${p.lloc === 'fora' ? '🚌' : '🏠'}</i></span>`).join('')}</div>`);
+    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''} ${iso === calDia ? 'sel' : ''}" onclick="calToca('${iso}')"><span class="dn">${d}</span>${dp.map(p => `<span class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'} ${guany(p)}" title="${EQN[p.equip] || ''}"><i>${p.lloc === 'fora' ? '🚌' : '🏠'}</i><span class="rv">${esc(p.rival || 'Partit')}</span>${p.hora ? `<span class="hr">${esc(p.hora)}</span>` : ''}</span>`).join('')}</div>`);
   }
   while (cel.length < 42) cel.push('<div class="cd buit"></div>');   // sempre 6 setmanes: totes les cares del cub fan la mateixa alçada
   return `<div class="cal">${['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map(d => `<div class="ch">${d}</div>`).join('')}${cel.join('')}</div>`;
