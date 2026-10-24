@@ -543,6 +543,11 @@ details.plega[open] > summary .meta { display: none; }
 .dj[class*="ps-"] { background: color-mix(in srgb, var(--pc) 16%, var(--card)); border-color: var(--pc); }
 .dj[class*="ps-"] small { color: var(--pc); font-weight: 800; }
 .dj.saca { border-color: #f5c518 !important; box-shadow: inset 0 0 0 2px #f5c518, 0 0 0 2px #f5c518; }
+.rols { margin: 8px 0; }
+.rols summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--brand); }
+.rolgrid { display: grid; grid-template-columns: auto 1fr; gap: 5px 8px; align-items: center; margin-top: 6px; text-align: left; }
+.rolgrid label { font-weight: 600; font-size: 14px; }
+.rolgrid select { padding: 5px 6px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -1368,10 +1373,10 @@ function estatSet(p, n) {
 function viewDirecte(id) {
   const p = PAR.find(x => x.id === id); if (!p) return '<p class="empty">Carregant…</p>';
   const v = (p.punts || {})[setActiu] || ['', ''], nos = +(v[nostreIdx(p, true)] || 0), ells = +(v[nostreIdx(p, false)] || 0);
-  const { pos, L, saca } = estatSet(p, setActiu), conv = JUG.filter(j => (p.convocats || []).includes(j.id));
+  const { pos, L, saca } = estatSet(p, setActiu), conv = JUG.filter(j => (p.convocats || []).includes(j.id)), s0 = (p.sets || {})[setActiu] || {}, rolJ = jid => rolSet(s0, jid);
   const dins = new Set([...ZK.map(z => pos[z]), L].filter(Boolean)), nomJ = jid => JUG.find(q => q.id === jid)?.nom || '';
   const tile = (jid, lab, z) => { const j = JUG.find(q => q.id === jid), sq = z === '1' && saca === 'nos';
-    return j ? `<button class="dj ${posJ(jid) ? 'ps-' + posJ(jid) : ''} ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}${posJ(jid) ? ' ' + POS[posJ(jid)].l : ''}</small>${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b> ` : ''}${esc((j.nom || '').split(' ')[0])}${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
+    return j ? `<button class="dj ${rolJ(jid) ? 'ps-' + rolJ(jid) : ''} ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}${rolJ(jid) ? ' ' + POS[rolJ(jid)].l : ''}</small>${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b> ` : ''}${esc((j.nom || '').split(' ')[0])}${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
   const acc = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.s === setActiu);
   // el local sempre primer: a fora, el rival a l'esquerra
   const eN = `<div class="${saca === 'nos' ? 'serv' : ''}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')}</span><b>${nos}</b></div>`;
@@ -1417,6 +1422,7 @@ window.dirAlin = id => {
     <label class="lbl">Saca primer</label><div class="seg" style="margin:0">${[['nos', club() || 'Nosaltres'], ['ells', p.rival || 'El rival']].map(([v, l]) => `<button class="${sq === v ? 'on' : ''}" onclick="dirSaque('${id}','${v}')">${esc(l)}</button>`).join('')}</div>
     <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => sel(z, 'Z' + z)).join('')}${sel('L', 'Lliure')}</div>
     ${conv.length ? '' : '<p class="meta">Primer posa els convocats al partit.</p>'}
+    ${rolsHtml(id, pos, true)}
     <p class="meta">Z1 és qui saca. La rotació avança sola quan recuperem el saque.</p></div>`);
 };
 window.dirPos = (id, z, v) => { posSet(id, z, v); dirAlin(id); };
@@ -1511,9 +1517,11 @@ const dors = jid => { const d = JUG.find(q => q.id === jid)?.dorsal; return d ||
 // posició habitual de cada jugador (a la llista de l'equip); al partit es pot col·locar a qualsevol zona
 const POS = { col: { l: 'C', t: 'Col·locador' }, op: { l: 'O', t: 'Oposat' }, rec: { l: 'P', t: 'Punta' }, cen: { l: 'Ce', t: 'Central' }, lli: { l: 'L', t: 'Lliure' } };
 const posJ = jid => JUG.find(q => q.id === jid)?.posicio || '';
-const posBadge = (jid, cen) => { const k = posJ(jid) || (cen ? 'cen' : ''); return k ? `<i class="pb pb-${k}" title="${POS[k].t}">${POS[k].l}</i>` : ''; };
+const posBadge = (jid, cen, rol) => { const k = rol || posJ(jid) || (cen ? 'cen' : ''); return k ? `<i class="pb pb-${k}" title="${POS[k].t}">${POS[k].l}</i>` : ''; };
 const fitxaNomV = jid => { const j = JUG.find(q => q.id === jid); if (!j) return ''; const d = dors(jid); return d ? `<b class="tdn">${esc(d)}</b><span class="tn">${esc(curt(j.nom))}</span>` : `<span class="tn">${esc(curt(j.nom))}</span>`; };
-const fitxaNom = (jid, cen) => fitxaNomV(jid) + posBadge(jid, cen);
+const fitxaNom = (jid, cen, rol) => fitxaNomV(jid) + posBadge(jid, cen, rol);
+// rol d'un jugador en un set: el canviat per a aquell set o, si no, el de l'equip
+const rolSet = (pos, jid) => (pos?.rols || {})[jid] || posJ(jid);
 const fitxaNomOld = jid => { const j = JUG.find(q => q.id === jid); if (!j) return ''; const d = dors(jid); return d ? `<b class="tdn">${esc(d)}</b><span class="tn">${esc(curt(j.nom))}</span>` : `<span class="tn">${esc(curt(j.nom))}</span>`; };
 const ZONES = { 4: [17, 22], 3: [50, 22], 2: [83, 22], 5: [17, 72], 6: [50, 72], 1: [83, 72] };
 const esCentral = (pos, jid) => jid && (pos.C1 === jid || pos.C2 === jid);
@@ -1522,7 +1530,7 @@ function court(pos, lineup, eq) {
   return `<div class="court ${eq ? 'eq' + eq : ''}" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
     ${Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y + 14}%">${z}</span>`).join('')}
     ${Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]);
-      return `<div class="tok ${j ? '' : 'buit'} ${esCentral(pos, pos[z]) ? 'cen' : ''}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? fitxaNom(j.id, esCentral(pos, pos[z])) : '<span class="tn"></span>'}</div>`; }).join('')}
+      return `<div class="tok ${j ? '' : 'buit'} ${esCentral(pos, pos[z]) ? 'cen' : ''}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? fitxaNom(j.id, esCentral(pos, pos[z]), (pos.rols || {})[j.id]) : '<span class="tn"></span>'}</div>`; }).join('')}
     ${lineup && pos.L ? `<div class="tok lib" style="left:88%;top:93%">L ${esc(curt(JUG.find(q => q.id === pos.L)?.nom))}</div>` : ''}
   </div>`;
 }
@@ -1559,10 +1567,11 @@ function viewPartit(id) {
     ${pos.L ? ['C1', 'C2'].map((c, i) => `<div><label>Central ${i + 1}</label><select onchange="posSet('${id}', '${c}', this.value)"><option value="">—</option>
     ${ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean).filter(j => pos[c] === j.id || !esCentral(pos, j.id)).map(j => `<option value="${j.id}" ${pos[c] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('') : ''}</div>
   ${pos.L ? '<p class="meta">Centrals: per qui entra el lliure a la línia de darrere. Compten mig set al % de sets.</p>' : ''}
+  ${rolsHtml(id, pos)}
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
     ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? `<button class="btn" onclick="triaCopia('${id}')">📋 Copia un set</button>` : ''}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
-  <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats que encara no tenen posició en aquest set). La lletra de cada fitxa és la posició habitual del jugador.</p></details>
+  <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats que encara no tenen posició en aquest set). La lletra de cada fitxa és el rol del jugador en aquest set (el de l'equip, si no l'has canviat a «Rols en aquest set»).</p></details>
   <h3>Estadístiques</h3>
   <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px" href="#/directe/${id}">📊 Marcador en directe</a>
   ${taulaEstad(p)}
@@ -1607,6 +1616,18 @@ window.rodaDesa = (id, n, buida) => {
 };
 const setPos = (id, pos) => { const p = PAR.find(x => x.id === id); p.sets = { ...(p.sets || {}), [setActiu]: pos }; fs.updateDoc(parRef(id), { ['sets.' + setActiu]: pos }); render(); };
 const ZK = ['1', '2', '3', '4', '5', '6'];
+function rolsHtml(id, pos, alDirecte) {
+  const js = [...ZK.map(z => pos[z]), pos.L].filter(Boolean); if (!js.length) return '';
+  return `<details class="rols" ${Object.keys(pos.rols || {}).length ? 'open' : ''}><summary>Rols en aquest set${Object.keys(pos.rols || {}).length ? ` (${Object.keys(pos.rols).length} canviats)` : ''}</summary>
+    <div class="rolgrid">${js.map(jid => { const j = JUG.find(q => q.id === jid), hab = posJ(jid), v = (pos.rols || {})[jid] || '';
+      return `<label>${esc((j?.nom || '').split(' ')[0])}</label><select onchange="rolPosa('${id}','${jid}',this.value,${alDirecte ? 1 : 0})"><option value="">${hab ? 'Habitual: ' + POS[hab].t : 'Sense rol'}</option>${Object.entries(POS).filter(([k]) => k !== hab).map(([k, x]) => `<option value="${k}" ${v === k ? 'selected' : ''}>${x.t}</option>`).join('')}</select>`; }).join('')}</div>
+    <p class="meta" style="margin:4px 0 0">Només per a aquest set. El rol de l'equip no canvia.</p></details>`;
+}
+window.rolPosa = (id, jid, v, alDirecte) => {
+  const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) }, r = { ...(pos.rols || {}) };
+  if (v) r[jid] = v; else delete r[jid];
+  pos.rols = r; setPos(id, pos); if (alDirecte) dirAlin(id);
+};
 window.posSet = (id, z, jid) => {
   const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) };
   const grup = z === 'C1' || z === 'C2' ? ['C1', 'C2'] : [...ZK, 'L'];
@@ -1618,7 +1639,7 @@ window.posSet = (id, z, jid) => {
 window.rotate = id => {   // rotació: Z2->Z1, Z3->Z2, Z4->Z3, Z5->Z4, Z6->Z5, Z1->Z6
   const o = (PAR.find(x => x.id === id).sets || {})[setActiu] || {}, n = {};
   [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 1]].forEach(([a, b]) => { if (o[b]) n[a] = o[b]; });
-  ['L', 'C1', 'C2'].forEach(k => { if (o[k]) n[k] = o[k]; });
+  ['L', 'C1', 'C2', 'rols'].forEach(k => { if (o[k]) n[k] = o[k]; });
   setPos(id, n);
 };
 window.copySet = (id, n) => {
@@ -1641,7 +1662,7 @@ const pisKey = () => `volei.pis.${pisPar || 'lliure'}-${pisPar ? pisSet : 0}`;
 function pisEstat() {
   const sv = store.get(pisKey(), null); if (sv) return sv;
   const p = pisPar && PAR.find(x => x.id === pisPar), pos = p ? ((p.sets || {})[pisSet] || {}) : {};
-  const noms = {}; [...ZK, 'L', 'C1', 'C2'].forEach(k => { if (pos[k]) noms[k] = pos[k]; });
+  const noms = {}; [...ZK, 'L', 'C1', 'C2', 'rols'].forEach(k => { if (pos[k]) noms[k] = pos[k]; });
   return { noms, xy: {} };
 }
 const pisDesa = st => { store.set(pisKey(), st); render(); };
@@ -1657,7 +1678,7 @@ function viewPissarra(id) {
   const p = pisPar && PAR.find(x => x.id === pisPar), st = pisEstat(), n = st.noms;
   const nom = jid => JUG.find(q => q.id === jid)?.nom;
   const toks = Object.entries(ZONES).map(([z, [x, y]]) => { const xy = st.xy[z];
-    return `<div class="tok ${n[z] ? '' : 'buit'} ${esCentral(n, n[z]) ? 'cen' : ''} ${n[z] && n[z] === n.L ? 'lib-dins' : ''}" data-z="${z}" style="left:${xy ? xy[0] : x}%;top:${xy ? xy[1] : y}%">${n[z] ? fitxaNom(n[z], esCentral(n, n[z])) : `<span class="tn">${z}</span>`}</div>`; }).join('');
+    return `<div class="tok ${n[z] ? '' : 'buit'} ${esCentral(n, n[z]) ? 'cen' : ''} ${n[z] && n[z] === n.L ? 'lib-dins' : ''}" data-z="${z}" style="left:${xy ? xy[0] : x}%;top:${xy ? xy[1] : y}%">${n[z] ? fitxaNom(n[z], esCentral(n, n[z]), (n.rols || {})[n[z]]) : `<span class="tn">${z}</span>`}</div>`; }).join('');
   const fora = n.L && !ZK.some(z => n[z] === n.L) ? n.L : null;            // lliure a la banqueta
   const dinsL = ZK.find(z => n[z] && n[z] === n.Lx);                       // zona on ara hi ha el lliure
   const triables = JUG.filter(j => j.actiu !== false);
@@ -1689,7 +1710,7 @@ window.pisTriaSet = k => { pisSet = k; render(); };
 window.pisRota = () => {   // com a l'alineació: Z2->Z1, Z3->Z2 ... Z1->Z6; les fitxes tornen a la seva zona
   const st = pisEstat(), o = st.noms, r = {};
   [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 1]].forEach(([a, b]) => { if (o[b]) r[a] = o[b]; });
-  ['L', 'Lx', 'Lsub', 'C1', 'C2'].forEach(k => { if (o[k]) r[k] = o[k]; });
+  ['L', 'Lx', 'Lsub', 'C1', 'C2', 'rols'].forEach(k => { if (o[k]) r[k] = o[k]; });
   pisDesa({ noms: r, xy: {} });
 };
 window.pisLliure = z => {
