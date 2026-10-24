@@ -502,6 +502,14 @@ button.mini { flex: none; width: 30px; height: 30px; border-radius: 8px; border:
 .tok { flex-direction: column; }
 .dj .dnum { background: transparent; padding: 0; }
 .dj.on .dnum, .dj.saca .dnum { color: inherit; }
+/* editar equip: dues línies (dorsal, nom i ✕ / dies i equip) */
+.edit-pl { display: grid !important; grid-template-columns: 44px minmax(0, 1fr) auto 32px; grid-template-areas: "d n n x" ". dd eq ."; gap: 4px 6px; align-items: center; padding: 7px 0; }
+.edit-pl input.dorsal { grid-area: d; width: 44px !important; font-size: 15px; }
+.edit-pl input.nm { grid-area: n; font-size: 15px; font-weight: 600; padding: 6px 8px; }
+.edit-pl .dd { grid-area: dd; }
+.edit-pl .dd button { width: 34px; height: 26px; font-size: 11px; }
+.edit-pl select { grid-area: eq; font-size: 13px; padding: 3px 4px; height: 28px; }
+.edit-pl .x { grid-area: x; width: 32px; height: 32px; }
 </style>
 </head>
 <body>
@@ -1010,7 +1018,7 @@ function viewAssistencia() {
   ${editEquip ? `<div class="card">
     ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
       <input type="text" class="dorsal" inputmode="numeric" maxlength="3" placeholder="#" value="${esc(j.dorsal ?? '')}" title="Dorsal" onchange="jugSet('${j.id}', {dorsal: this.value.trim()})">
-      <input type="text" data-cap="w" value="${esc(j.nom)}" onchange="jugSet('${j.id}', {nom: this.value.trim()})">
+      <input type="text" class="nm" data-cap="w" value="${esc(j.nom)}" onchange="jugSet('${j.id}', {nom: this.value.trim()})">
       <span class="dd" title="Quins dies ve">${Object.keys(tcfg().dies).map(Number).sort().map(d => `<button class="${!diesJug(j) || diesJug(j).includes(d) ? 'on' : ''}" onclick="toggleDia('${j.id}', ${d})">${CURT[d]}</button>`).join('')}</span>
 ${dosEq() ? `      <select onchange="jugSet('${j.id}', {equip: this.value})" title="Equip">
         ${[['', '–'], ['N', 'Negre'], ['G', 'Groc'], ['NG', 'N+G']].map(([v, t]) => `<option value="${v}" ${(j.equip || '') === v ? 'selected' : ''}>${t}</option>`).join('')}</select>` : ''}
