@@ -568,6 +568,8 @@ details.plega .card { border: 0; box-shadow: none; padding: 0; margin: 0; backgr
 .qsaca > span { font-weight: 700; font-size: 14px; text-align: center; }
 .qsaca .seg button { min-height: 34px; padding: 4px; }
 .qsaca .seg button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 800; }
+details.plega.entl { margin-top: 12px; }
+details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 6px; background: var(--bg); }
 </style>
 </head>
 <body>
@@ -1063,13 +1065,12 @@ function viewAssistencia() {
     <div class="stat"><b>${JUG.filter(j => j.actiu !== false).length}</b><span>jugadors</span></div>
   </div>
   <button class="btn primary" style="width:100%;padding:12px" onclick="newAss()">+ Passar llista d'avui</button>
-  <h3>Jugadors</h3>
-  <div class="card">${st.length ? `<div class="pl phead"><span class="nom"></span><span class="pct" style="width:50px">Temp.</span><span class="pct mes">Mes</span></div>` : ''}${st.length ? st.map(j => `<div class="pl">
+  <details class="card plega" ${(PLEG.assj ?? true) ? 'open' : ''} ontoggle="obertPart('assj', '', this.open)"><summary><b>👥 Jugadors (${st.length})</b><span class="meta">${st.length ? 'Mitjana de la temporada: ' + Math.round(st.filter(j => j.pct != null).reduce((t, j) => t + j.pct, 0) / (st.filter(j => j.pct != null).length || 1)) + '%' : 'Encara no hi ha jugadors'}</span></summary>${st.length ? `<div class="pl phead"><span class="nom"></span><span class="pct" style="width:50px">Temp.</span><span class="pct mes">Mes</span></div>` : ''}${st.length ? st.map(j => `<div class="pl">
       <span class="nom ${j.no ? 'no' : ''}">${av(j)}<a class="nomlink" href="#/j/${j.id}">${esc(j.nom)}</a>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</span>
       ${j.no ? `<span class="red" title="Faltes sense avisar">💀${j.no}</span>` : ''}
       <span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
       <span class="pct mes ${j.pctM != null && j.pct != null && j.pctM < j.pct - 10 ? 'baixa' : ''}">${j.pctM ?? '–'}${j.pctM != null ? '%' : ''}</span>
-    </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</div>
+    </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</details>
   ${statsJug(true).length ? `<p class="meta">Ja no hi són: ${statsJug(true).map(j => `<a href="#/j/${j.id}">${esc(j.nom)}</a> (${j.pct ?? '–'}${j.pct != null ? '%' : ''})`).join(', ')}</p>` : ''}
   <p class="meta">Toca un nom per veure els seus entrenos i partits. % = entrenos que ha vingut sobre els que s'han passat llista, des de l'inici de la temporada i dels últims 30 dies (en vermell si l'últim mes baixa més de 10 punts). En vermell, qui ha faltat alguna vegada sense avisar (💀 = quantes).</p>
   <h3>Equip</h3>
@@ -1084,10 +1085,10 @@ function viewAssistencia() {
     <div class="actions"><button class="btn primary" style="flex:1" onclick="editaJug()">＋ Afegeix un jugador</button><button class="btn" onclick="editEquip=false;render()">Fet</button></div>
     <p class="meta" style="margin:8px 0 0">Toca un jugador per canviar-li el nom, el dorsal, els dies que ve o l'equip.</p>
   </div>` : `<button class="btn" style="width:100%;padding:10px" onclick="editEquip=true;render()">✎ Editar equip</button>`}
-  <h3>Entrenos</h3>
+  <details class="card plega entl" ${(PLEG.asse ?? true) ? 'open' : ''} ontoggle="obertPart('asse', '', this.open)"><summary><b>📋 Entrenos (${ASS.length})</b><span class="meta">${ASS[0] ? 'Últim: ' + dataCa(ASS[0].data) + ', ' + venen(ASS[0]) + ' han vingut' : 'Encara cap'}</span></summary>
   <div class="list">${ASS.map(a => `<div class="card selrow" onclick="openAss('${a.id}')"><div class="row">
       <span class="grow"><b>${dataCa(a.data)}</b> ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}</span>
-      <span>${a.data > avui() ? '<span class="tag">previst</span> ' : ''}✅ ${venen(a)}</span>${noAvisen(a) ? `<span class="red">💀${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div>
+      <span>${a.data > avui() ? '<span class="tag">previst</span> ' : ''}✅ ${venen(a)}</span>${noAvisen(a) ? `<span class="red">💀${noAvisen(a)}</span>` : ''}</div></div>`).join('') || '<p class="meta">Encara no hi ha cap entreno registrat.</p>'}</div></details>
 `;
 }
 
