@@ -510,6 +510,17 @@ button.mini { flex: none; width: 30px; height: 30px; border-radius: 8px; border:
 .edit-pl .dd button { width: 34px; height: 26px; font-size: 11px; }
 .edit-pl select { grid-area: eq; font-size: 13px; padding: 3px 4px; height: 28px; }
 .edit-pl .x { grid-area: x; width: 32px; height: 32px; }
+/* editar equip: llista neta i finestra per a cada jugador */
+.eqlist { padding: 4px 12px 12px; }
+.eqrow { font: inherit; width: 100%; display: flex; align-items: center; gap: 8px; padding: 9px 0; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); cursor: pointer; text-align: left; }
+.eqrow:active { background: var(--bg); }
+.eqd { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); font: 800 17px/1 var(--head); }
+.eqn { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eqn small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+.eqrow .pill { font-size: 11px; padding: 1px 7px; }
+.eqrow .nos { font-size: 11px; padding: 3px 6px; }
+.chev { flex: none; color: var(--muted); font-size: 20px; }
+.eqrow.inactiu { opacity: .5; }
 </style>
 </head>
 <body>
@@ -1015,18 +1026,16 @@ function viewAssistencia() {
   ${statsJug(true).length ? `<p class="meta">Ja no hi són: ${statsJug(true).map(j => `<a href="#/j/${j.id}">${esc(j.nom)}</a> (${j.pct ?? '–'}${j.pct != null ? '%' : ''})`).join(', ')}</p>` : ''}
   <p class="meta">Toca un nom per veure els seus entrenos i partits. % = entrenos que ha vingut sobre els que s'han passat llista, des de l'inici de la temporada i dels últims 30 dies (en vermell si l'últim mes baixa més de 10 punts). En vermell, qui ha faltat alguna vegada sense avisar (💀 = quantes).</p>
   <h3>Equip</h3>
-  ${editEquip ? `<div class="card">
-    ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
-      <input type="text" class="dorsal" inputmode="numeric" maxlength="3" placeholder="#" value="${esc(j.dorsal ?? '')}" title="Dorsal" onchange="jugSet('${j.id}', {dorsal: this.value.trim()})">
-      <input type="text" class="nm" data-cap="w" value="${esc(j.nom)}" onchange="jugSet('${j.id}', {nom: this.value.trim()})">
-      <span class="dd" title="Quins dies ve">${Object.keys(tcfg().dies).map(Number).sort().map(d => `<button class="${!diesJug(j) || diesJug(j).includes(d) ? 'on' : ''}" onclick="toggleDia('${j.id}', ${d})">${CURT[d]}</button>`).join('')}</span>
-${dosEq() ? `      <select onchange="jugSet('${j.id}', {equip: this.value})" title="Equip">
-        ${[['', '–'], ['N', 'Negre'], ['G', 'Groc'], ['NG', 'N+G']].map(([v, t]) => `<option value="${v}" ${(j.equip || '') === v ? 'selected' : ''}>${t}</option>`).join('')}</select>` : ''}
-      ${j.actiu === false ? `<button class="x back" title="Torna'l a l'equip" onclick="jugSet('${j.id}', {actiu: true})">↺</button>` : `<button class="x" title="Treu de l'equip" onclick="treuJug('${j.id}')">✕</button>`}
-    </div>`).join('')}
-    <div class="row" style="margin-top:10px"><input type="text" id="nounom" data-cap="w" placeholder="Nom del jugador nou"><button class="btn" onclick="addJug()">Afegeix</button></div>
-    <p class="meta" style="margin:8px 0 0">Dies: toca els dies que ve (els altres dies no surt a la llista ni li compta la falta). ✕ treu de l'equip però guarda el que ja ha fet; ↺ el torna a posar.</p>
-    <div class="actions"><button class="btn primary" onclick="editEquip=false;render()">Fet</button></div>
+  ${editEquip ? `<div class="card eqlist">
+    ${JUG.slice().sort((a, b) => (a.actiu === false) - (b.actiu === false) || a.nom.localeCompare(b.nom, 'ca')).map(j => { const dj = diesJug(j), eqs = !dosEq() ? [] : j.equip === 'NG' ? ['N', 'G'] : j.equip ? [j.equip] : [];
+      return `<button class="eqrow ${j.actiu === false ? 'inactiu' : ''}" onclick="editaJug('${j.id}')">
+        <span class="eqd">${esc(dors(j.id) || '–')}</span>
+        <span class="eqn">${esc(j.nom)}${j.actiu === false ? '<small>ja no és a l\'equip</small>' : ''}</span>
+        ${dj ? `<span class="pill">${dj.map(d => CURT[d]).join('+')}</span>` : ''}
+        ${eqs.map(e => `<span class="nos ${e === 'G' ? 'g' : 'n'}">${e}</span>`).join('')}
+        <span class="chev">›</span></button>`; }).join('')}
+    <div class="actions"><button class="btn primary" style="flex:1" onclick="editaJug()">＋ Afegeix un jugador</button><button class="btn" onclick="editEquip=false;render()">Fet</button></div>
+    <p class="meta" style="margin:8px 0 0">Toca un jugador per canviar-li el nom, el dorsal, els dies que ve o l'equip.</p>
   </div>` : `<button class="btn" style="width:100%;padding:10px" onclick="editEquip=true;render()">✎ Editar equip</button>`}
   <h3>Entrenos</h3>
   <div class="list">${ASS.map(a => `<div class="card selrow" onclick="openAss('${a.id}')"><div class="row">
@@ -1083,6 +1092,31 @@ window.assDate = d => {
 window.delAss = async () => { if (await dialeg(`Esborrar la llista del <b>${dataCa(editAss.data)}</b>?`, { ok: 'Esborra-la', perill: true })) { fs.deleteDoc(ref('assistencia', editAss.id)); editAss = null; render(); } };
 window.treuJug = async id => { const j = JUG.find(x => x.id === id); if (await dialeg(`Treure <b>${esc(j.nom)}</b> de l'equip?<br><small>El que ja ha fet es guarda.</small>`, { ok: 'Treu-lo', perill: true, ico: '👋' })) jugSet(id, { actiu: false }); };
 window.jugSet = (id, patch) => { if (patch.nom === '') return render(); fs.setDoc(ref('jugadors', id), patch, { merge: true }); };
+// finestra per editar (o afegir, sense id) un jugador
+window.editaJug = id => {
+  const j = id ? JUG.find(x => x.id === id) : { nom: '', dorsal: '' }, dies = Object.keys(tcfg().dies).map(Number).sort();
+  const dj = id ? diesJug(j) : null;
+  obreFitxa(`<b>${id ? esc(j.nom) : 'Jugador nou'}</b><div class="form">
+    <div class="grid2" style="grid-template-columns:70px 1fr"><div><label class="lbl">Dorsal</label><input type="text" id="ejd" inputmode="numeric" maxlength="3" placeholder="#" value="${esc(j.dorsal ?? '')}" style="text-align:center;font-weight:700"></div>
+      <div><label class="lbl">Nom</label><input type="text" id="ejn" data-cap="w" value="${esc(j.nom)}" placeholder="Nom i inicial"></div></div>
+    ${dies.length > 1 ? `<label class="lbl">Dies que ve</label><div class="seg" id="ejdies" style="margin:0">${dies.map(d => `<button class="${!dj || dj.includes(d) ? 'on' : ''}" data-d="${d}" onclick="this.classList.toggle('on')">${DIES[d]}</button>`).join('')}</div>` : ''}
+    ${dosEq() ? `<label class="lbl">Equip</label><div class="seg" id="ejeq" style="margin:0">${[['N', 'Negre'], ['G', 'Groc'], ['NG', 'Tots dos'], ['', '–']].map(([v, t]) => `<button class="${(j.equip || '') === v ? 'on' : ''}" data-v="${v}" onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))">${t}</button>`).join('')}</div>` : ''}
+    ${id ? `<label class="lbl">A l'equip des del</label><input type="date" id="eja" value="${j.alta || ''}">` : ''}
+    ${id ? (j.actiu === false ? `<button class="btn" style="width:100%;margin-top:12px" onclick="jugSet('${id}', {actiu: true});tancaFitxa()">↺ Torna'l a l'equip</button>`
+      : `<button class="btn danger" style="width:100%;margin-top:12px" onclick="tancaFitxa();treuJug('${id}')">Treu-lo de l'equip</button>`) : ''}
+    </div>`, `<button class="btn" onclick="tancaFitxa()">Cancel·la</button><button class="btn primary" style="flex:1" onclick="desaJug(${id ? `'${id}'` : ''})">Desa</button>`);
+  setTimeout(() => !id && $('#ejn')?.focus(), 50);
+};
+window.desaJug = id => {
+  const nom = $('#ejn').value.trim(); if (!nom) return $('#ejn').focus();
+  const totsD = Object.keys(tcfg().dies).map(Number).sort(), sel = $('#ejdies') ? [...$('#ejdies').querySelectorAll('button.on')].map(b => +b.dataset.d) : totsD;
+  if (!sel.length) return desat('Tria com a mínim un dia');
+  const dades = { nom, dorsal: $('#ejd').value.trim(), diesEntreno: sel.length === totsD.length ? null : sel, dies: null, nomesDijous: null };
+  if ($('#ejeq')) dades.equip = $('#ejeq').querySelector('button.on')?.dataset.v || '';
+  if (id) { if ($('#eja')) dades.alta = $('#eja').value || null; jugSet(id, dades); }
+  else fs.addDoc(col('jugadors'), { ...dades, actiu: true, alta: avui() });
+  tancaFitxa();
+};
 window.addJug = () => {
   const n = $('#nounom').value.trim(); if (!n) return;
   fs.addDoc(col('jugadors'), { nom: n, actiu: true, alta: avui() });
