@@ -549,6 +549,21 @@ details.plega[open] > summary .meta { display: none; }
 .rolgrid label { font-weight: 600; font-size: 14px; }
 .rolgrid select { padding: 5px 6px; font-size: 14px; }
 details.plega .card { border: 0; box-shadow: none; padding: 0; margin: 0; background: none; }
+/* directe més compacte */
+.marc { padding: 8px 10px; border-radius: 16px; border-bottom-width: 4px; }
+.marc .seg { margin-bottom: 4px !important; gap: 4px; }
+.marc .seg button { min-height: 28px; padding: 2px; font-size: 13px; border-radius: 9px; }
+.sb b { font-size: 44px; }
+.sb .riv, .sb .nos { font-size: 13px; }
+.marc .saq { margin-top: 2px; font-size: 12px; }
+.djgrid { gap: 5px; margin-bottom: 5px; }
+.dj { min-height: 44px; padding: 2px; border-radius: 12px; font-size: 16px; }
+.dj small { font-size: 10px; }
+.accs.tres { margin-top: 5px; gap: 5px; }
+.accs.tres .acc { min-height: 42px; font-size: 12px; padding: 4px; }
+.plog { margin-top: 8px; padding: 10px 12px; }
+.djn { display: flex; align-items: baseline; gap: 5px; white-space: nowrap; max-width: 100%; overflow: hidden; }
+.dj { min-height: 40px; }
 </style>
 </head>
 <body>
@@ -1377,7 +1392,7 @@ function viewDirecte(id) {
   const { pos, L, saca } = estatSet(p, setActiu), conv = JUG.filter(j => (p.convocats || []).includes(j.id)), s0 = (p.sets || {})[setActiu] || {}, rolJ = jid => rolSet(s0, jid);
   const dins = new Set([...ZK.map(z => pos[z]), L].filter(Boolean)), nomJ = jid => JUG.find(q => q.id === jid)?.nom || '';
   const tile = (jid, lab, z) => { const j = JUG.find(q => q.id === jid), sq = z === '1' && saca === 'nos';
-    return j ? `<button class="dj ${rolJ(jid) ? 'ps-' + rolJ(jid) : ''} ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}${rolJ(jid) ? ' ' + POS[rolJ(jid)].l : ''}</small>${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b> ` : ''}${esc((j.nom || '').split(' ')[0])}${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
+    return j ? `<button class="dj ${rolJ(jid) ? 'ps-' + rolJ(jid) : ''} ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}${rolJ(jid) ? ' ' + POS[rolJ(jid)].l : ''}</small><span class="djn">${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b>` : ''}${esc((j.nom || '').split(' ')[0])}</span>${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
   const acc = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.s === setActiu);
   // el local sempre primer: a fora, el rival a l'esquerra
   const eN = `<div class="${saca === 'nos' ? 'serv' : ''}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')}</span><b>${nos}</b></div>`;
@@ -1573,8 +1588,7 @@ function viewPartit(id) {
     ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? `<button class="btn" onclick="triaCopia('${id}')">📋 Copia un set</button>` : ''}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
   <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats que encara no tenen posició en aquest set). La lletra de cada fitxa és el rol del jugador en aquest set (el de l'equip, si no l'has canviat a «Rols en aquest set»).</p></details>
-  <h3>Estadístiques</h3>
-  <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px" href="#/directe/${id}">📊 Marcador en directe</a>
+  <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px;margin:16px 0 10px" href="#/directe/${id}">📊 Marcador en directe</a>
   <details class="card plega" ${(PLEG['est' + id] ?? true) ? 'open' : ''} ontoggle="obertPart('est', '${id}', this.open)"><summary><b>📊 Estadístiques per jugador</b><span class="meta">${(() => { const m = estadJug(p.accions || []), n = Object.keys(m).length; return n ? n + ' jugadors amb accions apuntades' : 'Encara no hi ha accions apuntades'; })()}</span></summary>
   ${taulaEstad(p)}</details>
   <p class="meta">✓ Tot el partit es desa sol a cada canvi; no cal cap botó.</p>
