@@ -440,7 +440,7 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .etd { border-bottom: 1px solid var(--line); } .etd:last-of-type { border-bottom: 0; }
 .etd summary { list-style: none; cursor: pointer; } .etd summary::-webkit-details-marker { display: none; }
 .ptab.one { grid-template-columns: minmax(0, 1fr) 54px 60px; }
-.etab { grid-template-columns: minmax(0, 1fr) 26px 26px 26px 26px 40px 36px !important; }
+.etab { grid-template-columns: minmax(0, 1fr) 26px 26px 26px 26px 46px 36px !important; }
 .accs.np { grid-template-columns: 1fr 1fr; }
 .acc.lleu { border-width: 1px; min-height: 40px; font-size: 13px; }
 .stps { display: grid; gap: 4px; padding: 4px 0 10px; }
@@ -1484,11 +1484,11 @@ function taulaEstad(p) {
   const edita = `<div class="actions" style="margin-top:8px"><button class="btn" onclick="estEdit='${p.id}';render()">✎ Edita les estadístiques</button></div>`;
   if (!ids.length) return '<p class="meta">Encara no hi ha accions apuntades. Obre el marcador en directe durant el partit.</p>' + edita;
   const n = (e, k) => e.n[k] || ' ';
-  return `<div class="card"><div class="etab phead"><span></span><span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="Recepcions bones o perfectes">Rec</span><span>+/-</span></div>
+  return `<div class="card"><div class="etab phead"><span></span><span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="% de recepcions bones o perfectes">Recep.</span><span>+/-</span></div>
     ${ids.map(jid => { const e = m[jid], j = JUG.find(q => q.id === jid), b = e.bo - e.mal;
       return `<details class="etd"><summary class="etab"><span>${esc(j?.nom || '?')}</span><span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || ' '}</span><span>${e.rec != null ? e.rec + '%' : ' '}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
         <div class="meta" style="padding:0 0 8px">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' ')}</div></details>`; }).join('')}
-    <div class="meta" style="margin-top:6px">Rec: recepcions perfectes o bones sobre el total (amb els errors de recepció). +/-: punts guanyats menys punts perduts. Errors del rival: ${accions.filter(a => a.a === 'erv').length} punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</div>${edita}</div>`;
+    <div class="meta" style="margin-top:6px">🎯 aces, 💥 remats punt, 🧱 bloquejos punt, ✗ errors. <b>Recep.</b>: de cada 100 recepcions, quantes han estat bones o perfectes (també compten les dolentes i els errors de recepció). +/-: punts guanyats menys punts perduts. Errors del rival: ${accions.filter(a => a.a === 'erv').length} punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</div>${edita}</div>`;
 }
 window.estMou = (id, jid, k, d) => {
   const p = PAR.find(x => x.id === id), accions = [...(p.accions || [])];
