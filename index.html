@@ -567,6 +567,7 @@ details.plega .card { border: 0; box-shadow: none; padding: 0; margin: 0; backgr
 .qsaca { background: var(--card); border: 2px solid var(--accent); border-radius: 14px; padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; }
 .qsaca > span { font-weight: 700; font-size: 14px; text-align: center; }
 .qsaca .seg button { min-height: 34px; padding: 4px; }
+.qsaca .seg button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 800; }
 </style>
 </head>
 <body>
@@ -1407,7 +1408,7 @@ function viewDirecte(id) {
     <div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
     <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival')}</div></div>
-  ${!acc.some(a => ACC[a.a] && !ACC[a.a].np) ? `<div class="qsaca"><span>🏐 Qui saca primer al set ${setActiu}?</span><div class="seg" style="margin:0">${(p.lloc === 'fora' ? [['ells', p.rival || 'El rival'], ['nos', club() || 'Nosaltres']] : [['nos', club() || 'Nosaltres'], ['ells', p.rival || 'El rival']]).map(([v, l]) => `<button class="${saca === v ? 'on' : ''}" onclick="dirSaque('${id}','${v}',1)">${esc(l)}</button>`).join('')}</div></div>` : ''}
+  ${!acc.some(a => ACC[a.a] && !ACC[a.a].np) ? `<div class="qsaca"><span>Qui saca primer al set ${setActiu}? <small class="meta">(ara: ${esc(saca === 'nos' ? club() || 'nosaltres' : p.rival || 'el rival')})</small></span><div class="seg" style="margin:0">${(p.lloc === 'fora' ? [['ells', p.rival || 'El rival'], ['nos', club() || 'Nosaltres']] : [['nos', club() || 'Nosaltres'], ['ells', p.rival || 'El rival']]).map(([v, l]) => `<button class="${saca === v ? 'on' : ''}" onclick="dirSaque('${id}','${v}',1)">${saca === v ? '🏐 ' : ''}${esc(l)}</button>`).join('')}</div></div>` : ''}
   <div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
   <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>
   ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu} i qui saca primer.</p>` : ''}
