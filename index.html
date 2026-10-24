@@ -588,6 +588,14 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .court .tok.pilota { width: 38px; height: 38px; background: transparent !important; border: 0 !important; box-shadow: none; font-size: 30px; z-index: 2; }
 .trodes { max-width: 260px; margin: 8px auto 0; }
 .trodes[hidden] { display: none; }
+/* pissarra: canviar jugadors com un camp */
+.pischg .pcrow { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 8px 0 4px; }
+.pischg .pcgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.pischg .pcgrid.un { grid-template-columns: 1fr; margin-top: 10px; }
+.pischg .pc { border: 1px solid var(--line); border-radius: 12px; padding: 5px 6px 6px; background: var(--bg); display: flex; flex-direction: column; gap: 2px; }
+.pischg .pc.buida { border-style: dashed; }
+.pischg .pc small { font: 800 12px/1 var(--head); color: var(--brand); }
+.pischg .pc select { border: 0; background: transparent; padding: 2px 0; font-size: 14px; font-weight: 600; min-width: 0; }
 </style>
 </head>
 <body>
@@ -1562,6 +1570,7 @@ window.parDel = async id => { const p = PAR.find(x => x.id === id); if (await di
 
 let setActiu = 1;
 const curt = n => (n || '').split(' ')[0].slice(0, 8);
+const nomCurt = n => { const w = (n || '').split(' '); return w[1] && w[1].length <= 2 ? w[0] + ' ' + w[1] : w[0]; };   // «Dani C» es queda, «David Mas» → «David»
 const dors = jid => { const d = JUG.find(q => q.id === jid)?.dorsal; return d || d === 0 ? String(d) : ''; };
 // posició habitual de cada jugador (a la llista de l'equip); al partit es pot col·locar a qualsevol zona
 const POS = { col: { l: 'C', t: 'Col·locador' }, op: { l: 'O', t: 'Oposat' }, rec: { l: 'P', t: 'Punta' }, cen: { l: 'Ce', t: 'Central' }, lli: { l: 'L', t: 'Lliure' } };
@@ -1750,11 +1759,14 @@ function viewPissarra(id) {
     ${p ? `<a href="#/p/${p.id}"><b>›</b>Partit</a>` : ''}
   </div>
   ${fora ? `<div class="pislib"><span>Entra el lliure (${esc(curt(nom(fora)))}) per:</span>${['5', '6', '1'].filter(z => n[z]).map(z => `<button class="${esCentral(n, n[z]) ? 'on' : ''}" onclick="pisLliure('${z}')">Z${z} ${esc(curt(nom(n[z])))}</button>`).join('')}</div>` : ''}
-  <details class="card"><summary>Canvia els jugadors</summary>
-  <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Z${z}</label><select onchange="pisNom('${z}', this.value)"><option value="">—</option>
-    ${triables.filter(j => n[z] === j.id || !ZK.some(k => n[k] === j.id)).map(j => `<option value="${j.id}" ${n[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('')}
-    <div><label>Lliure</label><select onchange="pisNom('L', this.value)"><option value="">—</option>
-    ${triables.filter(j => n.L === j.id || !ZK.some(k => n[k] === j.id)).map(j => `<option value="${j.id}" ${n.L === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div></div></details>
+  <details class="card pischg"><summary>Canvia els jugadors</summary>
+    ${(() => { const cel = (z, lab) => { const jid = n[z], d = jid ? dors(jid) : '';
+      return `<div class="pc ${jid ? '' : 'buida'}"><small>${lab}</small><select onchange="pisNom('${z}', this.value)"><option value="">— Ningú —</option>
+        ${triables.filter(j => n[z] === j.id || ![...ZK, 'L'].some(k => n[k] === j.id)).map(j => `<option value="${j.id}" ${n[z] === j.id ? 'selected' : ''}>${dors(j.id) ? dors(j.id) + ' ' : ''}${esc(nomCurt(j.nom))}</option>`).join('')}</select></div>`; };
+      return `<div class="pcrow"><span>Davant (a la xarxa)</span></div><div class="pcgrid">${cel('4', 'Z4')}${cel('3', 'Z3')}${cel('2', 'Z2')}</div>
+        <div class="pcrow"><span>Darrere</span></div><div class="pcgrid">${cel('5', 'Z5')}${cel('6', 'Z6')}${cel('1', 'Z1 saca')}</div>
+        <div class="pcgrid un">${cel('L', 'Lliure')}</div>`; })()}
+  </details>
   <p class="meta">Arrossega els jugadors i la pilota per explicar la jugada. Es guarda en aquest mòbil i no toca l'alineació del partit.</p>`;
 }
 window.pisTria = v => { pisPar = v; pisSet = 1; render(); };
