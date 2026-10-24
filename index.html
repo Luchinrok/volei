@@ -325,8 +325,8 @@ a.card.mc.mG { border-left-color: #f5c518; }
 a.card.mcard { display: flex; align-items: center; gap: 12px; }
 .mcard .badge { flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font: 800 22px/1 var(--head); border: 2px solid #14181f; }
 .mcard .badge.eqN { background: #14181f; color: #f5c518; } .mcard .badge.eqG { background: #f5c518; color: #14181f; }
-details.card summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
-details.card summary::-webkit-details-marker { display: none; }
+details.card > summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+details.card > summary::-webkit-details-marker { display: none; }
 details.card > summary::after { content: '▾'; color: var(--muted); }
 details.card[open] > summary::after { content: '▴'; }
 details.card[open] > summary { margin-bottom: 10px; }
