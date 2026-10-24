@@ -699,7 +699,7 @@ async function openSeason() {
   UNSUB.push(fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); }));
   UNSUB.push(fs.onSnapshot(col('ordre'), q => { ORD = {}; q.docs.forEach(d => ORD[d.id] = d.data().ordre); render(); }));
   UNSUB.push(fs.onSnapshot(col('exercicis'), q => { NOF = {}; q.docs.forEach(d => NOF[d.id] = d.data()); render(); }));
-  UNSUB.push(fs.onSnapshot(col('partits'), q => { PAR = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || ''))); render(); }));
+  UNSUB.push(fs.onSnapshot(col('partits'), q => { PAR = q.docs.map(d => ({ id: d.id, ...d.data() })).map(p => ({ ...p, data: p.data || avui(), convocats: Array.isArray(p.convocats) ? p.convocats : [], accions: Array.isArray(p.accions) ? p.accions : [], sets: p.sets || {} })).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || ''))); render(); }));
   UNSUB.push(fs.onSnapshot(col('assistencia'), q => { ASS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.data.localeCompare(a.data)); render(); }));
   render();
 }
@@ -1242,7 +1242,7 @@ function mesosTemporada(ps) {
   // de setembre a juliol de la temporada (26-27 -> 2026-09 .. 2027-07), més els mesos amb partits fora d'aquest marge
   const y0 = 2000 + (parseInt(TEMP) || new Date().getFullYear() % 100);
   let ini = `${y0}-09`, fi = `${y0 + 1}-07`;
-  ps.forEach(p => { const ym = p.data.slice(0, 7); if (ym < ini) ini = ym; if (ym > fi) fi = ym; });
+  ps.forEach(p => { const ym = (p.data || '').slice(0, 7); if (!ym) return; if (ym < ini) ini = ym; if (ym > fi) fi = ym; });
   if (calMes < ini) ini = calMes; if (calMes > fi) fi = calMes;
   const out = []; for (let ym = ini; ym <= fi; ym = sumaMes(ym, 1)) out.push(ym);
   return out;
@@ -1960,7 +1960,24 @@ function majuscules(el) {
 document.addEventListener('input', e => { if (e.target.matches?.('input[type=text], textarea') && e.target.id !== 'noutemp' && e.target.id !== 'noutempg') majuscules(e.target); });
 const capitalitza = () => document.querySelectorAll('input[type=text], textarea').forEach(el => { el.autocapitalize = el.dataset.cap === 'w' ? 'words' : 'sentences'; });
 let lastRuta = null;
+// errors: no deixen l'app en blanc i es guarden a /errors perquè Claude els pugui mirar
+let errVists = new Set();
+function registraError(e, on) {
+  const msg = String(e?.message || e || 'error'), clau = msg + on;
+  console.error(e); if (errVists.has(clau) || !db || !CLAU) return; errVists.add(clau);
+  try { fs.addDoc(fs.collection(db, 'equips', CLAU, 'errors'), { t: Date.now(), msg: msg.slice(0, 300), stack: String(e?.stack || '').slice(0, 1500), on: on || '', ruta: location.hash.slice(0, 80), temporada: TEMP, ua: navigator.userAgent.slice(0, 160) }); } catch {}
+}
+addEventListener('error', e => registraError(e.error || e.message, 'global'));
+addEventListener('unhandledrejection', e => registraError(e.reason, 'promesa'));
 function render() {
+  try { pintaPantalla(); }
+  catch (e) {
+    registraError(e, 'render');
+    $('#app').innerHTML = `<div class="card warn"><b>Aquesta pantalla ha fallat.</b><div class="meta">L'error s'ha guardat perquè Claude el pugui mirar i arreglar.</div><div class="meta" style="font-size:12px">${esc(e?.message || e)}</div>
+      <div class="actions"><a class="btn primary" href="#/">Torna a l'inici</a><button class="btn" onclick="location.reload()">Torna a carregar</button></div></div>`;
+  }
+}
+function pintaPantalla() {
   if (!D) return;
   let [r, arg] = location.hash.replace(/^#\/?/, '').split('/');
   if (r === 'dimarts') { r = 'f'; arg = 'DT'; } else if (r === 'dijous') { r = 'f'; arg = 'DJ'; }   // enllaços antics
