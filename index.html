@@ -404,7 +404,7 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .nosn { border-radius: 5px; padding: 0 5px; border: 1px solid; }
 .nosn.n { background: #14181f; color: #fff; border-color: #14181f; } .nosn.g { background: #f5c518; color: #14181f; border-color: #14181f; }
 .qd { margin-left: 4px; font-size: 12px; font-weight: 400; font-style: italic; color: var(--muted); opacity: .8; }
-.qd::before { content: '· '; }
+.qd::before { content: ''; }
 .mbox img + .actions { margin-top: 12px; }
 .mbox:has(img) { max-width: 460px; }
 /* Marcador en directe */
@@ -538,6 +538,11 @@ details.plega[open] > summary b::after { content: ' ▴'; }
 details.plega > summary .meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 details.plega[open] > summary { margin-bottom: 8px; }
 details.plega[open] > summary .meta { display: none; }
+/* directe: cada posició amb el seu color */
+.dj.ps-col { --pc: #8b5cf6; } .dj.ps-op { --pc: #e8590c; } .dj.ps-rec { --pc: #12a07c; } .dj.ps-cen { --pc: #2f7de1; } .dj.ps-lli { --pc: #d9a90f; }
+.dj[class*="ps-"] { background: color-mix(in srgb, var(--pc) 16%, var(--card)); border-color: var(--pc); }
+.dj[class*="ps-"] small { color: var(--pc); font-weight: 800; }
+.dj.saca { border-color: #f5c518 !important; box-shadow: inset 0 0 0 2px #f5c518, 0 0 0 2px #f5c518; }
 </style>
 </head>
 <body>
@@ -712,7 +717,7 @@ let nofEdit = null;   // {id, motiu, text} mentre s'omple el formulari de "no l'
 function blockCard(b, s, ord) {
   const id = `${s.codi}-${b.n}`, nf = NOF[id], ed = nofEdit?.id === id ? nofEdit : null;
   const nofHtml = nf && !ed
-    ? `<div class="nofetbox"><b>No l'hem fet${nf.motiu ? ' · ' + MOTIU[nf.motiu] : ''}</b>${nf.text ? `<div>${esc(nf.text)}</div>` : ''}</div>`
+    ? `<div class="nofetbox"><b>No l'hem fet${nf.motiu ? ' ' + MOTIU[nf.motiu] : ''}</b>${nf.text ? `<div>${esc(nf.text)}</div>` : ''}</div>`
     : '';
   const form = ed ? `<div class="nofetbox"><b>Per què no l'heu fet?</b>
       <div class="motius">${Object.entries(MOTIU).map(([k, v]) => `<button class="${ed.motiu === k ? 'on' : ''}" onclick="nofMotiu('${k}')">${v}</button>`).join('')}</div>
@@ -786,7 +791,7 @@ function viewHome() {
     const fams = [...new Set(s.blocs.filter(b => !b.tret).map(b => famC(b.codi)).filter(Boolean))];
     return `<a class="hero ${f === 'DJ' ? 'dj' : ''}" href="#/s/${s.codi}">
       <span class="when ${pd.i > 1 ? 'later' : ''}">${when}</span>
-      <div class="kick">${famLabel(f)} · ${PISTES[f]} · ${s.min} min</div>
+      <div class="kick">${famLabel(f)} ${PISTES[f]} ${s.min} min</div>
       <div class="t"><b>${s.codi}</b> ${esc(s.titol)}</div>
       <div class="dots">${fams.map(k => `<i class="f-${k}">${FAM[k]}</i>`).join('')}</div>
       <div class="prog"><span class="pb"><i style="width:${Math.round(100 * fetes / tot)}%"></i></span>${fetes} de ${tot} fetes</div></a>`;
@@ -855,7 +860,7 @@ async function dibuixaPartits() {
   pilota(x, 120, 130, 62);
   x.textBaseline = 'alphabetic'; x.textAlign = 'left';
   x.fillStyle = '#fff'; x.font = `800 112px ${F}`; x.fillText('PROPERS PARTITS', 205, 168);
-  x.fillStyle = '#f5c518'; x.font = `700 40px ${F}`; x.fillText(((club() || 'Vòlei') + '  ·  temporada ' + tempNom(TEMP)).toUpperCase(), 210, 222);
+  x.fillStyle = '#f5c518'; x.font = `700 40px ${F}`; x.fillText(((club() || 'Vòlei') + ' temporada ' + tempNom(TEMP)).toUpperCase(), 210, 222);
   x.fillStyle = '#f5c518'; x.fillRect(60, HEAD - 34, 140, 8);
   // un partit per fila
   // equips (el local primer); la mateixa mida de lletra a totes les files
@@ -878,7 +883,7 @@ async function dibuixaPartits() {
     // hora i lloc
     x.fillStyle = 'rgba(255,255,255,.7)'; x.font = `600 32px ${F}`;
     const dia = d.toLocaleDateString('ca', { weekday: 'long' });
-    x.fillText(`${dia.toUpperCase()}${p.hora ? '  ·  ' + p.hora : ''}  ·  ${p.lloc === 'fora' ? 'A FORA' : 'A CASA'}`, 250, Y + 56);
+    x.fillText(`${dia.toUpperCase()}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? 'A FORA' : 'A CASA'}`, 250, Y + 56);
     // equips (el local primer); el nostre en una etiqueta del color de l'equip
     const parts = parelles(p), size = MIDA;
     let X = 250; const base = Y + 128;
@@ -959,7 +964,7 @@ window.toggleOrdering = () => { ordering = !ordering; render(); };
 function viewSession(c) {
   const s = byCode(c); if (!s) return `<p class="empty">No trobo ${esc(c)}</p>`;
   const bs = blocsOrdenats(s);
-  const coms = comments(c).map(x => `<div class="card comment"><div class="meta">${new Date(x.t).toLocaleDateString('ca')}${x.aplicat ? ' · aplicat per Claude' : ''}</div>${esc(x.text).replace(/\n/g, '<br>')}</div>`).join('');
+  const coms = comments(c).map(x => `<div class="card comment"><div class="meta">${new Date(x.t).toLocaleDateString('ca')}${x.aplicat ? ' aplicat per Claude' : ''}</div>${esc(x.text).replace(/\n/g, '<br>')}</div>`).join('');
   const totMin = bs.reduce((t, b) => t + (b.min || 0), 0) || 1;
   return `<div class="shead"><span class="sbadge lg">${s.codi.slice(0, 2)}<b>${s.codi.slice(2)}</b></span><h2>${esc(s.titol)}</h2></div>
     <div class="pills"><span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span><span>⏱ ${s.min} min</span><span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
@@ -975,7 +980,7 @@ function viewSession(c) {
     ${CLAU ? `<div class="card">
       <textarea id="com" placeholder="Com ha anat? Què canviaries? Quin exercici no heu fet?" oninput="saveDraft('${c}', this.value)">${esc(store.get('volei.draft.' + c, ''))}</textarea>
       <div class="actions"><button class="btn primary" onclick="sendComment('${c}')">Desa el comentari</button>
-      <button class="btn" onclick="toggleFet('${c}')">${isFet(c) ? '✓ Feta · desmarca' : 'Marca-la com a feta'}</button></div>
+      <button class="btn" onclick="toggleFet('${c}')">${isFet(c) ? '✓ Feta desmarca' : 'Marca-la com a feta'}</button></div>
     </div>` : needKey('escriure comentaris')}`;
 }
 
@@ -1068,7 +1073,7 @@ function viewEditAss() {
   <div class="card">
     <label class="lbl">Data</label><input type="date" value="${a.data}" onchange="assDate(this.value)">
     <label class="lbl">Sessió que heu fet</label>
-    <select onchange="assSessio(this.value)"><option value="">—</option>${ss.map(s => `<option value="${s.codi}" ${a.sessio === s.codi ? 'selected' : ''}>${s.codi} · ${esc(s.titol)}</option>`).join('')}</select>
+    <select onchange="assSessio(this.value)"><option value="">—</option>${ss.map(s => `<option value="${s.codi}" ${a.sessio === s.codi ? 'selected' : ''}>${s.codi} ${esc(s.titol)}</option>`).join('')}</select>
   </div>
   <div class="card">
     <div class="counts"><span class="est si">✅ ${Object.values(a.estat).filter(e => e === 'si').length} venen</span><span class="est avisa">❌ ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen</span><span class="est no">💀 ${Object.values(a.estat).filter(e => e === 'no').length} no avisen</span></div>
@@ -1176,14 +1181,14 @@ function viewJugador(id) {
   <div class="rings">${anell(st.pct, 'temporada')}${anell(st.pctM, 'últim mes')}${anell(sp.pct, 'sets jugats')}</div>
   <div class="counts" style="justify-content:center"><span class="est si">✅ ${st.si || 0} ve</span><span class="est avisa">❌ ${st.av || 0} avisa</span><span class="est no">💀 ${st.no || 0} no avisa</span><span class="est">🏆 ${ps.length} partits</span></div>
   <h3>Entrenos</h3>
-  ${llistes.length ? `<div class="card"><div class="streak">${llistes.slice().reverse().map(a => `<i class="${a.estat[id]}" title="${dataCa(a.data)} · ${EST[a.estat[id]]}"></i>`).join('')}</div>
+  ${llistes.length ? `<div class="card"><div class="streak">${llistes.slice().reverse().map(a => `<i class="${a.estat[id]}" title="${dataCa(a.data)} ${EST[a.estat[id]]}"></i>`).join('')}</div>
     <div class="meta" style="margin-top:6px">Cada quadre és un entreno, del més antic al més nou.</div></div>
   <details class="card"><summary>Veure tots els entrenos (${llistes.length})</summary>${llistes.map(a => { const e = a.estat[id], compta = e === 'si' || ve(j, a.data);
     return `<div class="hist"><span class="grow">${dataCa(a.data)} ${a.sessio ? `<span class="code">${a.sessio}</span>` : ''}${a.data > avui() ? ' <span class="tag">previst</span>' : ''}</span>
       <span class="est ${e}">${ESTI[e]} ${EST[e]}</span>${compta ? '' : '<span class="meta" title="No li toca venir aquest dia">no compta</span>'}</div>`; }).join('')}</details>`
   : '<div class="card"><p class="meta" style="margin:0">Cap llista encara.</p></div>'}
   <h3>Partits</h3>
-  <div class="card">${ps.map(p => { const g = guany(p); return `<a class="hist nomlink" href="#/p/${p.id}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${p.equip === 'G' ? 'G' : 'N'}</span><span class="grow">${dataCa(p.data)} · ${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || 'Partit')}</span>${p.resultat ? `<b class="res ${g}">${esc(p.resultat)}</b>` : ''}</a>`; }).join('') || '<p class="meta" style="margin:0">Encara no l\'has convocat a cap partit.</p>'}</div>
+  <div class="card">${ps.map(p => { const g = guany(p); return `<a class="hist nomlink" href="#/p/${p.id}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${p.equip === 'G' ? 'G' : 'N'}</span><span class="grow">${dataCa(p.data)} ${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || 'Partit')}</span>${p.resultat ? `<b class="res ${g}">${esc(p.resultat)}</b>` : ''}</a>`; }).join('') || '<p class="meta" style="margin:0">Encara no l\'has convocat a cap partit.</p>'}</div>
   ${(() => { const e = estadJug(PAR.flatMap(p => p.accions || []))[id]; return e ? `<h3>Estadístiques de partit</h3><div class="counts" style="justify-content:center">${Object.entries(e.n).map(([k, c]) => `<span class="est ${ACC[k].bo ? 'si' : 'no'}">${ACC[k].i} ${c} ${ACC[k].t.toLowerCase()}</span>`).join('')}</div><p class="meta" style="text-align:center">Balanç: <b>${e.bo - e.mal > 0 ? '+' : ''}${e.bo - e.mal}</b> (${e.bo} encerts, ${e.mal} errors)</p>` : ''; })()}
   <h3>Dades</h3>
   <div class="card row"><span class="grow"><b>Dorsal</b></span><input type="text" class="dorsal" inputmode="numeric" maxlength="3" placeholder="#" value="${esc(j.dorsal ?? '')}" onchange="jugSet('${j.id}', {dorsal: this.value.trim()})"></div>
@@ -1234,7 +1239,7 @@ function calendari(ps, card) {
   CALMESOS = window.Swiper ? mesosTemporada(ps) : [calMes];
   return `<div class="calnav"><button class="btn" onclick="calMou(-1)" aria-label="Mes anterior">‹</button><b id="calnom">${nomMes(calMes)}</b><button class="btn" onclick="calMou(1)" aria-label="Mes següent">›</button></div>
   ${window.Swiper ? `<div class="swiper calsw" id="calsw"><div class="swiper-wrapper">${CALMESOS.map(ym => `<div class="swiper-slide">${mesHtml(ym, ps)}</div>`).join('')}</div></div>` : mesHtml(calMes, ps)}
-  <div class="callegend"><span style="flex-basis:100%;justify-content:center">${window.Swiper ? '👈 Llisca per canviar de mes 👉 · ' : ''}Toca un partit per veure'l · toca un dia buit per crear-ne un</span><span><i class="n"></i>Negre</span><span><i class="g"></i>Groc</span><span><i class="w"></i>Guanyat</span><span><i class="l"></i>Perdut</span><span>🏠 A casa</span><span>🚌 A fora</span></div>
+  <div class="callegend"><span style="flex-basis:100%;justify-content:center">${window.Swiper ? '👈 Llisca per canviar de mes 👉 ' : ''}Toca un partit per veure'l toca un dia buit per crear-ne un</span><span><i class="n"></i>Negre</span><span><i class="g"></i>Groc</span><span><i class="w"></i>Guanyat</span><span><i class="l"></i>Perdut</span><span>🏠 A casa</span><span>🚌 A fora</span></div>
   ${calDia && ps.some(p => p.data === calDia) ? `<div class="daypanel"><h3>${dataCa(calDia)}</h3>${ps.filter(p => p.data === calDia).map(card).join('')}
     <button class="btn" style="width:100%" onclick="newPartit('${calDia}')">+ Un altre partit aquest dia</button></div>` : ''}`;
 }
@@ -1284,7 +1289,7 @@ function viewPartits() {
     return `<a class="card mc ${p.equip === 'G' ? 'mG' : 'mN'}" href="#/p/${p.id}">
       <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
       <span class="mbody"><span class="mteams">${p.lloc === 'fora' ? riv + '<i>vs</i>' + nos : nos + '<i>vs</i>' + riv}</span>
-        <span class="meta">${p.hora ? `<span class="nw">🕗 ${esc(p.hora)}</span> · ` : ''}<span class="nw">${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span> · <span class="nw">👥 ${(p.convocats || []).length}</span></span>
+        <span class="meta">${p.hora ? `<span class="nw">🕗 ${esc(p.hora)}</span> ` : ''}<span class="nw">${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span> <span class="nw">👥 ${(p.convocats || []).length}</span></span>
         ${parc ? `<span class="parc">${parc}</span>` : ''}</span>
       <span class="mres">${p.resultat ? `<b class="score ${g}">${esc(p.resultat)}</b><small class="${g}">${g === 'guanyat' ? 'Guanyat' : g === 'perdut' ? 'Perdut' : ''}</small>` : dies >= 0 ? `<small class="falta">${falta}</small>` : '<small>Sense resultat</small>'}</span></a>`;
   };
@@ -1295,7 +1300,7 @@ function viewPartits() {
   <div class="seg" style="margin-top:12px">${[['llista', 'Llista'], ['calendari', 'Calendari']].map(([v, t]) => `<button class="${parVista === v ? 'on' : ''}" onclick="parVeure('${v}')">${t}</button>`).join('')}</div>
   ${parVista === 'calendari' ? calendari(ps, card) : `<h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Cap partit previst.</p>'}
   <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}`}
-  <h3>Convocatòries per jugador${parFiltre ? ' · ' + EQN[parFiltre] : ''}</h3>
+  <h3>Convocatòries per jugador${parFiltre ? ' (' + EQN[parFiltre] + ')' : ''}</h3>
   <div class="card"><div class="ptab phead ${dosEq() ? '' : 'one'}"><span></span><span>Total</span>${dosEq() ? '<span>Negre</span><span>Groc</span>' : ''}<span>% sets</span></div>
     ${comptes.map(c => `<div class="ptab ${dosEq() ? '' : 'one'}"><a class="nomlink" href="#/j/${c.j.id}">${esc(c.j.nom)}</a><b>${c.tot}</b>${dosEq() ? `<span>${c.N}</span><span>${c.G}</span>` : ''}<span>${c.pct ?? '–'}${c.pct != null ? '%' : ''}</span></div>`).join('')}</div>
   <p class="meta">% sets: dels sets amb alineació posada als partits on estava convocat, en quants ha sortit al camp. El lliure compta com que juga el set; els centrals per qui entra el lliure compten mig set.</p>`;
@@ -1366,14 +1371,14 @@ function viewDirecte(id) {
   const { pos, L, saca } = estatSet(p, setActiu), conv = JUG.filter(j => (p.convocats || []).includes(j.id));
   const dins = new Set([...ZK.map(z => pos[z]), L].filter(Boolean)), nomJ = jid => JUG.find(q => q.id === jid)?.nom || '';
   const tile = (jid, lab, z) => { const j = JUG.find(q => q.id === jid), sq = z === '1' && saca === 'nos';
-    return j ? `<button class="dj ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}${posJ(jid) ? ' · ' + POS[posJ(jid)].l : ''}</small>${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b> ` : ''}${esc((j.nom || '').split(' ')[0])}${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
+    return j ? `<button class="dj ${posJ(jid) ? 'ps-' + posJ(jid) : ''} ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}${posJ(jid) ? ' ' + POS[posJ(jid)].l : ''}</small>${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b> ` : ''}${esc((j.nom || '').split(' ')[0])}${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
   const acc = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.s === setActiu);
   // el local sempre primer: a fora, el rival a l'esquerra
   const eN = `<div class="${saca === 'nos' ? 'serv' : ''}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')}</span><b>${nos}</b></div>`;
   const eR = `<div class="${saca === 'ells' ? 'serv' : ''}"><span class="riv">${esc(p.rival || 'Rival')}</span><b>${ells}</b></div>`;
   const linia = a => a.a === 'canvi'
     ? `<span>🔁</span><span class="grow">Entra <b>${esc(nomJ(a.j))}</b> per ${esc(nomJ(a.surt))}</span><button class="mini" title="Esborra" onclick="dirEsborra('${id}', ${a.i})">✕</button>`
-    : `<span>${ACC[a.a].i}</span><span class="grow">${a.j ? '<b>' + esc(nomJ(a.j)) + '</b> · ' : ''}${ACC[a.a].t}</span>${ACC[a.a].np ? '<span class="meta">sense punt</span>' : `<span class="${ACC[a.a].bo ? 'gd-ok' : 'gd-ko'}">${ACC[a.a].bo ? '+1 nos.' : '+1 ells'}</span>`}<button class="mini" title="Canvia" onclick="dirEdita('${id}', ${a.i})">✎</button><button class="mini" title="Esborra" onclick="dirEsborra('${id}', ${a.i})">✕</button>`;
+    : `<span>${ACC[a.a].i}</span><span class="grow">${a.j ? '<b>' + esc(nomJ(a.j)) + '</b> ' : ''}${ACC[a.a].t}</span>${ACC[a.a].np ? '<span class="meta">sense punt</span>' : `<span class="${ACC[a.a].bo ? 'gd-ok' : 'gd-ko'}">${ACC[a.a].bo ? '+1 nos.' : '+1 ells'}</span>`}<button class="mini" title="Canvia" onclick="dirEdita('${id}', ${a.i})">✎</button><button class="mini" title="Esborra" onclick="dirEsborra('${id}', ${a.i})">✕</button>`;
   return `<div class="marc ${p.equip === 'G' ? 'mG' : 'mN'}">
     <div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
@@ -1383,7 +1388,7 @@ function viewDirecte(id) {
   ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu} i qui saca primer.</p>` : ''}
   ${conv.some(j => !dins.has(j.id)) ? `<details class="banq"><summary>Banqueta (${conv.filter(j => !dins.has(j.id)).length})</summary><div class="djgrid">${conv.filter(j => !dins.has(j.id)).map(j => tile(j.id, 'Banqueta')).join('')}</div></details>` : ''}
   <div class="accs tres">${['erv', 'prv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div>
-  <details class="card plog"><summary>Punts del set ${setActiu} · ${acc.length}</summary>
+  <details class="card plog"><summary>Punts del set ${setActiu} (${acc.length})</summary>
     ${acc.slice().reverse().map(a => `<div class="hist">${linia(a)}</div>`).join('') || '<p class="meta" style="margin:0">Encara cap punt apuntat en aquest set.</p>'}</details>
   <div class="actions"><a class="btn" style="text-decoration:none;flex:1;text-align:center" href="#/p/${id}">Torna al partit</a></div>`;
 }
@@ -1422,7 +1427,7 @@ window.dirCanvi = async id => {
   const banq = JUG.filter(j => (p.convocats || []).includes(j.id) && !camp.includes(j.id));
   if (!camp.length) return dialeg('Primer posa l\'alineació del set.', { sol: true });
   if (!banq.length) return dialeg('No hi ha ningú a la banqueta.', { sol: true });
-  const ok = await dialeg(`<b>Canvi · set ${setActiu}</b><div class="form">
+  const ok = await dialeg(`<b>Canvi set ${setActiu}</b><div class="form">
     <label class="lbl">Surt</label><select id="cvs">${camp.map(jid => `<option value="${jid}">${esc(JUG.find(q => q.id === jid)?.nom || '')}</option>`).join('')}</select>
     <label class="lbl">Entra</label><select id="cve">${banq.map(j => `<option value="${j.id}">${esc(j.nom)}</option>`).join('')}</select></div>`, { ok: 'Fes el canvi', ico: '🔁' });
   if (!ok) return;
@@ -1472,12 +1477,12 @@ function taulaEstad(p) {
   const ids = Object.keys(m).sort((a, b) => (m[b].bo - m[b].mal) - (m[a].bo - m[a].mal));
   const edita = `<div class="actions" style="margin-top:8px"><button class="btn" onclick="estEdit='${p.id}';render()">✎ Edita les estadístiques</button></div>`;
   if (!ids.length) return '<p class="meta">Encara no hi ha accions apuntades. Obre el marcador en directe durant el partit.</p>' + edita;
-  const n = (e, k) => e.n[k] || '·';
+  const n = (e, k) => e.n[k] || ' ';
   return `<div class="card"><div class="etab phead"><span></span><span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="Recepcions bones o perfectes">Rec</span><span>+/-</span></div>
     ${ids.map(jid => { const e = m[jid], j = JUG.find(q => q.id === jid), b = e.bo - e.mal;
-      return `<details class="etd"><summary class="etab"><span>${esc(j?.nom || '?')}</span><span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || '·'}</span><span>${e.rec != null ? e.rec + '%' : '·'}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
-        <div class="meta" style="padding:0 0 8px">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' · ')}</div></details>`; }).join('')}
-    <div class="meta" style="margin-top:6px">Rec: recepcions perfectes o bones sobre el total (amb els errors de recepció). +/-: punts guanyats menys punts perduts. Errors del rival: ${accions.filter(a => a.a === 'erv').length} · punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</div>${edita}</div>`;
+      return `<details class="etd"><summary class="etab"><span>${esc(j?.nom || '?')}</span><span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || ' '}</span><span>${e.rec != null ? e.rec + '%' : ' '}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
+        <div class="meta" style="padding:0 0 8px">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' ')}</div></details>`; }).join('')}
+    <div class="meta" style="margin-top:6px">Rec: recepcions perfectes o bones sobre el total (amb els errors de recepció). +/-: punts guanyats menys punts perduts. Errors del rival: ${accions.filter(a => a.a === 'erv').length} punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</div>${edita}</div>`;
 }
 window.estMou = (id, jid, k, d) => {
   const p = PAR.find(x => x.id === id), accions = [...(p.accions || [])];
@@ -1518,7 +1523,7 @@ function court(pos, lineup, eq) {
     ${Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y + 14}%">${z}</span>`).join('')}
     ${Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]);
       return `<div class="tok ${j ? '' : 'buit'} ${esCentral(pos, pos[z]) ? 'cen' : ''}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? fitxaNom(j.id, esCentral(pos, pos[z])) : '<span class="tn"></span>'}</div>`; }).join('')}
-    ${lineup && pos.L ? `<div class="tok lib" style="left:88%;top:93%">L · ${esc(curt(JUG.find(q => q.id === pos.L)?.nom))}</div>` : ''}
+    ${lineup && pos.L ? `<div class="tok lib" style="left:88%;top:93%">L ${esc(curt(JUG.find(q => q.id === pos.L)?.nom))}</div>` : ''}
   </div>`;
 }
 function viewPartit(id) {
@@ -1535,16 +1540,16 @@ function viewPartit(id) {
     <button class="phead2" onclick="editaPartit('${id}')">
       <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
       <span class="grow"><span class="pxt">${p.lloc === 'fora' ? rivH + ' vs ' + nosH : nosH + ' vs ' + rivH}</span>
-        <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' · ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}${p.resultat ? ` · <b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</span></span>
+        <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}${p.resultat ? ` <b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</span></span>
       <span class="chev">✎</span></button>
     <div class="setbtns">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? ((+v[0] > +v[1]) !== (p.lloc === 'fora') ? 'guanyat' : 'perdut') : '';
       return `<button class="setbtn ${g}" onclick="roda('${id}', ${n})"><small>Set ${n}</small><b>${v.length ? `${v[0] === '' ? '–' : v[0]}-${v[1] === '' ? '–' : v[1]}` : '–'}</b></button>`; }).join('')}</div>
   </div>
-  <details class="card plega" ${obert ? 'open' : ''} ontoggle="obertPart('conv', '${id}', this.open)"><summary><b>👥 Convocats · ${conv.size}</b><span class="meta">${convs.map(j => (dors(j.id) ? dors(j.id) + ' ' : '') + esc((j.nom || '').split(' ')[0])).join(', ')}</span></summary>
+  <details class="card plega" ${obert ? 'open' : ''} ontoggle="obertPart('conv', '${id}', this.open)"><summary><b>👥 Convocats (${conv.size})</b><span class="meta">${convs.map(j => (dors(j.id) ? dors(j.id) + ' ' : '') + esc((j.nom || '').split(' ')[0])).join(', ')}</span></summary>
     ${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
     <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}${j.posicio ? `<i class="pb pb-${j.posicio} inl">${POS[j.posicio].l}</i>` : ''}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
     <div class="actions">${conv.size ? `<button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></details>
-  <details class="card plega" ${alin ? 'open' : ''} ontoggle="obertPart('alin', '${id}', this.open)"><summary><b>🏐 Alineació</b><span class="meta">${[4, 3, 2, 5, 6, 1].map(z => pos[z] ? (dors(pos[z]) || esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])) : '').filter(Boolean).join(' · ') || 'Set ' + setActiu + ' sense alineació'}</span></summary>
+  <details class="card plega" ${alin ? 'open' : ''} ontoggle="obertPart('alin', '${id}', this.open)"><summary><b>🏐 Alineació</b><span class="meta">${[4, 3, 2, 5, 6, 1].map(z => pos[z] ? (dors(pos[z]) || esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])) : '').filter(Boolean).join(' ') || 'Set ' + setActiu + ' sense alineació'}</span></summary>
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
   ${court(pos, true, p.equip)}
   <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Z${z}</label><select onchange="posSet('${id}', ${z}, this.value)"><option value="">—</option>
@@ -1661,17 +1666,17 @@ function viewPissarra(id) {
   <div class="card">
     <label class="lbl" style="margin-top:0">Partit</label>
     <select onchange="pisTria(this.value)"><option value="">Pissarra lliure (sense partit)</option>
-      ${ps.map(x => `<option value="${x.id}" ${x.id === pisPar ? 'selected' : ''}>${dataCa(x.data)} · ${eqNom(x.equip) ? eqNom(x.equip) + ' · ' : ''}${esc(x.rival || 'Partit')}${x.data === avui() ? ' (avui)' : ''}</option>`).join('')}</select>
+      ${ps.map(x => `<option value="${x.id}" ${x.id === pisPar ? 'selected' : ''}>${dataCa(x.data)} ${eqNom(x.equip) ? eqNom(x.equip) + ' ' : ''}${esc(x.rival || 'Partit')}${x.data === avui() ? ' (avui)' : ''}</option>`).join('')}</select>
     ${p ? `<div class="seg" style="margin:10px 0 0">${[1, 2, 3, 4, 5].map(k => `<button class="${pisSet === k ? 'on' : ''}" onclick="pisTriaSet(${k})">Set ${k}</button>`).join('')}</div>` : ''}
   </div>
   <div class="court ${p ? 'eq' + p.equip : ''}" id="court" data-mode="free"><div class="net"></div>${toks}
-    ${fora ? `<div class="tok lib" style="left:86%;top:94%">L · ${esc(curt(nom(fora)))}</div>` : ''}</div>
+    ${fora ? `<div class="tok lib" style="left:86%;top:94%">L ${esc(curt(nom(fora)))}</div>` : ''}</div>
   <div class="actions" style="justify-content:center"><button class="btn primary" onclick="pisRota()">↻ Rotar</button>
     ${dinsL ? `<button class="btn" onclick="pisLliure('${dinsL}')">⇄ Surt el lliure</button>` : ''}
     <button class="btn" onclick="pisReset()">↺ Torna a començar</button>
     ${p ? `<a class="btn" style="text-decoration:none" href="#/p/${p.id}">Obre el partit</a>` : ''}</div>
   ${fora ? `<div class="card"><b>Lliure: ${esc(nom(fora))}</b><div class="meta">Entra per un jugador de la línia de darrere:</div>
-    <div class="motius lliure">${['5', '6', '1'].filter(z => n[z]).map(z => `<button class="${esCentral(n, n[z]) ? 'on' : ''}" onclick="pisLliure('${z}')">⇄ Z${z} · ${esc(curt(nom(n[z])))}${esCentral(n, n[z]) ? ' (central)' : ''}</button>`).join('')}</div></div>` : ''}
+    <div class="motius lliure">${['5', '6', '1'].filter(z => n[z]).map(z => `<button class="${esCentral(n, n[z]) ? 'on' : ''}" onclick="pisLliure('${z}')">⇄ Z${z} ${esc(curt(nom(n[z])))}${esCentral(n, n[z]) ? ' (central)' : ''}</button>`).join('')}</div></div>` : ''}
   <details class="card"><summary>Canviar els noms de les fitxes</summary>
   <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Fitxa ${z}</label><select onchange="pisNom('${z}', this.value)"><option value="">${z}</option>
     ${triables.filter(j => n[z] === j.id || !ZK.some(k => n[k] === j.id)).map(j => `<option value="${j.id}" ${n[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('')}
@@ -1753,7 +1758,7 @@ function viewConfig() {
     <div class="row" style="margin-top:8px"><input type="text" id="noutemp" placeholder="Per exemple 27-28 o 26-27 masculí infantil"><button class="btn primary" onclick="newTemp()">Crea-la</button></div>
     <p class="meta" style="margin:8px 0 0">Comença amb l'equip actual (els que no has tret) i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p></details>
   </div>
-  <h3>Dies d'entreno · ${esc(tempNom(TEMP))}</h3>
+  <h3>Dies d'entreno ${esc(tempNom(TEMP))}</h3>
   <div class="card">${[1, 2, 3, 4, 5].map(d => `<div class="cfgday"><span>${DIES[d]}</span>
     <div class="seg mini">${[['', 'No'], ['DT', '1 pista'], ['DJ', '2 pistes']].map(([v, l]) => `<button class="${(tcfg().dies[d] || '') === v ? 'on' : ''}" onclick="setDia(${d}, '${v}')">${l}</button>`).join('')}</div></div>`).join('')}
     <p class="meta" style="margin:8px 0 0">Els dies d'1 pista fan les sessions DT i els de 2 pistes les DJ.</p>
