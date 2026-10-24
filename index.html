@@ -278,7 +278,6 @@ a.card.mc.mG { border-left-color: #f5c518; }
 .court .net::before { left: 0; } .court .net::after { right: 0; }
 .court .zl { position: absolute; transform: translate(-50%, -50%); color: rgba(255,255,255,.55); font: 800 24px/1 var(--head); pointer-events: none; }
 .tok .tn { display: block; max-width: 52px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tok.cen::after { content: 'C'; position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: #fff; color: #14202e; font: 800 12px/20px var(--head); text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
 .court .tok.lib-dins { background: #f5c518 !important; color: #14202e !important; border-color: #fff !important; }
 .tok { position: absolute; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; background: #14325a; border: 3px solid #fff; color: #fff; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; font-weight: 700; line-height: 1.1; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: grab; touch-action: none; padding: 2px; }
 .tok.buit { background: rgba(255,255,255,.35); color: #fff; box-shadow: none; border: 2px dashed #fff; }
@@ -525,6 +524,20 @@ button.mini { flex: none; width: 30px; height: 30px; border-radius: 8px; border:
 .phead2 .grow { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .phead2 .pxt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .phead2 .mdate { width: 52px; flex: none; }
+/* posicions */
+.pb { position: absolute; top: -7px; right: -7px; min-width: 21px; height: 21px; border-radius: 11px; padding: 0 4px; display: grid; place-items: center; font: 800 11px/1 var(--head); font-style: normal; color: #fff; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.pb.inl { position: static; display: inline-grid; border: 0; box-shadow: none; margin-left: 6px; min-width: 22px; height: 18px; vertical-align: 1px; }
+.pb-col { background: #8b5cf6; } .pb-op { background: #e8590c; } .pb-rec { background: #12a07c; } .pb-cen { background: #2f7de1; } .pb-lli { background: #d9a90f; }
+.seg.pos5 { flex-wrap: wrap; } .seg.pos5 button { flex: 1 1 30%; font-size: 13px; padding: 6px 4px; min-height: 34px; }
+/* seccions plegables del partit */
+details.plega > summary { list-style: none; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+details.plega > summary::-webkit-details-marker { display: none; }
+details.plega > summary::after { content: none !important; }
+details.plega > summary b::after { content: ' ▾'; color: var(--muted); }
+details.plega[open] > summary b::after { content: ' ▴'; }
+details.plega > summary .meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+details.plega[open] > summary { margin-bottom: 8px; }
+details.plega[open] > summary .meta { display: none; }
 </style>
 </head>
 <body>
@@ -1033,7 +1046,7 @@ function viewAssistencia() {
   ${editEquip ? `<div class="card eqlist">
     ${JUG.slice().sort((a, b) => (a.actiu === false) - (b.actiu === false) || a.nom.localeCompare(b.nom, 'ca')).map(j => { const dj = diesJug(j), eqs = !dosEq() ? [] : j.equip === 'NG' ? ['N', 'G'] : j.equip ? [j.equip] : [];
       return `<button class="eqrow ${j.actiu === false ? 'inactiu' : ''}" onclick="editaJug('${j.id}')">
-        <span class="eqd">${esc(dors(j.id) || '–')}</span>
+        <span class="eqd">${esc(dors(j.id) || '–')}</span>${j.posicio ? `<i class="pb pb-${j.posicio} inl" title="${POS[j.posicio].t}">${POS[j.posicio].l}</i>` : ''}
         <span class="eqn">${esc(j.nom)}${j.actiu === false ? '<small>ja no és a l\'equip</small>' : ''}</span>
         ${dj ? `<span class="pill">${dj.map(d => CURT[d]).join('+')}</span>` : ''}
         ${eqs.map(e => `<span class="nos ${e === 'G' ? 'g' : 'n'}">${e}</span>`).join('')}
@@ -1103,6 +1116,7 @@ window.editaJug = id => {
   obreFitxa(`<b>${id ? esc(j.nom) : 'Jugador nou'}</b><div class="form">
     <div class="grid2" style="grid-template-columns:70px 1fr"><div><label class="lbl">Dorsal</label><input type="text" id="ejd" inputmode="numeric" maxlength="3" placeholder="#" value="${esc(j.dorsal ?? '')}" style="text-align:center;font-weight:700"></div>
       <div><label class="lbl">Nom</label><input type="text" id="ejn" data-cap="w" value="${esc(j.nom)}" placeholder="Nom i inicial"></div></div>
+    <label class="lbl">Posició</label><div class="seg pos5" id="ejp" style="margin:0">${[...Object.entries(POS).map(([k, x]) => [k, x.t]), ['', '–']].map(([v, t]) => `<button class="${(j.posicio || '') === v ? 'on' : ''}" data-v="${v}" onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))">${t}</button>`).join('')}</div>
     ${dies.length > 1 ? `<label class="lbl">Dies que ve</label><div class="seg" id="ejdies" style="margin:0">${dies.map(d => `<button class="${!dj || dj.includes(d) ? 'on' : ''}" data-d="${d}" onclick="this.classList.toggle('on')">${DIES[d]}</button>`).join('')}</div>` : ''}
     ${dosEq() ? `<label class="lbl">Equip</label><div class="seg" id="ejeq" style="margin:0">${[['N', 'Negre'], ['G', 'Groc'], ['NG', 'Tots dos'], ['', '–']].map(([v, t]) => `<button class="${(j.equip || '') === v ? 'on' : ''}" data-v="${v}" onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))">${t}</button>`).join('')}</div>` : ''}
     ${id ? `<label class="lbl">A l'equip des del</label><input type="date" id="eja" value="${j.alta || ''}">` : ''}
@@ -1117,6 +1131,7 @@ window.desaJug = id => {
   if (!sel.length) return desat('Tria com a mínim un dia');
   const dades = { nom, dorsal: $('#ejd').value.trim(), diesEntreno: sel.length === totsD.length ? null : sel, dies: null, nomesDijous: null };
   if ($('#ejeq')) dades.equip = $('#ejeq').querySelector('button.on')?.dataset.v || '';
+  dades.posicio = $('#ejp').querySelector('button.on')?.dataset.v || '';
   if (id) { if ($('#eja')) dades.alta = $('#eja').value || null; jugSet(id, dades); }
   else fs.addDoc(col('jugadors'), { ...dades, actiu: true, alta: avui() });
   tancaFitxa();
@@ -1294,7 +1309,7 @@ const parRef = id => ref('partits', id);
 window.parSet = (id, k, v) => fs.updateDoc(parRef(id), { [k]: v });
 // treure tots els convocats d'un toc (amb «Recupera» per si ha estat sense voler)
 let convDesfes = null;
-window.convBuida = id => { const p = PAR.find(x => x.id === id); convDesfes = { id, llista: [...(p.convocats || [])] }; p.convocats = []; convObert = id; fs.updateDoc(parRef(id), { convocats: [] }); render(); };
+window.convBuida = id => { const p = PAR.find(x => x.id === id); convDesfes = { id, llista: [...(p.convocats || [])] }; p.convocats = []; PLEG['conv' + id] = true; fs.updateDoc(parRef(id), { convocats: [] }); render(); };
 window.convRecupera = () => { const p = PAR.find(x => x.id === convDesfes.id); p.convocats = convDesfes.llista; fs.updateDoc(parRef(p.id), { convocats: p.convocats }); convDesfes = null; render(); };
 window.parConv = (id, jid, on) => {
   const p = PAR.find(x => x.id === id), c = new Set(p.convocats || []);
@@ -1351,7 +1366,7 @@ function viewDirecte(id) {
   const { pos, L, saca } = estatSet(p, setActiu), conv = JUG.filter(j => (p.convocats || []).includes(j.id));
   const dins = new Set([...ZK.map(z => pos[z]), L].filter(Boolean)), nomJ = jid => JUG.find(q => q.id === jid)?.nom || '';
   const tile = (jid, lab, z) => { const j = JUG.find(q => q.id === jid), sq = z === '1' && saca === 'nos';
-    return j ? `<button class="dj ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}</small>${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b> ` : ''}${esc((j.nom || '').split(' ')[0])}${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
+    return j ? `<button class="dj ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}${posJ(jid) ? ' · ' + POS[posJ(jid)].l : ''}</small>${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b> ` : ''}${esc((j.nom || '').split(' ')[0])}${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
   const acc = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.s === setActiu);
   // el local sempre primer: a fora, el rival a l'esquerra
   const eN = `<div class="${saca === 'nos' ? 'serv' : ''}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')}</span><b>${nos}</b></div>`;
@@ -1488,7 +1503,13 @@ window.parDel = async id => { const p = PAR.find(x => x.id === id); if (await di
 let setActiu = 1;
 const curt = n => (n || '').split(' ')[0].slice(0, 8);
 const dors = jid => { const d = JUG.find(q => q.id === jid)?.dorsal; return d || d === 0 ? String(d) : ''; };
-const fitxaNom = jid => { const j = JUG.find(q => q.id === jid); if (!j) return ''; const d = dors(jid); return d ? `<b class="tdn">${esc(d)}</b><span class="tn">${esc(curt(j.nom))}</span>` : `<span class="tn">${esc(curt(j.nom))}</span>`; };
+// posició habitual de cada jugador (a la llista de l'equip); al partit es pot col·locar a qualsevol zona
+const POS = { col: { l: 'C', t: 'Col·locador' }, op: { l: 'O', t: 'Opost' }, rec: { l: 'R', t: 'Receptor' }, cen: { l: 'Ce', t: 'Central' }, lli: { l: 'L', t: 'Lliure' } };
+const posJ = jid => JUG.find(q => q.id === jid)?.posicio || '';
+const posBadge = (jid, cen) => { const k = posJ(jid) || (cen ? 'cen' : ''); return k ? `<i class="pb pb-${k}" title="${POS[k].t}">${POS[k].l}</i>` : ''; };
+const fitxaNomV = jid => { const j = JUG.find(q => q.id === jid); if (!j) return ''; const d = dors(jid); return d ? `<b class="tdn">${esc(d)}</b><span class="tn">${esc(curt(j.nom))}</span>` : `<span class="tn">${esc(curt(j.nom))}</span>`; };
+const fitxaNom = (jid, cen) => fitxaNomV(jid) + posBadge(jid, cen);
+const fitxaNomOld = jid => { const j = JUG.find(q => q.id === jid); if (!j) return ''; const d = dors(jid); return d ? `<b class="tdn">${esc(d)}</b><span class="tn">${esc(curt(j.nom))}</span>` : `<span class="tn">${esc(curt(j.nom))}</span>`; };
 const ZONES = { 4: [17, 22], 3: [50, 22], 2: [83, 22], 5: [17, 72], 6: [50, 72], 1: [83, 72] };
 const esCentral = (pos, jid) => jid && (pos.C1 === jid || pos.C2 === jid);
 function court(pos, lineup, eq) {
@@ -1496,7 +1517,7 @@ function court(pos, lineup, eq) {
   return `<div class="court ${eq ? 'eq' + eq : ''}" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
     ${Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y + 14}%">${z}</span>`).join('')}
     ${Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]);
-      return `<div class="tok ${j ? '' : 'buit'} ${esCentral(pos, pos[z]) ? 'cen' : ''}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? fitxaNom(j.id) : '<span class="tn"></span>'}</div>`; }).join('')}
+      return `<div class="tok ${j ? '' : 'buit'} ${esCentral(pos, pos[z]) ? 'cen' : ''}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? fitxaNom(j.id, esCentral(pos, pos[z])) : '<span class="tn"></span>'}</div>`; }).join('')}
     ${lineup && pos.L ? `<div class="tok lib" style="left:88%;top:93%">L · ${esc(curt(JUG.find(q => q.id === pos.L)?.nom))}</div>` : ''}
   </div>`;
 }
@@ -1507,26 +1528,23 @@ function viewPartit(id) {
   const delEquip = j => !dosEq() || j.equip === p.equip || j.equip === 'NG';
   const actius = JUG.filter(j => j.actiu !== false || conv.has(j.id));
   const llista = [...actius.filter(delEquip), ...actius.filter(j => !delEquip(j))];
-  const convs = llista.filter(j => conv.has(j.id)), obert = convObert === id || !conv.size;
+  const convs = llista.filter(j => conv.has(j.id)), obert = (PLEG['conv' + id] ?? !conv.size), alin = PLEG['alin' + id] ?? true;
   const dt = new Date(p.data + 'T12:00'), nosH = `<span class="nosn ${p.equip === 'G' ? 'g' : 'n'}">${esc(nomNostre(p))}</span>`, rivH = `<span>${esc(p.rival || 'Rival?')}</span>`;
   return `<div class="pview">
   <div class="card">
     <button class="phead2" onclick="editaPartit('${id}')">
       <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
       <span class="grow"><span class="pxt">${p.lloc === 'fora' ? rivH + ' vs ' + nosH : nosH + ' vs ' + rivH}</span>
-        <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' · ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span></span>
+        <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' · ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}${p.resultat ? ` · <b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</span></span>
       <span class="chev">✎</span></button>
-    <label class="lbl">Punts per set (${p.lloc === 'fora' ? `${esc(p.rival || 'ells')} - nosaltres` : `nosaltres - ${esc(p.rival || 'ells')}`})${p.resultat ? ` · <b style="color:var(--ink)">Resultat ${esc(p.resultat)}</b>` : ''}</label>
     <div class="setbtns">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? ((+v[0] > +v[1]) !== (p.lloc === 'fora') ? 'guanyat' : 'perdut') : '';
       return `<button class="setbtn ${g}" onclick="roda('${id}', ${n})"><small>Set ${n}</small><b>${v.length ? `${v[0] === '' ? '–' : v[0]}-${v[1] === '' ? '–' : v[1]}` : '–'}</b></button>`; }).join('')}</div>
   </div>
-  <h3>Convocats · ${conv.size}</h3>
-  ${obert ? `<div class="card">${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
-    <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
-    <div class="actions">${conv.size ? `<button class="btn primary" onclick="convObert=null;render()">Fet</button><button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></div>`
-  : `<details class="card convd"><summary>👥 ${convs.map(j => (dors(j.id) ? dors(j.id) + ' ' : '') + esc((j.nom || '').split(' ')[0])).join(', ')}</summary><div class="convchips" style="margin-top:8px">${convs.map(j => `<span class="cchip">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}</span>`).join('')}</div>
-    <div class="actions"><button class="btn" onclick="convObert='${id}';render()">✎ Canviar convocats</button><button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button></div></details>`}
-  <h3>Alineació</h3>
+  <details class="card plega" ${obert ? 'open' : ''} ontoggle="obertPart('conv', '${id}', this.open)"><summary><b>👥 Convocats · ${conv.size}</b><span class="meta">${convs.map(j => (dors(j.id) ? dors(j.id) + ' ' : '') + esc((j.nom || '').split(' ')[0])).join(', ')}</span></summary>
+    ${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
+    <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}${j.posicio ? `<i class="pb pb-${j.posicio} inl">${POS[j.posicio].l}</i>` : ''}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
+    <div class="actions">${conv.size ? `<button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></details>
+  <details class="card plega" ${alin ? 'open' : ''} ontoggle="obertPart('alin', '${id}', this.open)"><summary><b>🏐 Alineació</b><span class="meta">${[4, 3, 2, 5, 6, 1].map(z => pos[z] ? (dors(pos[z]) || esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])) : '').filter(Boolean).join(' · ') || 'Set ' + setActiu + ' sense alineació'}</span></summary>
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
   ${court(pos, true, p.equip)}
   <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Z${z}</label><select onchange="posSet('${id}', ${z}, this.value)"><option value="">—</option>
@@ -1535,11 +1553,11 @@ function viewPartit(id) {
     ${convs.filter(j => pos.L === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos.L === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>
     ${pos.L ? ['C1', 'C2'].map((c, i) => `<div><label>Central ${i + 1}</label><select onchange="posSet('${id}', '${c}', this.value)"><option value="">—</option>
     ${ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean).filter(j => pos[c] === j.id || !esCentral(pos, j.id)).map(j => `<option value="${j.id}" ${pos[c] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('') : ''}</div>
-  ${pos.L ? '<p class="meta">Centrals: per qui entra el lliure a la línia de darrere. Compten mig set al % de sets. Al camp porten una «C».</p>' : ''}
+  ${pos.L ? '<p class="meta">Centrals: per qui entra el lliure a la línia de darrere. Compten mig set al % de sets.</p>' : ''}
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
     ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? `<button class="btn" onclick="triaCopia('${id}')">📋 Copia un set</button>` : ''}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
-  <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats que encara no tenen posició en aquest set).</p>
+  <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats que encara no tenen posició en aquest set). La lletra de cada fitxa és la posició habitual del jugador.</p></details>
   <h3>Estadístiques</h3>
   <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px" href="#/directe/${id}">📊 Marcador en directe</a>
   ${taulaEstad(p)}
@@ -1605,6 +1623,9 @@ window.copySet = (id, n) => {
   dialeg(`El set ${setActiu} ja té alineació.<br>La canvio per la del <b>set ${n}</b>?`, { ok: 'Copia-la', ico: '📋' }).then(ok => ok && fer());
 };
 let convObert = null;
+// seccions plegables del partit: es recorda si són obertes (encara que la pantalla es torni a pintar)
+const PLEG = store.get('volei.pleg', {});
+window.obertPart = (k, id, o) => { if (PLEG[k + id] === o) return; PLEG[k + id] = o; store.set('volei.pleg', PLEG); };
 Object.defineProperty(window, 'convObert', { get: () => convObert, set: v => { convObert = v; } });
 Object.defineProperty(window, 'setActiu', { get: () => setActiu, set: v => { setActiu = v; } });
 
@@ -1631,7 +1652,7 @@ function viewPissarra(id) {
   const p = pisPar && PAR.find(x => x.id === pisPar), st = pisEstat(), n = st.noms;
   const nom = jid => JUG.find(q => q.id === jid)?.nom;
   const toks = Object.entries(ZONES).map(([z, [x, y]]) => { const xy = st.xy[z];
-    return `<div class="tok ${n[z] ? '' : 'buit'} ${esCentral(n, n[z]) ? 'cen' : ''} ${n[z] && n[z] === n.L ? 'lib-dins' : ''}" data-z="${z}" style="left:${xy ? xy[0] : x}%;top:${xy ? xy[1] : y}%">${n[z] ? fitxaNom(n[z]) : `<span class="tn">${z}</span>`}</div>`; }).join('');
+    return `<div class="tok ${n[z] ? '' : 'buit'} ${esCentral(n, n[z]) ? 'cen' : ''} ${n[z] && n[z] === n.L ? 'lib-dins' : ''}" data-z="${z}" style="left:${xy ? xy[0] : x}%;top:${xy ? xy[1] : y}%">${n[z] ? fitxaNom(n[z], esCentral(n, n[z])) : `<span class="tn">${z}</span>`}</div>`; }).join('');
   const fora = n.L && !ZK.some(z => n[z] === n.L) ? n.L : null;            // lliure a la banqueta
   const dinsL = ZK.find(z => n[z] && n[z] === n.Lx);                       // zona on ara hi ha el lliure
   const triables = JUG.filter(j => j.actiu !== false);
