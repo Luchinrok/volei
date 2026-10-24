@@ -1456,7 +1456,7 @@ function viewConfig() {
   <div class="card">
     <div class="seg" style="margin:0">${ts.map(x => `<button class="${x === TEMP ? 'on' : ''}" onclick="setTemp('${esc(x)}')">${x === CFG.actual ? '⭐ ' : ''}${esc(x)}</button>`).join('')}</div>
     <details style="margin-top:12px"><summary class="meta" style="cursor:pointer">＋ Crear una temporada nova</summary>
-    <div class="row" style="margin-top:8px"><input type="text" id="noutemp" placeholder="Per exemple 27-28"><button class="btn primary" onclick="newTemp()">Crea-la</button></div>
+    <div class="row" style="margin-top:8px"><input type="text" id="noutemp" placeholder="Per exemple 27-28 o 26-27 masculí infantil"><button class="btn primary" onclick="newTemp()">Crea-la</button></div>
     <p class="meta" style="margin:8px 0 0">Comença amb l'equip actual (els que no has tret) i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p></details>
   </div>
   <h3>Club</h3>
@@ -1482,7 +1482,8 @@ window.setDia = (d, v) => {
 };
 window.newTemp = async () => {
   const t = $('#noutemp').value.trim();
-  if (!/^[\w-]{2,20}$/.test(t)) { dialeg('Posa un nom curt, per exemple 27-28.', { sol: true }); return; }
+  // el nom és l'identificador de la temporada a Firebase: tot permès menys / \ ' " ` i fins a 40 lletres
+  if (t.length < 2 || t.length > 40 || /[\/\\'"`]/.test(t)) { dialeg('Posa un nom d\'entre 2 i 40 lletres, sense barres ni cometes. Per exemple: 26-27 masculí infantil.', { sol: true }); return; }
   if (CFG.temporades[t]) { dialeg('Aquesta temporada ja existeix.', { sol: true }); return; }
   if (!await dialeg(`Crear la temporada <b>${esc(t)}</b>?`, { ok: 'Crea-la', ico: '🏐' })) return;
   const nova = { ...tcfg() }, equip = JUG.filter(j => j.actiu !== false);
