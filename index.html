@@ -409,13 +409,13 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .mbox img + .actions { margin-top: 12px; }
 .mbox:has(img) { max-width: 460px; }
 /* Marcador en directe */
-.marc { background: linear-gradient(135deg, #1b4a85, #0c2340); color: #fff; border-radius: 20px; padding: 12px; border-bottom: 6px solid #14181f; }
+.marc { background: linear-gradient(135deg, #1b4a85, #0c2340); color: #fff; border-radius: 20px; padding: 10px 12px; border-bottom: 6px solid #14181f; position: sticky; top: calc(var(--hh, 60px) + 6px); z-index: 4; box-shadow: 0 8px 20px rgba(8,20,40,.3); }
 .marc.mG { border-bottom-color: #f5c518; }
 .marc .seg button { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.15); color: #fff; min-height: 34px; padding: 4px; font-size: 14px; }
 .marc .seg button.on { background: #f5c518; color: #14181f; border-color: #f5c518; }
 .sb { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; text-align: center; }
 .sb > div { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
-.sb b { font: 800 64px/1 var(--head); }
+.sb b { font: 800 54px/1 var(--head); }
 .sb i { font: 800 40px/1 var(--head); opacity: .5; font-style: normal; }
 .sb .riv { font: 700 15px/1.2 var(--head); text-transform: uppercase; letter-spacing: .04em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .djgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px; }
@@ -1734,6 +1734,7 @@ function render() {
   $('#app').innerHTML = html;
   const ruta = r + '/' + arg;
   muntaCalendari(); capitalitza();
+  document.documentElement.style.setProperty('--hh', $('header').offsetHeight + 'px');   // per al marcador fix del directe
   if (ruta !== lastRuta) { lastRuta = ruta; const ap = $('#app'); ap.classList.remove('view'); void ap.offsetWidth; ap.classList.add('view'); }
   $('#title').textContent = title;
   $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra', 'directe'].includes(r);
