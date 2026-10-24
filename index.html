@@ -408,6 +408,38 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .qd::before { content: '· '; }
 .mbox img + .actions { margin-top: 12px; }
 .mbox:has(img) { max-width: 460px; }
+/* Marcador en directe */
+.marc { background: linear-gradient(135deg, #1b4a85, #0c2340); color: #fff; border-radius: 20px; padding: 12px; border-bottom: 6px solid #14181f; }
+.marc.mG { border-bottom-color: #f5c518; }
+.marc .seg button { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.15); color: #fff; min-height: 34px; padding: 4px; font-size: 14px; }
+.marc .seg button.on { background: #f5c518; color: #14181f; border-color: #f5c518; }
+.sb { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; text-align: center; }
+.sb > div { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.sb b { font: 800 64px/1 var(--head); }
+.sb i { font: 800 40px/1 var(--head); opacity: .5; font-style: normal; }
+.sb .riv { font: 700 15px/1.2 var(--head); text-transform: uppercase; letter-spacing: .04em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.djgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px; }
+.djgrid.one { grid-template-columns: 1fr; }
+.dj { font: 700 17px/1.1 var(--head); min-height: 56px; border-radius: 14px; border: 2px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px; }
+.dj small { font: 600 11px/1 Barlow, sans-serif; color: var(--muted); }
+.dj.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); transform: scale(1.03); }
+.dj.on small { color: var(--accent-ink); }
+.dj.buit { opacity: .35; cursor: default; }
+.banq summary { cursor: pointer; color: var(--muted); font-weight: 600; margin: 4px 0 8px; }
+.accs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; transition: opacity .15s; }
+.accs > div { display: flex; flex-direction: column; gap: 6px; }
+.accs.off { opacity: .4; }
+.accs.sol { grid-template-columns: 1fr 1fr; }
+.acc { font: 600 14px/1.15 Barlow, sans-serif; min-height: 48px; border-radius: 12px; border: 2px solid; cursor: pointer; text-align: left; padding: 6px 10px; }
+.acc.bo { background: var(--si-soft); border-color: var(--si); color: var(--si); }
+.acc.mal { background: var(--no-soft); border-color: var(--no); color: var(--no); }
+.acc:active { transform: scale(.97); }
+.gd-ok { color: var(--si); font-weight: 700; font-size: 13px; white-space: nowrap; } .gd-ko { color: var(--no); font-weight: 700; font-size: 13px; white-space: nowrap; }
+.etab { display: grid; grid-template-columns: minmax(0, 1fr) 30px 30px 30px 30px 40px; align-items: center; gap: 4px; padding: 7px 0; text-align: center; font-variant-numeric: tabular-nums; }
+.etab > :first-child { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.etab.phead { font-size: 13px; padding-top: 0; border-bottom: 1px solid var(--line); }
+.etd { border-bottom: 1px solid var(--line); } .etd:last-of-type { border-bottom: 0; }
+.etd summary { list-style: none; cursor: pointer; } .etd summary::-webkit-details-marker { display: none; }
 </style>
 </head>
 <body>
@@ -1012,6 +1044,7 @@ function viewJugador(id) {
   : '<div class="card"><p class="meta" style="margin:0">Cap llista encara.</p></div>'}
   <h3>Partits</h3>
   <div class="card">${ps.map(p => { const g = guany(p); return `<a class="hist nomlink" href="#/p/${p.id}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${p.equip === 'G' ? 'G' : 'N'}</span><span class="grow">${dataCa(p.data)} · ${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || 'Partit')}</span>${p.resultat ? `<b class="res ${g}">${esc(p.resultat)}</b>` : ''}</a>`; }).join('') || '<p class="meta" style="margin:0">Encara no l\'has convocat a cap partit.</p>'}</div>
+  ${(() => { const e = estadJug(PAR.flatMap(p => p.accions || []))[id]; return e ? `<h3>Estadístiques de partit</h3><div class="counts" style="justify-content:center">${Object.entries(e.n).map(([k, c]) => `<span class="est ${ACC[k].bo ? 'si' : 'no'}">${ACC[k].i} ${c} ${ACC[k].t.toLowerCase()}</span>`).join('')}</div><p class="meta" style="text-align:center">Balanç: <b>${e.bo - e.mal > 0 ? '+' : ''}${e.bo - e.mal}</b> (${e.bo} encerts, ${e.mal} errors)</p>` : ''; })()}
   <h3>Dades</h3>
   <div class="card row"><span class="grow"><b>A l'equip des del</b><div class="meta">Abans d'aquest dia no surt a les llistes ni li compten les faltes.</div></span>
     <input type="date" style="width:auto" value="${j.alta || ''}" onchange="jugSet('${j.id}', {alta: this.value || null})"></div>`;
@@ -1135,6 +1168,87 @@ window.parConv = (id, jid, on) => {
   const p = PAR.find(x => x.id === id), c = new Set(p.convocats || []);
   on ? c.add(jid) : c.delete(jid); p.convocats = [...c]; fs.updateDoc(parRef(id), { convocats: p.convocats }); render();
 };
+// ------------------------------------------------------------- estadístiques en directe
+// A cada punt: qui i què. Cada acció suma el punt al marcador del set (nostre o seu).
+// Es guarda a partits/{id}.accions: [{s: set, j: jugador|'', a: codi, t}]
+const ACC = {
+  ace: { t: 'Ace', i: '🎯', bo: 1 }, rem: { t: 'Remat punt', i: '💥', bo: 1 }, blq: { t: 'Bloqueig punt', i: '🧱', bo: 1 },
+  es: { t: 'Error saque', i: '🙈', bo: 0 }, er: { t: 'Error recepció', i: '🫳', bo: 0 }, ed: { t: 'Error defensa', i: '🛡️', bo: 0 },
+  ec: { t: 'Error col·locació', i: '🤲', bo: 0 }, erm: { t: 'Error remat', i: '❌', bo: 0 }, fal: { t: 'Falta (xarxa, invasió…)', i: '🚫', bo: 0 },
+  erv: { t: 'Error del rival', i: '🎁', bo: 1, sol: 1 }, prv: { t: 'Punt del rival', i: '😤', bo: 0, sol: 1 }
+};
+const resultatDe = punts => { let g = 0, q = 0; Object.values(punts).forEach(([x, y]) => { if (x !== '' && y !== '') +x > +y ? g++ : q++; }); return g + q ? `${g}-${q}` : ''; };
+const nostreIdx = (p, nostre) => (p.lloc === 'fora') === nostre ? 1 : 0;   // els punts es guarden local-visitant
+function sumaPunt(p, set, nostre, d) {
+  const punts = { ...(p.punts || {}) }, v = (punts[set] || ['', '']).map(x => x === '' ? 0 : +x);
+  v[nostreIdx(p, nostre)] = Math.max(0, v[nostreIdx(p, nostre)] + d); punts[set] = v;
+  return { punts, resultat: resultatDe(punts) };
+}
+let dirJug = null;
+function viewDirecte(id) {
+  const p = PAR.find(x => x.id === id); if (!p) return '<p class="empty">Carregant…</p>';
+  const v = (p.punts || {})[setActiu] || ['', ''], nos = +(v[nostreIdx(p, true)] || 0), ells = +(v[nostreIdx(p, false)] || 0);
+  const pos = (p.sets || {})[setActiu] || {}, conv = JUG.filter(j => (p.convocats || []).includes(j.id));
+  const camp = [4, 3, 2, 5, 6, 1].map(z => pos[z]), dins = new Set([...camp, pos.L].filter(Boolean));
+  const tile = (jid, lab) => { const j = JUG.find(q => q.id === jid); return j ? `<button class="dj ${dirJug === jid ? 'on' : ''}" onclick="dirTria('${jid}')"><small>${lab}</small>${esc((j.nom || '').split(' ')[0])}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
+  const acc = (p.accions || []).filter(a => a.s === setActiu);
+  const nomJ = jid => JUG.find(q => q.id === jid)?.nom || '';
+  return `<div class="marc ${p.equip === 'G' ? 'mG' : 'mN'}">
+    <div class="seg" style="margin:0 0 10px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};dirJug=null;render()">Set ${n}</button>`).join('')}</div>
+    <div class="sb"><div><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${EQN[p.equip] || ''}</span><b>${nos}</b></div><i>–</i><div><span class="riv">${esc(p.rival || 'Rival')}</span><b>${ells}</b></div></div></div>
+  <h3>1 · Qui?</h3>
+  <div class="djgrid">${camp.map((jid, i) => tile(jid, 'Z' + [4, 3, 2, 5, 6, 1][i])).join('')}</div>
+  ${pos.L ? `<div class="djgrid one">${tile(pos.L, 'Lliure')}</div>` : ''}
+  ${conv.some(j => !dins.has(j.id)) ? `<details class="banq"><summary>Banqueta</summary><div class="djgrid">${conv.filter(j => !dins.has(j.id)).map(j => tile(j.id, 'Banqueta')).join('')}</div></details>` : ''}
+  ${!camp.some(Boolean) ? `<p class="meta">Posa l'alineació d'aquest set al partit perquè hi surtin els jugadors del camp. Mentrestant, els convocats són a la banqueta.</p>` : ''}
+  <h3>2 · Què ha fet?</h3>
+  <div class="accs ${dirJug ? '' : 'off'}">
+    <div>${Object.entries(ACC).filter(([, a]) => a.bo && !a.sol).map(([k, a]) => `<button class="acc bo" onclick="dirAcc('${id}','${k}')">${a.i} ${a.t}</button>`).join('')}</div>
+    <div>${Object.entries(ACC).filter(([, a]) => !a.bo && !a.sol).map(([k, a]) => `<button class="acc mal" onclick="dirAcc('${id}','${k}')">${a.i} ${a.t}</button>`).join('')}</div>
+  </div>
+  ${dirJug ? '' : '<p class="meta" style="text-align:center;margin:4px 0 0">Primer toca un jugador.</p>'}
+  <h3>Sense jugador</h3>
+  <div class="accs sol"><button class="acc bo" onclick="dirAcc('${id}','erv')">🎁 Error del rival · +1 nosaltres</button><button class="acc mal" onclick="dirAcc('${id}','prv')">😤 Punt del rival · +1 ells</button></div>
+  <h3>Últims punts del set ${setActiu}</h3>
+  <div class="card">${acc.slice(-6).reverse().map(a => `<div class="hist"><span>${ACC[a.a].i}</span><span class="grow">${a.j ? '<b>' + esc(nomJ(a.j)) + '</b> · ' : ''}${ACC[a.a].t}</span><span class="${ACC[a.a].bo ? 'gd-ok' : 'gd-ko'}">${ACC[a.a].bo ? '+1 nosaltres' : '+1 ells'}</span></div>`).join('') || '<p class="meta" style="margin:0">Encara cap punt apuntat en aquest set.</p>'}
+    ${acc.length ? `<div class="actions"><button class="btn" onclick="dirDesfes('${id}')">↶ Desfés l'últim</button></div>` : ''}</div>
+  <div class="actions"><a class="btn" style="text-decoration:none;flex:1;text-align:center" href="#/p/${id}">Torna al partit</a></div>`;
+}
+window.dirTria = jid => { dirJug = dirJug === jid ? null : jid; render(); };
+window.dirAcc = (id, k) => {
+  const a = ACC[k]; if (!a.sol && !dirJug) return desat('Primer toca un jugador');
+  const p = PAR.find(x => x.id === id), accions = [...(p.accions || []), { s: setActiu, j: a.sol ? '' : dirJug, a: k, t: Date.now() }];
+  const { punts, resultat } = sumaPunt(p, setActiu, !!a.bo, 1);
+  Object.assign(p, { accions, punts, resultat });
+  fs.updateDoc(parRef(id), { accions, punts, resultat });
+  try { navigator.vibrate?.(30); } catch {}
+  dirJug = null; render();
+};
+window.dirDesfes = id => {
+  const p = PAR.find(x => x.id === id), accions = [...(p.accions || [])];
+  let i = -1; for (let k = accions.length - 1; k >= 0; k--) if (accions[k].s === setActiu) { i = k; break; }
+  if (i < 0) return;
+  const [a] = accions.splice(i, 1), { punts, resultat } = sumaPunt(p, a.s, !!ACC[a.a].bo, -1);
+  Object.assign(p, { accions, punts, resultat });
+  fs.updateDoc(parRef(id), { accions, punts, resultat }); render();
+};
+Object.defineProperty(window, 'dirJug', { get: () => dirJug, set: v => { dirJug = v; } });
+// taula per jugador: encerts (ace, remat, bloqueig), errors i balanç
+function estadJug(accions) {
+  const m = {};
+  accions.filter(a => a.j).forEach(a => { const e = m[a.j] = m[a.j] || { bo: 0, mal: 0, n: {} }; ACC[a.a].bo ? e.bo++ : e.mal++; e.n[a.a] = (e.n[a.a] || 0) + 1; });
+  return m;
+}
+function taulaEstad(accions) {
+  const m = estadJug(accions), ids = Object.keys(m).sort((a, b) => (m[b].bo - m[b].mal) - (m[a].bo - m[a].mal));
+  if (!ids.length) return '<p class="meta">Encara no hi ha accions apuntades. Obre el marcador en directe durant el partit.</p>';
+  const n = (e, k) => e.n[k] || '·';
+  return `<div class="card"><div class="etab phead"><span></span><span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span>+/-</span></div>
+    ${ids.map(jid => { const e = m[jid], j = JUG.find(q => q.id === jid), b = e.bo - e.mal;
+      return `<details class="etd"><summary class="etab"><span>${esc(j?.nom || '?')}</span><span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || '·'}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
+        <div class="meta" style="padding:0 0 8px">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' · ')}</div></details>`; }).join('')}
+    <div class="meta" style="margin-top:6px">Errors del rival: ${accions.filter(a => a.a === 'erv').length} · punts directes del rival: ${accions.filter(a => a.a === 'prv').length}. Toca un jugador per veure el detall.</div></div>`;
+}
 window.setPunts = (id, n) => {
   const p = PAR.find(x => x.id === id), a = $('#pa' + n).value.trim(), b = $('#pb' + n).value.trim();
   const punts = { ...(p.punts || {}) }; if (a === '' && b === '') delete punts[n]; else punts[n] = [a === '' ? '' : +a, b === '' ? '' : +b];
@@ -1198,6 +1312,9 @@ function viewPartit(id) {
     ${[1, 2, 3, 4, 5].filter(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)).map(n => `<button class="btn" onclick="copySet('${id}', ${n})">Copia el set ${n}</button>`).join('')}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
   <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats que encara no tenen posició en aquest set).</p>
+  <h3>Estadístiques</h3>
+  <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px" href="#/directe/${id}">📊 Marcador en directe</a>
+  ${taulaEstad(p.accions || [])}
   <p class="meta">✓ Tot el partit es desa sol a cada canvi; no cal cap botó.</p>
   <div class="actions"><button class="btn danger" onclick="parDel('${id}')">Esborra el partit</button></div>`;
 }
@@ -1487,6 +1604,7 @@ function render() {
   else if (r === 'partits') { html = viewPartits(); tab = 'partits'; title = 'Partits'; }
   else if (r === 'p') { html = viewPartit(arg); tab = 'partits'; title = 'Partit'; }
   else if (r === 'pissarra') { html = viewPissarra(arg); tab = 'partits'; title = 'Pissarra'; }
+  else if (r === 'directe') { html = viewDirecte(arg); tab = 'partits'; title = 'En directe'; }
   else html = viewHome();
   $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">${ICO.inici}</span>Inici</a>
     ${['DT', 'DJ'].filter(f => diesDe(f).length).map(f => `<a href="#/f/${f}" data-t="${f}"><span class="ico">${f === 'DT' ? ICO.pista : ICO.pistes}</span>${diesDe(f).map(d => CURT[d]).join('+') === 'Dt' ? 'Dimarts' : diesDe(f).map(d => CURT[d]).join('+') === 'Dj' ? 'Dijous' : diesDe(f).length === 1 ? DIES[diesDe(f)[0]] : diesDe(f).map(d => CURT[d]).join(' + ')}</a>`).join('')}
@@ -1500,7 +1618,7 @@ function render() {
   muntaCalendari();
   if (ruta !== lastRuta) { lastRuta = ruta; const ap = $('#app'); ap.classList.remove('view'); void ap.offsetWidth; ap.classList.add('view'); }
   $('#title').textContent = title;
-  $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra'].includes(r);
+  $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra', 'directe'].includes(r);
   document.querySelectorAll('nav.tabs a').forEach(x => x.classList.toggle('on', x.dataset.t === tab));
 }
 window.render = render;
@@ -1508,7 +1626,7 @@ Object.defineProperty(window, 'editEquip', { get: () => editEquip, set: v => { e
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
-addEventListener('hashchange', () => { sel = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra)\//.test(location.hash)) setActiu = 1; render(); scrollTo(0, 0); });
+addEventListener('hashchange', () => { sel = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; render(); scrollTo(0, 0); });
 TEMP = TEMP || CFG.actual;
 fetch(tcfg().sessions, { cache: 'no-cache' }).then(r => r.json())
   .then(d => { D = d; D.__file = tcfg().sessions; render(); initFirebase(); })
