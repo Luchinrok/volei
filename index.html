@@ -1620,12 +1620,12 @@ function rolsHtml(id, pos, alDirecte) {
   const js = [...ZK.map(z => pos[z]), pos.L].filter(Boolean); if (!js.length) return '';
   return `<details class="rols" ${Object.keys(pos.rols || {}).length ? 'open' : ''}><summary>Rols en aquest set${Object.keys(pos.rols || {}).length ? ` (${Object.keys(pos.rols).length} canviats)` : ''}</summary>
     <div class="rolgrid">${js.map(jid => { const j = JUG.find(q => q.id === jid), hab = posJ(jid), v = (pos.rols || {})[jid] || '';
-      return `<label>${esc((j?.nom || '').split(' ')[0])}</label><select onchange="rolPosa('${id}','${jid}',this.value,${alDirecte ? 1 : 0})"><option value="">${hab ? 'Habitual: ' + POS[hab].t : 'Sense rol'}</option>${Object.entries(POS).filter(([k]) => k !== hab).map(([k, x]) => `<option value="${k}" ${v === k ? 'selected' : ''}>${x.t}</option>`).join('')}</select>`; }).join('')}</div>
-    <p class="meta" style="margin:4px 0 0">Només per a aquest set. El rol de l'equip no canvia.</p></details>`;
+      return `<label>${esc((j?.nom || '').split(' ')[0])}</label><select onchange="rolPosa('${id}','${jid}',this.value,${alDirecte ? 1 : 0})">${hab ? '' : `<option value="" ${v ? '' : 'selected'}>—</option>`}${Object.entries(POS).map(([k, x]) => `<option value="${k}" ${(v || hab) === k ? 'selected' : ''}>${x.t}</option>`).join('')}</select>`; }).join('')}</div>
+    <p class="meta" style="margin:4px 0 0">Surt el rol de cada jugador. Si el canvies, només val per a aquest set; el de l'equip no canvia.</p></details>`;
 }
 window.rolPosa = (id, jid, v, alDirecte) => {
   const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) }, r = { ...(pos.rols || {}) };
-  if (v) r[jid] = v; else delete r[jid];
+  if (v && v !== posJ(jid)) r[jid] = v; else delete r[jid];   // triar el rol de l'equip treu el canvi
   pos.rols = r; setPos(id, pos); if (alDirecte) dirAlin(id);
 };
 window.posSet = (id, z, jid) => {
