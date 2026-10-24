@@ -1177,7 +1177,9 @@ const ACC = {
   ec: { t: 'Error col·locació', i: '🤲', bo: 0 }, erm: { t: 'Error remat', i: '❌', bo: 0 }, fal: { t: 'Falta (xarxa, invasió…)', i: '🚫', bo: 0 },
   erv: { t: 'Error del rival', i: '🎁', bo: 1, sol: 1 }, prv: { t: 'Punt del rival', i: '😤', bo: 0, sol: 1 }
 };
-const resultatDe = punts => { let g = 0, q = 0; Object.values(punts).forEach(([x, y]) => { if (x !== '' && y !== '') +x > +y ? g++ : q++; }); return g + q ? `${g}-${q}` : ''; };
+// un set compta quan s'ha acabat: 25 punts (15 al cinquè) i 2 de diferència
+const setAcabat = (n, x, y) => x !== '' && y !== '' && Math.max(+x, +y) >= (+n === 5 ? 15 : 25) && Math.abs(x - y) >= 2;
+const resultatDe = punts => { let g = 0, q = 0; Object.entries(punts).forEach(([n, [x, y]]) => { if (setAcabat(n, x, y)) +x > +y ? g++ : q++; }); return g + q ? `${g}-${q}` : ''; };
 const nostreIdx = (p, nostre) => (p.lloc === 'fora') === nostre ? 1 : 0;   // els punts es guarden local-visitant
 function sumaPunt(p, set, nostre, d) {
   const punts = { ...(p.punts || {}) }, v = (punts[set] || ['', '']).map(x => x === '' ? 0 : +x);
@@ -1252,8 +1254,7 @@ function taulaEstad(accions) {
 window.setPunts = (id, n) => {
   const p = PAR.find(x => x.id === id), a = $('#pa' + n).value.trim(), b = $('#pb' + n).value.trim();
   const punts = { ...(p.punts || {}) }; if (a === '' && b === '') delete punts[n]; else punts[n] = [a === '' ? '' : +a, b === '' ? '' : +b];
-  let g = 0, q = 0; Object.values(punts).forEach(([x, y]) => { if (x !== '' && y !== '') x > y ? g++ : q++; });
-  p.punts = punts; p.resultat = g + q ? `${g}-${q}` : '';
+  p.punts = punts; p.resultat = resultatDe(punts);
   fs.updateDoc(parRef(id), { punts, resultat: p.resultat }); render();
 };
 window.parDel = async id => { const p = PAR.find(x => x.id === id); if (await dialeg(`Esborrar el partit${p?.rival ? ' contra <b>' + esc(p.rival) + '</b>' : ''} del ${dataCa(p.data)}?`, { ok: 'Esborra\'l', perill: true })) { fs.deleteDoc(parRef(id)); location.hash = '#/partits'; } };
