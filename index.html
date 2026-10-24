@@ -1192,6 +1192,10 @@ window.newPartit = async (data = avui()) => {
 };
 const parRef = id => ref('partits', id);
 window.parSet = (id, k, v) => fs.updateDoc(parRef(id), { [k]: v });
+// treure tots els convocats d'un toc (amb «Recupera» per si ha estat sense voler)
+let convDesfes = null;
+window.convBuida = id => { const p = PAR.find(x => x.id === id); convDesfes = { id, llista: [...(p.convocats || [])] }; p.convocats = []; convObert = id; fs.updateDoc(parRef(id), { convocats: [] }); render(); };
+window.convRecupera = () => { const p = PAR.find(x => x.id === convDesfes.id); p.convocats = convDesfes.llista; fs.updateDoc(parRef(p.id), { convocats: p.convocats }); convDesfes = null; render(); };
 window.parConv = (id, jid, on) => {
   const p = PAR.find(x => x.id === id), c = new Set(p.convocats || []);
   on ? c.add(jid) : c.delete(jid); p.convocats = [...c]; fs.updateDoc(parRef(id), { convocats: p.convocats }); render();
@@ -1376,9 +1380,9 @@ function viewPartit(id) {
   <h3>Convocats · ${conv.size}</h3>
   ${obert ? `<div class="card">${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
     <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${esc(j.nom)}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
-    ${conv.size ? `<div class="actions"><button class="btn primary" onclick="convObert=null;render()">Fet</button></div>` : ''}</div>`
+    <div class="actions">${conv.size ? `<button class="btn primary" onclick="convObert=null;render()">Fet</button><button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></div>`
   : `<div class="card"><div class="convchips">${convs.map(j => `<span class="cchip">${av(j)}${esc(j.nom)}</span>`).join('')}</div>
-    <div class="actions"><button class="btn" onclick="convObert='${id}';render()">✎ Canviar convocats</button></div></div>`}
+    <div class="actions"><button class="btn" onclick="convObert='${id}';render()">✎ Canviar convocats</button><button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button></div></div>`}
   <h3>Alineació</h3>
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
   ${court(pos, true, p.equip)}
@@ -1745,7 +1749,7 @@ Object.defineProperty(window, 'editEquip', { get: () => editEquip, set: v => { e
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
-addEventListener('hashchange', () => { sel = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; render(); scrollTo(0, 0); });
+addEventListener('hashchange', () => { sel = null; convDesfes = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; render(); scrollTo(0, 0); });
 TEMP = TEMP || CFG.actual;
 fetch(tcfg().sessions, { cache: 'no-cache' }).then(r => r.json())
   .then(d => { D = d; D.__file = tcfg().sessions; render(); initFirebase(); })
