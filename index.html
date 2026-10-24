@@ -570,6 +570,8 @@ details.plega .card { border: 0; box-shadow: none; padding: 0; margin: 0; backgr
 .qsaca .seg button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 800; }
 details.plega.entl { margin-top: 12px; }
 details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 6px; background: var(--bg); }
+.sb > div[onclick] { cursor: pointer; }
+.marc .saq small { opacity: .7; font-weight: 400; }
 </style>
 </head>
 <body>
@@ -1380,10 +1382,12 @@ window.tancaFitxa = () => { $('#dlg').hidden = true; };
 // rotació i saque: es recalculen a partir de l'alineació inicial del set i dels punts.
 // Si guanyem el punt quan sacaven ells, rotem i saquem; si el perdem, saquen ells. Saca qui és a Z1.
 const ROT = [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 1]];
+const altre = v => v === 'nos' ? 'ells' : 'nos';
+const saqueIni = (p, n) => { const s1 = (p.saque || {})[1] || 'nos'; return +n === 5 ? (p.saque || {})[5] || 'nos' : +n % 2 ? s1 : altre(s1); };
 const rota = o => { const r = {}; ROT.forEach(([a, b]) => { if (o[b]) r[a] = o[b]; }); return r; };
 function estatSet(p, n) {
   const s0 = (p.sets || {})[n] || {}; let pos = {}; ZK.forEach(z => { if (s0[z]) pos[z] = s0[z]; });
-  let L = s0.L || '', saca = (p.saque || {})[n] || 'nos';
+  let L = s0.L || '', saca = saqueIni(p, n);
   for (const a of (p.accions || []).filter(a => a.s === +n)) {
     if (a.a === 'canvi') { ZK.forEach(z => { if (pos[z] === a.surt) pos[z] = a.j; }); if (L === a.surt) L = a.j; continue; }
     const A = ACC[a.a]; if (!A || A.np) continue;
@@ -1400,19 +1404,18 @@ function viewDirecte(id) {
     return j ? `<button class="dj ${rolJ(jid) ? 'ps-' + rolJ(jid) : ''} ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}${rolJ(jid) ? ' ' + POS[rolJ(jid)].l : ''}</small><span class="djn">${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b>` : ''}${esc((j.nom || '').split(' ')[0])}</span>${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
   const acc = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.s === setActiu);
   // el local sempre primer: a fora, el rival a l'esquerra
-  const eN = `<div class="${saca === 'nos' ? 'serv' : ''}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')}</span><b>${nos}</b></div>`;
-  const eR = `<div class="${saca === 'ells' ? 'serv' : ''}"><span class="riv">${esc(p.rival || 'Rival')}</span><b>${ells}</b></div>`;
+  const eN = `<div class="${saca === 'nos' ? 'serv' : ''}"${setActiu === 1 || setActiu === 5 ? ` onclick="dirSaque('${id}','nos',1)" title="Toca per dir que saquem primer"` : ''}><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')}</span><b>${nos}</b></div>`;
+  const eR = `<div class="${saca === 'ells' ? 'serv' : ''}"${setActiu === 1 || setActiu === 5 ? ` onclick="dirSaque('${id}','ells',1)" title="Toca per dir que saca primer el rival"` : ''}><span class="riv">${esc(p.rival || 'Rival')}</span><b>${ells}</b></div>`;
   const linia = a => a.a === 'canvi'
     ? `<span>🔁</span><span class="grow">Entra <b>${esc(nomJ(a.j))}</b> per ${esc(nomJ(a.surt))}</span><button class="mini" title="Esborra" onclick="dirEsborra('${id}', ${a.i})">✕</button>`
     : `<span>${ACC[a.a].i}</span><span class="grow">${a.j ? '<b>' + esc(nomJ(a.j)) + '</b> ' : ''}${ACC[a.a].t}</span>${ACC[a.a].np ? '<span class="meta">sense punt</span>' : `<span class="${ACC[a.a].bo ? 'gd-ok' : 'gd-ko'}">${ACC[a.a].bo ? '+1 nos.' : '+1 ells'}</span>`}<button class="mini" title="Canvia" onclick="dirEdita('${id}', ${a.i})">✎</button><button class="mini" title="Esborra" onclick="dirEsborra('${id}', ${a.i})">✕</button>`;
   return `<div class="marc ${p.equip === 'G' ? 'mG' : 'mN'}">
     <div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
-    <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival')}</div></div>
-  ${!acc.some(a => ACC[a.a] && !ACC[a.a].np) ? `<div class="qsaca"><span>Qui saca primer al set ${setActiu}? <small class="meta">(ara: ${esc(saca === 'nos' ? club() || 'nosaltres' : p.rival || 'el rival')})</small></span><div class="seg" style="margin:0">${(p.lloc === 'fora' ? [['ells', p.rival || 'El rival'], ['nos', club() || 'Nosaltres']] : [['nos', club() || 'Nosaltres'], ['ells', p.rival || 'El rival']]).map(([v, l]) => `<button class="${saca === v ? 'on' : ''}" onclick="dirSaque('${id}','${v}',1)">${saca === v ? '🏐 ' : ''}${esc(l)}</button>`).join('')}</div></div>` : ''}
+    <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival')}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
   <div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
   <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>
-  ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu} i qui saca primer.</p>` : ''}
+  ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu}.</p>` : ''}
   ${conv.some(j => !dins.has(j.id)) ? `<details class="banq"><summary>Banqueta (${conv.filter(j => !dins.has(j.id)).length})</summary><div class="djgrid">${conv.filter(j => !dins.has(j.id)).map(j => tile(j.id, 'Banqueta')).join('')}</div></details>` : ''}
   <div class="accs tres">${['erv', 'prv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div>
   <details class="card plog"><summary>Punts del set ${setActiu} (${acc.length})</summary>
@@ -1438,17 +1441,24 @@ window.dirAcc = (id, jid, k) => {
 // alineació inicial del set i qui saca primer, des del directe
 window.dirAlin = id => {
   const p = PAR.find(x => x.id === id), pos = (p.sets || {})[setActiu] || {}, conv = JUG.filter(j => (p.convocats || []).includes(j.id));
-  const sq = (p.saque || {})[setActiu] || 'nos';
+  const sq = saqueIni(p, setActiu), ss = p.sets || {}, copiables = [1, 2, 3, 4, 5].filter(n => n !== setActiu && ZK.some(z => (ss[n] || {})[z]));
   const sel = (z, lab) => `<div><label>${lab}</label><select onchange="dirPos('${id}', '${z}', this.value)"><option value="">—</option>${conv.filter(j => pos[z] === j.id || ![...ZK, 'L'].some(k => pos[k] === j.id)).map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`;
   obreFitxa(`<b>Set ${setActiu}: qui comença</b><div class="form">
-    <label class="lbl">Saca primer</label><div class="seg" style="margin:0">${[['nos', club() || 'Nosaltres'], ['ells', p.rival || 'El rival']].map(([v, l]) => `<button class="${sq === v ? 'on' : ''}" onclick="dirSaque('${id}','${v}')">${esc(l)}</button>`).join('')}</div>
+    ${copiables.length ? `<label class="lbl">Mateixa alineació que…</label><div class="seg" style="margin:0">${copiables.map(n => `<button onclick="dirCopia('${id}', ${n})">Set ${n}</button>`).join('')}</div>` : ''}
+    ${setActiu === 1 || setActiu === 5 ? `<label class="lbl">Saca primer</label><div class="seg" style="margin:0">${[['nos', club() || 'Nosaltres'], ['ells', p.rival || 'El rival']].map(([v, l]) => `<button class="${sq === v ? 'on' : ''}" onclick="dirSaque('${id}','${v}')">${esc(l)}</button>`).join('')}</div>`
+      : `<p class="meta" style="margin:8px 0 0">🏐 Al set ${setActiu} saca primer ${esc(sq === 'nos' ? club() || 'el nostre equip' : p.rival || 'el rival')} (s'alterna cada set; es tria al set 1).</p>`}
     <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => sel(z, 'Z' + z)).join('')}${sel('L', 'Lliure')}</div>
     ${conv.length ? '' : '<p class="meta">Primer posa els convocats al partit.</p>'}
     ${rolsHtml(id, pos, true)}
     <p class="meta">Z1 és qui saca. La rotació avança sola quan recuperem el saque.</p></div>`);
 };
 window.dirPos = (id, z, v) => { posSet(id, z, v); dirAlin(id); };
-window.dirSaque = (id, v, sense) => { const p = PAR.find(x => x.id === id); p.saque = { ...(p.saque || {}), [setActiu]: v }; fs.updateDoc(parRef(id), { ['saque.' + setActiu]: v }); render(); if (!sense) dirAlin(id); };
+window.dirCopia = async (id, n) => {
+  const ss = PAR.find(x => x.id === id).sets || {};
+  if (ZK.some(z => (ss[setActiu] || {})[z]) && !await dialeg(`El set ${setActiu} ja té alineació.<br>La canvio per la del <b>set ${n}</b>?`, { ok: 'Copia-la', ico: '📋' })) return dirAlin(id);
+  setPos(id, { ...(ss[n] || {}) }); dirAlin(id);
+};
+window.dirSaque = (id, v, sense) => { if (setActiu !== 1 && setActiu !== 5) return; const p = PAR.find(x => x.id === id); p.saque = { ...(p.saque || {}), [setActiu]: v }; fs.updateDoc(parRef(id), { ['saque.' + setActiu]: v }); render(); if (!sense) dirAlin(id); };
 // canvi de jugador dins del set
 window.dirCanvi = async id => {
   const p = PAR.find(x => x.id === id), { pos, L } = estatSet(p, setActiu), camp = [...ZK.map(z => pos[z]), L].filter(Boolean);
