@@ -494,6 +494,14 @@ button.mini { flex: none; width: 30px; height: 30px; border-radius: 8px; border:
 .roda::-webkit-scrollbar { display: none; }
 .roda span, .roda i { display: block; height: 40px; line-height: 40px; text-align: center; scroll-snap-align: center; font: 700 26px/40px var(--head); }
 .roda i { scroll-snap-align: none; }
+/* dorsal */
+.edit-pl input.dorsal, input.dorsal { flex: 0 0 46px !important; width: 46px !important; min-width: 0; text-align: center; font-weight: 700; padding: 6px 4px !important; }
+.dnum { font: 800 15px/1 var(--head); color: var(--brand); background: var(--brand-soft); border-radius: 6px; padding: 2px 5px; margin-right: 2px; }
+.tok .tdn { display: block; font: 800 22px/1 var(--head); }
+.tok .tdn + .tn { font-size: 10px; }
+.tok { flex-direction: column; }
+.dj .dnum { background: transparent; padding: 0; }
+.dj.on .dnum, .dj.saca .dnum { color: inherit; }
 </style>
 </head>
 <body>
@@ -1001,6 +1009,7 @@ function viewAssistencia() {
   <h3>Equip</h3>
   ${editEquip ? `<div class="card">
     ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
+      <input type="text" class="dorsal" inputmode="numeric" maxlength="3" placeholder="#" value="${esc(j.dorsal ?? '')}" title="Dorsal" onchange="jugSet('${j.id}', {dorsal: this.value.trim()})">
       <input type="text" data-cap="w" value="${esc(j.nom)}" onchange="jugSet('${j.id}', {nom: this.value.trim()})">
       <span class="dd" title="Quins dies ve">${Object.keys(tcfg().dies).map(Number).sort().map(d => `<button class="${!diesJug(j) || diesJug(j).includes(d) ? 'on' : ''}" onclick="toggleDia('${j.id}', ${d})">${CURT[d]}</button>`).join('')}</span>
 ${dosEq() ? `      <select onchange="jugSet('${j.id}', {equip: this.value})" title="Equip">
@@ -1099,7 +1108,7 @@ function viewJugador(id) {
   const ps = partitsDe(id), sp = statsPartits(id), dj = diesJug(j);
   const eqs = !dosEq() ? [] : j.equip === 'NG' ? ['N', 'G'] : j.equip ? [j.equip] : [];
   return `<div class="card jcard ${j.actiu === false ? 'inactiu' : ''}">
-    ${av(j, true)}<div class="grow"><h2>${esc(j.nom)}</h2>
+    ${av(j, true)}<div class="grow"><h2>${dors(j.id) ? `<span class="dnum">${esc(dors(j.id))}</span> ` : ''}${esc(j.nom)}</h2>
     <div class="jtags">${eqs.map(e => `<span class="nos ${e === 'G' ? 'g' : 'n'}">${EQN[e]}</span>`).join('')}
       <span class="pill">📅 ${dj ? dj.map(d => CURT[d]).join(' + ') : 'Tots els dies'}</span>
       ${j.actiu === false ? '<span class="pill">Ja no és a l\'equip</span>' : ''}</div></div></div>
@@ -1116,6 +1125,7 @@ function viewJugador(id) {
   <div class="card">${ps.map(p => { const g = guany(p); return `<a class="hist nomlink" href="#/p/${p.id}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${p.equip === 'G' ? 'G' : 'N'}</span><span class="grow">${dataCa(p.data)} · ${p.lloc === 'fora' ? 'a ' : 'vs '}${esc(p.rival || 'Partit')}</span>${p.resultat ? `<b class="res ${g}">${esc(p.resultat)}</b>` : ''}</a>`; }).join('') || '<p class="meta" style="margin:0">Encara no l\'has convocat a cap partit.</p>'}</div>
   ${(() => { const e = estadJug(PAR.flatMap(p => p.accions || []))[id]; return e ? `<h3>Estadístiques de partit</h3><div class="counts" style="justify-content:center">${Object.entries(e.n).map(([k, c]) => `<span class="est ${ACC[k].bo ? 'si' : 'no'}">${ACC[k].i} ${c} ${ACC[k].t.toLowerCase()}</span>`).join('')}</div><p class="meta" style="text-align:center">Balanç: <b>${e.bo - e.mal > 0 ? '+' : ''}${e.bo - e.mal}</b> (${e.bo} encerts, ${e.mal} errors)</p>` : ''; })()}
   <h3>Dades</h3>
+  <div class="card row"><span class="grow"><b>Dorsal</b></span><input type="text" class="dorsal" inputmode="numeric" maxlength="3" placeholder="#" value="${esc(j.dorsal ?? '')}" onchange="jugSet('${j.id}', {dorsal: this.value.trim()})"></div>
   <div class="card row"><span class="grow"><b>A l'equip des del</b><div class="meta">Abans d'aquest dia no surt a les llistes ni li compten les faltes.</div></span>
     <input type="date" style="width:auto" value="${j.alta || ''}" onchange="jugSet('${j.id}', {alta: this.value || null})"></div>`;
 }
@@ -1294,7 +1304,7 @@ function viewDirecte(id) {
   const { pos, L, saca } = estatSet(p, setActiu), conv = JUG.filter(j => (p.convocats || []).includes(j.id));
   const dins = new Set([...ZK.map(z => pos[z]), L].filter(Boolean)), nomJ = jid => JUG.find(q => q.id === jid)?.nom || '';
   const tile = (jid, lab, z) => { const j = JUG.find(q => q.id === jid), sq = z === '1' && saca === 'nos';
-    return j ? `<button class="dj ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}</small>${esc((j.nom || '').split(' ')[0])}${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
+    return j ? `<button class="dj ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}</small>${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b> ` : ''}${esc((j.nom || '').split(' ')[0])}${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
   const acc = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.s === setActiu);
   // el local sempre primer: a fora, el rival a l'esquerra
   const eN = `<div class="${saca === 'nos' ? 'serv' : ''}"><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')}</span><b>${nos}</b></div>`;
@@ -1430,6 +1440,8 @@ window.parDel = async id => { const p = PAR.find(x => x.id === id); if (await di
 
 let setActiu = 1;
 const curt = n => (n || '').split(' ')[0].slice(0, 8);
+const dors = jid => { const d = JUG.find(q => q.id === jid)?.dorsal; return d || d === 0 ? String(d) : ''; };
+const fitxaNom = jid => { const j = JUG.find(q => q.id === jid); if (!j) return ''; const d = dors(jid); return d ? `<b class="tdn">${esc(d)}</b><span class="tn">${esc(curt(j.nom))}</span>` : `<span class="tn">${esc(curt(j.nom))}</span>`; };
 const ZONES = { 4: [17, 22], 3: [50, 22], 2: [83, 22], 5: [17, 72], 6: [50, 72], 1: [83, 72] };
 const esCentral = (pos, jid) => jid && (pos.C1 === jid || pos.C2 === jid);
 function court(pos, lineup, eq) {
@@ -1437,7 +1449,7 @@ function court(pos, lineup, eq) {
   return `<div class="court ${eq ? 'eq' + eq : ''}" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
     ${Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y + 14}%">${z}</span>`).join('')}
     ${Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]);
-      return `<div class="tok ${j ? '' : 'buit'} ${esCentral(pos, pos[z]) ? 'cen' : ''}" data-z="${z}" style="left:${x}%;top:${y}%"><span class="tn">${j ? esc(curt(j.nom)) : ''}</span></div>`; }).join('')}
+      return `<div class="tok ${j ? '' : 'buit'} ${esCentral(pos, pos[z]) ? 'cen' : ''}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? fitxaNom(j.id) : '<span class="tn"></span>'}</div>`; }).join('')}
     ${lineup && pos.L ? `<div class="tok lib" style="left:88%;top:93%">L · ${esc(curt(JUG.find(q => q.id === pos.L)?.nom))}</div>` : ''}
   </div>`;
 }
@@ -1464,9 +1476,9 @@ function viewPartit(id) {
   </div>
   <h3>Convocats · ${conv.size}</h3>
   ${obert ? `<div class="card">${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
-    <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${esc(j.nom)}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
+    <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
     <div class="actions">${conv.size ? `<button class="btn primary" onclick="convObert=null;render()">Fet</button><button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></div>`
-  : `<details class="card convd"><summary>👥 ${convs.map(j => esc((j.nom || '').split(' ')[0])).join(', ')}</summary><div class="convchips" style="margin-top:8px">${convs.map(j => `<span class="cchip">${av(j)}${esc(j.nom)}</span>`).join('')}</div>
+  : `<details class="card convd"><summary>👥 ${convs.map(j => (dors(j.id) ? dors(j.id) + ' ' : '') + esc((j.nom || '').split(' ')[0])).join(', ')}</summary><div class="convchips" style="margin-top:8px">${convs.map(j => `<span class="cchip">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}</span>`).join('')}</div>
     <div class="actions"><button class="btn" onclick="convObert='${id}';render()">✎ Canviar convocats</button><button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button></div></details>`}
   <h3>Alineació</h3>
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
@@ -1556,7 +1568,7 @@ function viewPissarra(id) {
   const p = pisPar && PAR.find(x => x.id === pisPar), st = pisEstat(), n = st.noms;
   const nom = jid => JUG.find(q => q.id === jid)?.nom;
   const toks = Object.entries(ZONES).map(([z, [x, y]]) => { const xy = st.xy[z];
-    return `<div class="tok ${n[z] ? '' : 'buit'} ${esCentral(n, n[z]) ? 'cen' : ''} ${n[z] && n[z] === n.L ? 'lib-dins' : ''}" data-z="${z}" style="left:${xy ? xy[0] : x}%;top:${xy ? xy[1] : y}%"><span class="tn">${n[z] ? esc(curt(nom(n[z]))) : z}</span></div>`; }).join('');
+    return `<div class="tok ${n[z] ? '' : 'buit'} ${esCentral(n, n[z]) ? 'cen' : ''} ${n[z] && n[z] === n.L ? 'lib-dins' : ''}" data-z="${z}" style="left:${xy ? xy[0] : x}%;top:${xy ? xy[1] : y}%">${n[z] ? fitxaNom(n[z]) : `<span class="tn">${z}</span>`}</div>`; }).join('');
   const fora = n.L && !ZK.some(z => n[z] === n.L) ? n.L : null;            // lliure a la banqueta
   const dinsL = ZK.find(z => n[z] && n[z] === n.Lx);                       // zona on ara hi ha el lliure
   const triables = JUG.filter(j => j.actiu !== false);
