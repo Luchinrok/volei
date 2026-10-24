@@ -521,6 +521,10 @@ button.mini { flex: none; width: 30px; height: 30px; border-radius: 8px; border:
 .eqrow .nos { font-size: 11px; padding: 3px 6px; }
 .chev { flex: none; color: var(--muted); font-size: 20px; }
 .eqrow.inactiu { opacity: .5; }
+.phead2 { font: inherit; width: 100%; display: flex; align-items: center; gap: 12px; background: none; border: 0; color: var(--ink); text-align: left; padding: 0 0 6px; cursor: pointer; }
+.phead2 .grow { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.phead2 .pxt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.phead2 .mdate { width: 52px; flex: none; }
 </style>
 </head>
 <body>
@@ -1284,6 +1288,7 @@ function viewPartits() {
 window.newPartit = async (data = avui()) => {
   const d = await fs.addDoc(col('partits'), { data, hora: '20:00', equip: parFiltre || 'N', rival: '', lloc: 'casa', convocats: [], sets: {}, resultat: '' });
   location.hash = '#/p/' + d.id;
+  setTimeout(() => PAR.find(x => x.id === d.id) && editaPartit(d.id), 400);
 };
 const parRef = id => ref('partits', id);
 window.parSet = (id, k, v) => fs.updateDoc(parRef(id), { [k]: v });
@@ -1503,15 +1508,14 @@ function viewPartit(id) {
   const actius = JUG.filter(j => j.actiu !== false || conv.has(j.id));
   const llista = [...actius.filter(delEquip), ...actius.filter(j => !delEquip(j))];
   const convs = llista.filter(j => conv.has(j.id)), obert = convObert === id || !conv.size;
-  return `<div class="pview"><h2>${esc(p.rival || 'Partit nou')}</h2>
+  const dt = new Date(p.data + 'T12:00'), nosH = `<span class="nosn ${p.equip === 'G' ? 'g' : 'n'}">${esc(nomNostre(p))}</span>`, rivH = `<span>${esc(p.rival || 'Rival?')}</span>`;
+  return `<div class="pview">
   <div class="card">
-    <div class="grid2">
-      <div><label class="lbl">Data</label><input type="date" value="${p.data}" onchange="parSet('${id}','data',this.value)"></div>
-      <div><label class="lbl">Hora</label><input type="text" placeholder="20:30" value="${esc(p.hora || '')}" onchange="parSet('${id}','hora',this.value.trim())"></div>
-      ${dosEq() ? `      <div><label class="lbl">Equip</label><select onchange="parSet('${id}','equip',this.value)">${Object.entries(EQN).map(([v, t]) => `<option value="${v}" ${p.equip === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>` : ''}
-      <div><label class="lbl">On</label><select onchange="parSet('${id}','lloc',this.value)"><option value="casa" ${p.lloc !== 'fora' ? 'selected' : ''}>A casa</option><option value="fora" ${p.lloc === 'fora' ? 'selected' : ''}>Fora</option></select></div>
-    </div>
-    <label class="lbl">Rival</label><input type="text" id="rival" autocapitalize="words" value="${esc(p.rival || '')}" oninput="majuscula(this)" onchange="parSet('${id}','rival',this.value.trim())">
+    <button class="phead2" onclick="editaPartit('${id}')">
+      <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
+      <span class="grow"><span class="pxt">${p.lloc === 'fora' ? rivH + ' vs ' + nosH : nosH + ' vs ' + rivH}</span>
+        <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' · ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span></span>
+      <span class="chev">✎</span></button>
     <label class="lbl">Punts per set (${p.lloc === 'fora' ? `${esc(p.rival || 'ells')} - nosaltres` : `nosaltres - ${esc(p.rival || 'ells')}`})${p.resultat ? ` · <b style="color:var(--ink)">Resultat ${esc(p.resultat)}</b>` : ''}</label>
     <div class="setbtns">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? ((+v[0] > +v[1]) !== (p.lloc === 'fora') ? 'guanyat' : 'perdut') : '';
       return `<button class="setbtn ${g}" onclick="roda('${id}', ${n})"><small>Set ${n}</small><b>${v.length ? `${v[0] === '' ? '–' : v[0]}-${v[1] === '' ? '–' : v[1]}` : '–'}</b></button>`; }).join('')}</div>
@@ -1540,8 +1544,25 @@ function viewPartit(id) {
   <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px" href="#/directe/${id}">📊 Marcador en directe</a>
   ${taulaEstad(p)}
   <p class="meta">✓ Tot el partit es desa sol a cada canvi; no cal cap botó.</p>
-  <div class="actions"><button class="btn danger" onclick="parDel('${id}')">Esborra el partit</button></div></div>`;
+</div>`;
 }
+// dades del partit (data, hora, equip, lloc i rival) en una finestra
+window.editaPartit = id => {
+  const p = PAR.find(x => x.id === id), tria = (k, v) => `onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))" data-${k}="${v}"`;
+  obreFitxa(`<b>Dades del partit</b><div class="form">
+    <label class="lbl">Rival</label><input type="text" id="epr" value="${esc(p.rival || '')}" placeholder="Nom del rival">
+    <div class="grid2"><div><label class="lbl">Data</label><input type="date" id="epd" value="${p.data}"></div><div><label class="lbl">Hora</label><input type="text" id="eph" inputmode="numeric" placeholder="20:00" value="${esc(p.hora || '')}"></div></div>
+    <label class="lbl">On</label><div class="seg" id="epl" style="margin:0">${[['casa', '🏠 A casa'], ['fora', '🚌 A fora']].map(([v, t]) => `<button class="${(p.lloc || 'casa') === v ? 'on' : ''}" ${tria('v', v)}>${t}</button>`).join('')}</div>
+    ${dosEq() ? `<label class="lbl">Equip</label><div class="seg" id="epe" style="margin:0">${Object.entries(EQN).map(([v, t]) => `<button class="${p.equip === v ? 'on' : ''}" ${tria('v', v)}>${t}</button>`).join('')}</div>` : ''}
+    <button class="btn danger" style="width:100%;margin-top:12px" onclick="tancaFitxa();parDel('${id}')">Esborra el partit</button></div>`,
+    `<button class="btn" onclick="tancaFitxa()">Cancel·la</button><button class="btn primary" style="flex:1" onclick="desaPartit('${id}')">Desa</button>`);
+  if (!p.rival) setTimeout(() => $('#epr')?.focus(), 50);
+};
+window.desaPartit = id => {
+  const p = PAR.find(x => x.id === id), d = { rival: $('#epr').value.trim(), data: $('#epd').value || p.data, hora: $('#eph').value.trim(), lloc: $('#epl .on')?.dataset.v || 'casa' };
+  if ($('#epe')) d.equip = $('#epe .on')?.dataset.v || p.equip;
+  Object.assign(p, d); fs.updateDoc(parRef(id), d); tancaFitxa(); render();
+};
 window.triaCopia = id => {
   const ss = PAR.find(x => x.id === id).sets || {}, nom = jid => esc((JUG.find(q => q.id === jid)?.nom || '').split(' ')[0]);
   obreFitxa(`<b>Copiar al set ${setActiu} l'alineació del…</b><div class="form" style="display:grid;gap:6px">${[1, 2, 3, 4, 5].filter(n => n !== setActiu && Object.values(ss[n] || {}).some(Boolean)).map(n => `<button class="btn" style="text-align:left" onclick="tancaFitxa();copySet('${id}', ${n})"><b>Set ${n}</b> <small class="meta">${[4, 3, 2, 5, 6, 1].map(z => nom(ss[n][z])).filter(Boolean).join(', ')}</small></button>`).join('')}</div>`);
