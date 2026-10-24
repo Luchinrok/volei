@@ -36,7 +36,7 @@
     --shadow: none;
     --f-D: #6aa8f5; --f-B: #3fd1a8; --f-S: #b197fc; --f-R: #ff8c4a; --f-BL: #f06595; --f-C: #3bc9db; --f-J: #8c9bff; --f-G: #ffc14d;
 }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-feature-settings: 'locl' 0 !important; }   /* sense 'locl', la l·l de la Barlow es veu bé */
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
 body { font: 16px/1.5 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding-bottom: 80px; }
 header { position: sticky; top: 0; z-index: 5; background: linear-gradient(120deg, #14325a 0%, #0c2340 70%); color: #fff; padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 8px; box-shadow: inset 0 -4px 0 var(--accent); overflow: hidden; }
@@ -448,6 +448,10 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .stp { display: grid; grid-template-columns: 1fr 36px 30px 36px; align-items: center; gap: 4px; font-size: 14px; }
 .stp button { height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 18px; cursor: pointer; }
 .stp b { text-align: center; }
+.form { text-align: left; margin-top: 10px; }
+.form .lbl:first-child { margin-top: 0; }
+button.mini { flex: none; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; font-size: 13px; padding: 0; }
+.card:not(.tots) > .hist.vell { display: none; }
 </style>
 </head>
 <body>
@@ -675,7 +679,7 @@ function dialeg(text, { ok = "D'acord", cancel = 'Cancel·la', perill = false, s
     $('#dbtns').innerHTML = `${sol ? '' : `<button class="btn" data-v="0">${cancel}</button>`}<button class="btn ${perill ? 'danger-fill' : 'primary'}" data-v="1">${ok}</button>`;
     const tanca = v => { d.hidden = true; d.onclick = null; res(v); };
     d.onclick = e => { const b = e.target.closest('[data-v]'); if (b) tanca(b.dataset.v === '1'); else if (e.target === d) tanca(false); };
-    d.hidden = false;
+    d.hidden = false; capitalitza();
   });
 }
 window.dialeg = dialeg;
@@ -955,13 +959,13 @@ function viewAssistencia() {
   <h3>Equip</h3>
   ${editEquip ? `<div class="card">
     ${JUG.map(j => `<div class="edit-pl ${j.actiu === false ? 'inactiu' : ''}">
-      <input type="text" value="${esc(j.nom)}" onchange="jugSet('${j.id}', {nom: this.value.trim()})">
+      <input type="text" data-cap="w" value="${esc(j.nom)}" onchange="jugSet('${j.id}', {nom: this.value.trim()})">
       <span class="dd" title="Quins dies ve">${Object.keys(tcfg().dies).map(Number).sort().map(d => `<button class="${!diesJug(j) || diesJug(j).includes(d) ? 'on' : ''}" onclick="toggleDia('${j.id}', ${d})">${CURT[d]}</button>`).join('')}</span>
 ${dosEq() ? `      <select onchange="jugSet('${j.id}', {equip: this.value})" title="Equip">
         ${[['', '–'], ['N', 'Negre'], ['G', 'Groc'], ['NG', 'N+G']].map(([v, t]) => `<option value="${v}" ${(j.equip || '') === v ? 'selected' : ''}>${t}</option>`).join('')}</select>` : ''}
       ${j.actiu === false ? `<button class="x back" title="Torna'l a l'equip" onclick="jugSet('${j.id}', {actiu: true})">↺</button>` : `<button class="x" title="Treu de l'equip" onclick="treuJug('${j.id}')">✕</button>`}
     </div>`).join('')}
-    <div class="row" style="margin-top:10px"><input type="text" id="nounom" placeholder="Nom del jugador nou"><button class="btn" onclick="addJug()">Afegeix</button></div>
+    <div class="row" style="margin-top:10px"><input type="text" id="nounom" data-cap="w" placeholder="Nom del jugador nou"><button class="btn" onclick="addJug()">Afegeix</button></div>
     <p class="meta" style="margin:8px 0 0">Dies: toca els dies que ve (els altres dies no surt a la llista ni li compta la falta). ✕ treu de l'equip però guarda el que ja ha fet; ↺ el torna a posar.</p>
     <div class="actions"><button class="btn primary" onclick="editEquip=false;render()">Fet</button></div>
   </div>` : `<button class="btn" style="width:100%;padding:10px" onclick="editEquip=true;render()">✎ Editar equip</button>`}
@@ -1220,7 +1224,7 @@ function viewDirecte(id) {
   const pos = (p.sets || {})[setActiu] || {}, conv = JUG.filter(j => (p.convocats || []).includes(j.id));
   const camp = [4, 3, 2, 5, 6, 1].map(z => pos[z]), dins = new Set([...camp, pos.L].filter(Boolean));
   const tile = (jid, lab) => { const j = JUG.find(q => q.id === jid); return j ? `<button class="dj ${dirJug === jid ? 'on' : ''}" onclick="dirTria('${jid}')"><small>${lab}</small>${esc((j.nom || '').split(' ')[0])}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
-  const acc = (p.accions || []).filter(a => a.s === setActiu);
+  const acc = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.s === setActiu);
   const nomJ = jid => JUG.find(q => q.id === jid)?.nom || '';
   return `<div class="marc ${p.equip === 'G' ? 'mG' : 'mN'}">
     <div class="seg" style="margin:0 0 10px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};dirJug=null;render()">Set ${n}</button>`).join('')}</div>
@@ -1240,8 +1244,9 @@ function viewDirecte(id) {
   <div class="accs np ${dirJug ? '' : 'off'}">${['rp', 'rb', 'rd', 'bd'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} lleu" onclick="dirAcc('${id}','${k}')">${ACC[k].i} ${ACC[k].t}</button>`).join('')}</div>
   <h3>Sense jugador</h3>
   <div class="accs sol"><button class="acc bo" onclick="dirAcc('${id}','erv')">🎁 Error del rival · +1 nosaltres</button><button class="acc mal" onclick="dirAcc('${id}','prv')">😤 Punt del rival · +1 ells</button></div>
-  <h3>Últims punts del set ${setActiu}</h3>
-  <div class="card">${acc.slice(-6).reverse().map(a => `<div class="hist"><span>${ACC[a.a].i}</span><span class="grow">${a.j ? '<b>' + esc(nomJ(a.j)) + '</b> · ' : ''}${ACC[a.a].t}</span>${ACC[a.a].np ? '<span class="meta">sense punt</span>' : `<span class="${ACC[a.a].bo ? 'gd-ok' : 'gd-ko'}">${ACC[a.a].bo ? '+1 nosaltres' : '+1 ells'}</span>`}</div>`).join('') || '<p class="meta" style="margin:0">Encara cap punt apuntat en aquest set.</p>'}
+  <h3>Punts del set ${setActiu} · ${acc.length}</h3>
+  <div class="card">${acc.slice().reverse().map((a, k) => `<div class="hist ${k >= 8 ? 'vell' : ''}"><span>${ACC[a.a].i}</span><span class="grow">${a.j ? '<b>' + esc(nomJ(a.j)) + '</b> · ' : ''}${ACC[a.a].t}</span>${ACC[a.a].np ? '<span class="meta">sense punt</span>' : `<span class="${ACC[a.a].bo ? 'gd-ok' : 'gd-ko'}">${ACC[a.a].bo ? '+1 nos.' : '+1 ells'}</span>`}<button class="mini" title="Canvia" onclick="dirEdita('${id}', ${a.i})">✎</button><button class="mini" title="Esborra" onclick="dirEsborra('${id}', ${a.i})">✕</button></div>`).join('') || '<p class="meta" style="margin:0">Encara cap punt apuntat en aquest set.</p>'}
+    ${acc.length > 8 ? `<button class="btn" style="width:100%;margin-top:6px" onclick="this.closest('.card').classList.toggle('tots');this.textContent=this.closest('.card').classList.contains('tots')?'Amaga els més antics':'Veure tots els punts (${acc.length})'">Veure tots els punts (${acc.length})</button>` : ''}
     ${acc.length ? `<div class="actions"><button class="btn" onclick="dirDesfes('${id}')">↶ Desfés l'últim</button></div>` : ''}</div>
   <div class="actions"><a class="btn" style="text-decoration:none;flex:1;text-align:center" href="#/p/${id}">Torna al partit</a></div>`;
 }
@@ -1254,6 +1259,25 @@ window.dirAcc = (id, k) => {
   fs.updateDoc(parRef(id), { accions, punts: p.punts, resultat: p.resultat });
   try { navigator.vibrate?.(30); } catch {}
   dirJug = null; render();
+};
+// efecte d'una acció al marcador: només les dels sets (no les correccions manuals, s = 0) i les que són punt
+const efecte = (p, a, d) => { if (!a.s || ACC[a.a].np) return; Object.assign(p, sumaPunt(p, a.s, !!ACC[a.a].bo, d)); };
+const desaAccions = p => { fs.updateDoc(parRef(p.id), { accions: p.accions, punts: p.punts || {}, resultat: p.resultat || '' }); render(); };
+window.dirEsborra = async (id, i) => {
+  const p = PAR.find(x => x.id === id), a = p.accions[i];
+  if (!await dialeg(`Esborrar <b>${ACC[a.a].i} ${ACC[a.a].t}</b>${a.j ? ' de ' + esc(JUG.find(q => q.id === a.j)?.nom || '') : ''}?${ACC[a.a].np ? '' : '<br><small>El marcador es corregeix sol.</small>'}`, { ok: 'Esborra', perill: true })) return;
+  efecte(p, a, -1); p.accions = p.accions.filter((_, k) => k !== i); desaAccions(p);
+};
+window.dirEdita = async (id, i) => {
+  const p = PAR.find(x => x.id === id), a = p.accions[i], conv = JUG.filter(j => (p.convocats || []).includes(j.id) || j.id === a.j);
+  const ok = await dialeg(`<b>Canviar el punt</b><div class="form">
+    <label class="lbl">Qui</label><select id="edj"><option value="">— Sense jugador —</option>${conv.map(j => `<option value="${j.id}" ${a.j === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select>
+    <label class="lbl">Què</label><select id="eda">${Object.entries(ACC).map(([k, x]) => `<option value="${k}" ${a.a === k ? 'selected' : ''}>${x.i} ${x.t}</option>`).join('')}</select></div>`, { ok: 'Desa', ico: '✎' });
+  if (!ok) return;
+  const nou = { ...a, j: $('#edj').value, a: $('#eda').value };
+  if (ACC[nou.a].sol) nou.j = '';
+  if (!ACC[nou.a].sol && !nou.j) { dialeg('Aquesta acció necessita un jugador.', { sol: true }); return; }
+  efecte(p, a, -1); efecte(p, nou, 1); p.accions = p.accions.map((x, k) => k === i ? nou : x); desaAccions(p);
 };
 window.dirDesfes = id => {
   const p = PAR.find(x => x.id === id), accions = [...(p.accions || [])];
@@ -1516,13 +1540,7 @@ function viewConfig() {
     <label class="lbl">Equips de partit</label>
     <div class="seg" style="margin:0">${[[1, 'Un sol equip'], [2, 'Dos (Negre i Groc)']].map(([v, l]) => `<button class="${(dosEq() ? 2 : 1) === v ? 'on' : ''}" onclick="setGrup('nEq', ${v})">${l}</button>`).join('')}</div>
     <p class="meta" style="margin:8px 0 0">El club surt als pròxims partits («${esc(club() || 'Sant Pere')}${dosEq() ? ' Groc' : ''} vs Aloges»).</p>
-    <details style="margin-top:12px"><summary class="meta" style="cursor:pointer">＋ Afegir un altre equip</summary>
-      <p class="meta">Un equip totalment a part: jugadors, assistència, partits, dies d'entreno i sessions propis.</p>
-      <label class="lbl">Nom de l'equip</label><input type="text" id="nougrup" placeholder="Per exemple Masculí infantil">
-      <label class="lbl">Club</label><input type="text" id="nouclub" placeholder="Nom del club">
-      <label class="lbl">Temporada</label><input type="text" id="noutempg" value="${esc(tempNom(TEMP).split(' ')[0])}">
-      <div class="actions"><button class="btn primary" onclick="nouGrup()">Crea l'equip</button></div>
-    </details>
+    <div class="actions"><button class="btn" style="flex:1" onclick="nouGrup()">＋ Afegir un altre equip</button></div>
   </div>
   <h3>Temporada</h3>
   <div class="card">
@@ -1549,12 +1567,16 @@ window.triaGrup = g => {
   const ts = Object.keys(CFG.temporades).filter(x => grupDe(x) === g).sort();
   const t = store.get('volei.temp.' + g, null); setTemp(ts.includes(t) ? t : ts[ts.length - 1]);
 };
-window.nouGrup = async () => {
+window.nouGrup = async (prev = {}) => {
+  const ok = await dialeg(`<b>Equip nou</b><br><small>Totalment a part: jugadors, assistència, partits, dies d'entreno i sessions propis. Començarà buit.</small>
+    <div class="form"><label class="lbl">Nom de l'equip</label><input type="text" id="nougrup" placeholder="Per exemple Masculí infantil" value="${esc(prev.nom || '')}">
+    <label class="lbl">Club</label><input type="text" id="nouclub" placeholder="Nom del club" value="${esc(prev.cl || '')}">
+    <label class="lbl">Temporada</label><input type="text" id="noutempg" value="${esc(prev.tp || tempNom(TEMP).split(' ')[0])}"></div>`, { ok: 'Crea l\'equip', ico: '🏐' });
+  if (!ok) return;
   const nom = $('#nougrup').value.trim(), cl = $('#nouclub').value.trim(), tp = $('#noutempg').value.trim();
-  if (nom.length < 2 || /[\/\\'"`]/.test(nom + tp) || !tp) { dialeg('Posa el nom de l\'equip i la temporada, sense barres ni cometes.', { sol: true }); return; }
+  if (nom.length < 2 || /[\/\\'"`]/.test(nom + tp) || !tp) { await dialeg('Posa el nom de l\'equip i la temporada, sense barres ni cometes.', { sol: true }); return nouGrup({ nom, cl, tp }); }
   const g = 'g' + Date.now().toString(36), key = `${tp} · ${nom}`;
   if (CFG.temporades[key]) { dialeg('Aquest equip ja existeix en aquesta temporada.', { sol: true }); return; }
-  if (!await dialeg(`Crear l'equip <b>${esc(nom)}</b> (temporada ${esc(tp)})?<br><small>Començarà buit: sense jugadors, partits ni sessions.</small>`, { ok: 'Crea\'l', ico: '🏐' })) return;
   await fs.setDoc(cfgRef(), { grups: { [g]: { nom, club: cl, nEq: 1 } }, temporades: { [key]: { nom: tp, grup: g, dies: {}, sessions: '' } } }, { merge: true });
   setTemp(key);
 };
@@ -1678,6 +1700,14 @@ window.timerGo = () => {
 window.timerReset = () => { alarmStop(); T.acc = 0; T.beeped = false; if (T.run) { T.start = Date.now(); if (T.dur) audioArm(); } timerPaint(); };
 
 // ------------------------------------------------------------------- render
+// tot el que s'escriu comença en majúscula; als noms de jugador (data-cap="w"), cada paraula
+function majuscules(el) {
+  const v = el.value, n = el.dataset.cap === 'w' ? v.replace(/(^|\s)(\p{Ll})/gu, (m, a, b) => a + b.toUpperCase()) : v.replace(/^(\s*)(\p{Ll})/u, (m, a, b) => a + b.toUpperCase());
+  if (n === v) return;
+  const a = el.selectionStart, b = el.selectionEnd; el.value = n; try { el.setSelectionRange(a, b); } catch {}
+}
+document.addEventListener('input', e => { if (e.target.matches?.('input[type=text], textarea') && e.target.id !== 'noutemp' && e.target.id !== 'noutempg') majuscules(e.target); });
+const capitalitza = () => document.querySelectorAll('input[type=text], textarea').forEach(el => { el.autocapitalize = el.dataset.cap === 'w' ? 'words' : 'sentences'; });
 let lastRuta = null;
 function render() {
   if (!D) return;
@@ -1703,7 +1733,7 @@ function render() {
   if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   const ruta = r + '/' + arg;
-  muntaCalendari();
+  muntaCalendari(); capitalitza();
   if (ruta !== lastRuta) { lastRuta = ruta; const ap = $('#app'); ap.classList.remove('view'); void ap.offsetWidth; ap.classList.add('view'); }
   $('#title').textContent = title;
   $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra', 'directe'].includes(r);
