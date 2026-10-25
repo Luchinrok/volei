@@ -898,98 +898,174 @@
   {
    "codi": "DT08",
    "dia": "dimarts",
-   "titol": "Mesura i consolidació",
-   "min": 115,
-   "nota": "Cada 5-6 setmanes. Els blocs 3 i 6 són els que els fan tornar.",
+   "titol": "Consolidació",
+   "min": 85,
+   "nota": "Dits amb xarxa, braços, remat i rei de la pista.",
    "notaFinal": "",
    "blocs": [
     {
+     "tret": true,
+     "abans": {
+      "n": 1,
+      "titol": "Tocs encadenats en cercle — apunta el rècord",
+      "codi": "",
+      "min": 20,
+      "franja": "min 0-20",
+      "lloc": "",
+      "com": "Dos cercles de 9. Encadenar el màxim de tocs controlats sense que caigui la pilota, alternant dits i avantbraços. Apunta el número a la paret.",
+      "dosi": "Tot el bloc (20 minuts).",
+      "muntatge": "Dos cercles de 9, els 18 dins. Ningú fora."
+     }
+    },
+    {
      "n": 1,
-     "titol": "Tocs encadenats en cercle — apunta el rècord",
-     "codi": "",
-     "min": 20,
-     "franja": "min 0-20",
-     "lloc": "",
-     "com": "Dos cercles de 9. Encadenar el màxim de tocs controlats sense que caigui la pilota, alternant dits i avantbraços. Apunta el número a la paret.",
-     "dosi": "Tot el bloc (20 minuts).",
-     "muntatge": "Dos cercles de 9, els 18 dins. Ningú fora."
+     "titol": "Quatre files amb xarxa",
+     "codi": "D18",
+     "min": 12,
+     "franja": "min 0-12",
+     "lloc": "Les dues mitges pistes, xarxa al mig.",
+     "com": "Dues files davant de dues, amb la xarxa al mig, i dues pilotes. Passem de dits al de davant, per sobre de la xarxa, i ens n'anem a darrere de l'ALTRA fila del nostre camp, no de la nostra. PROGRESSIÓ, sense aturar l'exercici: (1) control-passe dins de la línia de 3, (2) control-passe fora de la línia de 3, (3) control i passe de dits amb SALT. Quan s'han fet els tres passos, es repeteix tota la progressió amb DITS DIRECTES, sense control.",
+     "dosi": "2 minuts per pas. Tres passos amb control-passe i els mateixos tres amb dits directes.",
+     "muntatge": "Quatre files, dues a cada banda de la xarxa. Amb més de 8, dues estacions de quatre files, una a cada mitja pista. Tothom dins, ningú espera.",
+     "nou": true
     },
     {
      "n": 2,
      "titol": "Triangle",
      "codi": "D14",
      "min": 10,
-     "franja": "min 20-30",
+     "franja": "min 12-22",
      "lloc": "",
-     "com": "Tres files en triangle, dits en sentit antihorari. Primer tancat, després obert.",
-     "dosi": "3 voltes completes al triangle tancat i 3 a l'obert.",
-     "muntatge": "Tres files de 2-3 formant triangle. Amb 18, dos triangles simultanis."
+     "com": "El teu del Dia 9. Tres files en triangle (files de 2 o 3) i anem fent dits en sentit antihorari. Després igual però de braços. Ara obrim bé el triangle i tornem a repetir: dits i després braços.",
+     "dosi": "Uns 2 minuts i mig per pas: dits, braços, i el mateix amb el triangle obert.",
+     "muntatge": "Tres files de 2-3 formant triangle. Amb més de 9, dos triangles alhora.",
+     "abans": {
+      "franja": "min 20-30",
+      "com": "Tres files en triangle, dits en sentit antihorari. Primer tancat, després obert.",
+      "dosi": "3 voltes completes al triangle tancat i 3 a l'obert.",
+      "muntatge": "Tres files de 2-3 formant triangle. Amb 18, dos triangles simultanis."
+     }
     },
     {
      "n": 3,
-     "titol": "Dits amb tocs intermedis",
-     "codi": "D6",
-     "min": 10,
-     "franja": "min 30-40",
-     "lloc": "",
-     "com": "Cicle de quatre tocs sense aturar la pilota: dits normal, toc de dits amb la mà DRETA sola, un amb l'ESQUERRA sola i passe de dits al company. Els tocs d'una mà es fan amb els dits ben oberts i el canell ferm. PROGRESSIÓ: (1) el cicle sencer a poca distància. (2) El mateix cicle més lluny. (3) Hi afegim un toc de braços al principi del cicle. (4) El cicle sencer acabant amb el passe saltat.",
-     "dosi": "3 sèries de 10 cicles per pas, uns 2 minuts i mig cadascun.",
-     "muntatge": "9 parelles escampades."
+     "titol": "Trio amb dues pilotes",
+     "codi": "B20",
+     "min": 12,
+     "franja": "min 22-34",
+     "lloc": "Tota la pista.",
+     "com": "Trios amb dues pilotes. El del mig fa braços, es gira i torna a fer braços. ×20. Variant amb desplaçament de dues passes.",
+     "dosi": "×20 per jugador al mig i la variant amb desplaçament. Tres rondes perquè tothom passi pel mig.",
+     "muntatge": "Trios escampats per la pista, cadascun amb dues pilotes. Es rota el del mig cada 10 passades.",
+     "nou": true
+    },
+    {
+     "tret": true,
+     "abans": {
+      "n": 3,
+      "titol": "Dits amb tocs intermedis",
+      "codi": "D6",
+      "min": 10,
+      "franja": "min 30-40",
+      "lloc": "",
+      "com": "Cicle de quatre tocs sense aturar la pilota: dits normal, toc de dits amb la mà DRETA sola, un amb l'ESQUERRA sola i passe de dits al company. Els tocs d'una mà es fan amb els dits ben oberts i el canell ferm. PROGRESSIÓ: (1) el cicle sencer a poca distància. (2) El mateix cicle més lluny. (3) Hi afegim un toc de braços al principi del cicle. (4) El cicle sencer acabant amb el passe saltat.",
+      "dosi": "3 sèries de 10 cicles per pas, uns 2 minuts i mig cadascun.",
+      "muntatge": "9 parelles escampades."
+     }
+    },
+    {
+     "tret": true,
+     "abans": {
+      "n": 4,
+      "titol": "Defensa amb color",
+      "codi": "B28",
+      "min": 10,
+      "franja": "min 40-50",
+      "lloc": "5 trios amb cons.",
+      "com": "Tres cons de colors diferents al voltant del defensa. Just abans de llançar crides un color. Ha de tocar aquell con i tornar a defensar. Les pilotes les entres tu amb la mà.",
+      "dosi": "×10 per jugador. Dues rondes.",
+      "muntatge": "Cinc trios amb cons de colors: un llança i canta, un defensa i un recull. Es rota cada 5 repeticions. Cada jugador fa 2 torns."
+     }
+    },
+    {
+     "tret": true,
+     "abans": {
+      "n": 5,
+      "titol": "LES 5 ZONES DE SAQUE — apunta els números",
+      "codi": "S4",
+      "min": 15,
+      "franja": "min 50-65",
+      "lloc": "Pista sencera.",
+      "com": "Marca Z1, Z2, Z4, Z5 i Z6 amb cons. Cada jugador ha d'aconseguir tocar les cinc. Els primers passen a la final, els últims a una segona final. Apunta quants intents ha necessitat cadascú. Cons marcant Z1, Z2, Z4, Z5 i Z6.",
+      "dosi": "Cal encertar les cinc zones. S'apunten els intents necessitats. Final entre els quatre primers.",
+      "muntatge": "Tots servint alhora des de les dues bandes. Dos recollint i tu apuntant els intents."
+     }
     },
     {
      "n": 4,
-     "titol": "Defensa amb color",
-     "codi": "B28",
-     "min": 10,
-     "franja": "min 40-50",
-     "lloc": "5 trios amb cons.",
-     "com": "Tres cons de colors diferents al voltant del defensa. Just abans de llançar crides un color. Ha de tocar aquell con i tornar a defensar. Les pilotes les entres tu amb la mà.",
-     "dosi": "×10 per jugador. Dues rondes.",
-     "muntatge": "Cinc trios amb cons de colors: un llança i canta, un defensa i un recull. Es rota cada 5 repeticions. Cada jugador fa 2 torns."
-    },
-    {
-     "n": 5,
-     "titol": "LES 5 ZONES DE SAQUE — apunta els números",
-     "codi": "S4",
-     "min": 15,
-     "franja": "min 50-65",
-     "lloc": "Pista sencera.",
-     "com": "Marca Z1, Z2, Z4, Z5 i Z6 amb cons. Cada jugador ha d'aconseguir tocar les cinc. Els primers passen a la final, els últims a una segona final. Apunta quants intents ha necessitat cadascú. Cons marcant Z1, Z2, Z4, Z5 i Z6.",
-     "dosi": "Cal encertar les cinc zones. S'apunten els intents necessitats. Final entre els quatre primers.",
-     "muntatge": "Tots servint alhora des de les dues bandes. Dos recollint i tu apuntant els intents."
-    },
-    {
-     "n": 6,
      "titol": "Anar al con i tornar a rematar",
      "codi": "R6",
-     "min": 12,
-     "franja": "min 65-77",
+     "min": 15,
+     "franja": "min 34-49",
      "lloc": "",
      "com": "Un toca la xarxa, corre enrere fins a un con a Z5/Z1 i torna a rematar a línia. ×10. Fan falta un que remata, un que col·loca, un que passa pilotes i un que defensa. Repetim per Z2 i per Z4, i després en diagonal. Cal un rematador, un col·locador, un que passi pilotes i un que defensi.",
      "dosi": "×10 per rematador. Dues rondes: línia i diagonal.",
-     "muntatge": "Grups de quatre o cinc per mitja pista: 1 remata, 1 col·loca, 1 passa pilotes i 1 defensa. Es rota després de cada tanda de 5."
+     "muntatge": "Grups de quatre o cinc per mitja pista: 1 remata, 1 col·loca, 1 passa pilotes i 1 defensa. Es rota després de cada tanda de 5.",
+     "abans": {
+      "min": 12,
+      "franja": "min 65-77"
+     }
     },
     {
-     "n": 7,
-     "titol": "Transició contínua",
-     "codi": "J23",
+     "n": 5,
+     "titol": "Des del banc",
+     "codi": "R9",
      "min": 15,
-     "franja": "min 77-92",
-     "lloc": "Les dues mitges pistes.",
-     "com": "Dos equips jugant, però la pilota no s'atura mai: quan cau a terra o surt fora, tu n'entres una de nova immediatament des del lateral, sense esperar que la recullin ni que es tornin a col·locar. Es juga tres minuts seguits sense aturar-se i es canvia. No es compten punts: el que s'entrena és no desconnectar entre pilota i pilota, que és on l'equip es queda aturat.",
-     "dosi": "Sèries de 3 minuts sense aturar. Quatre sèries amb 90 segons de descans.",
-     "muntatge": "Parteix la pista al llarg en dues mitges pistes i juga 4x4 a cada una, o sigui 16 jugant alhora. Els que sobren porten el marcador i entren a cada punt perdut, de manera que ningú mira més d'un ral·li."
+     "franja": "min 49-64",
+     "lloc": "Pista sencera, grups a les dues bandes.",
+     "com": "Un remata des d'un banc o cadira, un defensa i un col·loca. El que ha defensat ha de fer veure que remata.",
+     "dosi": "×10 per jugador.",
+     "muntatge": "Grups de tres amb un banc o cadira, repartits a les dues bandes de la xarxa: 1 remata, 1 defensa i 1 col·loca. Es rota cada 5 repeticions. Cada jugador fa 2 torns.",
+     "nou": true
     },
     {
-     "n": 8,
-     "titol": "Volei-tennis amb bot",
-     "codi": "G13",
-     "min": 23,
-     "franja": "min 92-115",
-     "lloc": "Les dues mitges pistes.",
-     "com": "4x4 amb un bot permès entre toc i toc. El grup fluix hi competeix d'igual a igual.",
-     "dosi": "Sets a 15 amb el bot permès.",
-     "muntatge": "Quartets per mitja pista amb cua que entra a cada set."
+     "n": 6,
+     "titol": "Rei de la pista a un punt",
+     "codi": "G1",
+     "min": 21,
+     "franja": "min 64-85",
+     "lloc": "Pista sencera.",
+     "com": "Rei de la pista a un sol punt: 4x4 (o 3x3 si sou pocs). L'equip que guanya el punt es queda al camp dels guanyadors; el que perd surt i entra el següent equip. Es compta quants punts seguits aguanta cada equip.",
+     "dosi": "Punt directe i entrada contínua fins al final.",
+     "muntatge": "Pista sencera. 4x4 si sou 12 o més (tres o quatre equips), 3x3 si sou menys. Els equips que esperen entren a cada punt: ningú mira més d'un punt.",
+     "nou": true
+    },
+    {
+     "tret": true,
+     "abans": {
+      "n": 7,
+      "titol": "Transició contínua",
+      "codi": "J23",
+      "min": 15,
+      "franja": "min 77-92",
+      "lloc": "Les dues mitges pistes.",
+      "com": "Dos equips jugant, però la pilota no s'atura mai: quan cau a terra o surt fora, tu n'entres una de nova immediatament des del lateral, sense esperar que la recullin ni que es tornin a col·locar. Es juga tres minuts seguits sense aturar-se i es canvia. No es compten punts: el que s'entrena és no desconnectar entre pilota i pilota, que és on l'equip es queda aturat.",
+      "dosi": "Sèries de 3 minuts sense aturar. Quatre sèries amb 90 segons de descans.",
+      "muntatge": "Parteix la pista al llarg en dues mitges pistes i juga 4x4 a cada una, o sigui 16 jugant alhora. Els que sobren porten el marcador i entren a cada punt perdut, de manera que ningú mira més d'un ral·li."
+     }
+    },
+    {
+     "tret": true,
+     "abans": {
+      "n": 8,
+      "titol": "Volei-tennis amb bot",
+      "codi": "G13",
+      "min": 23,
+      "franja": "min 92-115",
+      "lloc": "Les dues mitges pistes.",
+      "com": "4x4 amb un bot permès entre toc i toc. El grup fluix hi competeix d'igual a igual.",
+      "dosi": "Sets a 15 amb el bot permès.",
+      "muntatge": "Quartets per mitja pista amb cua que entra a cada set."
+     }
     }
    ]
   },
@@ -1477,18 +1553,30 @@
    "notaFinal": "",
    "blocs": [
     {
-     "n": 1,
-     "titol": "Un braç i l'altre",
-     "codi": "B21",
-     "min": 12,
-     "franja": "min 0-12",
-     "lloc": "",
-     "com": "Parelles. PROGRESSIÓ: (1) toc amb un braç i tornar-la amb els dos. (2) Toc d'un braç, autopasse i passe de dits amb una sola mà. (3) Toc d'un braç, autopasse i remat controlat. (4) El cicle sencer alternant braç dret i esquerre a cada repetició.",
-     "dosi": "×15 per pas i per jugador.",
-     "muntatge": "Parelles escampades.",
+     "tret": true,
      "abans": {
+      "n": 1,
+      "titol": "Un braç i l'altre",
+      "codi": "B21",
+      "min": 12,
+      "franja": "min 0-12",
+      "lloc": "",
+      "com": "Parelles. PROGRESSIÓ: (1) toc amb un braç i tornar-la amb els dos. (2) Toc d'un braç, autopasse i passe de dits amb una sola mà. (3) Toc d'un braç, autopasse i remat controlat. (4) El cicle sencer alternant braç dret i esquerre a cada repetició.",
+      "dosi": "×15 per pas i per jugador.",
       "muntatge": "9 parelles escampades."
      }
+    },
+    {
+     "n": 1,
+     "titol": "Files creuades",
+     "codi": "D13",
+     "min": 12,
+     "franja": "min 0-12",
+     "lloc": "Les dues pistes.",
+     "com": "Dues files a cada banda de la xarxa, passant-nos-la de dits en diagonal. Ha de ser ràpid o no s'hi arriba. Primer a dos temps (control i passe), després a un temps. Igual de braços.",
+     "dosi": "3 minuts a dos temps i 3 a un temps, de dits. El mateix de braços.",
+     "muntatge": "Quatre files (dues a cada banda) a cada pista. Qui toca la pilota va al final de la seva fila. Ningú fora.",
+     "nou": true
     },
     {
      "n": 2,
@@ -1526,8 +1614,8 @@
      "min": 15,
      "franja": "min 27-42",
      "lloc": "",
-     "com": "El teu del Dia 18. Dividim el camp en 2 i fem 2 grups. Des del mig, es tira la pilota a la cantonada Z1/Z5. Han de defensar la pilota alta a ells mateixos, l'agafen amb les mans, se la tiren i rematen a línia. A l'altra banda, un defensa ha d'aixecar la pilota alta i l'agafa. Ve a la xarxa, fa un bloc amb la pilota a les mans i la deixa al mig. PROGRESSIÓ: (1) com s'ha explicat, agafant la pilota. (2) Igual, però en comptes d'agafar-la, 2 defenses (o les que calgui), col·locació i remat.",
-     "dosi": "×5 per jugador a cada pas, uns 7 minuts per pas.",
+     "com": "El teu del Dia 18. Dividim el camp en 2 i fem 2 grups. Des del mig, es tira la pilota a la cantonada Z1/Z5. Han de defensar la pilota alta a ells mateixos, l'agafen amb les mans, se la tiren i rematen a línia. A l'altra banda, un defensa ha d'aixecar la pilota alta i l'agafa. Ve a la xarxa, fa un bloc amb la pilota a les mans i la deixa al mig. PROGRESSIÓ: (1) com s'ha explicat, agafant la pilota. (2) Igual, però en comptes d'agafar-la, 2 defenses (o les que calgui), col·locació i remat. (3) Igual que abans però amb remat de l'entrenador: primer defensen i l'agafen, després en continu.",
+     "dosi": "×5 per jugador a cada pas, uns 5 minuts per pas.",
      "muntatge": "Les dues pistes. A una tires tu des del mig i a l'altra un jugador, que es canvia a cada pas. A cada meitat, una fila que defensa i remata i un defensa a l'altra banda. Qui remata passa a defensar a l'altra banda i qui defensava torna a la fila.",
      "nou": true
     },
