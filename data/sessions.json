@@ -13,22 +13,22 @@
   {
    "setmana": 3,
    "dimarts": "DT03",
-   "dijous": "DJ08"
-  },
-  {
-   "setmana": 4,
-   "dimarts": "DT06",
    "dijous": "DJ03"
   },
   {
-   "setmana": 5,
+   "setmana": 4,
    "dimarts": "DT04",
-   "dijous": "DJ07"
+   "dijous": "DJ04"
+  },
+  {
+   "setmana": 5,
+   "dimarts": "DT05",
+   "dijous": "-"
   },
   {
    "setmana": 6,
-   "dimarts": "DT05",
-   "dijous": "DJ04"
+   "dimarts": "DT06",
+   "dijous": "DJ05"
   },
   {
    "setmana": 7,
@@ -38,32 +38,32 @@
   {
    "setmana": 8,
    "dimarts": "DT08",
-   "dijous": "DJ09"
+   "dijous": "DJ07"
   },
   {
    "setmana": 9,
    "dimarts": "DT09",
-   "dijous": "DJ11"
+   "dijous": "DJ08"
   },
   {
    "setmana": 10,
    "dimarts": "DT10",
-   "dijous": "DJ10"
+   "dijous": "DJ09"
   },
   {
    "setmana": 11,
    "dimarts": "DT11",
-   "dijous": "DJ14"
+   "dijous": "DJ10"
   },
   {
    "setmana": 12,
    "dimarts": "DT12",
-   "dijous": "DJ15"
+   "dijous": "DJ11"
   },
   {
    "setmana": 13,
    "dimarts": "DT13",
-   "dijous": "DJ16"
+   "dijous": "DJ12"
   },
   {
    "setmana": 14,
@@ -73,42 +73,42 @@
   {
    "setmana": 15,
    "dimarts": "DT15",
-   "dijous": "DJ12"
+   "dijous": "DJ14"
   },
   {
    "setmana": 16,
    "dimarts": "DT16",
-   "dijous": "DJ17"
+   "dijous": "DJ15"
   },
   {
    "setmana": 17,
    "dimarts": "DT17",
-   "dijous": "DJ19"
+   "dijous": "DJ16"
   },
   {
    "setmana": 18,
    "dimarts": "DT18",
-   "dijous": "DJ18"
+   "dijous": "DJ17"
   },
   {
    "setmana": 19,
    "dimarts": "DT19",
-   "dijous": "DJ20"
+   "dijous": "DJ18"
   },
   {
    "setmana": 20,
    "dimarts": "DT20",
-   "dijous": "DJ21"
+   "dijous": "DJ19"
   },
   {
    "setmana": 21,
    "dimarts": "DT21",
-   "dijous": "DJ24"
+   "dijous": "DJ20"
   },
   {
    "setmana": 22,
    "dimarts": "DT22",
-   "dijous": "DJ23"
+   "dijous": "DJ21"
   },
   {
    "setmana": 23,
@@ -118,46 +118,56 @@
   {
    "setmana": 24,
    "dimarts": "DT24",
-   "dijous": "DJ25"
+   "dijous": "DJ23"
   },
   {
    "setmana": 25,
    "dimarts": "DT25",
-   "dijous": "DJ27"
+   "dijous": "DJ24"
   },
   {
    "setmana": 26,
    "dimarts": "DT26",
-   "dijous": "DJ26"
+   "dijous": "DJ25"
   },
   {
    "setmana": 27,
    "dimarts": "DT27",
-   "dijous": "DJ28"
+   "dijous": "DJ26"
   },
   {
    "setmana": 28,
    "dimarts": "DT28",
-   "dijous": "DJ30"
+   "dijous": "DJ27"
   },
   {
    "setmana": 29,
    "dimarts": "DT29",
-   "dijous": "DJ29"
+   "dijous": "DJ28"
   },
   {
    "setmana": 30,
    "dimarts": "DT30",
-   "dijous": "DJ32"
+   "dijous": "DJ29"
   },
   {
    "setmana": 31,
    "dimarts": "DT31",
-   "dijous": "DJ31"
+   "dijous": "DJ30"
   },
   {
    "setmana": 32,
    "dimarts": "DT32",
+   "dijous": "DJ31"
+  },
+  {
+   "setmana": 33,
+   "dimarts": "-",
+   "dijous": "DJ32"
+  },
+  {
+   "setmana": 34,
+   "dimarts": "-",
    "dijous": "DJ33"
   }
  ],
@@ -5941,7 +5951,7 @@
    "titol": "Competició final",
    "min": 85,
    "nota": "",
-   "notaFinal": "",
+   "notaFinal": "Els 214 exercicis de què surten tots els blocs.",
    "blocs": [
     {
      "n": 1,
