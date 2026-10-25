@@ -723,13 +723,14 @@ const ref = (name, id) => fs.doc(db, 'equips', CLAU, 'temporades', TEMP, name, i
 const cfgRef = () => fs.doc(db, 'equips', CLAU, 'config', 'app');
 
 // Usuaris (fase 1): cada persona entra amb Google. A /equips/{clau}/membres/{uid} hi ha el seu rol a cada equip
-// (admin | entrenador | lector). Mentre no s'activin les regles noves, qui té la clau al mòbil continua entrant sense compte.
+// (admin | entrenador | lector). Des del 25-10-2026 cal compte (regles finals): la clau sola ja no obre res.
+const NOMES_COMPTES = true;
 let auth = null, AM = null, USR = undefined, MEM = null, MEMBRES = [], unsubMem = [];
 const ROLS = { admin: 'Administrador', entrenador: 'Entrenador', lector: 'Només mirar' };
 const memRef = uid => fs.doc(db, 'equips', CLAU, 'membres', uid);
-const rolDe = g => USR ? (MEM?.rols || {})[g] || null : (CLAU ? 'admin' : null);   // sense compte i amb clau: com fins ara
+const rolDe = g => USR ? (MEM?.rols || {})[g] || null : (CLAU && !NOMES_COMPTES ? 'admin' : null);
 const rolActual = () => rolDe(grupDe(TEMP));
-const esAdmin = () => !USR ? !!CLAU : Object.values(MEM?.rols || {}).includes('admin');
+const esAdmin = () => !USR ? !!CLAU && !NOMES_COMPTES : Object.values(MEM?.rols || {}).includes('admin');
 async function initFirebase() {
   try {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
@@ -747,7 +748,7 @@ async function initFirebase() {
       auth = AM.getAuth(app); AM.getRedirectResult(auth).catch(e => { registraError(e, 'login-redirect'); dialeg(`No s'ha pogut entrar amb Google.<br><small>${esc(e.code || e.message)}</small>`, { sol: true }); });
       AM.onAuthStateChanged(auth, u => { USR = u || null; quiSoc(); });
     } catch (e) { console.error(e); USR = null; }
-    if (CLAU) connecta();
+    if (CLAU && !NOMES_COMPTES) connecta();
     if (!auth) render();
   } catch (e) { console.error(e); }
 }
@@ -776,10 +777,10 @@ async function quiSoc() {
   // espai: el del mòbil o, si no n'hi ha, el del compte
   if (!CLAU) { try { const u = await fs.getDoc(fs.doc(db, 'usuaris', USR.uid)); const e = u.data()?.espais || []; if (e.length) { CLAU = e[0]; store.set('volei.clau', CLAU); } } catch {} }
   if (!CLAU) { render(); return; }
-  connecta();
+  if (!NOMES_COMPTES) connecta();
   try {
     let d = await fs.getDoc(memRef(USR.uid));
-    if (!d.exists()) {
+    if (!d.exists() && !NOMES_COMPTES) {
       // el primer compte que entra amb la clau és l'administrador de tots els equips; els altres queden pendents
       const algu = await fs.getDocs(fs.query(fs.collection(db, 'equips', CLAU, 'membres'), fs.limit(1)));
       const rols = algu.empty ? Object.fromEntries(Object.keys(grups()).map(g => [g, 'admin'])) : {};
@@ -787,7 +788,12 @@ async function quiSoc() {
     }
     fs.setDoc(fs.doc(db, 'usuaris', USR.uid), { espais: fs.arrayUnion(CLAU), email: USR.email || '' }, { merge: true }).catch(() => {});
   } catch (e) { registraError(e, 'membre'); }
-  unsubMem.push(fs.onSnapshot(memRef(USR.uid), d => { MEM = d.data() || null; triaTemporadaPermesa(); openSeason(); }));
+  // només es connecta a les dades de l'equip si és membre amb algun rol (si no, «Encara no tens accés»)
+  unsubMem.push(fs.onSnapshot(memRef(USR.uid), d => {
+    MEM = d.data() || { rols: {} };
+    if (!Object.values(MEM.rols || {}).some(Boolean)) return render();
+    if (connectat === CLAU) { triaTemporadaPermesa(); openSeason(); } else connecta();
+  }, () => { MEM = { rols: {} }; render(); }));
   unsubMem.push(fs.onSnapshot(fs.collection(db, 'equips', CLAU, 'membres'), q => { MEMBRES = q.docs.map(d => ({ uid: d.id, ...d.data() })); render(); }, () => {}));
 }
 async function acceptaInvitacio({ clau, codi }) {
@@ -2200,8 +2206,8 @@ function pintaPantalla() {
   if (r === 'dimarts') { r = 'f'; arg = 'DT'; } else if (r === 'dijous') { r = 'f'; arg = 'DJ'; }   // enllaços antics
   let html, tab = 'inici', title = (Object.keys(grups()).length > 1 ? gcfg().nom : 'Vòlei') + ' ' + tempNom(TEMP);
   // sense equip, o amb una invitació per acceptar i sense compte: pantalla d'entrada
-  if (r !== 'config' && (!CLAU || (store.get('volei.invitacio', null) && !USR))) { html = viewEntra(); title = 'Vòlei'; }
-  else if (USR && MEM && !rolActual() && r !== 'config') { html = sensePermis(); }
+  if (!USR && (NOMES_COMPTES || (r !== 'config' && (!CLAU || store.get('volei.invitacio', null))))) { html = viewEntra(); title = 'Vòlei'; }
+  else if (USR && (!CLAU || (MEM && !rolActual() && (r !== 'config' || !Object.values(MEM.rols || {}).some(Boolean))))) { html = sensePermis(); }
   else if (r === 's') { html = viewSession(arg); tab = byCode(arg) ? fam(byCode(arg)) : ''; title = arg; }
   else if (r === 'f') { html = viewList(arg); tab = arg; }
   else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
