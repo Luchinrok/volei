@@ -739,7 +739,7 @@ async function initFirebase() {
     db = fs.initializeFirestore(app, { localCache: fs.persistentLocalCache() });
     try {
       AM = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js');
-      auth = AM.getAuth(app); AM.getRedirectResult(auth).catch(() => {});
+      auth = AM.getAuth(app); AM.getRedirectResult(auth).catch(e => { registraError(e, 'login-redirect'); dialeg(`No s'ha pogut entrar amb Google.<br><small>${esc(e.code || e.message)}</small>`, { sol: true }); });
       AM.onAuthStateChanged(auth, u => { USR = u || null; quiSoc(); });
     } catch (e) { console.error(e); USR = null; }
     if (CLAU) connecta();
@@ -801,7 +801,7 @@ window.entra = async () => {
   const prov = new AM.GoogleAuthProvider(); prov.setCustomParameters({ prompt: 'select_account' });
   try { await AM.signInWithPopup(auth, prov); }
   catch (e) {
-    if (/popup-blocked|popup-closed-by-user|cancelled-popup|operation-not-supported/.test(e.code || '')) { if (!/closed-by-user|cancelled/.test(e.code)) AM.signInWithRedirect(auth, prov); }
+    if (/popup-blocked|popup-closed-by-user|cancelled-popup|operation-not-supported/.test(e.code || '')) { registraError(e, 'login-popup'); if (!/closed-by-user|cancelled/.test(e.code)) AM.signInWithRedirect(auth, prov); }
     else { registraError(e, 'login'); dialeg(`No s'ha pogut entrar.<br><small>${esc(e.code || e.message)}</small>`, { sol: true }); }
   }
 };
