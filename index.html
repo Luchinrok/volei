@@ -611,6 +611,8 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .mrols select { padding: 5px 6px; font-size: 14px; }
 .saqrow { margin: 0 0 8px; }
 .saqrow > small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 4px; }
+.accs.quatre { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.accs.quatre .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
 </style>
 </head>
 <body>
@@ -1541,6 +1543,7 @@ function viewDirecte(id) {
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
     <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival')}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
   ${saca === 'nos' && pos[1] ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs tres">${['bs', 'ace', 'es'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
+  ${saca === 'ells' && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs quatre">${['rp', 'rb', 'rd', 'er'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirRep('${id}','${k}')">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error' }[k]}<small>${ACC[k].np ? 'sense punt' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   <div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
   <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>
   ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu}.</p>` : ''}
@@ -1557,6 +1560,12 @@ window.dirFitxa = (id, jid) => {
     <div class="fgrup"><small>Punt nostre</small><div class="accs">${b(['ace', 'rem', 'blq'])}</div></div>
     <div class="fgrup"><small>Error (punt per a ells)</small><div class="accs">${b(['es', 'er', 'ed', 'ec', 'erm', 'fal'])}</div></div>
     <div class="fgrup"><small>Sense punt</small><div class="accs">${b(['bs', 'rp', 'rb', 'rd', 'bd', 'bc'])}</div></div>`);
+};
+// recepció quan saquen ells: primer com ha anat, després qui l'ha feta
+window.dirRep = (id, k) => {
+  const p = PAR.find(x => x.id === id), { pos, L } = estatSet(p, setActiu), ids = [L, ...[5, 6, 1, 4, 3, 2].map(z => pos[z])].filter(Boolean);
+  obreFitxa(`<div class="fhead"><b>${ACC[k].i} ${ACC[k].t}</b></div><div class="fgrup"><small>Qui ha rebut?</small><div class="djgrid">${ids.map(jid => { const r = rolSet((p.sets || {})[setActiu] || {}, jid);
+    return `<button class="dj ${r ? 'ps-' + r : ''}" onclick="dirAcc('${id}','${jid}','${k}')"><small>${jid === L ? 'Lliure' : 'Z' + ZK.find(z => pos[z] === jid)}${r ? ' ' + POS[r].l : ''}</small><span class="djn">${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b>` : ''}${esc((JUG.find(q => q.id === jid)?.nom || '').split(' ')[0])}</span></button>`; }).join('')}</div></div>`);
 };
 window.dirAcc = (id, jid, k) => {
   const a = ACC[k], p = PAR.find(x => x.id === id);
