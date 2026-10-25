@@ -3,7 +3,9 @@ const CACHE = 'volei-v1';
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
+  const u = new URL(e.request.url);
+  // les pàgines d'entrar amb Google (/__/auth/) no es toquen
+  if (e.request.method !== 'GET' || u.origin !== location.origin || u.pathname.startsWith('/__/')) return;
   e.respondWith(
     fetch(e.request).then(r => {
       const copy = r.clone();

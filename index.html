@@ -673,6 +673,9 @@ const avui = () => new Date().toISOString().slice(0, 10);
 const dataCa = d => new Date(d + 'T12:00').toLocaleDateString('ca', { weekday: 'short', day: 'numeric', month: 'short' });
 
 // clau des de l'enllaç
+// Entrar amb Google només funciona des del mateix domini que la pàgina de Google (Firefox i Safari separen la memòria de cada web)
+const CASA = 'https://volei-2627-dc.firebaseapp.com/', aCasa = location.hostname === 'volei-2627-dc.firebaseapp.com' || location.hostname === 'localhost';
+if (location.hostname === 'volei-2627-dc.web.app') location.replace(CASA + location.hash);
 const m = location.hash.match(/clau=([A-Za-z0-9]{24,})/);
 if (m) { store.set('volei.clau', m[1]); history.replaceState(null, '', location.pathname + (location.hash.replace(/[?&]?clau=[A-Za-z0-9]+/, '') || '#/')); }
 let CLAU = store.get('volei.clau', null);
@@ -798,6 +801,7 @@ async function acceptaInvitacio({ clau, codi }) {
 }
 window.entra = async () => {
   if (!auth) return dialeg('No es pot connectar. Comprova la connexió.', { sol: true });
+  if (!aCasa) { location.href = CASA + '#/config' + (CLAU ? '?clau=' + CLAU : ''); return; }
   const prov = new AM.GoogleAuthProvider(); prov.setCustomParameters({ prompt: 'select_account' });
   try { await AM.signInWithPopup(auth, prov); }
   catch (e) {
@@ -1995,7 +1999,7 @@ window.creaInvitacio = async () => {
   if (!Object.keys(rols).length) return desat('Tria com a mínim un equip');
   const codi = [...crypto.getRandomValues(new Uint8Array(15))].map(b => 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 56]).join('');
   await fs.setDoc(fs.doc(db, 'equips', CLAU, 'invitacions', codi), { rols, creat: Date.now(), per: USR.uid, perNom: USR.displayName || '', usada: null });
-  const url = `${location.origin}${location.pathname}#/uneix/${CLAU}/${codi}`;
+  const url = `${CASA}#/uneix/${CLAU}/${codi}`;
   const text = `T'he convidat a l'app de vòlei. Obre aquest enllaç i entra amb el teu compte de Google:\n${url}`;
   obreFitxa(`<b>Enllaç d'invitació</b><div class="form"><p class="meta" style="margin:0 0 6px">Serveix per a <b>una sola persona</b>. Envia-l'hi per WhatsApp o com vulguis.</p>
     <textarea readonly style="min-height:90px;font-size:13px" onfocus="this.select()">${esc(url)}</textarea></div>`,
