@@ -596,6 +596,19 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .pischg .pc.buida { border-style: dashed; }
 .pischg .pc small { font: 800 12px/1 var(--head); color: var(--brand); }
 .pischg .pc select { border: 0; background: transparent; padding: 2px 0; font-size: 14px; font-weight: 600; min-width: 0; }
+/* comptes */
+.entra { text-align: center; padding: 28px 18px; margin-top: 20px; }
+.entra .ball { width: 64px; height: 64px; margin-bottom: 6px; }
+.entra h2 { margin: 4px 0; }
+.gbtn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px !important; font-size: 16px; }
+.gbtn b { background: #fff; color: #4285f4; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 800 15px/1 Arial, sans-serif; }
+.foto { width: 40px; height: 40px; border-radius: 50%; flex: none; }
+.foto.sm { width: 32px; height: 32px; }
+.memb { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.memb:last-of-type { border-bottom: 0; }
+.mrols { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; margin-top: 6px; text-align: left; }
+.mrols label { font-size: 13px; font-weight: 600; color: var(--muted); }
+.mrols select { padding: 5px 6px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -658,7 +671,10 @@ const dataCa = d => new Date(d + 'T12:00').toLocaleDateString('ca', { weekday: '
 // clau des de l'enllaç
 const m = location.hash.match(/clau=([A-Za-z0-9]{24,})/);
 if (m) { store.set('volei.clau', m[1]); history.replaceState(null, '', location.pathname + (location.hash.replace(/[?&]?clau=[A-Za-z0-9]+/, '') || '#/')); }
-const CLAU = store.get('volei.clau', null);
+let CLAU = store.get('volei.clau', null);
+// invitació: #/uneix/{clau}/{codi}
+const mInv = location.hash.match(/^#\/uneix\/([A-Za-z0-9]{24,})\/([A-Za-z0-9]{12,})/);
+if (mInv) store.set('volei.invitacio', { clau: mInv[1], codi: mInv[2] });
 tema(store.get('volei.tema', 'auto'));
 
 // Temporades: config a /equips/{clau}/config/app; dades de cada temporada a /equips/{clau}/temporades/{T}/...
@@ -697,22 +713,95 @@ const col = name => fs.collection(db, 'equips', CLAU, 'temporades', TEMP, name);
 const ref = (name, id) => fs.doc(db, 'equips', CLAU, 'temporades', TEMP, name, id);
 const cfgRef = () => fs.doc(db, 'equips', CLAU, 'config', 'app');
 
+// Usuaris (fase 1): cada persona entra amb Google. A /equips/{clau}/membres/{uid} hi ha el seu rol a cada equip
+// (admin | entrenador | lector). Mentre no s'activin les regles noves, qui té la clau al mòbil continua entrant sense compte.
+let auth = null, AM = null, USR = undefined, MEM = null, MEMBRES = [], unsubMem = [];
+const ROLS = { admin: 'Administrador', entrenador: 'Entrenador', lector: 'Només mirar' };
+const memRef = uid => fs.doc(db, 'equips', CLAU, 'membres', uid);
+const rolDe = g => USR ? (MEM?.rols || {})[g] || null : (CLAU ? 'admin' : null);   // sense compte i amb clau: com fins ara
+const rolActual = () => rolDe(grupDe(TEMP));
+const esAdmin = () => !USR ? !!CLAU : Object.values(MEM?.rols || {}).includes('admin');
 async function initFirebase() {
-  if (!CLAU) return;
   try {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
     const mod = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
-    // cada escriptura avisa amb un «✓ Desat» petit (tot es desa sol)
-    const avisa = f => (...a) => { desat(); return f(...a); };
+    // cada escriptura avisa amb un «✓ Desat» petit (tot es desa sol); qui només mira no pot escriure dades de l'equip
+    const avisa = f => (r, ...a) => {
+      if (rolActual() === 'lector' && /\/(temporades|config)\b/.test(r?.path || '')) { desat('👀 Només pots mirar'); return Promise.resolve(); }
+      desat(); return f(r, ...a);
+    };
     fs = { ...mod, setDoc: avisa(mod.setDoc), updateDoc: avisa(mod.updateDoc), addDoc: avisa(mod.addDoc), deleteDoc: avisa(mod.deleteDoc) };
-    db = fs.initializeFirestore(initializeApp(FB), { localCache: fs.persistentLocalCache() });
-    fs.onSnapshot(cfgRef(), d => {
-      CFG = d.exists() ? d.data() : CFG_DEF;
-      if (!CFG.temporades?.[TEMP]) TEMP = CFG.actual;
-      openSeason();
-    });
+    const app = initializeApp(FB);
+    db = fs.initializeFirestore(app, { localCache: fs.persistentLocalCache() });
+    try {
+      AM = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js');
+      auth = AM.getAuth(app); AM.getRedirectResult(auth).catch(() => {});
+      AM.onAuthStateChanged(auth, u => { USR = u || null; quiSoc(); });
+    } catch (e) { console.error(e); USR = null; }
+    if (CLAU) connecta();
+    if (!auth) render();
   } catch (e) { console.error(e); }
 }
+let connectat = null;
+function connecta() {
+  if (!CLAU || connectat === CLAU) return; connectat = CLAU;
+  fs.onSnapshot(cfgRef(), d => {
+    CFG = d.exists() ? d.data() : CFG_DEF;
+    triaTemporadaPermesa();
+    openSeason();
+  });
+}
+// només els equips on tens rol; si la temporada triada no és d'un d'ells, se'n tria una que sí
+function triaTemporadaPermesa() {
+  if (!CFG.temporades?.[TEMP]) TEMP = CFG.actual;
+  if (USR && MEM && !rolDe(grupDe(TEMP))) {
+    const t = Object.keys(CFG.temporades || {}).filter(x => rolDe(grupDe(x))).sort().pop();
+    if (t) { TEMP = t; store.set('volei.temp', t); }
+  }
+}
+async function quiSoc() {
+  unsubMem.forEach(u => u()); unsubMem = []; MEM = null; MEMBRES = [];
+  if (!USR) { render(); return; }
+  const inv = store.get('volei.invitacio', null);
+  if (inv) { await acceptaInvitacio(inv); return; }
+  // espai: el del mòbil o, si no n'hi ha, el del compte
+  if (!CLAU) { try { const u = await fs.getDoc(fs.doc(db, 'usuaris', USR.uid)); const e = u.data()?.espais || []; if (e.length) { CLAU = e[0]; store.set('volei.clau', CLAU); } } catch {} }
+  if (!CLAU) { render(); return; }
+  connecta();
+  try {
+    let d = await fs.getDoc(memRef(USR.uid));
+    if (!d.exists()) {
+      // el primer compte que entra amb la clau és l'administrador de tots els equips; els altres queden pendents
+      const algu = await fs.getDocs(fs.query(fs.collection(db, 'equips', CLAU, 'membres'), fs.limit(1)));
+      const rols = algu.empty ? Object.fromEntries(Object.keys(grups()).map(g => [g, 'admin'])) : {};
+      await fs.setDoc(memRef(USR.uid), { email: USR.email || '', nom: USR.displayName || '', foto: USR.photoURL || '', rols, alta: Date.now(), ...(algu.empty ? {} : { pendent: true }) });
+    }
+    fs.setDoc(fs.doc(db, 'usuaris', USR.uid), { espais: fs.arrayUnion(CLAU), email: USR.email || '' }, { merge: true }).catch(() => {});
+  } catch (e) { registraError(e, 'membre'); }
+  unsubMem.push(fs.onSnapshot(memRef(USR.uid), d => { MEM = d.data() || null; triaTemporadaPermesa(); openSeason(); }));
+  unsubMem.push(fs.onSnapshot(fs.collection(db, 'equips', CLAU, 'membres'), q => { MEMBRES = q.docs.map(d => ({ uid: d.id, ...d.data() })); render(); }, () => {}));
+}
+async function acceptaInvitacio({ clau, codi }) {
+  try {
+    const iref = fs.doc(db, 'equips', clau, 'invitacions', codi), inv = await fs.getDoc(iref);
+    if (!inv.exists() || (inv.data().usada && inv.data().usada !== USR.uid)) { store.set('volei.invitacio', null); await dialeg('Aquesta invitació ja s\'ha fet servir o no existeix. Demana\'n una de nova.', { sol: true }); location.hash = '#/'; return quiSoc(); }
+    CLAU = clau; store.set('volei.clau', clau); store.set('volei.invitacio', null);
+    const mref = memRef(USR.uid), ja = await fs.getDoc(mref), rols = { ...(ja.data()?.rols || {}), ...inv.data().rols };
+    await fs.setDoc(mref, { email: USR.email || '', nom: USR.displayName || '', foto: USR.photoURL || '', rols, invitacio: codi, alta: ja.data()?.alta || Date.now(), pendent: false }, { merge: true });
+    await fs.updateDoc(iref, { usada: USR.uid, usadaPer: USR.email || '' });
+    location.hash = '#/'; desat('✓ Benvingut a l\'equip!'); connectat = null; quiSoc();
+  } catch (e) { registraError(e, 'invitacio'); dialeg('No s\'ha pogut acceptar la invitació. Torna-ho a provar.', { sol: true }); }
+}
+window.entra = async () => {
+  if (!auth) return dialeg('No es pot connectar. Comprova la connexió.', { sol: true });
+  const prov = new AM.GoogleAuthProvider(); prov.setCustomParameters({ prompt: 'select_account' });
+  try { await AM.signInWithPopup(auth, prov); }
+  catch (e) {
+    if (/popup-blocked|popup-closed-by-user|cancelled-popup|operation-not-supported/.test(e.code || '')) { if (!/closed-by-user|cancelled/.test(e.code)) AM.signInWithRedirect(auth, prov); }
+    else { registraError(e, 'login'); dialeg(`No s'ha pogut entrar.<br><small>${esc(e.code || e.message)}</small>`, { sol: true }); }
+  }
+};
+window.surt = async () => { if (await dialeg('Sortir del teu compte en aquest mòbil?', { ok: 'Surt' })) { await AM.signOut(auth); } };
 async function openSeason() {
   // sessions i dades de la temporada triada
   const t = tcfg(), file = 'sessions' in t && !t.sessions ? '' : t.sessions || 'data/sessions.json';   // '' = equip sense sessions encara
@@ -828,6 +917,16 @@ function dialeg(text, { ok = "D'acord", cancel = 'Cancel·la', perill = false, s
   });
 }
 window.dialeg = dialeg;
+function viewEntra() {
+  const inv = store.get('volei.invitacio', null);
+  return `<div class="entra card">
+    <svg class="ball" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="#f5c518"/>${BALLP.map(d => `<path d="${d}"/>`).join('')}</svg>
+    <h2>${inv ? 'T\'han convidat a un equip' : 'Benvingut!'}</h2>
+    <p class="meta">${inv ? 'Entra amb el teu compte de Google per acceptar la invitació.' : 'Entra amb el teu compte de Google per veure els teus equips.'}</p>
+    <button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button>
+    ${USR === undefined ? '<p class="meta">Connectant…</p>' : ''}</div>`;
+}
+const sensePermis = () => `<div class="card warn"><b>Encara no tens accés a aquest equip.</b><div class="meta">Demana a l'administrador que et convidi o que et doni permís. Has entrat com a ${esc(USR?.email || '')}.</div><div class="actions"><button class="btn" onclick="surt()">Canvia de compte</button></div></div>`;
 const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil.</b><div class="meta">Per ${what} obre una vegada l'enllaç amb la clau que et va passar Claude.</div></div>`;
 
 // pròxim dia d'entreno d'una família (avui inclòs)
@@ -1824,12 +1923,12 @@ document.addEventListener('pointerup', () => {
 function viewConfig() {
   const t = store.get('volei.tema', 'auto');
   const temaHtml = `<h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>`;
-  if (!CLAU) return `<h2>Configuració</h2>${temaHtml}${needKey('canviar la configuració')}`;
+  if (!CLAU) return `<h2>Configuració</h2>${temaHtml}<h3>El teu compte</h3>${USR ? `<div class="card row"><span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')}</div></span><button class="btn" onclick="surt()">Surt</button></div>` : `<div class="card"><button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button></div>`}`;
   const g = grupDe(TEMP), G = grups(), ts = Object.keys(CFG.temporades).filter(x => grupDe(x) === g).sort();
   return `<h2>Configuració</h2>
   <h3>Equip</h3>
   <div class="card">
-    ${Object.keys(G).length > 1 ? `<div class="seg" style="margin:0 0 6px">${Object.entries(G).map(([k, x]) => `<button class="${k === g ? 'on' : ''}" onclick="triaGrup('${k}')">${esc(x.nom)}</button>`).join('')}</div>` : ''}
+    ${Object.keys(G).filter(k => rolDe(k)).length > 1 ? `<div class="seg" style="margin:0 0 6px">${Object.entries(G).filter(([k]) => rolDe(k)).map(([k, x]) => `<button class="${k === g ? 'on' : ''}" onclick="triaGrup('${k}')">${esc(x.nom)}</button>`).join('')}</div>` : ''}
     <label class="lbl">Nom de l'equip</label><input type="text" id="gnom" value="${esc(gcfg().nom || '')}" onchange="setGrup('nom', this.value)">
     <label class="lbl">Club</label><input type="text" id="club" value="${esc(club())}" placeholder="Per exemple Sant Pere" onchange="setGrup('club', this.value)">
     <label class="lbl">Equips de partit</label>
@@ -1850,9 +1949,46 @@ function viewConfig() {
     <p class="meta" style="margin:8px 0 0">Els dies d'1 pista fan les sessions DT i els de 2 pistes les DJ.</p>
   </div>
   ${temaHtml}
-  <h3>Aquest mòbil</h3>
-  <div class="card row"><span class="grow"><b>✓ Connectat a l'equip</b><div class="meta">Les dades es guarden al núvol i es veuen a tots els mòbils amb la clau.</div></span></div>`;
+  ${viewPersones()}
+  <h3>El teu compte</h3>
+  ${USR ? `<div class="card row">${USR.photoURL ? `<img class="foto" src="${esc(USR.photoURL)}" alt="">` : ''}<span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')} ${rolActual() ? '(' + ROLS[rolActual()] + ')' : ''}</div></span><button class="btn" onclick="surt()">Surt</button></div>`
+    : `<div class="card"><b>Encara entres amb la clau d'aquest mòbil.</b><div class="meta">Entra amb el teu compte de Google: així podràs convidar altres entrenadors i entrar des de qualsevol mòbil.</div><div class="actions"><button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button></div></div>`}`;
 }
+// persones de l'espai (només administradors): rol a cada equip, treure, convidar
+function viewPersones() {
+  if (!USR || !esAdmin()) return '';
+  const G = grups();
+  return `<h3>Persones</h3>
+  <div class="card">
+    ${MEMBRES.map(m => `<div class="memb"><div class="row">${m.foto ? `<img class="foto sm" src="${esc(m.foto)}" alt="">` : `<span class="av" style="--h:${hue(m.nom || m.email || '')}">${esc(inicials(m.nom || m.email))}</span>`}
+      <span class="grow"><b>${esc(m.nom || m.email || 'Sense nom')}</b>${m.uid === USR.uid ? ' <small class="meta">(tu)</small>' : ''}<div class="meta">${esc(m.email || '')}${m.pendent && !Object.keys(m.rols || {}).length ? ' <b class="red">pendent de permís</b>' : ''}</div></span>
+      ${m.uid !== USR.uid ? `<button class="mini" title="Treu-lo" onclick="treuMembre('${m.uid}')">✕</button>` : ''}</div>
+      <div class="mrols">${Object.entries(G).map(([g, x]) => `<label>${esc(x.nom)}</label><select ${m.uid === USR.uid ? 'disabled' : ''} onchange="posaRol('${m.uid}','${g}',this.value)"><option value="">Cap accés</option>${Object.entries(ROLS).map(([k, t]) => `<option value="${k}" ${(m.rols || {})[g] === k ? 'selected' : ''}>${t}</option>`).join('')}</select>`).join('')}</div></div>`).join('')}
+    <div class="actions"><button class="btn primary" style="flex:1" onclick="convida()">＋ Convida algú</button></div>
+    <p class="meta" style="margin:8px 0 0"><b>Administrador</b>: ho pot fer tot, també convidar. <b>Entrenador</b>: ho pot editar tot de l'equip. <b>Només mirar</b>: ho veu però no pot canviar res.</p>
+  </div>`;
+}
+window.posaRol = (uid, g, v) => fs.updateDoc(memRef(uid), { ['rols.' + g]: v || fs.deleteField(), pendent: false });
+window.treuMembre = async uid => { const m = MEMBRES.find(x => x.uid === uid); if (await dialeg(`Treure <b>${esc(m?.nom || m?.email || '')}</b>?<br><small>Deixarà de veure els equips.</small>`, { ok: 'Treu-lo', perill: true })) fs.deleteDoc(memRef(uid)); };
+window.convida = () => {
+  const G = grups();
+  obreFitxa(`<b>Convidar algú</b><div class="form">
+    <p class="meta" style="margin:0 0 6px">Tria què podrà fer a cada equip. Rebrà un enllaç i entrarà amb el seu compte de Google.</p>
+    <div class="mrols">${Object.entries(G).map(([g, x]) => `<label>${esc(x.nom)}</label><select data-g="${g}"><option value="">Cap accés</option>${Object.entries(ROLS).map(([k, t]) => `<option value="${k}" ${g === grupDe(TEMP) && k === 'entrenador' ? 'selected' : ''}>${t}</option>`).join('')}</select>`).join('')}</div></div>`,
+    `<button class="btn" onclick="tancaFitxa()">Cancel·la</button><button class="btn primary" style="flex:1" onclick="creaInvitacio()">Crea l'enllaç</button>`);
+};
+window.creaInvitacio = async () => {
+  const rols = {}; document.querySelectorAll('#dlg select[data-g]').forEach(s => { if (s.value) rols[s.dataset.g] = s.value; });
+  if (!Object.keys(rols).length) return desat('Tria com a mínim un equip');
+  const codi = [...crypto.getRandomValues(new Uint8Array(15))].map(b => 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 56]).join('');
+  await fs.setDoc(fs.doc(db, 'equips', CLAU, 'invitacions', codi), { rols, creat: Date.now(), per: USR.uid, perNom: USR.displayName || '', usada: null });
+  const url = `${location.origin}${location.pathname}#/uneix/${CLAU}/${codi}`;
+  const text = `T'he convidat a l'app de vòlei. Obre aquest enllaç i entra amb el teu compte de Google:\n${url}`;
+  obreFitxa(`<b>Enllaç d'invitació</b><div class="form"><p class="meta" style="margin:0 0 6px">Serveix per a <b>una sola persona</b>. Envia-l'hi per WhatsApp o com vulguis.</p>
+    <textarea readonly style="min-height:90px;font-size:13px" onfocus="this.select()">${esc(url)}</textarea></div>`,
+    `<button class="btn" onclick="copiaText(${JSON.stringify(url).replace(/"/g, '&quot;')})">📋 Copia</button><a class="btn primary" style="flex:1;text-decoration:none;text-align:center" href="https://wa.me/?text=${encodeURIComponent(text)}" target="_blank">💬 WhatsApp</a>`);
+};
+window.copiaText = async t => { try { await navigator.clipboard.writeText(t); desat('✓ Copiat'); } catch { desat('Mantén premut l\'enllaç per copiar-lo'); } };
 window.setGrup = (k, v) => {
   const g = grupDe(TEMP); if (typeof v === 'string') v = v.trim();
   if (k === 'club' && g === GP) return fs.updateDoc(cfgRef(), { club: v });
@@ -2044,7 +2180,10 @@ function pintaPantalla() {
   let [r, arg] = location.hash.replace(/^#\/?/, '').split('/');
   if (r === 'dimarts') { r = 'f'; arg = 'DT'; } else if (r === 'dijous') { r = 'f'; arg = 'DJ'; }   // enllaços antics
   let html, tab = 'inici', title = (Object.keys(grups()).length > 1 ? gcfg().nom : 'Vòlei') + ' ' + tempNom(TEMP);
-  if (r === 's') { html = viewSession(arg); tab = byCode(arg) ? fam(byCode(arg)) : ''; title = arg; }
+  // sense equip, o amb una invitació per acceptar i sense compte: pantalla d'entrada
+  if (r !== 'config' && (!CLAU || (store.get('volei.invitacio', null) && !USR))) { html = viewEntra(); title = 'Vòlei'; }
+  else if (USR && MEM && !rolActual() && r !== 'config') { html = sensePermis(); }
+  else if (r === 's') { html = viewSession(arg); tab = byCode(arg) ? fam(byCode(arg)) : ''; title = arg; }
   else if (r === 'f') { html = viewList(arg); tab = arg; }
   else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
   else if (r === 'config') { html = viewConfig(); tab = ''; title = 'Configuració'; }
@@ -2075,7 +2214,7 @@ Object.defineProperty(window, 'editEquip', { get: () => editEquip, set: v => { e
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
-addEventListener('hashchange', () => { sel = null; convDesfes = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; tancaFitxa(); render(); scrollTo(0, 0); });
+addEventListener('hashchange', () => { const mi = location.hash.match(/^#\/uneix\/([A-Za-z0-9]{24,})\/([A-Za-z0-9]{12,})/); if (mi) { store.set('volei.invitacio', { clau: mi[1], codi: mi[2] }); if (USR) quiSoc(); } sel = null; convDesfes = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; tancaFitxa(); render(); scrollTo(0, 0); });
 TEMP = TEMP || CFG.actual;
 fetch(tcfg().sessions, { cache: 'no-cache' }).then(r => r.json())
   .then(d => { D = d; D.__file = tcfg().sessions; render(); initFirebase(); })
