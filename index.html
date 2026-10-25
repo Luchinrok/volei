@@ -613,6 +613,7 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .saqrow > small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 4px; }
 .accs.quatre { grid-template-columns: repeat(4, 1fr); gap: 5px; }
 .accs.quatre .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
+.tag.ori-teu { color: #12a07c; } .tag.ori-modificat { color: #d9822b; } .tag.ori-claude { color: #6b7cff; }
 </style>
 </head>
 <body>
@@ -887,7 +888,7 @@ function blockCard(b, s, ord) {
     <div class="bhead"><span class="bnum">${b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
       <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span>
       ${ord ? `<span class="ord"><button ${ord.first ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, -1)">▲</button><button ${ord.last ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, 1)">▼</button></span>` : ''}</div>
-    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}</div>` : ''}
+    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}${origens(b.codi)}</div>` : ''}
     ${fields(b)}
     ${b.lloc ? `<div class="field"><b>Lloc</b>${esc(b.lloc)}</div>` : ''}
     ${nofHtml}${form}`}
@@ -933,6 +934,11 @@ function dialeg(text, { ok = "D'acord", cancel = 'Cancel·la', perill = false, s
   });
 }
 window.dialeg = dialeg;
+// d'on surt cada exercici (classificació del 25-10-2026): teu, modificat o de Claude
+let ORI = {};
+fetch('data/origen.json', { cache: 'no-cache' }).then(r => r.json()).then(o => { ORI = o; render(); }).catch(() => {});
+const ORIT = { teu: 'Teu', modificat: 'Modificat', claude: 'De Claude' };
+const origens = codi => [...new Set((codi.match(/\b[A-Z]{1,2}\d+\b/g) || []).map(k => ORI[k]).filter(Boolean))].map(o => ` <span class="tag ori-${o}">${ORIT[o]}</span>`).join('');
 function viewEntra() {
   const inv = store.get('volei.invitacio', null);
   return `<div class="entra card">
