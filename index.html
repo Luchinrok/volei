@@ -1481,7 +1481,8 @@ const ACC = {
   ec: { t: 'Error col·locació', i: '🤲', bo: 0 }, erm: { t: 'Error remat', i: '❌', bo: 0 }, fal: { t: 'Falta (xarxa, invasió…)', i: '🚫', bo: 0 },
   erv: { t: 'Error del rival', i: '🎁', bo: 1, sol: 1 }, prv: { t: 'Punt del rival', i: '😤', bo: 0, sol: 1 },
   // sense punt (np): no canvien el marcador
-  rp: { t: 'Recepció perfecta', i: '⭐', bo: 1, np: 1 }, rb: { t: 'Recepció bona', i: '👍', bo: 1, np: 1 }, rd: { t: 'Recepció dolenta', i: '👎', bo: 0, np: 1 },
+  bs: { t: 'Bon saque', i: '🚀', bo: 1, np: 1 },
+  rp: { t: 'Recepció perfecta', i: '⭐', bo: 1, np: 1 }, rb: { t: 'Bona recepció', i: '👍', bo: 1, np: 1 }, rd: { t: 'Recepció dolenta', i: '👎', bo: 0, np: 1 },
   bd: { t: 'Bona defensa', i: '🧤', bo: 1, np: 1 }, bc: { t: 'Bona col·locació', i: '🙌', bo: 1, np: 1 },
   frot: { t: 'Falta de rotació', i: '🔄', bo: 0, sol: 1 },
   // canvi de jugador dins del set: {a: 'canvi', j: qui entra, surt: qui surt}
@@ -1552,7 +1553,7 @@ window.dirFitxa = (id, jid) => {
   obreFitxa(`<div class="fhead">${av(j)}<b>${esc(j?.nom || '')}</b></div>
     <div class="fgrup"><small>Punt nostre</small><div class="accs">${b(['ace', 'rem', 'blq'])}</div></div>
     <div class="fgrup"><small>Error (punt per a ells)</small><div class="accs">${b(['es', 'er', 'ed', 'ec', 'erm', 'fal'])}</div></div>
-    <div class="fgrup"><small>Sense punt</small><div class="accs">${b(['rp', 'rb', 'rd', 'bd', 'bc'])}</div></div>`);
+    <div class="fgrup"><small>Sense punt</small><div class="accs">${b(['bs', 'rp', 'rb', 'rd', 'bd', 'bc'])}</div></div>`);
 };
 window.dirAcc = (id, jid, k) => {
   const a = ACC[k], p = PAR.find(x => x.id === id);
