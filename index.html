@@ -679,6 +679,8 @@ if (location.hostname === 'volei-2627-dc.web.app') location.replace(CASA + locat
 const m = location.hash.match(/clau=([A-Za-z0-9]{24,})/);
 if (m) { store.set('volei.clau', m[1]); history.replaceState(null, '', location.pathname + (location.hash.replace(/[?&]?clau=[A-Za-z0-9]+/, '') || '#/')); }
 let CLAU = store.get('volei.clau', null);
+// adreça antiga (github.io): l'app ara viu a CASA; hi passem la clau i la ruta
+if (location.hostname === 'luchinrok.github.io') location.replace(CASA + (location.hash || '#/') + (CLAU && !/clau=/.test(location.hash) ? (location.hash.includes('?') ? '&' : '?') + 'clau=' + CLAU : ''));
 // invitació: #/uneix/{clau}/{codi}
 const mInv = location.hash.match(/^#\/uneix\/([A-Za-z0-9]{24,})\/([A-Za-z0-9]{12,})/);
 if (mInv) store.set('volei.invitacio', { clau: mInv[1], codi: mInv[2] });
