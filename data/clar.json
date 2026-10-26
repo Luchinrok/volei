@@ -228,15 +228,18 @@
  },
  "B18": {
   "objectiu": "Defensa frontal en moviment, després d'un desplaçament.",
-  "organitzacio": "Per parelles amb tres cons: un con al costat d'un jugador i dos al costat de l'altre.",
+  "organitzacio": "Per parelles, amb una pilota, a uns 5 metres l'un de l'altre. Qui té la pilota té un con al costat; qui defensa té dos cons, un a cada banda.",
   "passos": [
    "El defensa corre a tocar el con del company.",
-   "Mentre torna, el company li fa un remat controlat de peu, sense deixades.",
+   "Torna enrere a tocar el con de la seva dreta.",
+   "Mentre hi va, el company, de peu, li fa un remat controlat.",
    "El defensa fa una defensa frontal.",
    "10 repeticions i canvi de rol; 5 rondes."
   ],
-  "rotacio": "Canvi de rol cada 5 repeticions.",
-  "claus": []
+  "rotacio": "Canvi de rol cada 10 repeticions.",
+  "claus": [
+   "El remat és controlat i de peu, perquè es pugui defensar."
+  ]
  },
  "B19": {
   "objectiu": "Defensar una free ball i reaccionar amb el moviment dels companys.",
@@ -534,13 +537,14 @@
   "claus": []
  },
  "B43": {
-  "objectiu": "Escalfament de braços jugat, amb dues pilotes i un sol toc per jugador.",
-  "organitzacio": "Una pista per grup: 3x3 a la pista sencera amb cua.",
+  "objectiu": "Escalfament de braços jugat, amb tres pilotes i un sol toc per jugador.",
+  "organitzacio": "Una pista per grup: 3x3 a la pista sencera amb cua. Hi ha tres pilotes: una que creua la xarxa i una altra a cada camp.",
   "passos": [
-   "Hi ha dues pilotes en joc alhora i cada jugador fa un sol toc.",
-   "Només una pilota creua la xarxa; l'altra es passa entre els tres del camp, sense parar.",
-   "Qui toca la pilota surt del camp i entra el següent de la cua.",
-   "Si cau una pilota, se n'entra una de nova de seguida i no es para mai.",
+   "Cada jugador fa un sol toc.",
+   "Una pilota va d'un camp a l'altre per sobre la xarxa.",
+   "Cada camp té, a més, la seva pilota, que es passen els tres del camp sense parar.",
+   "Regla: si tinc la pilota del meu camp i m'envien la que creua, abans de tocar-la he de passar la meva a un company.",
+   "Qui toca la pilota surt del camp i entra el següent de la cua. Si cau una pilota, se n'entra una de nova de seguida.",
    "Sèries de 3 minuts: es compten els tocs seguits i s'intenta millorar la marca."
   ],
   "rotacio": "Continua: qui toca surt i entra el primer de la cua.",
@@ -1113,12 +1117,12 @@
  },
  "D15": {
   "objectiu": "Passe de dits amb desplaçament lateral i dues pilotes alhora.",
-  "organitzacio": "Grups de quatre en quadrat, amb dues pilotes per quadrat.",
+  "organitzacio": "Grups de quatre en quadrat (A, B, C i D), amb dues pilotes per quadrat. A és davant de D i B és davant de C.",
   "passos": [
-   "Cada jugador passa de dits al company que té al davant.",
-   "Just després de passar, es desplaça lateralment a la posició del costat.",
-   "3 minuts amb control i passe.",
-   "3 minuts amb passe directe."
+   "Alhora, A passa de dits a D i B passa a C.",
+   "A i B s'intercanvien la posició, i C i D també.",
+   "D passa a A i C passa a B: cadascú al que ara té al davant.",
+   "I així successivament: 3 minuts amb control i passe, i 3 minuts amb passe directe."
   ],
   "rotacio": "",
   "claus": []
@@ -1398,10 +1402,10 @@
   "passos": [
    "Ronda 1, un toc: la pilota es torna amb un sol toc, i qui la toca surt i entra un altre.",
    "Ronda 2, dos tocs: la parella fa dos tocs i surt el que remata.",
-   "Ronda 3, tres tocs obligats: la pilota l'han de tocar tots dos abans de passar-la.",
+   "Ronda 3, tres tocs obligats: la pilota l'han de tocar tots dos abans de passar-la, i surt el que remata.",
    "Cada ronda és un set a 15."
   ],
-  "rotacio": "Surt qui toca (ronda 1) o qui remata (ronda 2), i entra el següent de la cua.",
+  "rotacio": "Surt qui toca (ronda 1) o qui remata (rondes 2 i 3), i entra el següent de la cua.",
   "claus": []
  },
  "G5": {
@@ -1831,15 +1835,15 @@
   "claus": []
  },
  "J10": {
-  "objectiu": "Encadenar saque i recepció amb defensa, col·locació i remat en trios.",
-  "organitzacio": "Trios a mitja pista partida al llarg, dos trios per pista. El primer saca des del seu camp, el segon és a l'altre camp i el tercer és a Z2 del camp del que saca. Els que sobren recullen pilotes.",
+  "objectiu": "Encadenar saque i recepció amb col·locació i remat en trios, jugant en diagonal.",
+  "organitzacio": "Trios, dos trios per pista. El primer saca des del seu camp; el segon i el tercer són a l'altre camp. Els que sobren recullen pilotes.",
   "passos": [
-   "El primer saca.",
-   "El segon recepciona i agafa la pilota a dalt amb les mans, com si se la col·loqués.",
-   "El tercer remata cap al que ha servit.",
-   "El que ha servit defensa alt, el tercer li col·loca i ell remata."
+   "El primer saca en diagonal.",
+   "El segon recepciona.",
+   "El tercer li col·loca.",
+   "El que ha recepcionat remata, i la jugada continua en diagonal."
   ],
-  "rotacio": "Cada 5 cicles: qui ha servit passa a Z2, qui era a Z2 passa a recepcionar i qui recepcionava passa a servir. Els que recullen entren a cada canvi de rol.",
+  "rotacio": "Cada 5 cicles: qui ha servit passa a col·locar, qui col·locava passa a recepcionar i qui recepcionava passa a servir. Els que recullen entren a cada canvi de rol.",
   "claus": []
  },
  "J11": {
@@ -1852,21 +1856,20 @@
    "El de Z5 defensa cap a Z1 i es torna a començar.",
    "Regla: qui toca la pilota se'n va a la zona on l'ha enviada."
   ],
-  "rotacio": "La regla de seguir la pilota fa rotar tothom sol. Quatre tandes de 3 minuts, canviant el sentit.",
+  "rotacio": "La regla de seguir la pilota fa rotar tothom sol. Quatre tandes de 3 minuts, alternant el sentit: el circuit al revés, atacant per Z4 en lloc de Z2.",
   "claus": []
  },
  "J12": {
-  "objectiu": "Col·locar des de Z1 cap a Z2 o Z4 i atacar en diagonal o en línia.",
-  "organitzacio": "A cada camp, quatre jugadors a Z1, Z2, Z4 i Z6, i una fila darrere de Z6.",
+  "objectiu": "Col·locar des de Z1 cap a Z2 o Z4 i rematar contra bloc, amb contraatac a l'altra banda.",
+  "organitzacio": "A cada pista, uns 8. Banda A: col·locador fix a Z1, un a Z2, un a Z4 i la fila de Z6. Banda B: dos centrals que s'alternen, un col·locador i un defensa a Z5.",
   "passos": [
-   "La pilota arriba al de Z6, que la passa al de Z1.",
-   "El de Z1 col·loca a Z2 o a Z4.",
-   "El jugador col·locat ataca en diagonal o en línia cap a l'altre camp."
+   "Banda A: el de Z6 passa la pilota al col·locador de Z1, que col·loca a Z2 o a Z4.",
+   "El de la zona col·locada remata cap a Z5 de la banda B.",
+   "Banda B: el central surt de Z3 i va a bloquejar a Z2 o a Z4, segons on vagi la col·locació.",
+   "El defensa de Z5 defensa el remat, el col·locador col·loca i el central remata."
   ],
-  "rotacio": "El de Z1 s'intercanvia amb el jugador a qui ha col·locat. El de Z6 va a Z1 i el primer de la fila entra a Z6. Tandes de 4 minuts per grup de quatre.",
-  "claus": [
-   "L'atac sempre en diagonal o en línia."
-  ]
+  "rotacio": "Qui ha rematat a la banda A passa a defensar a Z5 de la banda B; el defensa de B torna a la fila de Z6 de la banda A; el de Z6 ocupa la zona que ha quedat lliure. Els centrals s'alternen a cada pilota. Rotació contínua tot el bloc; els col·locadors es canvien a la meitat.",
+  "claus": []
  },
  "J13": {
   "objectiu": "Fer jugada de tres tocs i canviar de camp corrent després de tocar la pilota.",
@@ -2190,8 +2193,8 @@
   "organitzacio": "Per mitja pista: un col·locador, un rematador, un bloc i un defensa a l'altra banda, i la resta en cua i recollint pilotes.",
   "passos": [
    "Des de Z2, remat a línia, amb el bloc a Z4 i la defensa a Z5 de l'altre camp.",
-   "El mateix des de Z4.",
-   "Tot en diagonal, des de Z2 i des de Z4.",
+   "El mateix des de Z4: el bloc i la defensa canvien de costat (bloc a Z2 i defensa a Z1).",
+   "Tot en diagonal, des de Z2 i des de Z4, amb la defensa col·locada a la diagonal.",
    "Finalment, remat curt en diagonal des de Z2 i des de Z4."
   ],
   "rotacio": "Es roten els rols cada 4 repeticions. Cada jugador passa 2 cops per cada rol. Els de la cua entren a cada rotació.",
@@ -2445,12 +2448,12 @@
  },
  "S2": {
   "objectiu": "Repetir el saque buscant precisió i lligar-lo amb la recepció.",
-  "organitzacio": "Estacions: la meitat del grup a la paret i l'altra meitat en parelles a la pista. Cadascú amb una pilota.",
+  "organitzacio": "Estacions: la meitat del grup a la paret, cadascú amb una pilota, i l'altra meitat en parelles a la pista.",
   "passos": [
-   "30 serveis contra la paret, apuntant sempre al mateix punt.",
-   "Servei a la paret i el mateix jugador recepciona el rebot.",
-   "En parelles: un serveix i l'altre recepciona.",
-   "Igual que el pas 3, però el receptor ha de deixar la pilota a la zona de col·locació, no només tornar-la."
+   "A la paret: 30 serveis, apuntant sempre al mateix punt.",
+   "A la paret: servei i el mateix jugador recepciona el rebot.",
+   "A la pista, en parelles: un serveix i l'altre recepciona.",
+   "A la pista: igual, però el receptor ha de deixar la pilota a la zona de col·locació, no només tornar-la."
   ],
   "rotacio": "Els de la paret i els de la pista s'intercanvien a la meitat del bloc. Dins la parella es canvien els rols de servidor i receptor.",
   "claus": []
@@ -2527,13 +2530,14 @@
  },
  "S9": {
   "objectiu": "Dirigir el saque a les zones amb la pressió del rellotge.",
-  "organitzacio": "Les zones Z1, Z2, Z4, Z5 i Z6 del camp contrari. Els jugadors van per parelles. Mentre una parella competeix, la resta serveix des de l'altra banda.",
+  "organitzacio": "Les zones Z1, Z2, Z4, Z5 i Z6 del camp contrari. Els jugadors van per parelles.",
   "passos": [
-   "Una parella serveix fins a encertar les cinc zones. L'entrenador cronometra.",
-   "Passen totes les parelles per torns i s'apunten els temps.",
+   "Primer serveix un jugador de cada parella (de totes les parelles) fins a encertar les cinc zones. L'entrenador cronometra.",
+   "Quan han acabat tots, ho fa l'altre jugador de cada parella.",
+   "El temps de la parella és la suma dels dos.",
    "Les quatre millors parelles juguen semifinals i les guanyadores, la final."
   ],
-  "rotacio": "Les parelles competeixen per torns.",
+  "rotacio": "",
   "claus": []
  },
  "S10": {
