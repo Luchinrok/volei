@@ -1864,7 +1864,9 @@ const ICF = {
   giraE: '<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5"/>',
   giraD: '<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1l2.6 2.6"/><path d="M20.5 3.5v5h-5"/>',
 };
-const fotoUrl = (f, w) => `https://drive.google.com/thumbnail?id=${f}&sz=w${w}${FOTOS.find(x => x.id === f)?.v ? '&v=' + FOTOS.find(x => x.id === f).v : ''}`;
+// fotos acabades de penjar o retallar en aquest mòbil: es mostren des del mòbil mentre Google en prepara la miniatura (triga)
+const FOTOLOC = {};
+const fotoUrl = (f, w) => FOTOLOC[f] || `https://drive.google.com/thumbnail?id=${f}&sz=w${w}${FOTOS.find(x => x.id === f)?.v ? '&v=' + FOTOS.find(x => x.id === f).v : ''}`;
 function viewFotos(id) {
   const p = parVis(id);
   if (!p) return '<p class="empty">Carregant…</p>';
@@ -2028,6 +2030,7 @@ window.fotoEdita = async (id, f) => {
     try {
       const vell = FOTOS.find(x => x.id === f), pare = (await gd(tok, `files/${f}?fields=parents`)).parents?.[0];
       const nou = await gdPuja(tok, nf, pare, () => {});
+      FOTOLOC[nou] = URL.createObjectURL(nf);
       await ambTemps(fs.setDoc(ref('fotos', nou), { partit: id, per: USR.uid, t: vell?.t || Date.now() }), 30e3, 'No s\'ha pogut desar a l\'app');
       if (potPortada() && PAR.find(x => x.id === id)?.portada === f) fs.updateDoc(parRef(id), { portada: nou });
       await fs.deleteDoc(ref('fotos', f));
@@ -2049,6 +2052,7 @@ async function pujaFotos(id, files, jaVist) {
     for (const f of files) {
       pas(`Penjant ${pujant.fet + 1} de ${n}…`);
       const fid = await gdPuja(tok, f, carp, pc => { pujant.pas = `Penjant ${pujant.fet + 1} de ${n}… ${pc}%`; const el = document.getElementById('fpas'); if (el) el.textContent = pujant.pas; });
+      FOTOLOC[fid] = URL.createObjectURL(f);
       await ambTemps(fs.setDoc(ref('fotos', fid), { partit: id, per: USR.uid, t: Date.now() }), 30e3, 'No s\'ha pogut desar a l\'app');
       pujant.fet++;
     }
