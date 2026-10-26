@@ -618,6 +618,16 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .pmini { position: relative; display: block; width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: var(--line); }
 .pmini img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pmini b { position: absolute; right: 3px; bottom: 3px; min-width: 20px; padding: 1px 5px; border-radius: 10px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; text-align: center; }
+.fpre { position: relative; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: var(--line); }
+.fpre img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fpre button { position: absolute; top: 4px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; font-size: 16px; cursor: pointer; }
+.fpre button:first-of-type { left: 4px; } .fpre button:last-of-type { right: 4px; }
+#fedit { position: fixed; inset: 0; z-index: 80; background: #000; display: flex; flex-direction: column; }
+#fedit .fecanvas { flex: 1; min-height: 0; }
+#fedit .fecanvas img { display: block; max-width: 100%; }
+#fedit .febar { background: var(--card); padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+#fedit .febar .seg { margin: 0 0 8px; }
+#fedit .feacc { display: flex; gap: 6px; flex-wrap: wrap; }
 .fgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 10px 0 6px; }
 .fgrid button { padding: 0; border: 0; aspect-ratio: 1; overflow: hidden; border-radius: 6px; background: var(--line); cursor: pointer; }
 .fgrid img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -1830,7 +1840,7 @@ const portadaDe = p => { const ids = fotosDe(p.id); return ids.includes(p.portad
 const miniFoto = p => { const n = fotosDe(p.id).length; return `<a class="pmini" href="#/fotos/${p.id}" aria-label="Fotos del partit"><img src="${fotoUrl(portadaDe(p), 300)}" alt="">${n > 1 ? `<b>${n}</b>` : ''}</a>`; };
 const potPortada = () => ['admin', 'entrenador'].includes(rolActual());
 window.fotoPortada = (id, f) => { const p = PAR.find(x => x.id === id); if (!p) return; p.portada = f; fs.updateDoc(parRef(id), { portada: f }); fotoGran(id, fotosDe(id).indexOf(f)); };
-const fotoUrl = (f, w) => `https://drive.google.com/thumbnail?id=${f}&sz=w${w}`;
+const fotoUrl = (f, w) => `https://drive.google.com/thumbnail?id=${f}&sz=w${w}${FOTOS.find(x => x.id === f)?.v ? '&v=' + FOTOS.find(x => x.id === f).v : ''}`;
 function viewFotos(id) {
   const p = parVis(id);
   if (!p) return '<p class="empty">Carregant…</p>';
@@ -1860,6 +1870,7 @@ window.fotoGran = (id, i) => {
     <div class="fbar"><button aria-label="Anterior" onclick="fotoGran('${id}', ${i - 1})">‹</button><span>${i + 1} / ${ids.length}</span>
     <a aria-label="Descarrega" href="https://drive.google.com/uc?export=download&id=${ids[i]}" target="_blank" rel="noopener">⬇</a>
     ${potPortada() ? `<button aria-label="Previsualitza aquesta" title="Que sigui la que es veu al partit" onclick="fotoPortada('${id}', '${ids[i]}')">${portadaDe(parVis(id)) === ids[i] ? '⭐' : '☆'}</button>` : ''}
+    ${FOTOS.find(x => x.id === ids[i])?.per === USR?.uid ? `<button aria-label="Retalla" onclick="fotoEdita('${id}', '${ids[i]}')">✂</button>` : ''}
     ${potTreure(ids[i]) ? `<button aria-label="Treu-la" onclick="fotoTreu('${id}', '${ids[i]}')">🗑</button>` : ''}
     <button aria-label="Següent" onclick="fotoGran('${id}', ${i + 1})">›</button></div>
     <button class="fx" aria-label="Tanca" onclick="fotoTanca()">✕</button>`;
@@ -1931,11 +1942,72 @@ window.triaFotos = async id => {
     return;
   }
   const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.multiple = true;
-  i.onchange = () => i.files.length && pujaFotos(id, [...i.files]); i.click();
+  i.onchange = () => { if (i.files.length) { triades = { id, files: [...i.files] }; preFotos(); } }; i.click();
 };
-async function pujaFotos(id, files) {
+let triades = null;                                     // fotos triades encara per penjar (es poden retallar)
+function preFotos() {
+  const { files } = triades, n = files.length;
+  (triades.urls || []).forEach(u => URL.revokeObjectURL(u));
+  triades.urls = files.map(f => URL.createObjectURL(f));
+  obreFitxa(`<b>Penjar ${n} foto${n > 1 ? 's' : ''}</b>
+    <div class="fgrid">${triades.urls.map((u, k) => `<div class="fpre"><img src="${u}" alt=""><button onclick="retallaTriada(${k})" aria-label="Retalla">✂</button><button onclick="treuTriada(${k})" aria-label="Treu-la">✕</button></div>`).join('')}</div>
+    <p class="meta" style="margin:4px 0 0">✂ per retallar o enquadrar. Es guarden al teu Google Drive, a la carpeta «Vòlei - fotos dels partits», i les veuran els entrenadors i les famílies de l'equip.</p>`,
+    `<button class="btn" onclick="tancaFitxa()">Cancel·la</button><button class="btn primary" style="flex:1" onclick="enviaTriades()">Penja-les</button>`);
+}
+window.enviaTriades = () => { tancaFitxa(); pujaFotos(triades.id, triades.files, true); };
+window.treuTriada = k => { triades.files.splice(k, 1); triades.files.length ? preFotos() : tancaFitxa(); };
+window.retallaTriada = k => editaFoto(triades.urls[k], triades.files[k].name, f => { triades.files[k] = f; preFotos(); });
+
+// editor per retallar i enquadrar (Cropper.js): proporció, girar; torna un fitxer JPEG nou
+const carregaCropper = () => window.Cropper ? Promise.resolve() : new Promise((ok, ko) => {
+  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css'; document.head.appendChild(l);
+  const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js'; sc.onload = ok; sc.onerror = ko; document.head.appendChild(sc);
+});
+async function editaFoto(url, nom, fet) {
+  try { await carregaCropper(); } catch { return dialeg("No s'ha pogut obrir l'editor. Comprova la connexió.", { sol: true }); }
+  const o = document.createElement('div'); o.id = 'fedit';
+  const prop = [['Lliure', NaN], ['1:1', 1], ['4:3', 4 / 3], ['3:4', 3 / 4], ['16:9', 16 / 9]];
+  o.innerHTML = `<div class="fecanvas"><img id="feimg" alt=""></div>
+    <div class="febar"><div class="seg">${prop.map(([t], k) => `<button class="${k ? '' : 'on'}" data-k="${k}">${t}</button>`).join('')}</div>
+    <div class="feacc"><button class="btn" data-a="-90" aria-label="Gira a l'esquerra">⟲</button><button class="btn" data-a="90" aria-label="Gira a la dreta">⟳</button><button class="btn" data-a="reset">Com era</button>
+    <span style="flex:1"></span><button class="btn" data-a="no">Cancel·la</button><button class="btn primary" data-a="ok">Fet</button></div></div>`;
+  document.body.appendChild(o);
+  const img = o.querySelector('#feimg'); img.src = url;
+  const cr = new Cropper(img, { viewMode: 1, autoCropArea: 1, background: false, dragMode: 'move', responsive: true });
+  const tanca = () => { cr.destroy(); o.remove(); };
+  o.querySelectorAll('.seg button').forEach(b => b.onclick = () => { o.querySelectorAll('.seg button').forEach(x => x.classList.toggle('on', x === b)); cr.setAspectRatio(prop[+b.dataset.k][1]); });
+  o.querySelectorAll('.feacc button').forEach(b => b.onclick = () => {
+    const a = b.dataset.a;
+    if (a === 'no') return tanca();
+    if (a === 'reset') return cr.reset();
+    if (a !== 'ok') return cr.rotate(+a);
+    const c = cr.getCroppedCanvas({ maxWidth: 4096, maxHeight: 4096, imageSmoothingQuality: 'high' });
+    if (!c) return tanca();
+    c.toBlob(bl => { tanca(); if (bl) fet(new File([bl], (nom || 'foto').replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' })); }, 'image/jpeg', 0.92);
+  });
+}
+// retallar una foto ja penjada (només les pròpies: l'app només pot tocar els fitxers de Drive que ha creat qui la va penjar)
+window.fotoEdita = async (id, f) => {
+  const tok = tokDrive();
+  if (!tok) { if (await dialeg("Per editar-la, Google et tornarà a demanar permís per al teu Drive.<br><small>Sortiràs un moment de l'app i hi tornaràs sol.</small>", { ok: 'Continua' })) { fotoTanca(); demanaDrive(id); } return; }
+  desat('Obrint la foto…');
+  let bl;
+  try { const r = await ambTemps(fetch(`https://www.googleapis.com/drive/v3/files/${f}?alt=media`, { headers: { Authorization: 'Bearer ' + tok } }), 60e3, 'Google Drive no contesta'); if (!r.ok) throw new Error('Drive ' + r.status); bl = await r.blob(); }
+  catch (e) { registraError(e, 'fotos: obrir per editar'); return dialeg(`No s'ha pogut obrir la foto.<br><small>${esc(e.message)}</small>`, { sol: true }); }
+  const u = URL.createObjectURL(bl);
+  editaFoto(u, 'foto', async nf => {
+    URL.revokeObjectURL(u); desat('Desant la foto…');
+    try {
+      const r = await ambTemps(fetch(`https://www.googleapis.com/upload/drive/v3/files/${f}?uploadType=media`, { method: 'PATCH', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'image/jpeg' }, body: nf }), 5 * 60e3, 'La foto triga massa a pujar');
+      if (!r.ok) throw new Error('Drive ' + r.status + ': ' + (await r.text()).slice(0, 200));
+      await fs.updateDoc(ref('fotos', f), { v: Date.now() });   // perquè tothom torni a carregar la miniatura
+      fotoGran(id, fotosDe(id).indexOf(f));
+    } catch (e) { registraError(e, 'fotos: desar editada'); dialeg(`No s'ha pogut desar.<br><small>${esc(e.message)}</small>`, { sol: true }); }
+  });
+};
+async function pujaFotos(id, files, jaVist) {
   const n = files.length;
-  if (!await dialeg(`Penjar ${n} foto${n > 1 ? 's' : ''} al teu Google Drive?<br><small>Es guarden a la carpeta «Vòlei - fotos dels partits». Les veuran els entrenadors i les famílies de l'equip.</small>`, { ok: 'Penja-les' })) return;
+  if (!jaVist && !await dialeg(`Penjar ${n} foto${n > 1 ? 's' : ''} al teu Google Drive?<br><small>Es guarden a la carpeta «Vòlei - fotos dels partits». Les veuran els entrenadors i les famílies de l'equip.</small>`, { ok: 'Penja-les' })) return;
   const p = parVis(id), riv = p.rival || 'Rival', pas = t => { pujant.pas = t; render(); };
   pujant = { id, fet: 0, tot: n, pas: '' };
   try {
