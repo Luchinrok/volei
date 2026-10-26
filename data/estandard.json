@@ -596,13 +596,13 @@
  {
   "codi": "EG2",
   "fam": "G",
-  "nom": "Rei de la pista: un contra dos",
-  "tambe": "Cutthroat",
-  "com": "Tres equips de 4. Un equip, el «rei», defensa sol tota una banda; els altres dos equips es van alternant a l'altra banda a cada punt. L'equip rei suma un punt cada vegada que guanya; quan perd, passa a l'altra banda i entra un altre equip com a rei.",
-  "dosi": "Fins a 7 punts.",
-  "muntatge": "Tres equips de 4 (amb 13-14, equips de 4 i 5 que roten a cada punt) a pista sencera.",
+  "nom": "Rei de la pista a mitja pista",
+  "tambe": "King/Queen of the court",
+  "com": "Cada mitja pista és un camp independent (la divisió va de la xarxa a la línia de fons pel mig, amb cons o una corda a terra). A cada mitja pista, una banda és la del «rei». Es juga a un sol punt: l'equip que guanya es queda (o passa) a la banda del rei, el que perd surt i entra el següent equip, que posa la pilota en joc. L'equip rei suma un punt per cada punt guanyat estant-hi. Format segons quants sigueu: 2x2, 3x3 o 4x4.",
+  "dosi": "Rondes de 5 minuts; guanya qui té més punts de rei. Després es barregen els equips i una altra ronda.",
+  "muntatge": "2x2: 6-7 parelles, 3 a cada mitja pista (la setena entra a la mitja pista on hi hagi menys gent). 3x3: 4 equips de 3, rei de la pista a pista sencera (2 juguen, 2 esperen un sol punt). 4x4: 3 equips de 4 a pista sencera. Ningú espera més d'un punt.",
   "pistes": "1",
-  "font": "Joc clàssic (cutthroat)."
+  "font": "Joc clàssic (king of the court)."
  },
  {
   "codi": "EG3",
@@ -790,5 +790,16 @@
   "muntatge": "6x6 a pista sencera. Els que sobren entren per Z1 quan l'equip rota.",
   "pistes": "1",
   "font": "Joc clàssic."
+ },
+ {
+  "codi": "EG6",
+  "fam": "G",
+  "nom": "Puja i baixa a mitja pista",
+  "tambe": "King of the beach",
+  "com": "Dues mitges pistes: la «d'amunt» i la «d'avall». A cada mitja pista es juga com el rei de la pista (a un punt, el que perd surt i entra el següent), però cada parella o equip compta els seus punts. Cada 4 minuts, el que ha fet més punts a la d'avall puja i el que n'ha fet menys a la d'amunt baixa. Cada tres rondes es fan parelles o equips nous.",
+  "dosi": "6 rondes de 4 minuts.",
+  "muntatge": "2x2: 3 parelles a cada mitja pista (amb 14, una mitja pista amb 4 parelles). 3x3: 2 equips de 3 a cada mitja pista i rotació a cada punt amb el tercer equip de la mateixa mitja pista quan n'hi ha 3. Ningú espera més d'un punt.",
+  "pistes": "1",
+  "font": "Format clàssic (king of the beach)."
  }
 ]
