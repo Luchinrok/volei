@@ -1940,6 +1940,9 @@ async function pujaFotos(id, files) {
     }
   } catch (e) {
     registraError(e, 'fotos: ' + pujant.pas);
+    // Firefox amb protecció estricta bloqueja googleapis.com («contingut de seguiment»)
+    if (/NetworkError|Failed to fetch|Sense connexió amb Google Drive/.test(e.message || '') && navigator.onLine)
+      return dialeg(`${pujant.fet ? `S'han penjat ${pujant.fet} de ${n} fotos. ` : ''}El navegador ha bloquejat la connexió amb Google Drive.<br><small>${/Firefox/.test(navigator.userAgent) ? "A Firefox: toca l'escut 🛡 de la barra d'adreces i desactiva la «Protecció millorada contra el seguiment» per a aquesta web. Després torna-ho a provar." : "Mira si tens algun bloquejador d'anuncis o de seguiment i desactiva'l per a aquesta web."}</small>`, { sol: true });
     dialeg(`${pujant.fet ? `S'han penjat ${pujant.fet} de ${n} fotos.` : "No s'ha pogut penjar."}<br><small>${esc(e.code || e.message)}</small>`, { sol: true });
   } finally { pujant = null; render(); }
 }
