@@ -48,6 +48,7 @@ header button:active { background: rgba(255,255,255,.22); }
 header button[hidden] { display: none; }
 header #tbtn.run { background: var(--accent); color: var(--accent-ink); }
 main { max-width: 760px; margin: 0 auto; padding: 16px; }
+nav.tabs[hidden] { display: none; }
 nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: var(--card); border-top: 1px solid var(--line); padding: 4px 4px env(safe-area-inset-bottom); z-index: 5; box-shadow: 0 -4px 18px rgba(20,32,46,.07); }
 nav.tabs a { flex: 1; text-align: center; padding: 6px 2px 8px; color: var(--muted); text-decoration: none; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 nav.tabs a .ico { display: grid; place-items: center; width: 52px; height: 30px; border-radius: 15px; transition: background .2s; }
@@ -240,8 +241,8 @@ a.nomlink { color: inherit; text-decoration: none; }
 .callegend span { display: inline-flex; align-items: center; gap: 5px; }
 .callegend i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 1px solid #14181f; }
 .callegend i.n { background: #14181f; } .callegend i.g { background: #f5c518; }
-a.card.mc { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 12px; align-items: center; border-left: 7px solid #14181f; padding: 12px; }
-a.card.mc.mG { border-left-color: #f5c518; }
+.card.mc { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 12px; align-items: center; border-left: 7px solid #14181f; padding: 12px; }
+.card.mc.mG { border-left-color: #f5c518; }
 .mdate { display: flex; flex-direction: column; align-items: center; background: var(--brand-soft); border-radius: 12px; padding: 6px 0; line-height: 1.05; }
 .mdate b { font: 800 26px/1 var(--head); color: var(--brand); }
 .mdate small { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: .04em; }
@@ -613,6 +614,8 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .saqrow > small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 4px; }
 .accs.quatre { grid-template-columns: repeat(4, 1fr); gap: 5px; }
 .accs.quatre .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
+iframe.fotos { width: 100%; height: 70vh; border: 0; border-radius: 12px; background: var(--card, #fff); margin: 8px 0; }
+.mc .mbody a.meta { text-decoration: none; }
 .tag.ori-teu { color: #12a07c; } .tag.ori-modificat { color: #d9822b; } .tag.ori-claude { color: #6b7cff; }
 </style>
 </head>
@@ -710,7 +713,7 @@ const famLabel = f => diesDe(f).map(d => DIES[d]).join(' i ') || (f === 'DT' ? '
 const famDia = data => tcfg().dies[new Date(data + 'T12:00').getDay()] || null;
 
 let D;                                               // sessions de la temporada
-let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}, PAR = []; // dades de Firebase (NOF: exercicis no fets)
+let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}, PAR = [], CAL = null; // dades de Firebase (NOF: exercicis no fets)
 let UNSUB = [];
 let fs = null, db = null;
 let sel = null;                                      // selecció múltiple de sessions
@@ -727,7 +730,8 @@ const cfgRef = () => fs.doc(db, 'equips', CLAU, 'config', 'app');
 // (admin | entrenador | lector). Des del 25-10-2026 cal compte (regles finals): la clau sola ja no obre res.
 const NOMES_COMPTES = true;
 let auth = null, AM = null, USR = undefined, MEM = null, MEMBRES = [], unsubMem = [];
-const ROLS = { admin: 'Administrador', entrenador: 'Entrenador', lector: 'Només mirar' };
+const ROLS = { admin: 'Administrador', entrenador: 'Entrenador', lector: 'Només mirar', familia: 'Família (partits i fotos)' };
+const esFam = () => rolActual() === 'familia';      // pares: només veuen els propers partits i les fotos
 const memRef = uid => fs.doc(db, 'equips', CLAU, 'membres', uid);
 const rolDe = g => USR ? (MEM?.rols || {})[g] || null : (CLAU && !NOMES_COMPTES ? 'admin' : null);
 const rolActual = () => rolDe(grupDe(TEMP));
@@ -738,7 +742,7 @@ async function initFirebase() {
     const mod = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
     // cada escriptura avisa amb un «✓ Desat» petit (tot es desa sol); qui només mira no pot escriure dades de l'equip
     const avisa = f => (r, ...a) => {
-      if (rolActual() === 'lector' && /\/(temporades|config)\b/.test(r?.path || '')) { desat('👀 Només pots mirar'); return Promise.resolve(); }
+      if (['lector', 'familia'].includes(rolActual()) && /\/(temporades|config)\b/.test(r?.path || '')) { desat('👀 Només pots mirar'); return Promise.resolve(); }
       desat(); return f(r, ...a);
     };
     fs = { ...mod, setDoc: avisa(mod.setDoc), updateDoc: avisa(mod.updateDoc), addDoc: avisa(mod.addDoc), deleteDoc: avisa(mod.deleteDoc) };
@@ -828,15 +832,28 @@ async function openSeason() {
   }
   if (UNSUB.__t === TEMP) return render();
   UNSUB.forEach(u => u()); UNSUB = []; UNSUB.__t = TEMP;
-  FETS = {}; COMS = []; JUG = []; ASS = []; NOF = {}; ORD = {}; PAR = [];
+  FETS = {}; COMS = []; JUG = []; ASS = []; NOF = {}; ORD = {}; PAR = []; CAL = null; PAR.__ok = false;
+  // les famílies només poden llegir el calendari (les regles no els deixen veure res més)
+  UNSUB.push(fs.onSnapshot(col('calendari'), q => { CAL = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || ''))); sincCal(); render(); }, () => { CAL = []; render(); }));
+  if (esFam()) return render();
   UNSUB.push(fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); }));
   UNSUB.push(fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); }));
   UNSUB.push(fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); }));
   UNSUB.push(fs.onSnapshot(col('ordre'), q => { ORD = {}; q.docs.forEach(d => ORD[d.id] = d.data().ordre); render(); }));
   UNSUB.push(fs.onSnapshot(col('exercicis'), q => { NOF = {}; q.docs.forEach(d => NOF[d.id] = d.data()); render(); }));
-  UNSUB.push(fs.onSnapshot(col('partits'), q => { PAR = q.docs.map(d => ({ id: d.id, ...d.data() })).map(p => ({ ...p, data: p.data || avui(), convocats: Array.isArray(p.convocats) ? p.convocats : [], accions: Array.isArray(p.accions) ? p.accions : [], sets: p.sets || {} })).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || ''))); render(); }));
+  UNSUB.push(fs.onSnapshot(col('partits'), q => { PAR = q.docs.map(d => ({ id: d.id, ...d.data() })).map(p => ({ ...p, data: p.data || avui(), convocats: Array.isArray(p.convocats) ? p.convocats : [], accions: Array.isArray(p.accions) ? p.accions : [], sets: p.sets || {} })).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || ''))); PAR.__ok = true; sincCal(); render(); }));
   UNSUB.push(fs.onSnapshot(col('assistencia'), q => { ASS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.data.localeCompare(a.data)); render(); }));
   render();
+}
+
+// calendari/{id}: el que veuen les famílies de cada partit (sense convocats ni estadístiques). El manté l'app dels entrenadors.
+const CALK = ['data', 'hora', 'equip', 'rival', 'lloc', 'adreca', 'resultat', 'punts', 'fotos'];
+const calDe = p => Object.fromEntries(CALK.map(k => [k, p[k] ?? '']));
+function sincCal() {
+  if (!PAR.__ok || !CAL || !['admin', 'entrenador'].includes(rolActual())) return;
+  const ara = Object.fromEntries(CAL.map(c => [c.id, c]));
+  PAR.forEach(p => { const n = calDe(p); if (JSON.stringify(n) !== JSON.stringify(ara[p.id] && calDe(ara[p.id]))) fs.setDoc(ref('calendari', p.id), n).catch(e => registraError(e, 'calendari')); });
+  CAL.filter(c => !PAR.some(p => p.id === c.id)).forEach(c => fs.deleteDoc(ref('calendari', c.id)).catch(() => {}));
 }
 
 function setFets(codes, fet) {
@@ -1739,6 +1756,7 @@ function viewPartit(id) {
       <span class="grow"><span class="pxt">${p.lloc === 'fora' ? rivH + ' vs ' + nosH : nosH + ' vs ' + rivH}</span>
         <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}${p.resultat ? ` <b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</span></span>
       <span class="chev">✎</span></button>
+    ${p.adreca || p.fotos ? `<div class="actions" style="margin-top:0">${p.adreca ? `<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}${p.fotos ? `<a class="btn" style="text-decoration:none" href="#/fotos/${id}">📷 Fotos</a>` : ''}</div>` : ''}
     <div class="setbtns">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? ((+v[0] > +v[1]) !== (p.lloc === 'fora') ? 'guanyat' : 'perdut') : '';
       return `<button class="setbtn ${g}" onclick="roda('${id}', ${n})"><small>Set ${n}</small><b>${v.length ? `${v[0] === '' ? '–' : v[0]}-${v[1] === '' ? '–' : v[1]}` : '–'}</b></button>`; }).join('')}</div>
   </div>
@@ -1767,6 +1785,45 @@ function viewPartit(id) {
   <p class="meta">✓ Tot el partit es desa sol a cada canvi; no cal cap botó.</p>
 </div>`;
 }
+// ------------------------------------------------------------------ famílies
+const mapa = a => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(a);
+const carpeta = u => (/\/folders\/([\w-]{10,})/.exec(u || '') || /[?&]id=([\w-]{10,})/.exec(u || '') || [])[1] || '';
+function viewFamilia() {
+  if (!CAL) return '<p class="empty">Carregant…</p>';
+  const nos = p => `<span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(nomNostre(p))}</span>`;
+  const card = p => {
+    const dt = new Date(p.data + 'T12:00'), g = guany(p), riv = `<span>${esc(p.rival || 'Rival per saber')}</span>`;
+    const dies = Math.round((dt - new Date(avui() + 'T12:00')) / 864e5);
+    return `<div class="card mc ${p.equip === 'G' ? 'mG' : 'mN'}">
+      <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
+      <span class="mbody"><span class="mteams">${p.lloc === 'fora' ? riv + '<i>vs</i>' + nos(p) : nos(p) + '<i>vs</i>' + riv}</span>
+        <span class="meta">${p.hora ? `<span class="nw">🕗 ${esc(p.hora)}</span> ` : ''}<span class="nw">${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span></span>
+        ${p.adreca ? `<a class="meta" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}
+        ${p.fotos ? `<a class="btn" style="text-decoration:none;margin-top:6px;align-self:flex-start" href="#/fotos/${p.id}">📷 Fotos del partit</a>` : ''}</span>
+      <span class="mres">${p.resultat ? `<b class="score ${g}">${esc(p.resultat)}</b><small class="${g}">${g === 'guanyat' ? 'Guanyat' : g === 'perdut' ? 'Perdut' : ''}</small>` : dies >= 0 ? `<small class="falta">${dies === 0 ? 'Avui!' : dies === 1 ? 'Demà' : `D'aquí ${dies} dies`}</small>` : ''}</span></div>`;
+  };
+  const fut = CAL.filter(p => p.data >= avui() && !p.resultat), pas = CAL.filter(p => !fut.includes(p)).reverse();
+  return `<h2>Partits</h2>
+  <h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Encara no hi ha cap partit previst.</p>'}
+  <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}`;
+}
+function viewFotos(id) {
+  const p = (CAL || []).find(x => x.id === id) || PAR.find(x => x.id === id);
+  if (!p) return '<p class="empty">Carregant…</p>';
+  const f = carpeta(p.fotos), riv = esc(p.rival || 'Partit');
+  return `<h2>📷 ${p.lloc === 'fora' ? riv + ' vs ' + esc(nomNostre(p)) : esc(nomNostre(p)) + ' vs ' + riv}</h2><p class="meta">${dataCa(p.data)}</p>
+  ${f ? `<iframe class="fotos" src="https://drive.google.com/embeddedfolderview?id=${f}#grid" title="Fotos" loading="lazy"></iframe>
+    <p class="meta">Toca una foto per veure-la gran o descarregar-la.</p>` : '<p class="meta">Aquest enllaç no és d\'una carpeta de Google Drive i no es pot mostrar aquí.</p>'}
+  ${p.fotos ? `<a class="btn" style="display:block;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="${esc(p.fotos)}">Obre la carpeta</a>` : ''}`;
+}
+function viewConfigFam() {
+  const t = store.get('volei.tema', 'auto'), G = grups(), g = grupDe(TEMP), meus = Object.keys(G).filter(k => rolDe(k));
+  return `<h2>Configuració</h2>
+  ${meus.length > 1 ? `<h3>Equip</h3><div class="card"><div class="seg" style="margin:0">${meus.map(k => `<button class="${k === g ? 'on' : ''}" onclick="triaGrup('${k}')">${esc(G[k].nom)}</button>`).join('')}</div></div>` : ''}
+  <h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>
+  <h3>El teu compte</h3><div class="card row">${USR.photoURL ? `<img class="foto" src="${esc(USR.photoURL)}" alt="">` : ''}<span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')} (${ROLS.familia})</div></span><button class="btn" onclick="surt()">Surt</button></div>`;
+}
+
 // dades del partit (data, hora, equip, lloc i rival) en una finestra
 window.editaPartit = id => {
   const p = PAR.find(x => x.id === id), tria = (k, v) => `onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))" data-${k}="${v}"`;
@@ -1775,12 +1832,15 @@ window.editaPartit = id => {
     <div class="grid2"><div><label class="lbl">Data</label><input type="date" id="epd" value="${p.data}"></div><div><label class="lbl">Hora</label><input type="text" id="eph" inputmode="numeric" placeholder="20:00" value="${esc(p.hora || '')}"></div></div>
     <label class="lbl">On</label><div class="seg" id="epl" style="margin:0">${[['casa', '🏠 A casa'], ['fora', '🚌 A fora']].map(([v, t]) => `<button class="${(p.lloc || 'casa') === v ? 'on' : ''}" ${tria('v', v)}>${t}</button>`).join('')}</div>
     ${dosEq() ? `<label class="lbl">Equip</label><div class="seg" id="epe" style="margin:0">${Object.entries(EQN).map(([v, t]) => `<button class="${p.equip === v ? 'on' : ''}" ${tria('v', v)}>${t}</button>`).join('')}</div>` : ''}
+    <label class="lbl">Pavelló o adreça</label><input type="text" id="epa" value="${esc(p.adreca || '')}" placeholder="Per exemple Pavelló Municipal de Cassà">
+    <label class="lbl">Fotos (enllaç a una carpeta de Google Drive)</label><input type="url" id="epf" value="${esc(p.fotos || '')}" placeholder="https://drive.google.com/drive/folders/…">
+    <p class="meta" style="margin:4px 0 0">La carpeta s'ha de compartir com a «Qualsevol persona amb l'enllaç». Les famílies veuen les fotos a l'app.</p>
     <button class="btn danger" style="width:100%;margin-top:12px" onclick="tancaFitxa();parDel('${id}')">Esborra el partit</button></div>`,
     `<button class="btn" onclick="tancaFitxa()">Cancel·la</button><button class="btn primary" style="flex:1" onclick="desaPartit('${id}')">Desa</button>`);
   if (!p.rival) setTimeout(() => $('#epr')?.focus(), 50);
 };
 window.desaPartit = id => {
-  const p = PAR.find(x => x.id === id), d = { rival: $('#epr').value.trim(), data: $('#epd').value || p.data, hora: $('#eph').value.trim(), lloc: $('#epl .on')?.dataset.v || 'casa' };
+  const p = PAR.find(x => x.id === id), d = { rival: $('#epr').value.trim(), data: $('#epd').value || p.data, hora: $('#eph').value.trim(), lloc: $('#epl .on')?.dataset.v || 'casa', adreca: $('#epa').value.trim(), fotos: $('#epf').value.trim() };
   if ($('#epe')) d.equip = $('#epe .on')?.dataset.v || p.equip;
   Object.assign(p, d); fs.updateDoc(parRef(id), d); tancaFitxa(); render();
 };
@@ -1996,7 +2056,7 @@ function viewPersones() {
       ${m.uid !== USR.uid ? `<button class="mini" title="Treu-lo" onclick="treuMembre('${m.uid}')">✕</button>` : ''}</div>
       <div class="mrols">${Object.entries(G).map(([g, x]) => `<label>${esc(x.nom)}</label><select ${m.uid === USR.uid ? 'disabled' : ''} onchange="posaRol('${m.uid}','${g}',this.value)"><option value="">Cap accés</option>${Object.entries(ROLS).map(([k, t]) => `<option value="${k}" ${(m.rols || {})[g] === k ? 'selected' : ''}>${t}</option>`).join('')}</select>`).join('')}</div></div>`).join('')}
     <div class="actions"><button class="btn primary" style="flex:1" onclick="convida()">＋ Convida algú</button></div>
-    <p class="meta" style="margin:8px 0 0"><b>Administrador</b>: ho pot fer tot, també convidar. <b>Entrenador</b>: ho pot editar tot de l'equip. <b>Només mirar</b>: ho veu però no pot canviar res.</p>
+    <p class="meta" style="margin:8px 0 0"><b>Administrador</b>: ho pot fer tot, també convidar. <b>Entrenador</b>: ho pot editar tot de l'equip. <b>Només mirar</b>: ho veu però no pot canviar res. <b>Família</b>: només veu els partits (dia, hora i lloc) i les fotos.</p>
   </div>`;
 }
 window.posaRol = (uid, g, v) => fs.updateDoc(memRef(uid), { ['rols.' + g]: v || fs.deleteField(), pendent: false });
@@ -2214,6 +2274,8 @@ function pintaPantalla() {
   // sense equip, o amb una invitació per acceptar i sense compte: pantalla d'entrada
   if (!USR && (NOMES_COMPTES || (r !== 'config' && (!CLAU || store.get('volei.invitacio', null))))) { html = viewEntra(); title = 'Vòlei'; }
   else if (USR && (!CLAU || (MEM && !rolActual() && (r !== 'config' || !Object.values(MEM.rols || {}).some(Boolean))))) { html = sensePermis(); }
+  else if (esFam()) { html = r === 'fotos' ? viewFotos(arg) : r === 'config' ? viewConfigFam() : viewFamilia(); tab = ''; if (r === 'fotos') title = 'Fotos'; }
+  else if (r === 'fotos') { html = viewFotos(arg); tab = 'partits'; title = 'Fotos'; }
   else if (r === 's') { html = viewSession(arg); tab = byCode(arg) ? fam(byCode(arg)) : ''; title = arg; }
   else if (r === 'f') { html = viewList(arg); tab = arg; }
   else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
@@ -2224,6 +2286,7 @@ function pintaPantalla() {
   else if (r === 'pissarra') { html = viewPissarra(arg); tab = 'partits'; title = 'Pissarra'; }
   else if (r === 'directe') { html = viewDirecte(arg); tab = 'partits'; title = 'En directe'; }
   else html = viewHome();
+  $('#tabs').hidden = $('#tbtn').hidden = USR && esFam();
   $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">${ICO.inici}</span>Inici</a>
     ${['DT', 'DJ'].filter(f => diesDe(f).length).map(f => `<a href="#/f/${f}" data-t="${f}"><span class="ico">${f === 'DT' ? ICO.pista : ICO.pistes}</span>${diesDe(f).map(d => CURT[d]).join('+') === 'Dt' ? 'Dimarts' : diesDe(f).map(d => CURT[d]).join('+') === 'Dj' ? 'Dijous' : diesDe(f).length === 1 ? DIES[diesDe(f)[0]] : diesDe(f).map(d => CURT[d]).join(' + ')}</a>`).join('')}
     <a href="#/assistencia" data-t="assistencia"><span class="ico">${ICO.ass}</span>Assistència</a>
@@ -2237,7 +2300,7 @@ function pintaPantalla() {
   document.documentElement.style.setProperty('--hh', $('header').offsetHeight + 'px');   // per al marcador fix del directe
   if (ruta !== lastRuta) { lastRuta = ruta; const ap = $('#app'); ap.classList.remove('view'); void ap.offsetWidth; ap.classList.add('view'); }
   $('#title').textContent = title;
-  $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra', 'directe'].includes(r);
+  $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra', 'directe', 'fotos'].includes(r);
   document.querySelectorAll('nav.tabs a').forEach(x => x.classList.toggle('on', x.dataset.t === tab));
 }
 window.render = render;
