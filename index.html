@@ -614,6 +614,13 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .saqrow > small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 4px; }
 .accs.quatre { grid-template-columns: repeat(4, 1fr); gap: 5px; }
 .accs.quatre .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
+.pfoto { padding: 6px; }
+.pfoto .pgran { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.pfoto .pgran img { display: block; width: 100%; min-height: 160px; background: var(--line); max-height: 55vh; object-fit: cover; border-radius: 10px; }
+.pthumbs { display: flex; gap: 6px; overflow-x: auto; padding-top: 6px; }
+.pthumbs button { flex: none; width: 56px; height: 56px; padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: var(--line); cursor: pointer; opacity: .6; }
+.pthumbs button.on { border-color: #f5c518; opacity: 1; }
+.pthumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .fgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 10px 0 6px; }
 .fgrid button { padding: 0; border: 0; aspect-ratio: 1; overflow: hidden; border-radius: 6px; background: var(--line); cursor: pointer; }
 .fgrid img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -1759,14 +1766,17 @@ function viewPartit(id) {
   const llista = [...actius.filter(delEquip), ...actius.filter(j => !delEquip(j))];
   const convs = llista.filter(j => conv.has(j.id)), obert = (PLEG['conv' + id] ?? !conv.size), alin = PLEG['alin' + id] ?? true;
   const dt = new Date(p.data + 'T12:00'), nosH = `<span class="nosn ${p.equip === 'G' ? 'g' : 'n'}">${esc(nomNostre(p))}</span>`, rivH = `<span>${esc(p.rival || 'Rival?')}</span>`;
+  const fs_ = fotosDe(id), fk = Math.min(fotoTria[id] || 0, Math.max(fs_.length - 1, 0));
   return `<div class="pview">
+  ${fs_.length ? `<div class="card pfoto"><button class="pgran" onclick="fotoGran('${id}', ${fk})"><img src="${fotoUrl(fs_[fk], 1200)}" alt="Foto del partit"></button>
+    ${fs_.length > 1 ? `<div class="pthumbs">${fs_.map((x, i) => `<button class="${i === fk ? 'on' : ''}" onclick="fotoTria['${id}'] = ${i}; render()"><img loading="lazy" src="${fotoUrl(x, 200)}" alt=""></button>`).join('')}</div>` : ''}</div>` : ''}
   <div class="card">
     <button class="phead2" onclick="editaPartit('${id}')">
       <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
       <span class="grow"><span class="pxt">${p.lloc === 'fora' ? rivH + ' vs ' + nosH : nosH + ' vs ' + rivH}</span>
         <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}${p.resultat ? ` <b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</span></span>
       <span class="chev">✎</span></button>
-    <div class="actions" style="margin-top:0">${p.adreca ? `<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}<a class="btn" style="text-decoration:none" href="#/fotos/${id}">📷 Fotos${fotosDe(id).length ? ' (' + fotosDe(id).length + ')' : ''}</a></div>
+    <div class="actions" style="margin-top:0;justify-content:center">${p.adreca ? `<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}<a class="btn" style="text-decoration:none" href="#/fotos/${id}">📷 Fotos${fotosDe(id).length ? ' (' + fotosDe(id).length + ')' : ''}</a></div>
     <div class="setbtns">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? ((+v[0] > +v[1]) !== (p.lloc === 'fora') ? 'guanyat' : 'perdut') : '';
       return `<button class="setbtn ${g}" onclick="roda('${id}', ${n})"><small>Set ${n}</small><b>${v.length ? `${v[0] === '' ? '–' : v[0]}-${v[1] === '' ? '–' : v[1]}` : '–'}</b></button>`; }).join('')}</div>
   </div>
@@ -1821,6 +1831,8 @@ const parVis = id => PAR.find(x => x.id === id) || (CAL || []).find(x => x.id ==
 const potFotos = () => !!rolActual();                       // penjar: tothom de l'equip
 const fotosDe = id => FOTOS.filter(f => f.partit === id).map(f => f.id);
 const potTreure = f => ['admin', 'entrenador'].includes(rolActual()) || FOTOS.find(x => x.id === f)?.per === USR?.uid;
+const fotoTria = {};                                   // foto triada a dalt de cada partit
+window.fotoTria = fotoTria;
 const fotoUrl = (f, w) => `https://drive.google.com/thumbnail?id=${f}&sz=w${w}`;
 function viewFotos(id) {
   const p = parVis(id);
