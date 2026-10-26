@@ -614,6 +614,14 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .saqrow > small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 4px; }
 .accs.quatre { grid-template-columns: repeat(4, 1fr); gap: 5px; }
 .accs.quatre .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
+.fgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 10px 0 6px; }
+.fgrid button { padding: 0; border: 0; aspect-ratio: 1; overflow: hidden; border-radius: 6px; background: var(--line); cursor: pointer; }
+.fgrid img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#fgran { position: fixed; inset: 0; z-index: 60; background: #000; display: flex; flex-direction: column; }
+#fgran .fx { position: absolute; top: calc(8px + env(safe-area-inset-top)); right: 8px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(0,0,0,.55); color: #fff; font-size: 22px; cursor: pointer; }
+#fgran img { flex: 1; min-height: 0; width: 100%; object-fit: contain; }
+#fgran .fbar { display: flex; justify-content: space-around; align-items: center; color: #fff; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+#fgran .fbar button, #fgran .fbar a { background: none; border: 0; color: #fff; font-size: 26px; text-decoration: none; padding: 6px 12px; cursor: pointer; }
 iframe.fotos { width: 100%; height: 70vh; border: 0; border-radius: 12px; background: var(--card, #fff); margin: 8px 0; }
 .mc .mbody a.meta { text-decoration: none; }
 .tag.ori-teu { color: #12a07c; } .tag.ori-modificat { color: #d9822b; } .tag.ori-claude { color: #6b7cff; }
@@ -713,7 +721,7 @@ const famLabel = f => diesDe(f).map(d => DIES[d]).join(' i ') || (f === 'DT' ? '
 const famDia = data => tcfg().dies[new Date(data + 'T12:00').getDay()] || null;
 
 let D;                                               // sessions de la temporada
-let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}, PAR = [], CAL = null; // dades de Firebase (NOF: exercicis no fets)
+let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}, PAR = [], CAL = null, FOTOS = []; // dades de Firebase (NOF: exercicis no fets)
 let UNSUB = [];
 let fs = null, db = null;
 let sel = null;                                      // selecció múltiple de sessions
@@ -742,7 +750,7 @@ async function initFirebase() {
     const mod = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
     // cada escriptura avisa amb un «✓ Desat» petit (tot es desa sol); qui només mira no pot escriure dades de l'equip
     const avisa = f => (r, ...a) => {
-      if (['lector', 'familia'].includes(rolActual()) && /\/(temporades|config)\b/.test(r?.path || '')) { desat('👀 Només pots mirar'); return Promise.resolve(); }
+      if (['lector', 'familia'].includes(rolActual()) && /\/(temporades|config)\b/.test(r?.path || '') && !/\/fotos\b/.test(r?.path || '')) { desat('👀 Només pots mirar'); return Promise.resolve(); }
       desat(); return f(r, ...a);
     };
     fs = { ...mod, setDoc: avisa(mod.setDoc), updateDoc: avisa(mod.updateDoc), addDoc: avisa(mod.addDoc), deleteDoc: avisa(mod.deleteDoc) };
@@ -832,7 +840,9 @@ async function openSeason() {
   }
   if (UNSUB.__t === TEMP) return render();
   UNSUB.forEach(u => u()); UNSUB = []; UNSUB.__t = TEMP;
-  FETS = {}; COMS = []; JUG = []; ASS = []; NOF = {}; ORD = {}; PAR = []; CAL = null; PAR.__ok = false;
+  FETS = {}; COMS = []; JUG = []; ASS = []; NOF = {}; ORD = {}; PAR = []; CAL = null; PAR.__ok = false; FOTOS = [];
+  // fotos/{id del fitxer de Drive}: {partit, per (uid), t}. Les pot penjar tothom de l'equip (també les famílies), cadascú al seu Drive
+  UNSUB.push(fs.onSnapshot(col('fotos'), q => { FOTOS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.t - b.t); render(); }, () => {}));
   // les famílies només poden llegir el calendari (les regles no els deixen veure res més)
   UNSUB.push(fs.onSnapshot(col('calendari'), q => { CAL = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || ''))); sincCal(); render(); }, () => { CAL = []; render(); }));
   if (esFam()) return render();
@@ -1756,7 +1766,7 @@ function viewPartit(id) {
       <span class="grow"><span class="pxt">${p.lloc === 'fora' ? rivH + ' vs ' + nosH : nosH + ' vs ' + rivH}</span>
         <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}${p.resultat ? ` <b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</span></span>
       <span class="chev">✎</span></button>
-    ${p.adreca || p.fotos ? `<div class="actions" style="margin-top:0">${p.adreca ? `<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}${p.fotos ? `<a class="btn" style="text-decoration:none" href="#/fotos/${id}">📷 Fotos</a>` : ''}</div>` : ''}
+    <div class="actions" style="margin-top:0">${p.adreca ? `<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}<a class="btn" style="text-decoration:none" href="#/fotos/${id}">📷 Fotos${fotosDe(id).length ? ' (' + fotosDe(id).length + ')' : ''}</a></div>
     <div class="setbtns">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? ((+v[0] > +v[1]) !== (p.lloc === 'fora') ? 'guanyat' : 'perdut') : '';
       return `<button class="setbtn ${g}" onclick="roda('${id}', ${n})"><small>Set ${n}</small><b>${v.length ? `${v[0] === '' ? '–' : v[0]}-${v[1] === '' ? '–' : v[1]}` : '–'}</b></button>`; }).join('')}</div>
   </div>
@@ -1799,7 +1809,7 @@ function viewFamilia() {
       <span class="mbody"><span class="mteams">${p.lloc === 'fora' ? riv + '<i>vs</i>' + nos(p) : nos(p) + '<i>vs</i>' + riv}</span>
         <span class="meta">${p.hora ? `<span class="nw">🕗 ${esc(p.hora)}</span> ` : ''}<span class="nw">${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span></span>
         ${p.adreca ? `<a class="meta" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}
-        ${p.fotos ? `<a class="btn" style="text-decoration:none;margin-top:6px;align-self:flex-start" href="#/fotos/${p.id}">📷 Fotos del partit</a>` : ''}</span>
+        ${p.fotos || fotosDe(p.id).length ? `<a class="btn" style="text-decoration:none;margin-top:6px;align-self:flex-start" href="#/fotos/${p.id}">📷 Fotos del partit${fotosDe(p.id).length ? ' (' + fotosDe(p.id).length + ')' : ''}</a>` : ''}</span>
       <span class="mres">${p.resultat ? `<b class="score ${g}">${esc(p.resultat)}</b><small class="${g}">${g === 'guanyat' ? 'Guanyat' : g === 'perdut' ? 'Perdut' : ''}</small>` : dies >= 0 ? `<small class="falta">${dies === 0 ? 'Avui!' : dies === 1 ? 'Demà' : `D'aquí ${dies} dies`}</small>` : ''}</span></div>`;
   };
   const fut = CAL.filter(p => p.data >= avui() && !p.resultat), pas = CAL.filter(p => !fut.includes(p)).reverse();
@@ -1807,14 +1817,101 @@ function viewFamilia() {
   <h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Encara no hi ha cap partit previst.</p>'}
   <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}`;
 }
+const parVis = id => PAR.find(x => x.id === id) || (CAL || []).find(x => x.id === id);
+const potFotos = () => !!rolActual();                       // penjar: tothom de l'equip
+const fotosDe = id => FOTOS.filter(f => f.partit === id).map(f => f.id);
+const potTreure = f => ['admin', 'entrenador'].includes(rolActual()) || FOTOS.find(x => x.id === f)?.per === USR?.uid;
+const fotoUrl = (f, w) => `https://drive.google.com/thumbnail?id=${f}&sz=w${w}`;
 function viewFotos(id) {
-  const p = (CAL || []).find(x => x.id === id) || PAR.find(x => x.id === id);
+  const p = parVis(id);
   if (!p) return '<p class="empty">Carregant…</p>';
-  const f = carpeta(p.fotos), riv = esc(p.rival || 'Partit');
+  const f = carpeta(p.fotos), riv = esc(p.rival || 'Partit'), ids = fotosDe(id);
+  if (potFotos()) carregaGsi().catch(() => {});   // perquè el permís de Drive s'obri de seguida en penjar
   return `<h2>📷 ${p.lloc === 'fora' ? riv + ' vs ' + esc(nomNostre(p)) : esc(nomNostre(p)) + ' vs ' + riv}</h2><p class="meta">${dataCa(p.data)}</p>
-  ${f ? `<iframe class="fotos" src="https://drive.google.com/embeddedfolderview?id=${f}#grid" title="Fotos" loading="lazy"></iframe>
-    <p class="meta">Toca una foto per veure-la gran o descarregar-la.</p>` : '<p class="meta">Aquest enllaç no és d\'una carpeta de Google Drive i no es pot mostrar aquí.</p>'}
-  ${p.fotos ? `<a class="btn" style="display:block;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="${esc(p.fotos)}">Obre la carpeta</a>` : ''}`;
+  ${potFotos() ? `<button class="btn primary" style="width:100%;padding:12px" ${pujant ? 'disabled' : ''} onclick="triaFotos('${id}')">＋ Afegeix fotos de la galeria</button>` : ''}
+  ${pujant?.id === id ? `<div class="card"><b>Penjant ${pujant.fet + 1 > pujant.tot ? pujant.tot : pujant.fet + 1} de ${pujant.tot}…</b><div class="meta">No tanquis l'app fins que acabi.</div></div>` : ''}
+  ${ids.length ? `<div class="fgrid">${ids.map((x, i) => `<button onclick="fotoGran('${id}', ${i})"><img loading="lazy" src="${fotoUrl(x, 400)}" alt=""></button>`).join('')}</div>
+    <p class="meta">Toca una foto per veure-la gran o descarregar-la.</p>` : ''}
+  ${f ? `<iframe class="fotos" src="https://drive.google.com/embeddedfolderview?id=${f}#grid" title="Fotos" loading="lazy"></iframe>` : p.fotos ? '<p class="meta">Aquest enllaç no és d\'una carpeta de Google Drive i no es pot mostrar aquí.</p>' : ''}
+  ${p.fotos ? `<a class="btn" style="display:block;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="${esc(p.fotos)}">Obre la carpeta</a>` : ''}
+  ${!ids.length && !p.fotos ? `<p class="meta">Encara no hi ha fotos d'aquest partit.${potFotos() ? ' Es pengen al teu Google Drive, a la carpeta «Vòlei - fotos dels partits», i les veuen els entrenadors i les famílies de l\'equip.' : ''}</p>` : ''}`;
+}
+// foto gran: ‹ › (o lliscant), descarregar i, qui pot, treure-la
+window.fotoGran = (id, i) => {
+  const ids = fotosDe(id); if (!ids.length) return fotoTanca();
+  i = (i + ids.length) % ids.length;
+  let o = document.getElementById('fgran');
+  if (!o) {
+    o = document.createElement('div'); o.id = 'fgran'; document.body.appendChild(o);
+    let x0 = null;
+    o.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+    o.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 50) fotoGran(o.dataset.id, +o.dataset.i + (dx < 0 ? 1 : -1)); });
+  }
+  o.dataset.id = id; o.dataset.i = i;
+  o.innerHTML = `<img src="${fotoUrl(ids[i], 2000)}" alt="">
+    <div class="fbar"><button aria-label="Anterior" onclick="fotoGran('${id}', ${i - 1})">‹</button><span>${i + 1} / ${ids.length}</span>
+    <a aria-label="Descarrega" href="https://drive.google.com/uc?export=download&id=${ids[i]}" target="_blank" rel="noopener">⬇</a>
+    ${potTreure(ids[i]) ? `<button aria-label="Treu-la" onclick="fotoTreu('${id}', '${ids[i]}')">🗑</button>` : ''}
+    <button aria-label="Següent" onclick="fotoGran('${id}', ${i + 1})">›</button></div>
+    <button class="fx" aria-label="Tanca" onclick="fotoTanca()">✕</button>`;
+};
+window.fotoTanca = () => document.getElementById('fgran')?.remove();
+window.fotoTreu = async (id, f) => {
+  if (!await dialeg('Treure aquesta foto del partit?', { ok: 'Treu-la', perill: true })) return;
+  const ids = fotosDe(id), i = ids.indexOf(f);
+  await fs.deleteDoc(ref('fotos', f));
+  if (gTok?.fins > Date.now()) gd(gTok.t, 'files/' + f, { method: 'DELETE' }).catch(() => {});   // si és seva, també del Drive
+  const n = ids.filter(x => x !== f); n.length ? setTimeout(() => fotoGran(id, Math.min(i, n.length - 1)), 50) : fotoTanca();
+};
+
+// penjar fotos: es demana permís per a Google Drive (només els fitxers que crea l'app) i es pugen a una carpeta per partit
+const GCLIENT = '447113557075-ui635m2cjbuopo7s9ekagiik5ngskrn6.apps.googleusercontent.com';
+let gTok = null, pujant = null;
+const carregaGsi = () => window.google?.accounts?.oauth2 ? Promise.resolve() : new Promise((ok, ko) => {
+  const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.onload = ok; s.onerror = ko; document.head.appendChild(s);
+});
+const tokDrive = () => gTok?.fins > Date.now() + 60e3 ? Promise.resolve(gTok.t) : new Promise((ok, ko) => google.accounts.oauth2.initTokenClient({
+  client_id: GCLIENT, scope: 'https://www.googleapis.com/auth/drive.file', login_hint: USR?.email || '',
+  callback: r => r.access_token ? (gTok = { t: r.access_token, fins: Date.now() + r.expires_in * 1000 }, ok(r.access_token)) : ko(new Error(r.error || 'sense permís')),
+  error_callback: e => ko(new Error(e?.type || 'finestra tancada')),
+}).requestAccessToken());
+async function gd(tok, url, opt = {}) {
+  const r = await fetch(url.startsWith('http') ? url : 'https://www.googleapis.com/drive/v3/' + url, { ...opt, headers: { Authorization: 'Bearer ' + tok, ...(opt.headers || {}) } });
+  if (!r.ok) throw new Error('Drive ' + r.status + ': ' + (await r.text()).slice(0, 200));
+  return r.status === 204 ? null : r.json();
+}
+async function gdCarpeta(tok, nom, pare) {
+  const q = `name='${nom.replace(/\\/g, '').replace(/'/g, "\\'")}' and mimeType='application/vnd.google-apps.folder' and trashed=false` + (pare ? ` and '${pare}' in parents` : '');
+  const f = (await gd(tok, 'files?fields=files(id)&q=' + encodeURIComponent(q))).files[0];
+  if (f) return f.id;
+  const json = { 'Content-Type': 'application/json' };
+  const n = await gd(tok, 'files?fields=id', { method: 'POST', headers: json, body: JSON.stringify({ name: nom, mimeType: 'application/vnd.google-apps.folder', ...(pare ? { parents: [pare] } : {}) }) });
+  // qualsevol amb l'enllaç la pot veure: així les famílies veuen les fotos sense compte de Drive
+  await gd(tok, `files/${n.id}/permissions`, { method: 'POST', headers: json, body: JSON.stringify({ role: 'reader', type: 'anyone' }) });
+  return n.id;
+}
+async function gdPuja(tok, f, pare) {
+  const b = 'volei' + Date.now(), meta = JSON.stringify({ name: f.name || 'foto.jpg', parents: [pare] });
+  const body = new Blob([`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: ${f.type || 'image/jpeg'}\r\n\r\n`, f, `\r\n--${b}--`]);
+  return (await gd(tok, 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body })).id;
+}
+window.triaFotos = id => {
+  const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.multiple = true;
+  i.onchange = () => i.files.length && pujaFotos(id, [...i.files]); i.click();
+};
+async function pujaFotos(id, files) {
+  const n = files.length;
+  if (!await dialeg(`Penjar ${n} foto${n > 1 ? 's' : ''} al teu Google Drive?<br><small>Es guarden a la carpeta «Vòlei - fotos dels partits». Les veuran els entrenadors i les famílies de l'equip.</small>`, { ok: 'Penja-les' })) return;
+  let tok;
+  try { await carregaGsi(); tok = await tokDrive(); }
+  catch (e) { registraError(e, 'drive-permis'); return dialeg(`No s'ha pogut connectar amb Google Drive.<br><small>${esc(e.message)}</small>`, { sol: true }); }
+  const p = parVis(id), riv = p.rival || 'Rival';
+  pujant = { id, fet: 0, tot: n }; render();
+  try {
+    const carp = await gdCarpeta(tok, `${p.data} ${p.lloc === 'fora' ? riv + ' - ' + nomNostre(p) : nomNostre(p) + ' - ' + riv}`, await gdCarpeta(tok, 'Vòlei - fotos dels partits'));
+    for (const f of files) { const fid = await gdPuja(tok, f, carp); await fs.setDoc(ref('fotos', fid), { partit: id, per: USR.uid, t: Date.now() }); pujant.fet++; render(); }
+  } catch (e) { registraError(e, 'drive-puja'); dialeg(`S'han penjat ${pujant.fet} de ${n} fotos.<br><small>${esc(e.message)}</small>`, { sol: true }); }
+  pujant = null; render();
 }
 function viewConfigFam() {
   const t = store.get('volei.tema', 'auto'), G = grups(), g = grupDe(TEMP), meus = Object.keys(G).filter(k => rolDe(k));
@@ -1833,8 +1930,9 @@ window.editaPartit = id => {
     <label class="lbl">On</label><div class="seg" id="epl" style="margin:0">${[['casa', '🏠 A casa'], ['fora', '🚌 A fora']].map(([v, t]) => `<button class="${(p.lloc || 'casa') === v ? 'on' : ''}" ${tria('v', v)}>${t}</button>`).join('')}</div>
     ${dosEq() ? `<label class="lbl">Equip</label><div class="seg" id="epe" style="margin:0">${Object.entries(EQN).map(([v, t]) => `<button class="${p.equip === v ? 'on' : ''}" ${tria('v', v)}>${t}</button>`).join('')}</div>` : ''}
     <label class="lbl">Pavelló o adreça</label><input type="text" id="epa" value="${esc(p.adreca || '')}" placeholder="Per exemple Pavelló Municipal de Cassà">
-    <label class="lbl">Fotos (enllaç a una carpeta de Google Drive)</label><input type="url" id="epf" value="${esc(p.fotos || '')}" placeholder="https://drive.google.com/drive/folders/…">
-    <p class="meta" style="margin:4px 0 0">La carpeta s'ha de compartir com a «Qualsevol persona amb l'enllaç». Les famílies veuen les fotos a l'app.</p>
+    <details${p.fotos ? ' open' : ''}><summary class="meta" style="cursor:pointer;margin-top:10px">Fotos d'una carpeta de Drive que ja tens (opcional)</summary>
+    <input type="url" id="epf" value="${esc(p.fotos || '')}" placeholder="https://drive.google.com/drive/folders/…">
+    <p class="meta" style="margin:4px 0 0">Normalment no cal: a «📷 Fotos» les tries de la galeria i l'app les penja sola. Si ja tens una carpeta compartida com a «Qualsevol persona amb l'enllaç», enganxa-la aquí.</p></details>
     <button class="btn danger" style="width:100%;margin-top:12px" onclick="tancaFitxa();parDel('${id}')">Esborra el partit</button></div>`,
     `<button class="btn" onclick="tancaFitxa()">Cancel·la</button><button class="btn primary" style="flex:1" onclick="desaPartit('${id}')">Desa</button>`);
   if (!p.rival) setTimeout(() => $('#epr')?.focus(), 50);
@@ -2308,7 +2406,7 @@ Object.defineProperty(window, 'editEquip', { get: () => editEquip, set: v => { e
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
-addEventListener('hashchange', () => { const mi = location.hash.match(/^#\/uneix\/([A-Za-z0-9]{24,})\/([A-Za-z0-9]{12,})/); if (mi) { store.set('volei.invitacio', { clau: mi[1], codi: mi[2] }); if (USR) quiSoc(); } sel = null; convDesfes = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; tancaFitxa(); render(); scrollTo(0, 0); });
+addEventListener('hashchange', () => { fotoTanca(); const mi = location.hash.match(/^#\/uneix\/([A-Za-z0-9]{24,})\/([A-Za-z0-9]{12,})/); if (mi) { store.set('volei.invitacio', { clau: mi[1], codi: mi[2] }); if (USR) quiSoc(); } sel = null; convDesfes = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; tancaFitxa(); render(); scrollTo(0, 0); });
 TEMP = TEMP || CFG.actual;
 fetch(tcfg().sessions, { cache: 'no-cache' }).then(r => r.json())
   .then(d => { D = d; D.__file = tcfg().sessions; render(); initFirebase(); })
