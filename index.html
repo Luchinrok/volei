@@ -758,7 +758,7 @@ async function initFirebase() {
     db = fs.initializeFirestore(app, { localCache: fs.persistentLocalCache() });
     try {
       AM = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js');
-      auth = AM.getAuth(app); AM.getRedirectResult(auth).catch(e => { registraError(e, 'login-redirect'); dialeg(`No s'ha pogut entrar amb Google.<br><small>${esc(e.code || e.message)}</small>`, { sol: true }); });
+      auth = AM.getAuth(app); AM.getRedirectResult(auth).then(tornaDrive).catch(e => { registraError(e, 'login-redirect'); store.set('volei.drivePer', null); dialeg(`No s'ha pogut connectar amb Google.<br><small>${esc(e.code || e.message)}</small>`, { sol: true }); });
       AM.onAuthStateChanged(auth, u => { USR = u || null; quiSoc(); });
     } catch (e) { console.error(e); USR = null; }
     if (CLAU && !NOMES_COMPTES) connecta();
@@ -1865,18 +1865,28 @@ window.fotoTreu = async (id, f) => {
 
 // penjar fotos: es demana permís per a Google Drive (només els fitxers que crea l'app) i es pugen a una carpeta per partit
 let gTok = null, pujant = null;
-const tokDrive = async () => {
-  if (gTok?.fins > Date.now() + 60e3) return gTok.t;
+// permís de Drive: es va a Google i es torna a l'app (com en entrar), sense finestra a part: al mòbil
+// la finestra a part no comparteix memòria amb l'app («missing initial state»). El permís dura una hora.
+const tokDrive = () => { const t = store.get('volei.drive', null); return t?.fins > Date.now() + 60e3 ? t.t : null; };
+const demanaDrive = id => {
+  store.set('volei.drivePer', id);
   const prov = new AM.GoogleAuthProvider(); prov.addScope('https://www.googleapis.com/auth/drive.file'); prov.setCustomParameters({ login_hint: USR?.email || '' });
-  const r = await ambTemps(AM.reauthenticateWithPopup(auth.currentUser, prov), 120e3, 'Google no ha contestat (finestra del permís)');
-  const t = AM.GoogleAuthProvider.credentialFromResult(r)?.accessToken;
-  if (!t) throw new Error('Google no ha donat permís per al Drive');
-  gTok = { t, fins: Date.now() + 55 * 60e3 }; return t;
+  AM.reauthenticateWithRedirect(auth.currentUser, prov).catch(e => { registraError(e, 'drive-permis'); dialeg(`No s'ha pogut demanar el permís.<br><small>${esc(e.code || e.message)}</small>`, { sol: true }); });
 };
+function tornaDrive(r) {
+  const id = store.get('volei.drivePer', null); if (!id) return;
+  store.set('volei.drivePer', null);
+  const t = r && AM.GoogleAuthProvider.credentialFromResult(r)?.accessToken;
+  if (!t) return;
+  store.set('volei.drive', { t, fins: Date.now() + 55 * 60e3 });
+  location.hash = '#/fotos/' + id;
+  dialeg('Fet! Ja pots penjar fotos durant una hora.<br><small>Toca «＋ Afegeix fotos de la galeria».</small>', { sol: true, ico: '📷' });
+}
 // cap pas es pot quedar penjat: si triga massa, error
 const ambTemps = (pr, ms, msg) => Promise.race([pr, new Promise((_, ko) => setTimeout(() => ko(new Error(msg)), ms))]);
 async function gd(tok, url, opt = {}) {
   const r = await ambTemps(fetch(url.startsWith('http') ? url : 'https://www.googleapis.com/drive/v3/' + url, { ...opt, headers: { Authorization: 'Bearer ' + tok, ...(opt.headers || {}) } }), 30e3, 'Google Drive no contesta');
+  if (r.status === 401) store.set('volei.drive', null);
   if (!r.ok) throw new Error('Drive ' + r.status + ': ' + (await r.text()).slice(0, 200));
   return r.status === 204 ? null : r.json();
 }
@@ -1899,13 +1909,17 @@ function gdPuja(tok, f, pare, prog) {
     x.setRequestHeader('Authorization', 'Bearer ' + tok); x.setRequestHeader('Content-Type', 'multipart/related; boundary=' + b);
     x.timeout = 5 * 60e3;
     x.upload.onprogress = e => e.lengthComputable && prog(Math.round(100 * e.loaded / e.total));
-    x.onload = () => { if (x.status >= 200 && x.status < 300) { try { return ok(JSON.parse(x.responseText).id); } catch {} } ko(new Error('Drive ' + x.status + ': ' + (x.responseText || '').slice(0, 200))); };
+    x.onload = () => { if (x.status >= 200 && x.status < 300) { try { return ok(JSON.parse(x.responseText).id); } catch {} } if (x.status === 401) store.set('volei.drive', null); ko(new Error('Drive ' + x.status + ': ' + (x.responseText || '').slice(0, 200))); };
     x.onerror = () => ko(new Error('Sense connexió amb Google Drive'));
     x.ontimeout = () => ko(new Error('La foto triga massa a pujar'));
     x.send(body);
   });
 }
-window.triaFotos = id => {
+window.triaFotos = async id => {
+  if (!tokDrive()) {
+    if (await dialeg("Per penjar fotos, Google et demanarà permís per guardar-les al teu Drive (només les que penges des d'aquí).<br><small>Sortiràs un moment de l'app i hi tornaràs sol.</small>", { ok: 'Continua' })) demanaDrive(id);
+    return;
+  }
   const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.multiple = true;
   i.onchange = () => i.files.length && pujaFotos(id, [...i.files]); i.click();
 };
@@ -1915,8 +1929,7 @@ async function pujaFotos(id, files) {
   const p = parVis(id), riv = p.rival || 'Rival', pas = t => { pujant.pas = t; render(); };
   pujant = { id, fet: 0, tot: n, pas: '' };
   try {
-    pas('Demanant permís a Google Drive…');
-    const tok = await tokDrive();
+    const tok = tokDrive(); if (!tok) throw new Error("El permís de Drive ha caducat. Torna a tocar «Afegeix fotos».");
     pas('Preparant la carpeta del partit…');
     const carp = await gdCarpeta(tok, `${p.data} ${p.lloc === 'fora' ? riv + ' - ' + nomNostre(p) : nomNostre(p) + ' - ' + riv}`, await gdCarpeta(tok, 'Vòlei - fotos dels partits'));
     for (const f of files) {
@@ -1927,8 +1940,7 @@ async function pujaFotos(id, files) {
     }
   } catch (e) {
     registraError(e, 'fotos: ' + pujant.pas);
-    const tancat = /popup-closed|cancelled-popup/.test(e.code || '');
-    dialeg(tancat ? 'Has tancat la finestra de Google sense donar permís. Torna-ho a provar.' : `${pujant.fet ? `S'han penjat ${pujant.fet} de ${n} fotos.` : "No s'ha pogut penjar."}<br><small>${esc(e.code || e.message)}</small>`, { sol: true });
+    dialeg(`${pujant.fet ? `S'han penjat ${pujant.fet} de ${n} fotos.` : "No s'ha pogut penjar."}<br><small>${esc(e.code || e.message)}</small>`, { sol: true });
   } finally { pujant = null; render(); }
 }
 function viewConfigFam() {
