@@ -612,8 +612,9 @@
  },
  "BL3": {
   "objectiu": "Defensar la pilota que rebota del bloc i continuar la jugada.",
-  "organitzacio": "Nou per pista: un rematador, un que aguanta la pilota de pilates que fa de bloc, tres defenses i un col·locador al camp del rematador, tres jugadors a l'altra banda i un recollint.",
+  "organitzacio": "Nou per pista. Al camp del rematador: el rematador, un col·locador i tres defenses. A l'altra banda de la xarxa: el que aguanta la pilota de pilates per sobre de la xarxa, que fa de bloc, i tres jugadors més. Un recull pilotes.",
   "passos": [
+   "El rematador passa la pilota al col·locador, que la hi col·loca.",
    "El rematador remata contra la pilota de pilates, que fa de bloc.",
    "La pilota rebota al seu propi camp i un dels tres defenses la defensa.",
    "El col·locador col·loca i remata un dels tres defenses.",
@@ -644,7 +645,7 @@
    "El tercer toc la passa de braços a l'altre camp.",
    "L'altra parella fa el mateix."
   ],
-  "rotacio": "Quan cau la pilota, entren dos de nous. Sèries de 3 minuts.",
+  "rotacio": "Quan cau la pilota, la parella que l'ha deixat caure surt i entren dos de nous. Sèries de 3 minuts.",
   "claus": []
  },
  "BL7": {
@@ -1138,7 +1139,7 @@
    "(3) B la torna amb un remat controlat.",
    "(4) B la torna de dits i fa el recorregut corrent d'esquena."
   ],
-  "rotacio": "Es canvia de rol.",
+  "rotacio": "Es canvia de rol cada 5 repeticions.",
   "claus": []
  },
  "D17": {
@@ -1204,7 +1205,7 @@
    "El del vèrtex la passa a la punta B: així fa un passe frontal i un de lateral.",
    "La punta B repeteix el mateix cicle des del seu costat."
   ],
-  "rotacio": "Es canvia el jugador del vèrtex cada 10 cicles, fins que tots tres hi hagin passat.",
+  "rotacio": "Cada jugador fa 10 cicles al vèrtex i llavors es canvia. Tres rondes, perquè tots tres hi passin.",
   "claus": []
  },
  "D22": {
@@ -1733,14 +1734,14 @@
  },
  "J2": {
   "objectiu": "Treballar en trio la cadena remat, defensa i col·locació.",
-  "organitzacio": "Trios: un rematador, un defensa i un col·locador.",
+  "organitzacio": "Trios en triangle, sense xarxa: un rematador, un defensa i un col·locador.",
   "passos": [
    "El rematador remata cap al defensa.",
    "El defensa defensa la pilota cap al col·locador.",
-   "El col·locador col·loca fins a on és el rematador, que torna a rematar.",
-   "Es fan 10 cicles seguits per trio."
+   "El col·locador col·loca al rematador, que torna a rematar.",
+   "La cadena és contínua, sense aturar-se. 10 cicles per trio."
   ],
-  "rotacio": "Es canvien els rols cada 5 repeticions.",
+  "rotacio": "Es canvien els rols cada 5 repeticions. Cada jugador fa 2 torns.",
   "claus": []
  },
  "J3": {
@@ -1901,7 +1902,7 @@
    "Alhora, un remata de Z2 cap a Z5 i l'altre de Z4 cap a Z1.",
    "Nivell 1: cada defensa aixeca la seva pilota cap al company del costat, que l'agafa a dalt amb les mans.",
    "Nivell 2: el company, en comptes d'agafar-la, la col·loca de tornada.",
-   "Nivell 3: s'hi afegeix un remat en línia cap a l'altre camp, i els dos que rematen passen a bloquejar-lo."
+   "Nivell 3: s'hi afegeix un remat en línia cap a l'altre camp, i els dos que rematen passen a defensar-lo."
   ],
   "rotacio": "Es canvia de rol cada 5 repeticions i tothom passa per tots els rols. 10 repeticions per nivell, sense aturar l'exercici entre nivells.",
   "claus": [
@@ -2241,12 +2242,13 @@
   "objectiu": "Encadenar a intensitat desplaçament, defensa, autocol·locació i remat controlat.",
   "organitzacio": "Dos recorreguts en paral·lel. Corren dos jugadors alhora; a l'altre camp hi ha algú defensant i la resta recull i fa cua.",
   "passos": [
-   "El jugador corre el recorregut de línies 9-6-9-3-9.",
-   "Tira la pilota a la xarxa i la defensa.",
-   "Se la col·loca ell mateix.",
-   "Fa un remat controlat a l'altre camp, on algú el defensa."
+   "El jugador surt de la línia de fons, corre uns 3 m endavant i torna.",
+   "Corre 6 m endavant i torna.",
+   "Corre fins a la xarxa.",
+   "Tira la pilota a la xarxa, la defensa i se la col·loca ell mateix.",
+   "Fa un remat controlat a l'altre camp, on un altre jugador el defensa."
   ],
-  "rotacio": "Després de cada recorregut entra el següent de la cua. Cada jugador fa 5 recorreguts, amb 60 s de descans entre recorreguts.",
+  "rotacio": "El que defensa a l'altre camp agafa la pilota i després fa ell el recorregut. Cada jugador fa 5 recorreguts, amb 60 s de descans entre recorreguts.",
   "claus": [
    "Va d'intensitat."
   ]
@@ -2480,7 +2482,9 @@
    "Les altres vegades que es fa, es compara el nombre d'intents amb els registres anteriors."
   ],
   "rotacio": "",
-  "claus": []
+  "claus": [
+   "Exercici redundant amb S9: es retira de la biblioteca."
+  ]
  },
  "S5": {
   "objectiu": "Servir amb precisió cap a un jugador concret i recepcionar amb control.",
@@ -2497,12 +2501,11 @@
   "objectiu": "Recepcionar alt i precís cap al col·locador sota volum de serveis seguits.",
   "organitzacio": "A cada mitja pista: 1 receptor, 1 jugador a la posició de col·locador que agafa la pilota, i la resta serveix des de l'altre camp.",
   "passos": [
-   "Els servidors saquen sense parar cap al receptor.",
+   "Els servidors saquen sense parar cap al receptor durant 2 minuts.",
    "El receptor recepciona cap al col·locador, que agafa la pilota.",
-   "Es continua així durant tota la sèrie.",
    "Es repeteix fins que tothom ha fet de receptor dues vegades."
   ],
-  "rotacio": "En acabar cada sèrie, entra un altre receptor i el que recepcionava passa a servir o a fer de col·locador.",
+  "rotacio": "Cada 2 minuts entra un altre receptor i el que recepcionava passa a servir o a fer de col·locador.",
   "claus": [
    "Compta la recepció alta que arriba bé al col·locador, no el punt."
   ]
@@ -2525,7 +2528,7 @@
    "El receptor surt de fora del camp i entra corrent a recepcionar el saque cap al col·locador.",
    "Variant més dura: el receptor comença estirat a terra i s'ha d'aixecar per recepcionar."
   ],
-  "rotacio": "Canvi de receptor cada 5 repeticions. Cada jugador fa 2 torns.",
+  "rotacio": "Cada jugador fa 10 recepcions entrant i 10 començant estirat, en dos torns de 5: en fa 5, es rota i després fa les altres 5.",
   "claus": []
  },
  "S9": {

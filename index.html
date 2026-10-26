@@ -958,7 +958,8 @@ let nofEdit = null;   // {id, motiu, text} mentre s'omple el formulari de "no l'
 let EXS = null, EXEST = [], bibFam = '', bibOri = '';
 // exercicis estàndard (clàssics que fa tothom, redactats per Claude): web/data/estandard.json
 fetch('data/estandard.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXEST = d; d.forEach(e => { ORI[e.codi] = 'estandard'; }); render(); }).catch(() => {});
-const exercicis = () => [...(D?.exercicis?.length ? D.exercicis : EXS || []), ...EXEST];
+const RETIRATS = ['S4'];                               // retirats de la biblioteca (S4: redundant amb S9, 26-10-2026)
+const exercicis = () => [...(D?.exercicis?.length ? D.exercicis : EXS || []), ...EXEST].filter(e => !RETIRATS.includes(e.codi));
 function carregaExs() { if (EXS || D?.exercicis?.length) return; EXS = []; fetch('data/sessions.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXS = d.exercicis || []; render(); }).catch(() => {}); }
 // on surt cada exercici (sessions d'aquest equip, en ordre de calendari)
 function usosExs() {
