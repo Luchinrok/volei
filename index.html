@@ -662,6 +662,7 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 #fgran .fbar .on { color: #f5c518; } #fgran .fbar .on small { color: #f5c518; }
 iframe.fotos { width: 100%; height: 70vh; border: 0; border-radius: 12px; background: var(--card, #fff); margin: 8px 0; }
 .mc .mbody a.meta { text-decoration: none; }
+.tag.ori-estandard { color: #8a6d1f; } .exrow .meta .ori-estandard { color: #8a6d1f; }
 .tag.ori-teu { color: #12a07c; } .tag.ori-modificat { color: #d9822b; } .tag.ori-claude { color: #6b7cff; }
 </style>
 </head>
@@ -940,8 +941,10 @@ const MOTIU = { repetitiu: 'Repetitiu', altredia: 'Un altre dia', noviable: 'No 
 let nofEdit = null;   // {id, motiu, text} mentre s'omple el formulari de "no l'hem fet"
 
 // ------------------------------------------------------------------ biblioteca d'exercicis (annex del Word)
-let EXS = null, bibFam = '', bibOri = '';
-const exercicis = () => D?.exercicis?.length ? D.exercicis : EXS || [];
+let EXS = null, EXEST = [], bibFam = '', bibOri = '';
+// exercicis estàndard (clàssics que fa tothom, redactats per Claude): web/data/estandard.json
+fetch('data/estandard.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXEST = d; d.forEach(e => { ORI[e.codi] = 'estandard'; }); render(); }).catch(() => {});
+const exercicis = () => [...(D?.exercicis?.length ? D.exercicis : EXS || []), ...EXEST];
 function carregaExs() { if (EXS || D?.exercicis?.length) return; EXS = []; fetch('data/sessions.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXS = d.exercicis || []; render(); }).catch(() => {}); }
 // on surt cada exercici (sessions d'aquest equip, en ordre de calendari)
 function usosExs() {
@@ -982,8 +985,10 @@ function viewExercici(c) {
   const e = exercicis().find(x => x.codi === c); if (!e) return exercicis().length ? `<p class="empty">No trobo l'exercici ${esc(c)}.</p>` : '<p class="empty">Carregant…</p>';
   const us = usosExs()[c] || [];
   return `<div class="shead"><span class="code fam f-${e.fam}" style="font-size:18px;padding:6px 10px">${e.codi}</span><h2>${esc(e.nom)}</h2></div>
-  <div class="tags"><span class="meta">${esc(e.famNom || FAM[e.fam] || '')}</span>${origens(e.codi)}</div>
+  <div class="tags"><span class="meta">${esc(e.famNom || FAM[e.fam] || '')}</span>${ORI[e.codi] ? ` <span class="tag ori-${ORI[e.codi]}">${ORIT[ORI[e.codi]]}</span>` : ''}${e.pistes ? ` <span class="meta">· ${e.pistes === '2' ? '2 pistes' : e.pistes === '1' ? '1 pista' : '1 o 2 pistes'}</span>` : ''}</div>
+  ${e.tambe ? `<p class="meta" style="margin:4px 0 8px">També se'n diu: <i>${esc(e.tambe)}</i></p>` : ''}
   <div class="card block f-${e.fam}">${fields(e)}</div>
+  ${e.font ? `<p class="meta">D'on surt: ${esc(e.font)} Explicació escrita per Claude amb paraules pròpies.</p>` : ''}
   ${(() => { const k = us.find(x => !isFet(x)) || us[us.length - 1], b = k && byCode(k)?.blocs.find(x => !x.tret && (x.codi.match(/\b(BL|[DBSRCJG])\d+\b/g) || []).includes(c));
     return b && b.com !== e.com ? `<details class="card"><summary><b>Com es fa a ${k}</b> <span class="meta">${esc(b.titol)}</span></summary><div class="block" style="margin-top:8px">${fields(b)}</div></details>` : ''; })()}
   <h3>On surt</h3>
@@ -1052,8 +1057,8 @@ function dialeg(text, { ok = "D'acord", cancel = 'Cancel·la', perill = false, s
 window.dialeg = dialeg;
 // d'on surt cada exercici (classificació del 25-10-2026): teu, modificat o de Claude
 let ORI = {};
-fetch('data/origen.json', { cache: 'no-cache' }).then(r => r.json()).then(o => { ORI = o; render(); }).catch(() => {});
-const ORIT = { teu: 'Teu', modificat: 'Modificat', claude: 'De Claude' };
+fetch('data/origen.json', { cache: 'no-cache' }).then(r => r.json()).then(o => { Object.assign(ORI, o); render(); }).catch(() => {});
+const ORIT = { teu: 'Teu', modificat: 'Modificat', claude: 'De Claude', estandard: 'Estàndard' };
 const origens = codi => [...new Set((codi.match(/\b[A-Z]{1,2}\d+\b/g) || []).map(k => ORI[k]).filter(Boolean))].map(o => ` <span class="tag ori-${o}">${ORIT[o]}</span>`).join('');
 function viewEntra() {
   const inv = store.get('volei.invitacio', null);
