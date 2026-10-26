@@ -634,6 +634,10 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 #fedit .fico { width: 40px; height: 40px; display: grid; place-items: center; background: none; border: 0; color: rgba(255,255,255,.85); cursor: pointer; }
 #fedit .flink { background: none; border: 0; color: rgba(255,255,255,.75); font-size: 14px; padding: 8px 10px; cursor: pointer; }
 #fedit .fok { background: #f5c518; color: #14181f; border: 0; border-radius: 10px; font-weight: 700; font-size: 14px; padding: 9px 18px; cursor: pointer; }
+.clar p { margin: 4px 0; } .clar ol { margin: 6px 0; padding-left: 22px; } .clar li { margin: 3px 0; }
+.clart { margin: 0 0 6px; font-size: 15px; }
+.clard { margin-top: 8px; border-top: 1px dashed var(--line); padding-top: 6px; }
+.clard summary { cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 600; }
 .chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: none; }
 .chips button { flex: none; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
 .chips button.on { background: var(--ink); color: var(--card); border-color: var(--ink); }
@@ -932,6 +936,16 @@ function sessRow(s, prox) {
     : `<a class="card srow ${fet ? 'fet' : ''} ${prox ? 'prox' : ''}" href="#/s/${s.codi}">${inner}</a>`;
 }
 
+// explicacions pas a pas per a altres entrenadors (escrites per Claude a partir del text de l'entrenador): data/clar.json
+let CLAR = {};
+fetch('data/clar.json', { cache: 'no-cache' }).then(r => r.json()).then(c => { CLAR = c; render(); }).catch(() => {});
+function clarHtml(k) {
+  const c = CLAR[k]; if (!c) return '';
+  return `<div class="clar">${c.objectiu ? `<p><b>Objectiu.</b> ${esc(c.objectiu)}</p>` : ''}${c.organitzacio ? `<p><b>Organització.</b> ${esc(c.organitzacio)}</p>` : ''}
+    ${(c.passos || []).length ? `<ol>${c.passos.map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : ''}
+    ${c.rotacio ? `<p><b>Rotació.</b> ${esc(c.rotacio)}</p>` : ''}${(c.claus || []).length ? `<p><b>Claus.</b> ${c.claus.map(esc).join(' ')}</p>` : ''}</div>`;
+}
+const clarBloc = b => (b.codi.match(/\b(BL|[DBSRCJG])\d+\b/g) || []).filter(k => CLAR[k]).map(k => `<details class="clard"><summary>Explicació pas a pas${/[ +,]/.test(b.codi) ? ' (' + k + ')' : ''}</summary>${clarHtml(k)}</details>`).join('');
 function fields(b) {
   return ['com', 'dosi', 'muntatge'].filter(k => b[k]).map(k =>
     `<div class="field">${k === 'com' ? '' : `<b>${LABEL[k]}</b>`}${esc(b[k])}</div>`).join('');
@@ -987,6 +1001,7 @@ function viewExercici(c) {
   return `<div class="shead"><span class="code fam f-${e.fam}" style="font-size:18px;padding:6px 10px">${e.codi}</span><h2>${esc(e.nom)}</h2></div>
   <div class="tags"><span class="meta">${esc(e.famNom || FAM[e.fam] || '')}</span>${ORI[e.codi] ? ` <span class="tag ori-${ORI[e.codi]}">${ORIT[ORI[e.codi]]}</span>` : ''}${e.pistes ? ` <span class="meta">· ${e.pistes === '2' ? '2 pistes' : e.pistes === '1' ? '1 pista' : '1 o 2 pistes'}</span>` : ''}</div>
   ${e.tambe ? `<p class="meta" style="margin:4px 0 8px">També se'n diu: <i>${esc(e.tambe)}</i></p>` : ''}
+  ${CLAR[e.codi] ? `<div class="card"><h4 class="clart">Explicació pas a pas</h4>${clarHtml(e.codi)}<p class="meta" style="margin:6px 0 0">Escrita per Claude a partir del text original, per a qui no ha vist mai l'exercici.</p></div><h3>Text original</h3>` : ''}
   <div class="card block f-${e.fam}">${fields(e)}</div>
   ${e.font ? `<p class="meta">D'on surt: ${esc(e.font)} Explicació escrita per Claude amb paraules pròpies.</p>` : ''}
   ${(() => { const k = us.find(x => !isFet(x)) || us[us.length - 1], b = k && byCode(k)?.blocs.find(x => !x.tret && (x.codi.match(/\b(BL|[DBSRCJG])\d+\b/g) || []).includes(c));
@@ -1011,6 +1026,7 @@ function blockCard(b, s, ord) {
       ${ord ? `<span class="ord"><button ${ord.first ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, -1)">▲</button><button ${ord.last ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, 1)">▼</button></span>` : ''}</div>
     ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi).replace(/\b(BL|[DBSRCJG])\d+\b/g, k => `<a href="#/e/${k}">${k}</a>`)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}${origens(b.codi)}</div>` : ''}
     ${fields(b)}
+    ${ord ? '' : clarBloc(b)}
     ${b.lloc ? `<div class="field"><b>Lloc</b>${esc(b.lloc)}</div>` : ''}
     ${nofHtml}${form}`}
     ${ord ? '' : `<div class="bfoot">${b.min ? `<button class="chip" onclick="timerSet(${b.min}, '${esc((b.codi || b.titol).replace(/'/g, ''))}', true)">⏱ ${b.min} min</button>` : ''}

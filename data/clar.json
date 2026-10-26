@@ -1,0 +1,2635 @@
+{
+ "B1": {
+  "objectiu": "Toc de braços contra la paret amb un braç sol i amb els dos, picant amb l'avantbraç.",
+  "organitzacio": "Individual, cadascú amb una pilota davant la paret. Hi caben uns 10, separats 1,5 m. Si no hi cap tot el grup, es fa en estacions amb un exercici a la pista.",
+  "passos": [
+   "Ronda 1, a prop de la paret: 30 tocs només amb el braç dret, 30 només amb l'esquerre i 30 amb els dos.",
+   "Ronda 2: el mateix, però a dos metres de la paret.",
+   "Ronda 3: alternant un braç i l'altre sense aturar-se."
+  ],
+  "rotacio": "En estacions, a la meitat del bloc els de la paret passen a la pista i al revés.",
+  "claus": [
+   "Picar amb l'avantbraç, no amb la mà."
+  ]
+ },
+ "B2": {
+  "objectiu": "Toc de braços amb bot a terra, treballant la posició baixa.",
+  "organitzacio": "Individual, cadascú amb una pilota a 2-3 m de la paret. Tots alhora a la paret, o la meitat del grup si es fa en estacions.",
+  "passos": [
+   "El jugador fa un toc de braços contra la paret.",
+   "Deixa que la pilota boti a terra i torna a fer braços contra la paret, sense parar: braços, paret, terra, braços.",
+   "Fa 3 sèries de 20 tocs, i a cada sèrie canvia la cama que té avançada."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Baixar el cul a cada toc."
+  ]
+ },
+ "B3": {
+  "objectiu": "Controlar la pilota alta amb braços i tornar-la girant el cos.",
+  "organitzacio": "Per parelles escampades per la pista, una pilota per parella. Els dos fan el mateix i s'alternen el toc.",
+  "passos": [
+   "Variant 1: un passa, l'altre controla la pilota amunt amb braços i la torna de braços de cares.",
+   "Variant 2: després del control es gira de costat i la passa de braços.",
+   "Variant 3: després del control es gira del tot i la passa de braços d'esquena al company.",
+   "20 repeticions per variant i per jugador."
+  ],
+  "rotacio": "No hi ha rols: els dos fan el mateix alternant.",
+  "claus": [
+   "El control ha de quedar alt per tenir temps de girar-se."
+  ]
+ },
+ "B4": {
+  "objectiu": "Toc de braços amb els braços estirats i l'impuls des de les cames.",
+  "organitzacio": "Per parelles escampades, una pilota per parella.",
+  "passos": [
+   "Pas 1, control-passe: un toc per a tu i el segon toc passa al company.",
+   "Pas 2: passe directe, sense control.",
+   "Pas 3: control amb un sol braç i passe amb els dos, alternant el braç del control.",
+   "Pas 4: control-passe, però entre passada i passada es toca terra amb les dues mans.",
+   "20 repeticions per pas, uns 2 minuts i mig cadascun."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Braços ben estirats.",
+   "L'impuls surt de les cames, no dels braços."
+  ]
+ },
+ "B5": {
+  "objectiu": "Toc de braços des de posicions baixes i aixecant-se entre tocs.",
+  "organitzacio": "Per parelles escampades. Un fa braços i el company li llança la pilota amb les mans perquè li arribi còmoda.",
+  "passos": [
+   "Pas 1: el que fa braços té els dos genolls a terra.",
+   "Pas 2: amb un sol genoll a terra, primer un i després l'altre.",
+   "Pas 3: dempeus, però entre passada i passada s'asseu a terra i s'aixeca.",
+   "Pas 4: igual que el 3, però fent una flexió en comptes d'asseure's.",
+   "20 repeticions per pas, uns 2 minuts i mig cadascun."
+  ],
+  "rotacio": "Canvi de rol cada 10 repeticions, de manera que cadascú en fa 10 a cada pas.",
+  "claus": []
+ },
+ "B6": {
+  "objectiu": "Mantenir el control mentre augmenta la distància entre els dos.",
+  "organitzacio": "Per parelles escampades per les dues pistes, una pilota per parella. Comencen a prop, al mig de la pista.",
+  "passos": [
+   "La parella es passa la pilota 5 tocs seguits i llavors cadascú fa una passa enrere.",
+   "Així fins arribar a les línies laterals, i després tornen cap al mig acostant-se.",
+   "Pas 1: anada i tornada de braços.",
+   "Pas 2: anada i tornada de dits.",
+   "Pas 3: anada de braços i tornada de dits, a passe directe.",
+   "Pas 4: anada i tornada de braços amb un sol braç, alternant."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "B7": {
+  "objectiu": "Desplaçar-se fins a la pilota, defensar-la i tornar al lloc.",
+  "organitzacio": "Per parelles, un a cada línia lateral de la pista, cara a cara. Cal prou espai lateral per a totes les parelles.",
+  "passos": [
+   "El primer fa control-passe i envia la pilota cap al mig del camp.",
+   "L'altre surt corrent de la seva línia, defensa la pilota al mig i torna a la seva línia.",
+   "Torna a entrar a la pilota següent.",
+   "10 repeticions corrent de cara i 10 corrent d'esquena."
+  ],
+  "rotacio": "Cada jugador fa 10 de cara i 10 d'esquena; després es canvien els papers.",
+  "claus": []
+ },
+ "B8": {
+  "objectiu": "Desplaçament lateral i tornada al centre per defensar alt.",
+  "organitzacio": "Trios amb tres cons: un llança, un defensa i un recull. Un con al mig i un a cada costat del defensa.",
+  "passos": [
+   "El defensa corre al con de la dreta, torna al mig i defensa la pilota que li llancen.",
+   "Corre al con de l'esquerra, torna al mig i defensa.",
+   "Ronda 1: 10 defenses al mig.",
+   "Ronda 2 (variant): defensar directament als cons."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 2 torns de defensa.",
+  "claus": [
+   "Sempre defensa alta."
+  ]
+ },
+ "B9": {
+  "objectiu": "Ajustar els braços a la pilota: ajuntar-los al mig o moure'n només un al costat.",
+  "organitzacio": "Per parelles escampades. Un defensa, estàtic, en posició de defensa amb els braços separats. El company li llança la pilota.",
+  "passos": [
+   "El company llança al mig, a la dreta o a l'esquerra. Si va al mig, el defensa ajunta els dos braços; si va a un costat, només mou un braç.",
+   "Pas 1: llançament còmode i anunciat.",
+   "Pas 2: llançament a l'atzar.",
+   "Pas 3: el defensa comença amb els braços darrere l'esquena i els ha de treure a temps.",
+   "Pas 4: el llançament també pot ser curt, i llavors fa una passa endavant."
+  ],
+  "rotacio": "2 sèries de 12 llançaments per pas, canvi de rol a cada sèrie.",
+  "claus": []
+ },
+ "B10": {
+  "objectiu": "Reaccionar a una pilota que ve per darrere i controlar-la amb braços.",
+  "organitzacio": "Per parelles escampades. Un es posa d'esquena al company que té la pilota.",
+  "passos": [
+   "El de la pilota la tira bombejada per sobre del company; la pilota bota a terra.",
+   "Pas 1: d'esquena, un toc de braços per controlar-la i un segon per tornar-la, sense girar-se.",
+   "Pas 2: es gira primer i la torna de cares.",
+   "Pas 3: d'esquena i amb un sol toc de braços per tornar-la.",
+   "Pas 4: d'esquena, però la pilota va a un costat, no per sobre del cap."
+  ],
+  "rotacio": "10 repeticions per pas i per jugador; després es canvien els papers.",
+  "claus": []
+ },
+ "B11": {
+  "objectiu": "Coordinació: passar-se una pilota de braços per l'aire mentre se'n mou una altra per baix.",
+  "organitzacio": "Per parelles escampades per la pista, dues pilotes per parella: una per l'aire i una per baix.",
+  "passos": [
+   "Els dos es passen una pilota de braços per l'aire i alhora es passen l'altra per baix, sense que cap s'aturi.",
+   "Variant 1: la de baix es passa amb el peu, rodant per terra.",
+   "Variant 2: la de baix es passa amb les mans, rodant per terra.",
+   "Variant 3: la de baix es passa amb les mans a l'alçada de la cintura, sense que toqui terra.",
+   "Uns 3 minuts per variant. Si cau la de l'aire, es recull i es continua de seguida."
+  ],
+  "rotacio": "No hi ha rols: els dos fan el mateix.",
+  "claus": []
+ },
+ "B12": {
+  "objectiu": "Desplaçament lateral per arribar a la pilota i passar de braços.",
+  "organitzacio": "Per parelles, dues pilotes per parella. No es posen cara a cara, sinó desplaçats, en diagonal l'un respecte de l'altre.",
+  "passos": [
+   "Pas 1: els dos passen la seva pilota de braços alhora i recta endavant, no cap al company. Com que estan en diagonal, la pilota arriba al costat de l'altre: cadascú fa dues passes laterals, la passa i torna al lloc.",
+   "Pas 2: una sola pilota. Un la torna sempre recta i l'altre en diagonal; a la meitat es canvien els papers.",
+   "Pas 3: dues pilotes altre cop, però amb un desplaçament de tres o quatre passes.",
+   "Una sèrie de 15 desplaçaments per jugador a cada pas."
+  ],
+  "rotacio": "Només al pas 2 es canvien els papers a la meitat.",
+  "claus": []
+ },
+ "B13": {
+  "objectiu": "Girar-se i arribar a una pilota molt allunyada per tornar-la amb un sol braç.",
+  "organitzacio": "Per parelles escampades. Un d'esquena; l'altre té la pilota i la llança bombejada amb la mà, mai rematant.",
+  "passos": [
+   "El llançador tira la pilota bombejada a un costat molt forçat; el defensa es gira i la torna amb un sol braç.",
+   "Pas 1: al costat dret. Pas 2: al costat esquerre.",
+   "Pas 3: bombejada curta, cal entrar endavant.",
+   "Pas 4: dues pilotes seguides, una a cada costat, sense temps de tornar al centre.",
+   "Pas 5: com el 4, però la pilota ha d'anar alta cap a la zona de col·locació, no només tornada."
+  ],
+  "rotacio": "10 repeticions per pas i per jugador, canvi de rol cada 5.",
+  "claus": [
+   "El llançament és bombejat i obert, no un remat."
+  ]
+ },
+ "B14": {
+  "objectiu": "Defensar alta i controlada una pilota tensa, cap a la zona de col·locació.",
+  "organitzacio": "Per parelles escampades. Un llança la pilota tensa amb la mà, no rematant; l'altre defensa.",
+  "passos": [
+   "Pas 1: el defensa, dempeus. Pas 2: assegut. Pas 3: estirat a terra.",
+   "Pas 4: de genolls i d'esquena; es gira quan sent el cop.",
+   "Pas 5: dempeus, la torna de dits i toca terra després de cada toc.",
+   "Pas 6: dempeus, primer braços i després dits, tocant terra entre els dos tocs."
+  ],
+  "rotacio": "5 repeticions i canvi de rol, a cada pas (uns 2 minuts i mig per pas).",
+  "claus": [
+   "La defensa ha de quedar alta i controlada cap a la zona de col·locació."
+  ]
+ },
+ "B15": {
+  "objectiu": "Defensar alt pilotes cada cop més ràpides i de més lluny.",
+  "organitzacio": "Per parelles escampades. Un envia la pilota i l'altre defensa alta.",
+  "passos": [
+   "Es treballa a tres distàncies: 3, 5 i 7 metres.",
+   "A cada distància, primer el company envia la pilota de dits.",
+   "Després la tira des de dalt amb la mà.",
+   "Finalment fa un remat controlat de peu, sense salt.",
+   "10 repeticions per distància i variant: nou tandes d'uns 80 segons."
+  ],
+  "rotacio": "Canvi de rol a cada distància.",
+  "claus": []
+ },
+ "B16": {
+  "objectiu": "Recorregut de defensa per tota la mitja pista, alternant pilotes curtes i llargues.",
+  "organitzacio": "Grups de 4 o 5, un a cada mitja pista. A cada grup: un entra les pilotes amb la mà des de la xarxa, un defensa, un recull i dos fan cua. L'entrenador va passant pels grups i corregeix.",
+  "passos": [
+   "Des de la xarxa, el llançador entra cinc pilotes amb la mà, seguint l'ordre: curta a Z4, llarga a Z6, curta a Z3, llarga a Z1 i curta a Z2.",
+   "El defensa va a cada pilota i la defensa: fa el recorregut en W.",
+   "El recorregut acaba amb un remat a línia del defensa.",
+   "Tres voltes per jugador."
+  ],
+  "rotacio": "Es rota després de cada recorregut sencer: el defensa passa a recollir i entra el primer de la cua.",
+  "claus": [
+   "Les pilotes s'entren amb la mà, no rematant."
+  ]
+ },
+ "B17": {
+  "objectiu": "Defensa explosiva després de desplaçar-se enrere i endavant.",
+  "organitzacio": "Trios amb quatre cons: un defensa, un llança i un recull.",
+  "passos": [
+   "El defensa va d'esquena fins a un con i defensa la pilota que li llancen.",
+   "Torna endavant i defensa una altra pilota.",
+   "8 defenses per jugador, de manera explosiva."
+  ],
+  "rotacio": "Es rota cada 4 repeticions. Cada jugador fa 2 torns de defensa.",
+  "claus": []
+ },
+ "B18": {
+  "objectiu": "Defensa frontal en moviment, després d'un desplaçament.",
+  "organitzacio": "Per parelles amb tres cons: un con al costat d'un jugador i dos al costat de l'altre.",
+  "passos": [
+   "El defensa corre a tocar el con del company.",
+   "Mentre torna, el company li fa un remat controlat de peu, sense deixades.",
+   "El defensa fa una defensa frontal.",
+   "10 repeticions i canvi de rol; 5 rondes."
+  ],
+  "rotacio": "Canvi de rol cada 5 repeticions.",
+  "claus": []
+ },
+ "B19": {
+  "objectiu": "Defensar una free ball i reaccionar amb el moviment dels companys.",
+  "organitzacio": "Grups de quatre: un llança i tres defensen en línia, un al mig i dos als laterals.",
+  "passos": [
+   "El llançador passa una free ball a qualsevol dels tres defensors.",
+   "Si va al del mig, els dos laterals corren a tocar-lo i tornen al seu lloc.",
+   "Si va a un lateral, només es mou el del mig.",
+   "Uns 3 minuts per grup."
+  ],
+  "rotacio": "Es rota el llançador cada 45 segons.",
+  "claus": []
+ },
+ "B20": {
+  "objectiu": "Toc de braços girant-se entre dues pilotes que arriben de costats oposats.",
+  "organitzacio": "Trios escampats, amb dues pilotes. Un al mig i un a cada extrem, cadascun amb una pilota.",
+  "passos": [
+   "Un extrem passa al del mig, que torna la pilota de braços.",
+   "El del mig es gira i torna de braços la pilota de l'altre extrem.",
+   "20 passades al mig per jugador.",
+   "Variant: el del mig fa un desplaçament de dues passes entre toc i toc."
+  ],
+  "rotacio": "Es rota el del mig cada 10 passades; tres rondes perquè tothom hi passi.",
+  "claus": []
+ },
+ "B21": {
+  "objectiu": "Toc amb un sol braç i encadenar-lo amb altres tocs.",
+  "organitzacio": "Per parelles escampades, una pilota per parella.",
+  "passos": [
+   "Pas 1: toc amb un braç i tornar-la amb els dos.",
+   "Pas 2: toc d'un braç, autopasse i passe de dits amb una sola mà.",
+   "Pas 3: toc d'un braç, autopasse i remat controlat.",
+   "Pas 4: el cicle sencer, alternant braç dret i esquerre a cada repetició.",
+   "15 repeticions per pas i per jugador."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "B22": {
+  "objectiu": "Aixecar-se des de terra i tornar la pilota alta de braços.",
+  "organitzacio": "Per parelles escampades. Un tira la pilota bombejada; l'altre té un genoll a terra.",
+  "passos": [
+   "Estàtic: el defensa, amb un genoll a terra, s'aixeca i torna alta de braços la pilota bombejada.",
+   "10 repeticions per cama.",
+   "Variant en moviment: el defensa surt de zaguer, corre cap a la xarxa, baixa el genoll i torna la pilota alta. El llançador el mou a esquerra i dreta."
+  ],
+  "rotacio": "Canvi de rol cada 5 repeticions. Dues rondes.",
+  "claus": []
+ },
+ "B23": {
+  "objectiu": "Toc de braços controlat a la xarxa, passant-la per sobre i per sota.",
+  "organitzacio": "Cinc parelles a una sola banda de la xarxa, una a cada tram. L'altra meitat del grup fa un altre exercici.",
+  "passos": [
+   "Un passa la pilota de braços per sobre de la xarxa i l'altre per sota, alternant. 20 per parella.",
+   "Progressió 1: un toc de braços i un per sota.",
+   "Progressió 2: un toc, un a la xarxa i un per sobre."
+  ],
+  "rotacio": "Les dues meitats del grup s'intercanvien.",
+  "claus": []
+ },
+ "B24": {
+  "objectiu": "Control-passe de braços mantenint la concentració amb una tasca afegida.",
+  "organitzacio": "Per parelles escampades, una pilota per parella.",
+  "passos": [
+   "Fan control-passe de braços; mentre la pilota és a l'aire, els dos es xoquen la mà.",
+   "Pas 1: xoc d'una mà.",
+   "Pas 2: xoc de les dues mans.",
+   "Pas 3: xoc de mans i cadascú toca terra abans de tornar a la pilota.",
+   "Pas 4: com el pas 1, però de dits.",
+   "2 sèries de 15 passades per pas."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "B25": {
+  "objectiu": "Defensar una pilota llarga i tot seguit una deixada curta, després d'un desplaçament lateral.",
+  "organitzacio": "Trios amb dos cons, un a cada costat del defensa: un remata, un fa la deixada i un defensa.",
+  "passos": [
+   "El defensa toca 4 cops els cons, alternant un i l'altre.",
+   "Llavors el rematador li fa un remat controlat llarg i el defensa el defensa.",
+   "Tot seguit l'altre li fa una deixada curta i el defensa hi ha d'arribar.",
+   "10 repeticions per jugador."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 2 torns de defensa.",
+  "claus": []
+ },
+ "B26": {
+  "objectiu": "Defensar el rebot d'un remat contra la paret i controlar-lo.",
+  "organitzacio": "Per parelles a la paret, separades uns 2 m, els dos mirant la paret. El que remata es posa darrere del que defensa. Només hi va la meitat del grup; l'altra meitat fa un altre exercici.",
+  "passos": [
+   "El de darrere remata la pilota contra la paret.",
+   "El de davant, de cara a la paret, aixeca el rebot.",
+   "Variant 1: controla la pilota, es gira i la passa al company.",
+   "Variant 2: controla i la passa enrere, per sobre del cap, sense girar-se.",
+   "10 remats per variant i per jugador."
+  ],
+  "rotacio": "Canvi de papers a cada tanda de 10. Les dues meitats del grup s'intercanvien a la meitat del bloc.",
+  "claus": []
+ },
+ "B27": {
+  "objectiu": "Control-passe de braços amb un esforç físic entre tocs.",
+  "organitzacio": "Per parelles escampades, una pilota per parella.",
+  "passos": [
+   "Pas 1: control-passe de braços; fa una flexió el que no toca la pilota.",
+   "Pas 2: la fan els dos, alternant qui toca.",
+   "Pas 3: en comptes de la flexió, asseure's i aixecar-se.",
+   "Pas 4: flexió, i la passada és de dits, no de braços.",
+   "2 sèries de 12 passades per pas."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "B28": {
+  "objectiu": "Reaccionar a un senyal i tornar a temps per defensar.",
+  "organitzacio": "Trios amb tres cons de colors diferents al voltant del defensa: un llança i canta el color, un defensa i un recull.",
+  "passos": [
+   "Just abans de llançar, el llançador crida un color.",
+   "El defensa va a tocar el con d'aquell color.",
+   "Torna i defensa la pilota, que el llançador entra amb la mà.",
+   "10 repeticions per jugador."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 2 torns de defensa.",
+  "claus": []
+ },
+ "B29": {
+  "objectiu": "Llegir la trajectòria del saque amb poc temps.",
+  "organitzacio": "Per mitja pista: 2 receptors, 1 col·locador, i la resta servint des de la línia de fons i recollint.",
+  "passos": [
+   "El receptor es posa d'esquena a qui saca.",
+   "Només es gira quan sent el cop del saque.",
+   "Recepciona la pilota cap al col·locador.",
+   "10 recepcions per jugador."
+  ],
+  "rotacio": "Es rota cada 5 recepcions. Cada jugador fa 2 torns de receptor.",
+  "claus": []
+ },
+ "B30": {
+  "objectiu": "Defensar pilotes seguides i aturar els peus abans del contacte.",
+  "organitzacio": "Trios: dos llançadors i un defensa. Els llançadors entren la pilota amb la mà.",
+  "passos": [
+   "Els dos llançadors s'alternen sense esperar-se.",
+   "El defensa no té temps de recol·locar-se i ha de defensar cada pilota.",
+   "10 pilotes per defensa."
+  ],
+  "rotacio": "Es rota cada 5 pilotes. Cada jugador fa 2 torns de defensa; tres rondes.",
+  "claus": [
+   "Aturar els peus abans de tocar la pilota."
+  ]
+ },
+ "B31": {
+  "objectiu": "Calcular la trajectòria d'una pilota que no es veu sencera.",
+  "organitzacio": "Per parelles, amb un banc o cadires al mig entre els dos.",
+  "passos": [
+   "Un llança la pilota bombejada amb la mà per sobre del banc.",
+   "L'altre, sense veure-la sencera, calcula on cau i la defensa.",
+   "10 repeticions per jugador."
+  ],
+  "rotacio": "Canvi de rol cada 5 repeticions. Dues rondes.",
+  "claus": []
+ },
+ "B32": {
+  "objectiu": "Defensa precisa cap a la zona de col·locació.",
+  "organitzacio": "Trios amb quatre cons que formen un quadrat d'un metre a la zona de col·locació: un remata, un defensa i un recull i apunta.",
+  "passos": [
+   "El rematador fa un remat controlat de peu des de 5 m.",
+   "El defensa ha de tornar la pilota dins del quadrat de cons.",
+   "El que recull apunta els encerts. Es puntua per trio.",
+   "10 repeticions per jugador."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 2 torns de defensa.",
+  "claus": []
+ },
+ "B33": {
+  "objectiu": "Regularitat en la recepció sota pressió.",
+  "organitzacio": "Per mitja pista: 2 receptors, 1 col·locador, i la resta servint (saque real) i recollint.",
+  "passos": [
+   "Els receptors han de fer 10 recepcions bones seguides.",
+   "Si en fallen una, el compte torna a zero.",
+   "Es fa en silenci absolut.",
+   "Màxim 4 minuts per grup."
+  ],
+  "rotacio": "Es rota cada 90 segons.",
+  "claus": []
+ },
+ "B34": {
+  "objectiu": "Orientar-se i controlar la pilota després d'un gir complet.",
+  "organitzacio": "Per parelles escampades, una pilota per parella.",
+  "passos": [
+   "Després de cada toc de braços, el jugador fa un gir complet sobre si mateix abans del toc següent.",
+   "Pas 1: gir cap a un costat.",
+   "Pas 2: gir cap a l'altre costat.",
+   "Pas 3: gir i toc de dits en comptes de braços.",
+   "Pas 4: gir doble, dues voltes seguides abans del toc.",
+   "2 sèries de 12 passades per pas."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "B35": {
+  "objectiu": "Aixecar-se ràpid des de terra per defensar alt.",
+  "organitzacio": "Trios: un remata controlat de peu des de 5 m, un defensa des de terra i un recull.",
+  "passos": [
+   "Posició 1: el defensa comença assegut i només s'aixeca quan sent el cop.",
+   "Posició 2: estirat de panxa amunt.",
+   "Posició 3: estirat de panxa avall.",
+   "El defensa torna la pilota alta cap a la zona de col·locació. 8 per posició."
+  ],
+  "rotacio": "Es rota cada 4 repeticions. Cada jugador fa 2 torns de defensa.",
+  "claus": [
+   "El company remata controlat, sense deixades."
+  ]
+ },
+ "B36": {
+  "objectiu": "Desplaçament creuat correcte per defensar sense sortir d'un espai estret.",
+  "organitzacio": "Grups de quatre amb un passadís estret fet amb dues fileres de cons: un llança, un defensa dins del passadís i dos recullen.",
+  "passos": [
+   "El llançador entra la pilota amb la mà, alternant a dreta i esquerra.",
+   "El defensa s'hi desplaça i la defensa sense sortir del passadís.",
+   "12 repeticions per jugador."
+  ],
+  "rotacio": "Es rota cada 4 repeticions. Cada jugador fa 3 torns de defensa.",
+  "claus": []
+ },
+ "B37": {
+  "objectiu": "Ajustar la recepció a un col·locador que canvia de lloc.",
+  "organitzacio": "Per mitja pista: 2 receptors, 1 col·locador, i la resta servint des de la línia de fons i recollint.",
+  "passos": [
+   "El col·locador es mou entre dues posicions.",
+   "Just abans de la recepció crida on és.",
+   "El receptor ajusta la recepció cap a aquella posició.",
+   "10 recepcions per jugador."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 2 torns de receptor.",
+  "claus": []
+ },
+ "B38": {
+  "objectiu": "Acompanyar la pilota amb els braços en comptes de colpejar-la.",
+  "organitzacio": "Per parelles amb pilota de platja. Si només n'hi ha 4-6, es fa com a estació i la resta fa un altre exercici.",
+  "passos": [
+   "La parella treballa la defensa amb la pilota de platja, que obliga a acompanyar-la molt més.",
+   "3 minuts per parella.",
+   "Després, 2 minuts amb pilota normal per notar la diferència."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Aixecar la pilota acompanyant-la, no colpejar-la."
+  ]
+ },
+ "B39": {
+  "objectiu": "Defensar alt a ritme alt, sense pauses.",
+  "organitzacio": "Un grup de sis a cada mitja pista, en línia a tres metres de la xarxa. L'entrenador remata i dos jugadors recullen pilotes.",
+  "passos": [
+   "L'entrenador fa remats controlats un darrere l'altre, sense pausa.",
+   "Els sis defensen alt un darrere l'altre, en cadena.",
+   "Sèries de 90 segons, amb 60 segons de descans. Tres sèries per grup."
+  ],
+  "rotacio": "Els grups es canvien a cada sèrie.",
+  "claus": []
+ },
+ "B40": {
+  "objectiu": "Recepcionar amb poc temps entre saques.",
+  "organitzacio": "A cada pista: en un camp 3 receptors, 1 col·locador i 1 recollint; a l'altre, 5 sacant sense parar. Nou per pista.",
+  "passos": [
+   "Es saca cada cinc segons, sense esperar que la pilota anterior s'aturi.",
+   "Els receptors recepcionen cap al col·locador.",
+   "El que recull treu pilotes contínuament.",
+   "Sèries de 2 minuts; tres sèries per grup de receptors."
+  ],
+  "rotacio": "Es rota a cada sèrie.",
+  "claus": []
+ },
+ "B41": {
+  "objectiu": "Recorregut de defensa en W, alternant curtes i llargues, des de Z2.",
+  "organitzacio": "Per pista: 1 llançador a Z2 tocant la xarxa, que entra les pilotes amb la mà, 1 defensa i 2 recollint. La resta fa cua. Amb dues pistes, dos grups en paral·lel.",
+  "passos": [
+   "El llançador entra cinc pilotes seguides, sense esperar que el defensa torni al centre.",
+   "Ordre: curta a Z2, llarga a Z1, curta a Z3, llarga a Z5 i curta a Z4.",
+   "El defensa defensa cada pilota alta cap a la zona de col·locació.",
+   "Tres recorreguts sencers per jugador."
+  ],
+  "rotacio": "Entra el primer de la cua a cada recorregut.",
+  "claus": []
+ },
+ "B42": {
+  "objectiu": "Defensar remats seguits desplaçant-se lateralment.",
+  "organitzacio": "Un grup a cada mitja pista. Tots menys un es posen en filera al llarg de la línia de 3 m, cadascun amb una pilota. L'altre és el defensa.",
+  "passos": [
+   "El defensa recorre la filera lateralment i defensa un remat controlat de cadascun, sense aturar-se.",
+   "Defensa, dues passes de costat i defensa la següent.",
+   "Els remats han d'arribar-li apurats però a l'abast.",
+   "Fa dues passades senceres: una d'esquerra a dreta i una de dreta a esquerra."
+  ],
+  "rotacio": "Va rotant el defensa fins que tot el grup hi ha passat.",
+  "claus": []
+ },
+ "B43": {
+  "objectiu": "Escalfament de braços jugat, amb dues pilotes i un sol toc per jugador.",
+  "organitzacio": "Una pista per grup: 3x3 a la pista sencera amb cua.",
+  "passos": [
+   "Hi ha dues pilotes en joc alhora i cada jugador fa un sol toc.",
+   "Només una pilota creua la xarxa; l'altra es passa entre els tres del camp, sense parar.",
+   "Qui toca la pilota surt del camp i entra el següent de la cua.",
+   "Si cau una pilota, se n'entra una de nova de seguida i no es para mai.",
+   "Sèries de 3 minuts: es compten els tocs seguits i s'intenta millorar la marca."
+  ],
+  "rotacio": "Continua: qui toca surt i entra el primer de la cua.",
+  "claus": []
+ },
+ "B44": {
+  "objectiu": "Precisió de braços en diagonal i en línia, per totes les zones.",
+  "organitzacio": "Les dues pistes. Parelles, un a cada camp. Les parelles que esperen entren quan l'anterior acaba el recorregut.",
+  "passos": [
+   "Pas 1: es passen de braços de camp a camp. El d'un camp sempre la creua i el de l'altre sempre la tira en línia. Recorregut: Z1 a Z5, Z5 a Z6, Z6 a Z1, Z1 a Z2, Z2 a Z4, Z4 a Z4 i Z4 a Z2.",
+   "Pas 2: el mateix, però el que feia creuat fa línia i al revés.",
+   "Pas 3: es repeteix començant per les curtes i acabant per les llargues, de Z2 a Z4 fins a Z6 a Z1.",
+   "Pas 4: el mateix, però fent defensa, col·locació i remat.",
+   "Uns 5 minuts per pas."
+  ],
+  "rotacio": "Entra la parella següent quan l'anterior acaba el recorregut.",
+  "claus": []
+ },
+ "B45": {
+  "objectiu": "Moure les cames per arribar a la pilota amb els braços ben estirats.",
+  "organitzacio": "Parelles, un a cada banda de la xarxa, repartides per les dues pistes.",
+  "passos": [
+   "Un passa la pilota per sota de la xarxa, amb el gest del saque.",
+   "L'altre l'agafa amb els braços ben estirats.",
+   "Aquest la passa per sobre de la xarxa i el primer l'agafa amb els braços ben estirats.",
+   "Uns 5 minuts."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Moure les cames com en una defensa."
+  ]
+ },
+ "B46": {
+  "objectiu": "Control-passe de braços a la xarxa, per sota i per sobre.",
+  "organitzacio": "Parelles, un a cada banda de la xarxa, repartides per les dues pistes.",
+  "passos": [
+   "Pas 1: un fa control-passe de braços per sota de la xarxa i l'altre control-passe per sobre.",
+   "Pas 2: un fa el control fent picar la pilota a la xarxa i, amb el segon toc, la passa per sota; l'altre fa control de braços i la passa de dits.",
+   "Uns 5 minuts per pas."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "BL1": {
+  "objectiu": "Repetir el salt de bloc amb ritme i baixar ràpid.",
+  "organitzacio": "Individual. Tots a la xarxa alhora, repartits per les dues bandes. Ningú espera.",
+  "passos": [
+   "El jugador salta a bloc a la xarxa.",
+   "En caure, toca terra amb les mans i torna a saltar.",
+   "Fa 10 blocs seguits, descansa 60 s i repeteix fins a 3 sèries."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "BL2": {
+  "objectiu": "Desplaçar-se lateralment entre blocs.",
+  "organitzacio": "Individual. Tots a la xarxa alhora, repartits. Ningú espera.",
+  "passos": [
+   "El jugador salta a bloc.",
+   "Fa una passa lateral i torna a saltar a bloc.",
+   "Fa 10 desplaçaments cap a un costat i després canvia de costat. Es fan 3 sèries."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "BL3": {
+  "objectiu": "Defensar la pilota que rebota del bloc i continuar la jugada.",
+  "organitzacio": "Nou per pista: un rematador, un que aguanta la pilota de pilates que fa de bloc, tres defenses i un col·locador al camp del rematador, tres jugadors a l'altra banda i un recollint.",
+  "passos": [
+   "El rematador remata contra la pilota de pilates, que fa de bloc.",
+   "La pilota rebota al seu propi camp i un dels tres defenses la defensa.",
+   "El col·locador col·loca i remata un dels tres defenses.",
+   "A l'altra banda de la xarxa, els tres continuen la jugada.",
+   "Es fa una ronda per Z4 i una altra per Z2."
+  ],
+  "rotacio": "Cada rematador fa dos remats contra la pilota de pilates i llavors es canvien els tres defenses. Els rols van rotant cada dos remats.",
+  "claus": []
+ },
+ "BL5": {
+  "objectiu": "Fer les cobertures quan l'atac troba bloc.",
+  "organitzacio": "Pista 1: sis contra sis i l'entrenador entrant pilotes. Pista 2: la resta fa el mateix a 3x3, entrant-se les pilotes entre ells.",
+  "passos": [
+   "Saque, recepció i col·locació.",
+   "En comptes de rematar, l'atacant fa una finta dins del propi camp, com si hagués trobat bloc.",
+   "Els companys de cobertura l'han d'aixecar.",
+   "Es torna a col·locar i llavors es remata normal."
+  ],
+  "rotacio": "A la meitat del bloc, els grups es canvien de pista. Es fan 10 jugades amb finta i cobertura per equip.",
+  "claus": []
+ },
+ "BL6": {
+  "objectiu": "Jugar la pilota que surt de la xarxa en un joc 2x2.",
+  "organitzacio": "2x2 a cada mitja pista (quatre mitges pistes entre les dues pistes), amb jugadors de cua a cada una.",
+  "passos": [
+   "El primer toc ha d'anar obligatòriament a la xarxa.",
+   "El company aixeca la pilota que surt de la xarxa.",
+   "El tercer toc la passa de braços a l'altre camp.",
+   "L'altra parella fa el mateix."
+  ],
+  "rotacio": "Quan cau la pilota, entren dos de nous. Sèries de 3 minuts.",
+  "claus": []
+ },
+ "BL7": {
+  "objectiu": "Encadenar bloc, transició i atac.",
+  "organitzacio": "Per mitja pista: un que bloqueja i després remata, un que li aguanta una pilota a la xarxa, un col·locador i dos a l'altre camp que continuen la jugada.",
+  "passos": [
+   "El jugador salta a bloc i toca la pilota que li aguanten.",
+   "La deixen anar i ell fa una curta.",
+   "Li col·loquen i remata.",
+   "Els dos de l'altre camp continuen la jugada."
+  ],
+  "rotacio": "Es roten els rols cada 4 repeticions, fins a fer 8 per jugador. Cada jugador fa 2 torns.",
+  "claus": []
+ },
+ "BL8": {
+  "objectiu": "Desplaçar-se al bloc llegint el col·locador.",
+  "organitzacio": "Per pista: a la banda que ataca, un col·locador, dos atacants a Z4 i Z2 i un que passa pilotes. A la banda que bloqueja, dos bloquejadors (centre i ala). La resta recull i fa cua.",
+  "passos": [
+   "El que passa pilotes la dona al col·locador, que col·loca de veritat a Z4 o a Z2.",
+   "El bloquejador només mira el col·locador.",
+   "Es desplaça en el moment que el col·locador toca la pilota, ni abans ni després, i bloqueja."
+  ],
+  "rotacio": "Es roten els rols cada 4 repeticions, fins a fer 12 desplaçaments per bloquejador. Hi passa tothom, no només els centrals. Cada jugador fa 3 torns.",
+  "claus": [
+   "Arrencar ni abans ni després del toc del col·locador."
+  ]
+ },
+ "BL9": {
+  "objectiu": "Tancar un bloc doble sense deixar forat entre les mans.",
+  "organitzacio": "Per pista: dos bloquejadors (central i punta) a una banda, un col·locador i un atacant a l'altra, i la resta en cua i recollint.",
+  "passos": [
+   "Central i punta salten junts i tanquen el bloc sense deixar forat entre les mans.",
+   "Primer 10 sense pilota.",
+   "Després 10 amb atac controlat del rematador de l'altra banda."
+  ],
+  "rotacio": "Es rota la parella de bloc cada 5 repeticions.",
+  "claus": []
+ },
+ "BL10": {
+  "objectiu": "Passar del bloc a l'atac sense aturar-se.",
+  "organitzacio": "Per pista: dos bloquejadors, un col·locador a cada banda i dos que passen pilotes.",
+  "passos": [
+   "El jugador bloqueja.",
+   "Cau, es gira i surt de la xarxa.",
+   "Entra a rematar la pilota que li col·loquen."
+  ],
+  "rotacio": "Es roten els rols cada 5 repeticions, fins a fer 10 cicles per jugador. Cada jugador fa 2 torns.",
+  "claus": []
+ },
+ "BL11": {
+  "objectiu": "Aprendre a no saltar sempre a bloc davant d'una finta.",
+  "organitzacio": "Per pista: un atacant, un col·locador, un o dos bloquejadors a l'altra banda i dos recollint.",
+  "passos": [
+   "El col·locador col·loca i l'atacant remata o fa finta, a l'atzar i sense avisar.",
+   "El bloquejador llegeix l'atac i decideix si salta o no."
+  ],
+  "rotacio": "Es roten els rols cada 5 repeticions, fins a fer 15 per bloquejador. Cada jugador fa 3 torns.",
+  "claus": [
+   "El bloquejador ha d'aprendre a no saltar sempre."
+  ]
+ },
+ "BL12": {
+  "objectiu": "Fer blocs ben tancats de manera constant.",
+  "organitzacio": "Els bloquejadors seguits al llarg de la xarxa. La resta observa i canta els blocs que no tanquen.",
+  "passos": [
+   "Els bloquejadors salten a bloc i tot l'equip compta en veu alta.",
+   "Cal arribar a 10 blocs seguits ben tancats.",
+   "Si un no tanca, es torna a començar. Màxim 4 minuts."
+  ],
+  "rotacio": "Es canvien els grups a cada intent.",
+  "claus": []
+ },
+ "BL13": {
+  "objectiu": "Desplaçar-se al bloc amb els peus, no estirant els braços.",
+  "organitzacio": "Dos circuits de cons en paral·lel, que marquen els desplaçaments. Uns cinc jugadors per circuit.",
+  "passos": [
+   "El jugador es desplaça lateralment fins al con.",
+   "Salta a bloc quan hi ha arribat amb els peus.",
+   "Fa 12 desplaçaments per sèrie, 2 sèries."
+  ],
+  "rotacio": "Es rota cada 4 repeticions. Cada jugador fa 3 torns.",
+  "claus": [
+   "Cal arribar amb els peus, no estirant els braços."
+  ]
+ },
+ "BL14": {
+  "objectiu": "Col·locar tot l'equip en cobertura quan el bloc salta.",
+  "organitzacio": "Pista 1: sis contra sis i l'entrenador entrant pilotes. Pista 2: la resta fa el mateix a 3x3, entrant-se les pilotes entre ells.",
+  "passos": [
+   "L'equip que ataca munta l'atac i l'altre equip salta a bloc.",
+   "Quan el bloc salta, els altres cinc ocupen les posicions de cobertura.",
+   "Es puntua la col·locació dels cinc, no si el bloc encerta."
+  ],
+  "rotacio": "A la meitat del bloc, els grups es canvien de pista. Es fan 10 jugades per equip.",
+  "claus": []
+ },
+ "C1": {
+  "objectiu": "Fer volum de toc de dits per als col·locadors.",
+  "organitzacio": "Els col·locadors a la paret, mentre la resta del grup fa l'altre exercici del bloc. No és un bloc a part.",
+  "passos": [
+   "100 dits molt curts.",
+   "100 dits de canell.",
+   "50 dits normals.",
+   "30 dits alts."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Les quatre sèries es fan seguides, sense parar."
+  ]
+ },
+ "C2": {
+  "objectiu": "Controlar el toc de dits dels col·locadors a la paret.",
+  "organitzacio": "Els col·locadors a la paret, mentre la resta fa l'altre exercici del bloc.",
+  "passos": [
+   "20 tocs de dits molt junts contra la paret.",
+   "5 cicles pujant i baixant.",
+   "20 tocs amb una sola mà."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "C3": {
+  "objectiu": "Encadenar l'autopasse amb el toc de dits a la paret, sense parar.",
+  "organitzacio": "Estacions: uns 10 jugadors a la paret, separats 1,5 m i una mica allunyats de la paret. L'altra meitat fa l'altre exercici del bloc a la pista.",
+  "passos": [
+   "Autopasse de dits i tot seguit dits a la paret: 20 cicles.",
+   "El mateix però d'un sol toc, directe a la paret.",
+   "Autopasse, mitja volta i dits a la paret.",
+   "Autopasse i dits a la paret amb una sola mà, alternant la mà."
+  ],
+  "rotacio": "Els de la paret i els de la pista s'intercanvien a la meitat del bloc.",
+  "claus": []
+ },
+ "C4": {
+  "objectiu": "Treballar la col·locació d'esquena.",
+  "organitzacio": "Els col·locadors per parelles, mentre la resta fa l'altre exercici del bloc.",
+  "passos": [
+   "El jugador A es posa d'esquena al company i li passa la pilota de dits per sobre del cap.",
+   "El jugador B l'agafa, es posa d'esquena a A i la torna de la mateixa manera.",
+   "Es fan 15 per jugador i es canvia de rol."
+  ],
+  "rotacio": "Canvi de rol cada 15.",
+  "claus": []
+ },
+ "C5": {
+  "objectiu": "Col·locar a Z4 i a Z2 des d'una cadira, assegut.",
+  "organitzacio": "Grups de tres: un col·locador assegut en una cadira entre Z2 i Z3, un que li llança pilotes i un que recull.",
+  "passos": [
+   "El company llança la pilota al col·locador assegut.",
+   "El col·locador col·loca a Z4: 15 col·locacions.",
+   "Després col·loca a Z2: 15 col·locacions."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 3 torns.",
+  "claus": []
+ },
+ "C6": {
+  "objectiu": "Col·locar mirant el bloqueig contrari i no només la pilota.",
+  "organitzacio": "Grups de tres: un col·locador entre Z2 i Z3, un central a l'altra banda de la xarxa i un que passa pilotes.",
+  "passos": [
+   "El company passa la pilota al col·locador.",
+   "Mentre la pilota arriba, el central de l'altra banda aixeca una mà a l'atzar.",
+   "El col·locador col·loca cap al costat contrari de la mà aixecada."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 3 torns.",
+  "claus": []
+ },
+ "C7": {
+  "objectiu": "Col·locar enllaçant amb una defensa, en un circuit continu.",
+  "organitzacio": "Circuits de tres: un a Z2 (o a Z4), un defensor a Z1 i el col·locador a Z8.",
+  "passos": [
+   "El de Z2 envia la pilota de dits o de remat cap a Z1.",
+   "El de Z1 defensa cap a Z8.",
+   "El col·locador col·loca a Z2 i el circuit continua. Es fan 5 col·locacions seguides.",
+   "Tres circuits des de Z2 i després tres des de Z4."
+  ],
+  "rotacio": "Es rota cada 5 col·locacions.",
+  "claus": []
+ },
+ "C8": {
+  "objectiu": "Col·locar d'esquena i de cara en un circuit per sota i per sobre de la xarxa.",
+  "organitzacio": "Grups de quatre: col·locador fix a Z3, un jugador a Z2, un a Z4 de l'altra banda de la xarxa i un que recull.",
+  "passos": [
+   "El col·locador col·loca d'esquena a Z2.",
+   "El de Z2 passa la pilota per sota de la xarxa a l'altra banda.",
+   "El de Z4 de l'altra banda l'aixeca cap al col·locador, que torna a col·locar.",
+   "Es repeteix col·locant cap a Z4."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 2 torns.",
+  "claus": []
+ },
+ "C9": {
+  "objectiu": "Que el col·locador que ve del fons faci bé la carrera fins a la xarxa (penetració).",
+  "organitzacio": "Un con marca la posició d'origen del col·locador (primer Z1, després Z6, després Z5). L'entrenador entra les pilotes, un rematador a Z4 i un que recull.",
+  "passos": [
+   "El col·locador comença tocant el con.",
+   "L'entrenador entra una pilota alta cap a la zona de col·locació, com si fos una recepció.",
+   "El col·locador corre a la xarxa entre Z2 i Z3, hi arriba amb l'espatlla dreta tocant la xarxa i col·loca a Z4.",
+   "Torna a tocar el con. Fins llavors no surt la pilota següent.",
+   "Es fa des de Z1, després des de Z6 i després des de Z5."
+  ],
+  "rotacio": "Es rota cada 5 repeticions.",
+  "claus": [
+   "Tornar sempre al con perquè no es quedi a la xarxa; la carrera és diferent des de cada zona."
+  ]
+ },
+ "C10": {
+  "objectiu": "Col·locar dues pilotes seguides com en un ral·li real: la primera penetrant i la segona ja des de la xarxa.",
+  "organitzacio": "Grups de quatre: un col·locador, dos que passen pilotes alternades i un que recull.",
+  "passos": [
+   "Primera pilota: el col·locador penetra des de Z1 i col·loca a Z2.",
+   "Segona pilota, sense descans: ja és a la xarxa i no penetra; només es recol·loca de pressa i col·loca a Z4 o Z3."
+  ],
+  "rotacio": "Es rota cada 5 repeticions.",
+  "claus": [
+   "Només es penetra a la primera pilota."
+  ]
+ },
+ "C11": {
+  "objectiu": "Col·locar a la zona que es demana, amb poc temps per decidir.",
+  "organitzacio": "Grups de quatre: un col·locador, un que canta la zona, un que passa pilotes i un que recull.",
+  "passos": [
+   "Es passen tres pilotes seguides al col·locador, sense descans.",
+   "Abans de cada pilota, el company canta en veu alta una zona, diferent cada cop.",
+   "El col·locador col·loca cap a la zona cantada."
+  ],
+  "rotacio": "Es rota a cada sèrie de 3 pilotes.",
+  "claus": []
+ },
+ "C12": {
+  "objectiu": "Decidir ràpid què fer amb un primer toc dolent.",
+  "organitzacio": "Grups de quatre: un col·locador, un que llança primers tocs dolents i dos que recullen.",
+  "passos": [
+   "El company llança la pilota expressament fora de la zona de col·locació.",
+   "El col·locador decideix en un instant si la col·loca de dits o si la passa de braços."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 3 torns.",
+  "claus": []
+ },
+ "C13": {
+  "objectiu": "Que el col·locador aprengui a atacar el segon toc quan convé.",
+  "organitzacio": "Grups de quatre: un col·locador, un que serveix o passa la pilota, un atacant i un que recull.",
+  "passos": [
+   "El company serveix o passa la pilota al col·locador.",
+   "El col·locador decideix si col·loca a l'atacant o si ataca ell mateix el segon toc.",
+   "Una de cada tres ha de ser atac del col·locador."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 3 torns.",
+  "claus": []
+ },
+ "C14": {
+  "objectiu": "Precisió en la col·locació d'esquena, per a tots els jugadors.",
+  "organitzacio": "Grups de tres a la xarxa: un col·locador, un que passa pilotes i un que apunta els encerts. Un cèrcol a Z2 com a objectiu.",
+  "passos": [
+   "El company passa la pilota al col·locador.",
+   "El col·locador col·loca d'esquena cap al cèrcol de Z2.",
+   "Es fan 10 col·locacions per jugador i s'apunten els encerts."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 2 torns. Hi passa tothom, no només els col·locadors.",
+  "claus": []
+ },
+ "C15": {
+  "objectiu": "Col·locar al costat on no hi ha bloqueig.",
+  "organitzacio": "Grups de quatre: un col·locador, dos fent de bloc fals a l'altra banda de la xarxa i un que passa pilotes.",
+  "passos": [
+   "El company passa la pilota al col·locador.",
+   "El bloc fals de l'altra banda es va movent a l'atzar.",
+   "El col·locador col·loca sempre cap al costat lliure."
+  ],
+  "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 3 torns.",
+  "claus": []
+ },
+ "C16": {
+  "objectiu": "Col·locar pensant en l'atac que en surt.",
+  "organitzacio": "Grups de cinc: dos col·locadors que alternen, un rematador fix, un que passa pilotes i un que apunta.",
+  "passos": [
+   "El company passa la pilota a un dels dos col·locadors, que col·loca al rematador.",
+   "El rematador ataca i s'apunta el resultat.",
+   "La pilota següent és per a l'altre col·locador. Cadascú fa 10 col·locacions."
+  ],
+  "rotacio": "El rematador es canvia cada 5 repeticions.",
+  "claus": [
+   "Es puntua l'atac resultant, no la bellesa de la col·locació."
+  ]
+ },
+ "D1": {
+  "objectiu": "Precisió i control del toc de dits contra la paret.",
+  "organitzacio": "Individual, cadascú amb una pilota davant la paret, separats 1,5 m. Hi caben uns 10; l'altra meitat del grup fa l'altre exercici del bloc.",
+  "passos": [
+   "Cada jugador es marca un punt a la paret.",
+   "Fa tocs de dits seguits alternant: un toc per sobre del punt i el següent per sota.",
+   "Fa 30 tocs sense parar, descansa 30 s i repeteix fins a 3 sèries."
+  ],
+  "rotacio": "A la meitat del bloc, el grup de la paret s'intercanvia amb el de l'altre exercici.",
+  "claus": []
+ },
+ "D2": {
+  "objectiu": "Mantenir el toc de dits mentre el cos canvia d'alçada.",
+  "organitzacio": "Individual, cadascú amb una pilota davant la paret, separats 1,5 m. Hi caben uns 10; l'altra meitat del grup fa l'altre exercici del bloc.",
+  "passos": [
+   "El jugador fa tocs de dits contra la paret mentre s'agenolla i es torna a aixecar, sense aturar la pilota.",
+   "Fa 2 sèries de 20 tocs pujant i baixant.",
+   "Després s'asseu a terra i continua fent dits contra la paret: 2 sèries de 20 tocs."
+  ],
+  "rotacio": "A la meitat del bloc, el grup de la paret s'intercanvia amb el de l'altre exercici.",
+  "claus": []
+ },
+ "D3": {
+  "objectiu": "Controlar el toc de dits mentre el cos gira respecte a la paret.",
+  "organitzacio": "Individual, cadascú amb una pilota davant la paret, separats 1,5 m. Hi caben uns 10; l'altra meitat del grup fa l'altre exercici del bloc.",
+  "passos": [
+   "El jugador fa dits contra la paret i, sense parar, gira el cos fins a quedar paral·lel a la paret i torna a posar-se de cara.",
+   "Quan ho domina, fa la volta sencera tocant la pilota.",
+   "Fa 2 sèries de 60 s girant cap a un costat i 2 cap a l'altre."
+  ],
+  "rotacio": "A la meitat del bloc, el grup de la paret s'intercanvia amb el de l'altre exercici.",
+  "claus": []
+ },
+ "D4": {
+  "objectiu": "Moure els peus ràpid sense perdre el control del toc contra la paret.",
+  "organitzacio": "Individual, cadascú amb una pilota davant la paret, separats 1,5 m. Hi caben uns 10; l'altra meitat del grup fa l'altre exercici del bloc.",
+  "passos": [
+   "(1) Toc de dits contra la paret fent una passa endavant i una enrere, tan ràpid com es pugui, sense deixar caure la pilota.",
+   "(2) El mateix amb passes laterals a dreta i esquerra.",
+   "(3) Barreja endavant, enrere i lateral; el mateix jugador canta en veu alta la direcció abans de moure's.",
+   "(4) El mateix que el pas 3, però tocant de braços.",
+   "Cada pas: 2 sèries de 60 s amb 30 s de descans."
+  ],
+  "rotacio": "A la meitat del bloc, el grup de la paret s'intercanvia amb el de l'altre exercici.",
+  "claus": []
+ },
+ "D5": {
+  "objectiu": "Adaptar la força del toc a la distància que canvia.",
+  "organitzacio": "Parelles escampades pel pavelló, una pilota per parella. Comencen a un metre l'un de l'altre. Ningú espera.",
+  "passos": [
+   "(1) Fan 10 passades de dits amb control i passe. Tots dos fan una passa enrere i en fan 10 més. Així fins a la línia lateral; després tornen apropant-se una passa cada 10 passades.",
+   "(2) La mateixa anada i tornada, de braços.",
+   "(3) La mateixa anada i tornada de dits, a passe directe, sense control.",
+   "Cada pas és una volta sencera, uns 3 minuts."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D6": {
+  "objectiu": "Precisió i força dels dits i de cada mà per separat.",
+  "organitzacio": "Parelles escampades, una pilota per parella.",
+  "passos": [
+   "Cada jugador fa un cicle de quatre tocs sense aturar la pilota: un toc de dits normal, un amb la mà dreta sola, un amb l'esquerra sola i el passe de dits al company.",
+   "(1) El cicle a poca distància del company.",
+   "(2) El mateix cicle, més separats.",
+   "(3) S'afegeix un toc de braços al principi del cicle.",
+   "(4) El cicle sencer, però el passe al company es fa saltant.",
+   "Cada pas: 3 sèries de 10 cicles, uns 2 minuts i mig."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Als tocs d'una mà, dits ben oberts i canell ferm."
+  ]
+ },
+ "D7": {
+  "objectiu": "Fer el passe de dits saltant, al punt més alt del salt.",
+  "organitzacio": "Parelles escampades, una pilota per parella. No hi ha rols: tots dos fan el mateix.",
+  "passos": [
+   "Cada jugador controla la pilota de dits amb els peus a terra i la passa al company saltant.",
+   "(1) A quatre metres.",
+   "(2) A sis metres.",
+   "(3) A quatre metres, saltant també al control: els dos tocs a l'aire.",
+   "(4) A poca distància, busquen el màxim de passades saltades seguides sense que caigui.",
+   "Cada pas dura 2 minuts i mig."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Salt vertical amb els dos peus, mai amb una passa endavant.",
+   "Tocar la pilota al punt més alt del salt."
+  ]
+ },
+ "D8": {
+  "objectiu": "Fer dits directes amb la força de mans i braços, sense ajuda de les cames.",
+  "organitzacio": "Parelles escampades. Un assegut a terra amb els peus enlaire, sense tocar el terra; l'altre dret davant seu.",
+  "passos": [
+   "Es passen la pilota de dits directes, sense control. El de terra no es pot ajudar amb les cames.",
+   "(1) Tocant amb dos dits de cada mà.",
+   "(2) Amb tres dits.",
+   "(3) Amb tota la mà.",
+   "(4) Amb tota la mà, i el de terra s'aixeca per passar i es torna a asseure.",
+   "Cada pas: 15 passades, uns 90 segons."
+  ],
+  "rotacio": "Fets els quatre passos, canvien de rol i repeteixen tota la progressió.",
+  "claus": []
+ },
+ "D9": {
+  "objectiu": "Toc de dits fet només amb mans i canells.",
+  "organitzacio": "Individual, cadascú amb la seva pilota, tots alhora escampats per la pista.",
+  "passos": [
+   "Cada jugador s'autopassa la pilota de dits, vertical, sense deixar-la caure.",
+   "(1) Estirat de panxa enlaire.",
+   "(2) Assegut amb els peus enlaire, sense tocar terra.",
+   "(3) Estirat, però entre toc i toc s'aixeca i es torna a ajeure.",
+   "(4) Estirat, tocant amb una sola mà, alternant dreta i esquerra.",
+   "Cada pas: 3 sèries de 20 tocs, uns 2 minuts i mig."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D10": {
+  "objectiu": "Controlar l'autopasse de dits mentre el jugador es desplaça de maneres diferents.",
+  "organitzacio": "Cadascú amb una pilota, tots alhora per la pista. El recorregut va de la línia de fons a la xarxa i torna.",
+  "passos": [
+   "(1) Fa el recorregut amb tocs de dits caminant.",
+   "(2) Dits fent skipping.",
+   "(3) Dits fent passes llargues i posant el genoll a terra a cada passa.",
+   "(4) Dits saltant.",
+   "(5) Dits desplaçant-se de costat, de dreta a esquerra, mirant sempre la xarxa.",
+   "(6) El mateix recorregut de braços. Cada pas: 4 anades i tornades."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D11": {
+  "objectiu": "Fer dits mentre s'atén una segona pilota.",
+  "organitzacio": "Parelles escampades, asseguts a terra l'un davant de l'altre amb les cames obertes. Dues pilotes per parella.",
+  "passos": [
+   "Una pilota va d'un a l'altre de dits.",
+   "Alhora, l'altra pilota va d'un a l'altre rodant per terra.",
+   "Fan 3 sèries de 20 passades."
+  ],
+  "rotacio": "Es canvia de rol a cada sèrie.",
+  "claus": []
+ },
+ "D12": {
+  "objectiu": "Posar-se ràpid sota la pilota abans de tocar-la.",
+  "organitzacio": "Parelles escampades, una pilota per parella.",
+  "passos": [
+   "La pilota ha de botar a terra un cop entre passada i passada.",
+   "(1) De dits, amb bot.",
+   "(2) De braços, amb bot.",
+   "(3) Amb bot, alternant dits i braços a cada passada.",
+   "(4) Amb bot, i el que passa ha de tocar terra amb la mà abans que la pilota boti.",
+   "Cada pas: 3 sèries de 10 passades."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Cal ser molt ràpid a posar-se sota la pilota."
+  ]
+ },
+ "D13": {
+  "objectiu": "Passe de dits i de braços en diagonal amb desplaçament ràpid.",
+  "organitzacio": "Quatre files: dues a cada banda de la xarxa. Dijous, un muntatge a cada pista. Tothom dins.",
+  "passos": [
+   "La pilota es passa per sobre la xarxa en diagonal, cap a la fila de l'altra banda que queda en creu.",
+   "Qui toca la pilota va al final de la seva fila.",
+   "Primer a dos temps (control i passe) durant 3 minuts, després a un temps durant 3 minuts.",
+   "Es repeteix tot de braços."
+  ],
+  "rotacio": "Rotació contínua: qui toca va al final de la seva fila.",
+  "claus": [
+   "Cal moure's ràpid o no s'arriba a la pilota."
+  ]
+ },
+ "D14": {
+  "objectiu": "Passe de dits amb orientació i desplaçament en triangle.",
+  "organitzacio": "Tres files de 2-3 jugadors formant un triangle. Amb més de 9, dos triangles alhora.",
+  "passos": [
+   "La pilota va d'una fila a la següent en sentit antihorari, de dits.",
+   "Primer amb el triangle tancat (files a prop).",
+   "Després s'obre el triangle (files més lluny) i es repeteix.",
+   "Dosi: 3 voltes completes amb el triangle tancat i 3 amb l'obert."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D15": {
+  "objectiu": "Passe de dits amb desplaçament lateral i dues pilotes alhora.",
+  "organitzacio": "Grups de quatre en quadrat, amb dues pilotes per quadrat.",
+  "passos": [
+   "Cada jugador passa de dits al company que té al davant.",
+   "Just després de passar, es desplaça lateralment a la posició del costat.",
+   "3 minuts amb control i passe.",
+   "3 minuts amb passe directe."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D16": {
+  "objectiu": "Recuperar posició ràpid després de tornar la pilota.",
+  "organitzacio": "Parelles escampades per la pista, una pilota per parella.",
+  "passos": [
+   "El jugador A fa dos o tres tocs de dits i passa la pilota a B.",
+   "B la torna. Tot seguit corre fins a A, el toca i torna al seu lloc abans que arribi la pilota següent.",
+   "(1) B la torna de dits.",
+   "(2) B la torna de braços.",
+   "(3) B la torna amb un remat controlat.",
+   "(4) B la torna de dits i fa el recorregut corrent d'esquena."
+  ],
+  "rotacio": "Es canvia de rol.",
+  "claus": []
+ },
+ "D17": {
+  "objectiu": "Controlar l'autopasse cap endavant mentre el jugador es desplaça.",
+  "organitzacio": "Cadascú amb una pilota, tots alhora per la pista.",
+  "passos": [
+   "(1) Autopasse de dits amunt i després endavant, de manera que la pugui tornar a agafar ell mateix; així va de la línia de fons a la xarxa.",
+   "(2) El mateix, desplaçant-se de costat.",
+   "(3) Autopasse molt alt: deixa que la pilota boti i la recupera al mateix lloc.",
+   "(4) Com el pas 1, de braços.",
+   "Cada pas: 4 recorreguts."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D18": {
+  "objectiu": "Passe de dits a distàncies diferents amb rotació contínua entre files.",
+  "organitzacio": "Grups de 9 en quatre files: dues files de cara a dues, amb dues pilotes. Tothom dins, ningú espera.",
+  "passos": [
+   "Es passa de dits al de la fila del davant i el jugador se'n va al final de l'ALTRA fila del seu costat, no de la seva.",
+   "(1) Control i passe, dins de la línia de 3.",
+   "(2) Control i passe, fora de la línia de 3.",
+   "(3) Control i passe de dits amb salt.",
+   "Sense aturar l'exercici, es repeteixen els tres passos amb dits directes, sense control. Cada pas dura 2 minuts."
+  ],
+  "rotacio": "Rotació contínua: després de passar, cap a la fila del costat.",
+  "claus": []
+ },
+ "D19": {
+  "objectiu": "Moure's endavant i enrere per arribar a passades curtes i llargues.",
+  "organitzacio": "Parelles escampades, una pilota per parella.",
+  "passos": [
+   "Un jugador alterna una passada curta i una de llarga perquè el company s'hagi de moure endavant i enrere.",
+   "(1) Curta i llarga de dits.",
+   "(2) Curta i llarga de braços.",
+   "(3) Curta de dits i llarga de braços.",
+   "(4) Curta i llarga de dits, i el que rep ha de tocar la línia de 3 entre passada i passada.",
+   "Cada pas: 3 sèries de 10 cicles."
+  ],
+  "rotacio": "Es canvia de rol a cada sèrie.",
+  "claus": []
+ },
+ "D20": {
+  "objectiu": "Adaptar el toc a la distància que canvia sense aturar la pilota.",
+  "organitzacio": "Parelles escampades, una pilota per parella. Comencen ben junts.",
+  "passos": [
+   "Cada jugador fa 4 tocs de dits i passa. Sense aturar la pilota, tots dos fan una passa enrere i en fan 4 més; així fins a la línia. Després tornen ajuntant-se.",
+   "(1) Anada i tornada de dits.",
+   "(2) Anada i tornada de braços.",
+   "(3) Anada de dits i tornada de braços.",
+   "(4) Anada i tornada de dits a passe directe.",
+   "Cada pas és una volta, uns 2 minuts i mig."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D21": {
+  "objectiu": "Combinar el passe de dits frontal i el lateral.",
+  "organitzacio": "Trios en forma de L, una pilota per trio: un jugador al vèrtex i un a cada punta.",
+  "passos": [
+   "La punta A passa al del vèrtex, que la hi torna.",
+   "La punta A la torna a passar al vèrtex.",
+   "El del vèrtex la passa a la punta B: així fa un passe frontal i un de lateral.",
+   "La punta B repeteix el mateix cicle des del seu costat."
+  ],
+  "rotacio": "Es canvia el jugador del vèrtex cada 10 cicles, fins que tots tres hi hagin passat.",
+  "claus": []
+ },
+ "D22": {
+  "objectiu": "Fer dits mirant el company i no la pilota.",
+  "organitzacio": "Parelles escampades, una pilota per parella.",
+  "passos": [
+   "(1) A passa de dits i, amb la pilota a l'aire, ensenya un número amb la mà. B el diu en veu alta abans de tornar-la.",
+   "(2) En lloc del número, A assenyala una zona amb el braç i B l'ha de cantar.",
+   "(3) B canta el número i fa tants tocs com aquest número abans de tornar-la.",
+   "(4) Com el pas 1, de braços.",
+   "Cada pas: 2 sèries de 15 passades."
+  ],
+  "rotacio": "Es canvia de rol a cada sèrie.",
+  "claus": [
+   "Obliga a aixecar la vista cap al company."
+  ]
+ },
+ "D23": {
+  "objectiu": "Comunicar abans de passar de dits.",
+  "organitzacio": "Grups de quatre en quadrat, una pilota per grup. Tothom dins.",
+  "passos": [
+   "Es passen la pilota de dits dins del quadrat.",
+   "Abans de passar, cada jugador diu en veu alta el nom del company a qui la passa.",
+   "Si algú passa sense dir el nom, el compte torna a zero.",
+   "Es fan 3 intents de 2 minuts i s'apunta la cadena més llarga de cada quadrat."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D24": {
+  "objectiu": "Mantenir la pilota en joc amb continuïtat sota pressió de temps.",
+  "organitzacio": "Parelles escampades, una pilota per parella. Cada parella té una parella veïna que li apunta el resultat.",
+  "passos": [
+   "Durant 60 s la parella fa tantes passades com pot sense que caigui la pilota, comptant en veu alta.",
+   "Fan tres intents de dits.",
+   "Després, dos intents de braços.",
+   "Un últim intent alternant dits i braços. Entre intents hi ha 45 s de descans i cada intent intenta superar l'anterior."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D25": {
+  "objectiu": "Reforçar el gest de dits amb una pilota més pesada.",
+  "organitzacio": "Estació de 6-8 jugadors en parelles, amb 3-4 pilotes pesades (bàsquet, futbol o medicinal lleugera). La resta fa l'altre exercici del bloc.",
+  "passos": [
+   "La parella fa tres passades de dits amb la pilota pesada.",
+   "Tot seguit fa tres passades amb la pilota de vòlei.",
+   "Repeteix el cicle 5 vegades."
+  ],
+  "rotacio": "Cada 4 minuts, l'estació s'intercanvia amb l'altre exercici del bloc.",
+  "claus": []
+ },
+ "D26": {
+  "objectiu": "Col·locar d'esquena.",
+  "organitzacio": "Trios en línia: dos a les puntes, mirant-se, i un al mig.",
+  "passos": [
+   "La punta A passa de dits al del mig, que la rep de cares.",
+   "El del mig, sense moure els peus, la col·loca d'esquena per sobre del cap cap a la punta B.",
+   "La punta B la torna de cares al del mig, que es gira 180° per rebre-la.",
+   "El del mig la col·loca d'esquena cap a A. Les puntes sempre passen de cares i el del mig sempre col·loca d'esquena.",
+   "Si la girada costa massa, B agafa la pilota i la passa directament a A, i el del mig col·loca sempre des del mateix costat."
+  ],
+  "rotacio": "Es canvia de posició cada 10 cicles, fins que tots han passat pel mig.",
+  "claus": []
+ },
+ "D27": {
+  "objectiu": "Fer dits aixecant la vista de la pilota, com un col·locador.",
+  "organitzacio": "Parelles a la xarxa, una a cada tram. L'altra meitat del grup fa un altre exercici.",
+  "passos": [
+   "Els dos jugadors es passen la pilota de dits.",
+   "Abans de cada toc, el jugador mira la xarxa i torna a mirar la pilota.",
+   "Fan 3 sèries de 15 passades."
+  ],
+  "rotacio": "Els dos grups s'intercanvien.",
+  "claus": []
+ },
+ "D28": {
+  "objectiu": "Col·locar d'esquena sense mirar l'objectiu.",
+  "organitzacio": "Trios: un col·loca d'esquena, un canta el costat i un recull.",
+  "passos": [
+   "El col·locador col·loca d'esquena, sense mirar.",
+   "Abans que el col·locador toqui la pilota, el company li canta «dreta» o «esquerra».",
+   "El tercer jugador recull la pilota.",
+   "Cada jugador fa 10 col·locacions, en dues rondes."
+  ],
+  "rotacio": "Es roten els rols cada 5 repeticions; cada jugador fa 2 torns de col·locador.",
+  "claus": []
+ },
+ "D29": {
+  "objectiu": "Equilibri i control del toc sobre una sola cama.",
+  "organitzacio": "Parelles escampades, una pilota per parella.",
+  "passos": [
+   "(1) 10 passades de dits recolzat sobre la cama dreta i 10 sobre l'esquerra.",
+   "(2) El mateix, de braços.",
+   "(3) Sobre una cama, canviant de cama a cada passada.",
+   "(4) Sobre una cama, i el company mou la pilota a dreta i esquerra: cal saltar sobre la mateixa cama per arribar-hi.",
+   "Cada pas: 2 sèries."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D30": {
+  "objectiu": "Passe de dits precís i ràpid amb oposició.",
+  "organitzacio": "Rotllanes de sis (o vuit) jugadors amb dos al mig. Dijous, una rotllana a cada pista. Tothom dins.",
+  "passos": [
+   "Els de la rotllana es passen la pilota de dits a qualsevol company, mai al del costat.",
+   "Els dos del mig intenten tocar-la o interceptar-la.",
+   "Si la toquen, o la pilota cau per una mala passada, qui l'ha fallada entra al mig i un dels del mig surt a la rotllana.",
+   "Es juga en sèries de 3 minuts."
+  ],
+  "rotacio": "Qui perd la pilota entra al mig immediatament.",
+  "claus": []
+ },
+ "D31": {
+  "objectiu": "Col·locar cap a la zona que es demana a l'últim moment.",
+  "organitzacio": "Parelles escampades, una pilota per parella. Canta el que passa.",
+  "passos": [
+   "(1) El que passa crida una zona (2, 3 o 4) amb la pilota a l'aire i el que la rep col·loca cap allà.",
+   "(2) La zona es crida més tard, just quan la pilota surt de les mans.",
+   "(3) En lloc de cridar-la, s'assenyala amb el braç i el que la rep l'ha de veure.",
+   "(4) Es crida la zona i el que la rep hi col·loca d'esquena.",
+   "Cada pas: 2 sèries de 12 passades."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D32": {
+  "objectiu": "Precisió del passe de dits cap a un objectiu cada cop més lluny.",
+  "organitzacio": "Parelles escampades, cada una amb un cèrcol a terra (o quatre cons) que comença a 3 m.",
+  "passos": [
+   "Es passa de dits intentant que la pilota caigui dins del cèrcol. Cada encert val 1 punt.",
+   "Amb 5 punts, el cèrcol s'allunya un metre.",
+   "Es continua fins que la parella falla dos cops seguits a la mateixa distància.",
+   "S'apunta la distància màxima de cada parella."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "D33": {
+  "objectiu": "Passe de dits en diagonal amb rotació contínua entre files.",
+  "organitzacio": "Grups de 9 en quatre files, dues de cara a dues, com al D18. Tothom dins, ningú espera.",
+  "passos": [
+   "Amb dues pilotes, es passa de dits en diagonal, a la fila que queda en creu, i el jugador va al final de l'altra fila del seu costat. Dura 4 minuts.",
+   "Variant amb una sola pilota: per una banda es passa recte i per l'altra en diagonal.",
+   "Així la pilota fa una volta contínua entre les quatre files sense aturar-se. Dura 4 minuts."
+  ],
+  "rotacio": "Rotació contínua: després de passar, cap a l'altra fila del seu costat.",
+  "claus": []
+ },
+ "G1": {
+  "objectiu": "Competir punt a punt en 3x3 i aguantar a la pista el màxim de temps.",
+  "organitzacio": "La pista es parteix al llarg en dues mitges pistes, amb un 3x3 a cada una. Els que no juguen esperen en trios al lateral.",
+  "passos": [
+   "Cada mitja pista juga un 3x3 a punt directe.",
+   "L'equip que guanya el punt es queda a la pista.",
+   "L'equip que perd surt de seguida i entra el trio que espera al lateral.",
+   "Guanya l'equip que aguanta més estona seguida a la pista.",
+   "Variant: el camp dels guanyadors és sencer i el dels altres només va de la línia de 3 al fons, per premiar qui aguanta."
+  ],
+  "rotacio": "A cada punt: qui perd surt i entra el trio següent de la cua.",
+  "claus": []
+ },
+ "G2": {
+  "objectiu": "Tocar de braços amb precisió i moure's després del toc, en un 1x1.",
+  "organitzacio": "La pista es divideix en terços i a cada terç es juga un 1x1, amb una cua de jugadors a cada banda. El camp és només la zona de dins de la línia de 3.",
+  "passos": [
+   "Cada jugador torna la pilota a l'altre camp amb un sol toc de braços.",
+   "Qui toca la pilota surt del camp i entra el següent de la seva cua (o bé ha d'anar a tocar la xarxa).",
+   "La pilota ha de caure dins de la línia de 3 del camp contrari.",
+   "Variant: el camp passa a ser de la línia de 3 a la línia de fons.",
+   "Variant: es juga a dos tocs."
+  ],
+  "rotacio": "Qui toca surt i entra el següent de la cua. En acabar cada set a 10 es refan els grups.",
+  "claus": []
+ },
+ "G3": {
+  "objectiu": "Jugar partits curts i competir contra equips del mateix nivell.",
+  "organitzacio": "Quatre o sis equips repartits entre les mitges pistes, tots jugant alhora.",
+  "passos": [
+   "Cada partit es juga a 10 punts.",
+   "En acabar, es refan els grups: guanyadors amb guanyadors i perdedors amb perdedors.",
+   "Es torna a jugar a 10 i es tornen a comptar els resultats.",
+   "Es fan tres rondes en total."
+  ],
+  "rotacio": "Després de cada ronda, els grups es refan segons el resultat.",
+  "claus": []
+ },
+ "G4": {
+  "objectiu": "Jugar 2x2 amb un nombre de tocs obligat i entrar i sortir de la pista sense parar.",
+  "organitzacio": "Una parella a cada costat de cada mitja pista, i la resta en cua.",
+  "passos": [
+   "Ronda 1, un toc: la pilota es torna amb un sol toc, i qui la toca surt i entra un altre.",
+   "Ronda 2, dos tocs: la parella fa dos tocs i surt el que remata.",
+   "Ronda 3, tres tocs obligats: la pilota l'han de tocar tots dos abans de passar-la.",
+   "Cada ronda és un set a 15."
+  ],
+  "rotacio": "Surt qui toca (ronda 1) o qui remata (ronda 2), i entra el següent de la cua.",
+  "claus": []
+ },
+ "G5": {
+  "objectiu": "Decidir des d'on s'ataca i col·locar en conseqüència.",
+  "organitzacio": "La pista es parteix al llarg en dues mitges pistes, amb un 4x4 a cada una. Els que sobren porten el marcador.",
+  "passos": [
+   "Es juga un partit 4x4 amb els tres tocs normals.",
+   "Si el remat es fa des de dins de la línia de 3, la pilota ha de caure dins de la línia de 3 del camp contrari.",
+   "Si el remat es fa des de fora de la línia de 3, la pilota ha de caure fora d'aquesta línia.",
+   "Si la pilota cau a la zona equivocada, punt per a l'altre equip."
+  ],
+  "rotacio": "Els que porten el marcador entren a cada punt perdut. Els equips es refan a cada set a 15.",
+  "claus": [
+   "El col·locador ha de pensar a qui dona la pilota segons la zona on volem que caigui l'atac."
+  ]
+ },
+ "G6": {
+  "objectiu": "Controlar la pilota a la xarxa amb diverses pilotes en joc alhora.",
+  "organitzacio": "La pista es parteix al llarg en dues mitges pistes, amb un 3x3 a cada una i tres pilotes per partida. La resta fa el mateix per parelles al lateral amb dues pilotes.",
+  "passos": [
+   "A cada 3x3 hi ha tres pilotes en joc, però només una passa de camp a camp.",
+   "Les altres dues es passen entre els jugadors del mateix equip, sense creuar la xarxa.",
+   "Sèrie 1 (4 min): un toc.",
+   "Sèrie 2 (4 min): dos tocs.",
+   "Sèrie 3 (4 min): tres tocs."
+  ],
+  "rotacio": "A la meitat del bloc, els de la xarxa i els del lateral es canvien.",
+  "claus": []
+ },
+ "G7": {
+  "objectiu": "Tocar de braços a un toc amb diverses pilotes en joc, en 2x2.",
+  "organitzacio": "La pista es parteix al llarg en dues meitats, amb un 2x2 a cada una i tres pilotes per partida. La resta fa cua.",
+  "passos": [
+   "Només es toca de braços i a un sol toc.",
+   "De les tres pilotes, només una creua la xarxa.",
+   "Les altres dues, els dos jugadors de cada parella se les passen entre ells dins del seu camp, sense parar.",
+   "Qui falla surt de seguida i entra el següent de la cua.",
+   "Segona tanda: el mateix, però a dos tocs."
+  ],
+  "rotacio": "Qui falla surt i entra el següent de la cua. Amb tres pilotes es falla sovint i la cua roda de pressa.",
+  "claus": []
+ },
+ "G8": {
+  "objectiu": "Sacar amb seguretat sota pressió de marcador.",
+  "organitzacio": "Partit 6x6. Els que sobren arbitren i recullen pilotes.",
+  "passos": [
+   "Es juga un partit normal a 21 punts.",
+   "Cada saque fallat resta un punt a l'equip que l'ha fallat.",
+   "Si un equip falla dos saques seguits, el seu marcador torna a zero."
+  ],
+  "rotacio": "Els que arbitren i recullen entren a cada set.",
+  "claus": []
+ },
+ "G9": {
+  "objectiu": "Rematar a línia.",
+  "organitzacio": "Partits 4x4 a mitja pista, amb una cua de quartets.",
+  "passos": [
+   "Es juga un partit normal a 21 punts.",
+   "Els punts que s'aconsegueixen amb un remat a línia (paral·lel a la línia lateral) valen dos."
+  ],
+  "rotacio": "La cua de quartets entra a cada set.",
+  "claus": []
+ },
+ "G10": {
+  "objectiu": "Jugar un partit real amb posicions, rotacions i arbitratge.",
+  "organitzacio": "Pista 1: 6x6 amb sistema 5-1, rotacions i un àrbitre (13 persones). Pista 2: els altres 5, un 2x2 amb un àrbitre. Equips barrejats.",
+  "passos": [
+   "A la pista 1 es juga un partit amb 5-1, rotacions, marcador i àrbitre.",
+   "A la pista 2 es juga un 2x2 amb àrbitre.",
+   "Els sets són a 25, amb canvis."
+  ],
+  "rotacio": "A cada set es canvia de pista perquè tothom jugui i tothom arbitri.",
+  "claus": []
+ },
+ "G11": {
+  "objectiu": "Tocar de braços en 3x3 i competir contra equips del mateix nivell.",
+  "organitzacio": "Sis equips de tres repartits entre les dues mitges pistes.",
+  "passos": [
+   "Es juga 3x3 a un sol toc de braços. L'equip que guanya el punt suma un punt.",
+   "En acabar el set a 10, s'ajunten els tres equips amb més punts i es torna a jugar.",
+   "Ronda 2: el mateix a dos tocs.",
+   "Ronda 3: tres tocs obligats."
+  ],
+  "rotacio": "Després de cada ronda es refan els grups segons els punts.",
+  "claus": []
+ },
+ "G12": {
+  "objectiu": "Encadenar defensa, col·locació i remat en un joc continu.",
+  "organitzacio": "A cada mitja pista, quatre o cinc parelles repartides entre els dos costats de la xarxa. Una parella juga a cada banda i la resta espera darrere la línia de fons del seu costat.",
+  "passos": [
+   "La parella fa defensa, col·locació i remat, i la pilota passa a l'altre camp.",
+   "L'altra parella torna a fer defensa, col·locació i remat, sense aturar el joc.",
+   "Cada cop que la pilota creua la xarxa, la parella que l'ha enviada surt i entra la que esperava al seu costat.",
+   "Es compta quants ral·lis seguits aguanta el grup i s'intenta millorar la marca a cada sèrie de 5 minuts."
+  ],
+  "rotacio": "A cada pilota que creua la xarxa: surt la parella que l'ha enviada i entra la següent del seu costat.",
+  "claus": []
+ },
+ "G13": {
+  "objectiu": "Jugar 4x4 amb més temps per arribar a la pilota, perquè tothom pugui competir.",
+  "organitzacio": "Partits 4x4 a mitja pista, amb una cua de quartets.",
+  "passos": [
+   "Es juga un partit 4x4 normal a 15 punts.",
+   "Entre un toc i el següent, la pilota pot botar un cop a terra."
+  ],
+  "rotacio": "La cua de quartets entra a cada set.",
+  "claus": []
+ },
+ "G14": {
+  "objectiu": "Mirar el camp contrari abans de passar la pilota.",
+  "organitzacio": "Dues pistes: 5x5 en una i 4x4 a l'altra, tothom jugant. Equips barrejats i un con a cada camp.",
+  "passos": [
+   "Un con marca una zona buida a cada camp.",
+   "Si la pilota cau en aquesta zona, és punt automàtic.",
+   "Es juguen sets a 15.",
+   "Cada 5 punts, el con canvia de zona."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "G15": {
+  "objectiu": "Jugar amb companys que canvien sempre i adaptar-s'hi.",
+  "organitzacio": "Partits 4x4 a mitja pista.",
+  "passos": [
+   "Es juga un partit normal a 15 punts.",
+   "Després de cada punt, un jugador de cada equip canvia de bàndol: passa a l'altre equip."
+  ],
+  "rotacio": "A cada punt, un jugador de cada equip canvia d'equip.",
+  "claus": []
+ },
+ "G16": {
+  "objectiu": "Concentrar-se en els punts que valen més.",
+  "organitzacio": "Dues pistes: 5x5 en una i 4x4 a l'altra, tothom jugant. Equips barrejats.",
+  "passos": [
+   "Es juga un partit normal a 21 punts.",
+   "Cada cinquena pilota que es juga val tres punts."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "G17": {
+  "objectiu": "Jugar partits igualats amb un avantatge inicial per a l'equip més fluix.",
+  "organitzacio": "Segons l'annex: Negre contra Groc a les dues pistes, cinc de cada equip en una i quatre de cada equip a l'altra. El resultat és la suma de les dues pistes.",
+  "passos": [
+   "Es juguen sets a 15.",
+   "El Groc comença cada set amb uns quants punts d'avantatge.",
+   "Després de cada set, l'avantatge s'ajusta segons el resultat de l'anterior."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "G18": {
+  "objectiu": "Competir en 3x3 i aguantar al camp dels guanyadors.",
+  "organitzacio": "Partits 3x3 a mitja pista, amb una cua de trios. A cada mitja pista, el camp dels guanyadors és sencer i el dels altres només va de la línia de 3 al fons.",
+  "passos": [
+   "Es juga a punt directe.",
+   "L'equip del camp dels guanyadors defensa un camp sencer; l'altre, un camp més petit.",
+   "Qui perd el punt surt i entra el trio següent de la cua.",
+   "Es juga durant tot el bloc."
+  ],
+  "rotacio": "A cada punt: qui perd surt i entra el trio següent.",
+  "claus": []
+ },
+ "G19": {
+  "objectiu": "Reaccionar a la pilota que arriba sense poder anticipar què farà el rival.",
+  "organitzacio": "Dues pistes: 5x5 en una i 4x4 a l'altra, tothom jugant. Equips barrejats. Cal una tela o una xarxa alta que tapi la visió del camp contrari.",
+  "passos": [
+   "Es penja la tela o la xarxa alta a la xarxa.",
+   "No es veu el camp contrari fins que la pilota passa per sobre.",
+   "Es juguen sets a 15 normals."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "G20": {
+  "objectiu": "Acabar un torneig curt amb la final i el partit pel tercer lloc.",
+  "organitzacio": "Els quatre equips de cinc del torneig (fase de grups: partits de 5 minuts, tots contra tots). Dos partits alhora a les dues mitges pistes.",
+  "passos": [
+   "Abans, a la fase de grups, s'han jugat partits de 5 minuts tots contra tots, amb la classificació a la paret.",
+   "Els dos primers equips de la classificació juguen la final.",
+   "Els altres dos juguen pel tercer i quart lloc, alhora, a l'altra mitja pista.",
+   "Es juga un partit a 15 punts. Si queda temps, un segon set."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "G21": {
+  "objectiu": "Construir el punt amb tres tocs i atacar des de la zona de darrere.",
+  "organitzacio": "Dues pistes: 5x5 en una i 4x4 a l'altra, tothom jugant. Equips barrejats.",
+  "passos": [
+   "Es juga un partit normal a 21 punts.",
+   "El punt val doble si s'ha guanyat amb una jugada de tres tocs.",
+   "El punt val triple si l'atac es fa des de darrere de la línia de 3 (atac de zaguer)."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "G22": {
+  "objectiu": "Guanyar i mantenir el servei.",
+  "organitzacio": "La pista es parteix al llarg en dues mitges pistes, amb un 4x4 a cada una. Els que sobren porten el marcador. (A la DJ13 es fa 5x5 i 4x4 a dues pistes.)",
+  "passos": [
+   "L'equip que saca i guanya el punt conserva el servei.",
+   "Si el perd, cedeix el servei a l'altre equip.",
+   "Es compta quants punts de servei seguits conserva cada equip.",
+   "Es juguen sèries de 5 minuts."
+  ],
+  "rotacio": "Els que porten el marcador entren a cada punt perdut.",
+  "claus": []
+ },
+ "G23": {
+  "objectiu": "Fer veure la importància de comunicar-se a la pista.",
+  "organitzacio": "Dues pistes: 5x5 en una i 4x4 a l'altra, tothom jugant. Equips barrejats.",
+  "passos": [
+   "Es juga un set a 15 en què està prohibit parlar.",
+   "L'única excepció és cantar la pilota («meva»).",
+   "Tot seguit es juga un set normal, parlant, i es compara."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "G24": {
+  "objectiu": "Jugar repetidament la rotació en què cada equip és més fort.",
+  "organitzacio": "Dues pistes: 5x5 en una i 4x4 a l'altra, tothom jugant. Equips barrejats.",
+  "passos": [
+   "Cada equip tria la seva millor rotació.",
+   "Els equips s'enfronten jugant sempre en aquesta rotació, sense rotar.",
+   "Es juga al millor de tres sets a 15."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "G25": {
+  "objectiu": "Guanyar el punt col·locant la pilota on el rival no arriba, sense saltar.",
+  "organitzacio": "Cada pista es parteix al llarg en dues mitges pistes: quatre partits de 2x2 a les dues pistes. Els que sobren fan cua.",
+  "passos": [
+   "Es juga 2x2 amb tres tocs lliures i punt directe.",
+   "No es pot saltar en cap moment, ni per rematar ni per bloquejar.",
+   "Es juguen sets a 10."
+  ],
+  "rotacio": "Els que fan cua entren a cada punt.",
+  "claus": [
+   "Com que no es pot saltar, cal buscar l'espai buit del camp contrari."
+  ]
+ },
+ "G26": {
+  "objectiu": "Tocar de braços a un toc i alternar els tocs entre companys, amb desplaçament.",
+  "organitzacio": "2x2 a tota l'amplada de la pista però a mitja profunditat: la pilota només val de la xarxa fins a la meitat del camp. Un camp per pista i la resta en cua al lateral. (A la DJ27 cada pista es parteix al llarg en dues franges.)",
+  "passos": [
+   "La pilota es torna a l'altre camp a un sol toc.",
+   "Qui l'ha tornada ha d'anar a tocar la xarxa tot seguit.",
+   "La pilota següent l'ha de tocar per força el company.",
+   "Qui guanya el punt passa a l'altra banda; qui el perd surt i entren dos de nous.",
+   "Variant: en comptes de tocar la xarxa, sortir de la pista i tornar a entrar."
+  ],
+  "rotacio": "A cada punt: la parella que guanya passa a l'altra banda, la que perd surt i entra la parella següent de la cua.",
+  "claus": []
+ },
+ "G27": {
+  "objectiu": "Jugar 2x2 a dos tocs obligats amb una acció física després de cada pilota.",
+  "organitzacio": "La mateixa que el G26: 2x2 a mitja profunditat (la pilota només val fins a la meitat del camp) i la resta en cua.",
+  "passos": [
+   "Cada parella fa dos tocs obligats abans de passar la pilota.",
+   "Cada cop que la pilota passa a l'altre camp, els dos jugadors de la parella fan una sentadilla tocant terra amb les mans.",
+   "Variant: un salt i tot seguit ajupir-se a terra.",
+   "Variant: un salt fent una volta sencera a l'aire.",
+   "Es canvia de variant cada tres o quatre punts."
+  ],
+  "rotacio": "Com al G26: qui guanya el punt passa a l'altra banda, qui el perd surt i entren dos de nous.",
+  "claus": []
+ },
+ "G28": {
+  "objectiu": "Guanyar el punt des de la recepció del saque (side out) en 2x2.",
+  "organitzacio": "La pista es parteix al llarg en dues mitges pistes, amb un 2x2 a cada una. La resta fa cua al lateral.",
+  "passos": [
+   "Una parella saca i l'altra recepciona i intenta guanyar el punt.",
+   "Només suma la parella que recepciona: si guanya el ral·li, suma un punt i passa a sacar.",
+   "Si el perd, no suma ningú i es torna a sacar.",
+   "Pas 1: saque suau i tres tocs obligats.",
+   "Pas 2: saque real.",
+   "Pas 3: saque real, i l'atac ha d'anar a la zona que canta el company."
+  ],
+  "rotacio": "Sets a 10 side outs guanyats. Quan una parella perd el set, surt i entra la parella següent de la cua. Uns 7 minuts per pas.",
+  "claus": []
+ },
+ "G29": {
+  "objectiu": "Saltar al bloc i cobrir-lo.",
+  "organitzacio": "Dues pistes: 5x5 en una i 4x4 a l'altra, tothom jugant. Equips barrejats.",
+  "passos": [
+   "Es juga un partit normal.",
+   "El punt val doble si s'ha guanyat amb un bloc.",
+   "També val doble si l'equip recupera una pilota que ha tocat el seu propi bloc i acaba guanyant el punt.",
+   "Es juguen sèries de 8 minuts."
+  ],
+  "rotacio": "Es refan els equips a cada sèrie.",
+  "claus": []
+ },
+ "G30": {
+  "objectiu": "Escalfar amb joc de braços en format «qui guanya es queda».",
+  "organitzacio": "Les dues pistes. Als passos 1 i 2, un partit per pista i la resta en cua darrere la línia de fons. Als passos 3 i 4, cada pista es parteix en dues mitges pistes i una és el camp de guanyadors.",
+  "passos": [
+   "Pas 1: 1x1 a tot el camp, només braços. Qui guanya es queda i entra el següent.",
+   "Pas 2: el mateix en 2x2, a dos tocs, només braços.",
+   "Pas 3: 1x1 a mitja pista i a un sol toc. Qui guanya va al camp de guanyadors.",
+   "Pas 4: el mateix, però amb defensa, col·locació i remat."
+  ],
+  "rotacio": "Qui guanya es queda (o va al camp de guanyadors) i qui perd torna a la cua. Uns 4 minuts per pas.",
+  "claus": []
+ },
+ "J1": {
+  "objectiu": "Encadenar defensa, col·locació i remat del mateix jugador que ha defensat.",
+  "organitzacio": "Circuits de quatre o cinc jugadors, cadascun en una franja de la pista partida al llarg. Rols: llançador (a la xarxa, a una banda), defensa-rematador (al fons de l'altra banda), col·locador (a la xarxa, a la banda del defensa) i recollidor (a la banda del llançador).",
+  "passos": [
+   "El llançador entra la pilota amb la mà des de la xarxa cap al fons de l'altra banda.",
+   "El defensa la recull de braços i l'aixeca alta cap a la xarxa.",
+   "El col·locador li col·loca.",
+   "El defensa corre endavant, fa l'aproximació i remata cap a la banda del llançador.",
+   "El recollidor agafa la pilota i la porta al llançador."
+  ],
+  "rotacio": "Cada jugador fa 10 pilotes a cada rol i llavors roten els quatre rols. Cada circuit ataca sempre per la mateixa zona (Z4 o Z2).",
+  "claus": [
+   "La defensa ha d'anar alta cap a la xarxa perquè el col·locador hi arribi.",
+   "Després de defensar, cal córrer endavant per tenir temps de fer l'aproximació."
+  ]
+ },
+ "J2": {
+  "objectiu": "Treballar en trio la cadena remat, defensa i col·locació.",
+  "organitzacio": "Trios: un rematador, un defensa i un col·locador.",
+  "passos": [
+   "El rematador remata cap al defensa.",
+   "El defensa defensa la pilota cap al col·locador.",
+   "El col·locador col·loca fins a on és el rematador, que torna a rematar.",
+   "Es fan 10 cicles seguits per trio."
+  ],
+  "rotacio": "Es canvien els rols cada 5 repeticions.",
+  "claus": []
+ },
+ "J3": {
+  "objectiu": "Jugada completa des del saque: recepció, col·locació i remat, amb continuïtat a l'altre camp.",
+  "organitzacio": "Pista sencera. Camp A: 3 receptors, 1 col·locador i 1 rematador. Camp B: uns quatre servint per torns i tres defensant el remat. Els que sobren fan control-passe de braços per parelles al lateral.",
+  "passos": [
+   "Un del camp B saca.",
+   "Al camp A, els receptors recepcionen, el col·locador col·loca i el rematador remata.",
+   "Al camp B, els tres defenses defensen el remat i continuen la jugada.",
+   "Quan acaba la jugada, es fa la rotació i saca el següent."
+  ],
+  "rotacio": "Automàtica a cada jugada: qui remata creua a servir, qui ha servit es queda a defensar i qui defensa entra com a receptor. Els de les parelles del lateral van entrant a cada jugada completa. Cada jugador ha de passar per la recepció almenys 10 vegades.",
+  "claus": [
+   "Tres receptors a pista sencera, no a mitja pista."
+  ]
+ },
+ "J4": {
+  "objectiu": "Complex 1: recepció i atac en totes les rotacions, amb la jugada continuada a l'altre camp.",
+  "organitzacio": "Un camp amb sis jugadors en posicions de partit. A l'altre camp, de quatre a sis jugadors que continuen la jugada; la resta serveix i recull.",
+  "passos": [
+   "Des de l'altre camp es serveix als sis.",
+   "Els sis recepcionen, col·loquen i ataquen per Z2, Z3 o Z4.",
+   "L'altre camp defensa el remat i continua la jugada.",
+   "Després de 5 remats, els sis roten una posició."
+  ],
+  "rotacio": "Es fan les sis rotacions completes. En acabar la volta de rotacions, entren sis jugadors nous al camp de recepció.",
+  "claus": []
+ },
+ "J5": {
+  "objectiu": "Saque, recepció, col·locació i remat en grups petits, amb un circuit que fa rotar tothom.",
+  "organitzacio": "Grups de cinc a mitja pista partida al llarg: dos jugadors a una banda de la xarxa i tres a l'altra.",
+  "passos": [
+   "Un dels dos de la primera banda serveix.",
+   "A l'altra banda, un recepciona, un altre col·loca i el que ha recepcionat remata.",
+   "Es continua la jugada.",
+   "Es roten les posicions i es torna a començar."
+  ],
+  "rotacio": "El que ha servit passa a la xarxa, el de la xarxa passa a l'altre camp i el que ha recepcionat canvia de camp. Cada jugador ha de fer el circuit sencer almenys 3 vegades.",
+  "claus": []
+ },
+ "J6": {
+  "objectiu": "Construir l'atac a partir d'una pilota free.",
+  "organitzacio": "Grups de quatre a mitja pista: un entra el free des de l'altra banda, un defensa i remata, un col·loca i la resta recull. A DT07, el quart fa bloc a l'altra banda.",
+  "passos": [
+   "Un tira una pilota free a l'altra banda.",
+   "El defensa la defensa.",
+   "Un segon jugador entra a col·locar.",
+   "El que ha defensat remata. Ronda 1: per Z4 sense saltar. Ronda 2: per Z2 sense saltar. Ronda 3: podent saltar."
+  ],
+  "rotacio": "Es canvia de rol cada 4 repeticions. Cada jugador fa 8 pilotes a cada ronda.",
+  "claus": []
+ },
+ "J7": {
+  "objectiu": "Defensar tres pilotes seguides de tipus diferent movent-se per la pista.",
+  "organitzacio": "Una fila a Z5. A l'altra banda de la xarxa, l'entrenador o un jugador envia les pilotes. Un jugador a Z3 recull.",
+  "passos": [
+   "El primer de la fila surt a Z5 i defensa un remat dirigit a Z5.",
+   "Tot seguit entra corrent a Z4 a defensar una deixada curta.",
+   "Per últim va corrent enrere a Z1 a defensar una pilota bombejada.",
+   "Totes tres defenses han d'anar altes cap a Z3, on el recollidor agafa la pilota. El defensa torna a la cua."
+  ],
+  "rotacio": "Cada jugador fa 5 rondes de tres pilotes. El recollidor es canvia a cada tanda; si envia un jugador, també es canvia a cada ronda.",
+  "claus": [
+   "Les tres defenses, altes i cap a Z3."
+  ]
+ },
+ "J8": {
+  "objectiu": "Defensa des de Z5 i atac per Z4 del jugador que primer ha anat a bloquejar.",
+  "organitzacio": "A cada pista i a cada camp: una fila a Z5, un col·locador i un jugador a Z4.",
+  "passos": [
+   "Des de l'altra banda, un jugador remata.",
+   "El de Z4 va a bloquejar.",
+   "El de Z5 defensa el remat i el col·locador col·loca.",
+   "El de Z4, que s'ha hagut d'obrir bé després del bloc, remata."
+  ],
+  "rotacio": "La fila de Z5 rota sola. 8 repeticions per posició.",
+  "claus": [
+   "Després del bloc, el de Z4 s'ha d'obrir bé per tenir espai per rematar."
+  ]
+ },
+ "J9": {
+  "objectiu": "Defenses seguides de pilotes diferents, amb tot el grup treballant alhora.",
+  "organitzacio": "Quatre circuits, dos a cada banda de la xarxa (un per Z4 i un per Z2). A cada banda hi ha quatre llançadors: un a Z4 i un a Z3 per al circuit de Z4, i un a Z2 i un altre a Z3 per al circuit de Z2. La resta defensen rodant pels quatre circuits.",
+  "passos": [
+   "Circuit de Z4: el de Z4, amb dues pilotes, tira la primera a la xarxa.",
+   "El defensa surt entre Z4 i Z5 i defensa el rebot de la xarxa.",
+   "Tot seguit el de Z3 li remata i ell torna a defensar.",
+   "Finalment el de Z4 li tira la segona pilota.",
+   "Circuit de Z2: igual, amb les dues pilotes al de Z2 i el remat des de Z3."
+  ],
+  "rotacio": "Cada defensa fa 3 pilotes a cada circuit i passa al següent. Quan tothom ha fet dues voltes als quatre circuits, els llançadors i els defenses s'intercanvien.",
+  "claus": []
+ },
+ "J10": {
+  "objectiu": "Encadenar saque i recepció amb defensa, col·locació i remat en trios.",
+  "organitzacio": "Trios a mitja pista partida al llarg, dos trios per pista. El primer saca des del seu camp, el segon és a l'altre camp i el tercer és a Z2 del camp del que saca. Els que sobren recullen pilotes.",
+  "passos": [
+   "El primer saca.",
+   "El segon recepciona i agafa la pilota a dalt amb les mans, com si se la col·loqués.",
+   "El tercer remata cap al que ha servit.",
+   "El que ha servit defensa alt, el tercer li col·loca i ell remata."
+  ],
+  "rotacio": "Cada 5 cicles: qui ha servit passa a Z2, qui era a Z2 passa a recepcionar i qui recepcionava passa a servir. Els que recullen entren a cada canvi de rol.",
+  "claus": []
+ },
+ "J11": {
+  "objectiu": "Moure's a la zona on s'envia la pilota i encadenar passe, col·locació, remat i defensa.",
+  "organitzacio": "Circuits de quatre a Z1, Z4, Z2 i Z5 d'un mateix camp, més dos recollint. Dos circuits per pista, un a cada camp.",
+  "passos": [
+   "El de Z1 passa de dits al de Z4.",
+   "El de Z4 col·loca al de Z2.",
+   "El de Z2 remata cap a Z5.",
+   "El de Z5 defensa cap a Z1 i es torna a començar.",
+   "Regla: qui toca la pilota se'n va a la zona on l'ha enviada."
+  ],
+  "rotacio": "La regla de seguir la pilota fa rotar tothom sol. Quatre tandes de 3 minuts, canviant el sentit.",
+  "claus": []
+ },
+ "J12": {
+  "objectiu": "Col·locar des de Z1 cap a Z2 o Z4 i atacar en diagonal o en línia.",
+  "organitzacio": "A cada camp, quatre jugadors a Z1, Z2, Z4 i Z6, i una fila darrere de Z6.",
+  "passos": [
+   "La pilota arriba al de Z6, que la passa al de Z1.",
+   "El de Z1 col·loca a Z2 o a Z4.",
+   "El jugador col·locat ataca en diagonal o en línia cap a l'altre camp."
+  ],
+  "rotacio": "El de Z1 s'intercanvia amb el jugador a qui ha col·locat. El de Z6 va a Z1 i el primer de la fila entra a Z6. Tandes de 4 minuts per grup de quatre.",
+  "claus": [
+   "L'atac sempre en diagonal o en línia."
+  ]
+ },
+ "J13": {
+  "objectiu": "Fer jugada de tres tocs i canviar de camp corrent després de tocar la pilota.",
+  "organitzacio": "A cada pista, tres jugadors per camp i la resta en cua per entrar.",
+  "passos": [
+   "Un jugador passa la pilota a l'altre camp.",
+   "Els tres d'aquell camp fan jugada: defensa, col·locació i un tercer toc cap a l'altre camp.",
+   "Just després de tocar la pilota, cadascun dels tres se'n va corrent a l'altre camp i entren tres de nous.",
+   "Ronda 1: tots els tocs de braços. Ronda 2: amb la col·locació de dits. Ronda 3: acabant amb remat controlat."
+  ],
+  "rotacio": "Automàtica: qui toca la pilota canvia de camp i qui surt es posa a la cua.",
+  "claus": []
+ },
+ "J14": {
+  "objectiu": "Defensa del líbero, col·locació i atac per Z4 cap a Z5-Z6.",
+  "organitzacio": "A cada camp, un líbero fix a Z6, un col·locador fix a Z1 i una fila de rematadors a Z4. Calen uns 16 jugadors per fer-ho a les dues pistes.",
+  "passos": [
+   "La pilota va al líbero, que la defensa.",
+   "El col·locador entra i col·loca a Z4.",
+   "El primer de la fila de Z4 remata cap a Z5-Z6 de l'altre camp, on el líbero d'aquell camp defensa i la jugada continua."
+  ],
+  "rotacio": "Qui ha rematat se'n va a la fila de Z4 de l'altre camp. El líbero i el col·locador són fixos. Cada jugador de la fila fa 10 remats.",
+  "claus": []
+ },
+ "J15": {
+  "objectiu": "Defensar remats creuats i encadenar passe, col·locació i remat en línia.",
+  "organitzacio": "Grups de quatre o cinc a cada mitja pista: dos rematen des de la xarxa (Z2 i Z4), dos defensen a Z5 i Z1 i un recull i entra pilotes. Hi ha dues pilotes en joc alhora.",
+  "passos": [
+   "Alhora, un remata de Z2 cap a Z5 i l'altre de Z4 cap a Z1.",
+   "Nivell 1: cada defensa aixeca la seva pilota cap al company del costat, que l'agafa a dalt amb les mans.",
+   "Nivell 2: el company, en comptes d'agafar-la, la col·loca de tornada.",
+   "Nivell 3: s'hi afegeix un remat en línia cap a l'altre camp, i els dos que rematen passen a bloquejar-lo."
+  ],
+  "rotacio": "Es canvia de rol cada 5 repeticions i tothom passa per tots els rols. 10 repeticions per nivell, sense aturar l'exercici entre nivells.",
+  "claus": [
+   "La defensa va al company del costat, no al rematador."
+  ]
+ },
+ "J16": {
+  "objectiu": "Partit descompensat de sis contra quatre.",
+  "organitzacio": "Un equip de sis en posicions de partit contra un de quatre col·locats en rombe. La resta arbitra i recull, o juga 2x2 o 3x3 a l'altra pista.",
+  "passos": [
+   "Es juga un set a 15 de sis contra quatre.",
+   "En acabar el set, es canvien els papers i entren els que esperaven."
+  ],
+  "rotacio": "A cada set es canvien els papers. Si hi ha una segona pista, els grups es canvien de pista a cada set.",
+  "claus": []
+ },
+ "J17": {
+  "objectiu": "Guanyar dues pilotes seguides, una de saque i una de free, per sumar un punt.",
+  "organitzacio": "Un partit a cada pista, equips barrejats i ningú fora. Els de nivell alt repartits entre els equips.",
+  "passos": [
+   "Es juga una pilota iniciada amb saque.",
+   "Tot seguit l'entrenador entra una pilota lliure i es juga.",
+   "Si un equip guanya les dues, suma un punt.",
+   "Si cada equip en guanya una, és un rentat: no compta i es repeteix."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "J18": {
+  "objectiu": "Complex 2: defensar un atac i contraatacar sense aturar la jugada.",
+  "organitzacio": "Pista 1: sis contra sis, amb l'entrenador entrant les pilotes. Pista 2: els altres fan el mateix a 3x3 i s'entren les pilotes entre ells. A la meitat del bloc es canvien de pista.",
+  "passos": [
+   "S'ataca contra l'equip que defensa.",
+   "L'equip defensa l'atac.",
+   "Sense aturar la jugada, col·loca i contraataca."
+  ],
+  "rotacio": "5 transicions per rotació i es fan les sis rotacions.",
+  "claus": []
+ },
+ "J19": {
+  "objectiu": "Obligar a construir la jugada amb tres tocs.",
+  "organitzacio": "Un partit a cada pista, equips barrejats i ningú fora. Els de nivell alt repartits entre els equips.",
+  "passos": [
+   "Es juga un partit normal.",
+   "Si un equip passa la pilota a l'altre camp en un o dos tocs, regala el punt al rival."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "J20": {
+  "objectiu": "Netejar la recepció i la col·locació d'una rotació concreta jugant-la moltes vegades seguides.",
+  "organitzacio": "Pista 1: sis contra sis, amb l'entrenador entrant les pilotes. Pista 2: els altres fan el mateix a 3x3 i s'entren les pilotes entre ells. A la meitat del bloc es canvien de pista.",
+  "passos": [
+   "Es tria una rotació (en aquest bloc, la 1, amb el col·locador a Z1).",
+   "Es juguen 12 jugades completes sense rotar.",
+   "Es passa a la rotació següent i es repeteix."
+  ],
+  "rotacio": "No es rota durant la sèrie: es canvia de rotació cada 12 jugades.",
+  "claus": []
+ },
+ "J21": {
+  "objectiu": "Reaccionar a una pilota difícil que arriba per sorpresa durant el joc.",
+  "organitzacio": "Pista 1: sis contra sis, amb l'entrenador al costat amb pilotes. Pista 2: els altres juguen 3x3 i s'entren les pilotes entre ells. A la meitat del bloc es canvien de pista.",
+  "passos": [
+   "Es juga un partit normal.",
+   "Un cop de cada tres rallys, l'entrenador entra una pilota difícil en qualsevol moment, sense avisar.",
+   "L'equip l'ha de jugar."
+  ],
+  "rotacio": "Continu tot el bloc. Els grups es canvien de pista a la meitat.",
+  "claus": []
+ },
+ "J22": {
+  "objectiu": "Partit on cada equip només puntua amb un tipus d'atac.",
+  "organitzacio": "Un partit a cada pista, equips barrejats i ningú fora. Els de nivell alt repartits entre els equips.",
+  "passos": [
+   "Un equip només suma el punt si l'atac guanyador ve d'un zaguer.",
+   "L'altre equip només el suma si l'atac ve d'un davanter.",
+   "Es juguen sets a 15."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "J23": {
+  "objectiu": "No desconnectar entre pilota i pilota.",
+  "organitzacio": "Pista partida al llarg en dues mitges pistes, 4x4 a cada una. L'entrenador és al lateral amb pilotes.",
+  "passos": [
+   "Es juga normal.",
+   "Quan la pilota cau o surt fora, l'entrenador n'entra una de nova immediatament, sense esperar que la recullin ni que es recol·loquin.",
+   "Es juguen 3 minuts seguits sense aturar-se i es descansa 90 segons.",
+   "No es compten punts."
+  ],
+  "rotacio": "Quatre sèries de 3 minuts. Els que sobren entren a cada pilota perduda.",
+  "claus": []
+ },
+ "J24": {
+  "objectiu": "Llegir un joc descompensat per un jugador extra.",
+  "organitzacio": "Pista partida al llarg, 3x3 a cada mitja pista més un comodí que juga sempre amb el costat que defensa. Els que sobren esperen darrere la línia de fons.",
+  "passos": [
+   "Es juga 3x3 amb el comodí al costat que defensa.",
+   "Quan canvia el servei, el comodí passa a l'altre costat.",
+   "Es juguen sèries de 5 minuts i es compta quin costat ha fet més punts."
+  ],
+  "rotacio": "Quan es perd un punt, surt el jugador que ha fet l'error i entra un dels que esperen.",
+  "claus": []
+ },
+ "J25": {
+  "objectiu": "Allargar els punts i no regalar pilotes.",
+  "organitzacio": "Pista partida al llarg en dues mitges pistes, 4x4 a cada una. Els que sobren porten el marcador.",
+  "passos": [
+   "Es juga un partit normal.",
+   "El punt no compta fins que la pilota ha creuat la xarxa quatre vegades; fins llavors, tot es continua.",
+   "Es juguen sets a 10."
+  ],
+  "rotacio": "Els que sobren entren a cada punt perdut.",
+  "claus": []
+ },
+ "J26": {
+  "objectiu": "Recepció i atac en les sis rotacions.",
+  "organitzacio": "Sis jugadors en posicions de partit a un camp. La resta serveix des de l'altre camp, amb dos recollint pilotes. Si hi ha molts jugadors, es fa a les dues pistes.",
+  "passos": [
+   "Els de l'altre camp serveixen sense parar.",
+   "Els sis recepcionen i juguen la pilota fins a l'atac.",
+   "Després de 3 serveis, els sis roten una posició.",
+   "Es continua fins a fer les sis rotacions (18 serveis) i es repeteix el circuit sencer."
+  ],
+  "rotacio": "Després de dos circuits, entren sis jugadors nous a recepcionar.",
+  "claus": [
+   "Cada pilota es juga fins a l'atac, no s'atura a la recepció."
+  ]
+ },
+ "J27": {
+  "objectiu": "Organitzar l'equip quan rep una pilota fàcil (free ball).",
+  "organitzacio": "Les dues pistes, equips barrejats a cada camp. A una pista entra les pilotes l'entrenador i a l'altra un jugador.",
+  "passos": [
+   "S'entra una pilota fàcil a l'equip.",
+   "L'equip decideix qui la reclama i cap a on va.",
+   "Els atacants s'obren i es fa l'atac."
+  ],
+  "rotacio": "L'equip rota entre repetició i repetició. 20 free balls per equip. El jugador que entra pilotes es canvia cada 5 repeticions.",
+  "claus": [
+   "Que quedi clar qui la reclama i qui s'obre a atacar."
+  ]
+ },
+ "J28": {
+  "objectiu": "Recuperar una pilota tocada pel bloc i tornar a construir l'atac.",
+  "organitzacio": "Sis contra sis a pista sencera. Dels que sobren, uns entren pilotes, uns recullen i uns esperen per entrar.",
+  "passos": [
+   "S'entra la pilota com si hagués sortit tocada pel bloc.",
+   "L'equip la recupera.",
+   "Construeix la jugada des de zero i ataca."
+  ],
+  "rotacio": "10 pilotes per rotació i es fan les sis rotacions. Cada dos rallys es canvien tres jugadors de cada equip.",
+  "claus": []
+ },
+ "J29": {
+  "objectiu": "Entrenar el final de set, amb pressió a cada pilota.",
+  "organitzacio": "Un partit a cada pista, equips barrejats i ningú fora. Els de nivell alt repartits entre els equips.",
+  "passos": [
+   "Cada sèrie comença amb el marcador a 20-20.",
+   "Es juga fins a 25, amb dos punts d'avantatge, com en un set de veritat.",
+   "Quan acaba la sèrie, es refan els equips i es torna a començar de 20-20."
+  ],
+  "rotacio": "Es refan els equips a cada sèrie. Cinc sèries.",
+  "claus": []
+ },
+ "J30": {
+  "objectiu": "Partit amb un jugador d'esquena que depèn de la comunicació dels companys.",
+  "organitzacio": "Pista partida al llarg en dues mitges pistes, 4x4 a cada una. Els que sobren porten el marcador.",
+  "passos": [
+   "Un jugador de l'equip es col·loca d'esquena.",
+   "Només es gira quan els companys el criden pel nom.",
+   "Es juguen sets a 10."
+  ],
+  "rotacio": "El jugador d'esquena canvia cada 5 punts. Els que sobren entren a cada punt perdut.",
+  "claus": []
+ },
+ "J31": {
+  "objectiu": "Encadenar control de braços, autocol·locació de dits i remat controlat.",
+  "organitzacio": "Quatre files, dues a cada banda de la xarxa, una davant de l'altra.",
+  "passos": [
+   "La pilota arriba de l'altre camp.",
+   "El primer de la fila la controla de braços.",
+   "Se l'autocol·loca de dits.",
+   "Fa un remat controlat cap a l'altra banda, on el primer de la fila repeteix la cadena.",
+   "Primer tot dins de la línia de 3 i després una mica més lluny."
+  ],
+  "rotacio": "Qui toca la pilota se'n va al final de la seva fila. 10 cicles per jugador a cada distància.",
+  "claus": [
+   "El remat ha d'entrar i deixar que el de l'altra banda hi arribi: no és per fer punt."
+  ]
+ },
+ "J32": {
+  "objectiu": "Defensar a la cantonada, autocol·locar-se i rematar en línia.",
+  "organitzacio": "Camp partit en dues meitats, un grup a cada una. Des del mig tira l'entrenador o un jugador. A cada meitat, una fila que defensa i remata i un defensa a l'altra banda de la xarxa.",
+  "passos": [
+   "Pas 1: es tira la pilota a la cantonada Z1/Z5. El de la fila la defensa alta a ell mateix, l'agafa, se la tira i remata en línia. A l'altra banda, el defensa l'aixeca alta i l'agafa, ve a la xarxa, fa un bloc amb la pilota a les mans i la deixa al mig.",
+   "Pas 2: igual, però sense agafar-la: les defenses que calguin, col·locació i remat.",
+   "Pas 3: igual, però el remat el fa l'entrenador; primer defensen i l'agafen, després en continu."
+  ],
+  "rotacio": "Qui remata passa a defensar a l'altra banda i qui defensava torna a la fila. Qui tira a la segona pista es canvia a cada pas. 5 pilotes per jugador a cada pas.",
+  "claus": []
+ },
+ "R1": {
+  "objectiu": "Construir el gest del braç de remat articulació per articulació, amb una pilota de tennis.",
+  "organitzacio": "Individual. Cadascú amb una pilota de tennis, tots alhora escampats per la pista. Si no hi ha pilotes per a tothom, es fa en dos torns: mentre uns treballen, els altres corregeixen un company.",
+  "passos": [
+   "Es tira la pilota amunt i es colpeja només amb el canell, amb el braç quiet.",
+   "Només amb el colze.",
+   "Colze i canell junts.",
+   "S'hi afegeix l'espatlla.",
+   "Tot el cos, amb el gir de tronc.",
+   "Saltant.",
+   "Dues passes i salt."
+  ],
+  "rotacio": "Es passa d'un pas al següent sense pausa, 30 cops per pas. Si es fa en dos torns, els grups es canvien quan el primer acaba la progressió.",
+  "claus": [
+   "La pilota de tennis no fa mal: ningú s'ha d'arronsar i el gest ha de sortir net."
+  ]
+ },
+ "R2": {
+  "objectiu": "Fer el remat sencer apuntant amunt i cap a un objectiu, amb pilota de tennis.",
+  "organitzacio": "Per parelles, una pilota de tennis per parella, escampats per la pista. Un remata i l'altre fa d'objectiu.",
+  "passos": [
+   "Sense salt: el rematador fa el gest sencer i envia la pilota cap al company, que l'agafa amb els braços estirats amunt.",
+   "Amb salt.",
+   "Amb dues passes i salt.",
+   "Amb dues passes i salt, però el company es desplaça i cal apuntar on és."
+  ],
+  "rotacio": "Canvi de rol cada 15 remats.",
+  "claus": [
+   "Com que el company l'agafa amb els braços amunt, cal apuntar amunt i no cap a terra."
+  ]
+ },
+ "R3": {
+  "objectiu": "Treballar el gest de canell del remat, sense potència, picant per sota de la xarxa.",
+  "organitzacio": "Parelles a la xarxa, un a cada banda, una parella a cada tram de xarxa. Pilota de vòlei. Es fa en estacions: la meitat del grup aquí i l'altra meitat amb un altre exercici a la pista.",
+  "passos": [
+   "De peu i sense salt, el jugador remata la pilota per sota de la xarxa buscant el gest net de canell.",
+   "El company de l'altra banda la recull i la torna.",
+   "Després de 20 remats de peu, se'n fan 20 de genolls, que obliguen a colpejar amunt."
+  ],
+  "rotacio": "Els dos de cada parella s'alternen fins a fer tots dos la dosi. A la meitat del bloc, aquest grup es canvia amb el de l'altre exercici.",
+  "claus": [
+   "Es busca el gest net de canell, no la potència."
+  ]
+ },
+ "R4": {
+  "objectiu": "Aprendre el ritme de passes de la batuda del remat.",
+  "organitzacio": "Circuits de tres aros a terra en paral·lel, que marquen on va cada passa. Uns cinc jugadors per circuit, en cua.",
+  "passos": [
+   "Primera passa: peu esquerre a l'aro, amb les mans davant.",
+   "Segona passa: peu dret llarg, amb les mans darrere.",
+   "Tercera passa: peu esquerre i salt.",
+   "Primer 10 cops sense pilota, després 10 amb pilota de tennis i finalment 10 amb pilota de vòlei."
+  ],
+  "rotacio": "Cada jugador fa la batuda i torna al final de la cua del seu circuit. Ningú espera més de dos torns.",
+  "claus": []
+ },
+ "R5": {
+  "objectiu": "Rematar amb control, fent que la pilota faci paràbola, i defensar-la.",
+  "organitzacio": "Per parelles escampades per la pista, una pilota per parella. Un remata i l'altre defensa.",
+  "passos": [
+   "Sense salt: el rematador fa tres tocs a la pilota per tantejar-la i remata suau, que la pilota rodi i faci paràbola. El company la defensa i l'agafa.",
+   "Sense salt i sense els tres tocs previs.",
+   "Amb salt.",
+   "Amb salt, i el company defensa en comptes d'agafar-la: es continua jugant fins que la pilota cau."
+  ],
+  "rotacio": "Canvi de rol cada 5 repeticions, fins a fer 10 per jugador a cada pas.",
+  "claus": [
+   "El remat ha de ser controlat i en paràbola, no fort."
+  ]
+ },
+ "R6": {
+  "objectiu": "Rematar després de recular des de la xarxa, com en una transició.",
+  "organitzacio": "Grups de quatre o cinc per mitja pista: un rematador, un col·locador, un que passa pilotes i un defensa a l'altra banda. Un con a Z5 i un altre a Z1.",
+  "passos": [
+   "El rematador toca la xarxa i corre enrere fins al con.",
+   "Torna endavant i remata a línia la pilota que li col·loquen.",
+   "El defensa de l'altra banda la defensa.",
+   "Es fa per Z4 i per Z2, i després tot es repeteix en diagonal."
+  ],
+  "rotacio": "Es roten els rols després de cada tanda de 5 remats, fins que cada rematador n'ha fet 10.",
+  "claus": []
+ },
+ "R7": {
+  "objectiu": "Rematar cap a una direcció concreta (línia, diagonal, curta) amb bloc i defensa davant.",
+  "organitzacio": "Per mitja pista: un col·locador, un rematador, un bloc i un defensa a l'altra banda, i la resta en cua i recollint pilotes.",
+  "passos": [
+   "Des de Z2, remat a línia, amb el bloc a Z4 i la defensa a Z5 de l'altre camp.",
+   "El mateix des de Z4.",
+   "Tot en diagonal, des de Z2 i des de Z4.",
+   "Finalment, remat curt en diagonal des de Z2 i des de Z4."
+  ],
+  "rotacio": "Es roten els rols cada 4 repeticions. Cada jugador passa 2 cops per cada rol. Els de la cua entren a cada rotació.",
+  "claus": []
+ },
+ "R8": {
+  "objectiu": "Fer la finta amb el mateix gest que el remat, perquè la defensa no la llegeixi.",
+  "organitzacio": "Per mitja pista: un col·locador, els rematadors en cua i un defensa a la zona objectiu de l'altre camp.",
+  "passos": [
+   "El col·locador col·loca i el rematador ataca amb el cos recte, com si rematés.",
+   "Fa dos remats i dues fintes, alternant-los, cap a la zona on hi ha el defensa.",
+   "El defensa intenta defensar-los."
+  ],
+  "rotacio": "Es roten els rols cada 5 repeticions, fins a fer 10 per jugador. Cada jugador fa 2 torns.",
+  "claus": [
+   "El cos ha d'estar recte i igual que en el remat, per amagar la finta."
+  ]
+ },
+ "R9": {
+  "objectiu": "Defensar remats des d'alçada i encadenar defensa, col·locació i atac.",
+  "organitzacio": "Grups de tres amb un banc o cadira, repartits a les dues bandes de la xarxa: un remata dalt del banc, un defensa i un col·loca.",
+  "passos": [
+   "El rematador, dalt del banc, remata cap al defensa.",
+   "El defensa defensa la pilota cap al col·locador.",
+   "El col·locador col·loca i el que ha defensat fa veure que remata."
+  ],
+  "rotacio": "Es roten els rols cada 5 repeticions, fins a fer 10 per jugador. Cada jugador fa 2 torns.",
+  "claus": []
+ },
+ "R10": {
+  "objectiu": "Autocol·locar-se de dits i rematar cap a zones concretes.",
+  "organitzacio": "Per mitja pista: l'entrenador entra les pilotes, un rematador cada vegada, dos recollint i la resta en una cua curta.",
+  "passos": [
+   "L'entrenador passa una pilota bombejada dins de la línia de 3.",
+   "El jugador se l'autocol·loca de dits i remata.",
+   "Objectius en aquest ordre: Z1 i Z5, després finta al bloc, després Z2 i Z4. Tres pilotes a cada objectiu."
+  ],
+  "rotacio": "Canvi ràpid: després de cada pilota entra el següent de la cua, fins a fer 12 per jugador. Els recollidors entren a la cua.",
+  "claus": []
+ },
+ "R11": {
+  "objectiu": "Encadenar a intensitat desplaçament, defensa, autocol·locació i remat controlat.",
+  "organitzacio": "Dos recorreguts en paral·lel. Corren dos jugadors alhora; a l'altre camp hi ha algú defensant i la resta recull i fa cua.",
+  "passos": [
+   "El jugador corre el recorregut de línies 9-6-9-3-9.",
+   "Tira la pilota a la xarxa i la defensa.",
+   "Se la col·loca ell mateix.",
+   "Fa un remat controlat a l'altre camp, on algú el defensa."
+  ],
+  "rotacio": "Després de cada recorregut entra el següent de la cua. Cada jugador fa 5 recorreguts, amb 60 s de descans entre recorreguts.",
+  "claus": [
+   "Va d'intensitat."
+  ]
+ },
+ "R12": {
+  "objectiu": "Aprendre el remat per passos, del gest del braç a la batuda sencera.",
+  "organitzacio": "Passos 1 a 3 per parelles, un davant de l'altre, escampats amb pilota de vòlei. Pas 4 a la xarxa, per torns. Passos 5 i 6 tots alhora per la pista, sense xarxa.",
+  "passos": [
+   "(1-3) En parelles: braç bloquejat colpejant només amb el canell; després braç estirat amunt del tot; després de costat, ens tirem la pilota i fem el gest sencer colpejant-la cap al company.",
+   "(4) A la xarxa: colpegem la pilota per sobre de la xarxa i després per sota, per notar la diferència d'alçada del contacte.",
+   "(5) Batuda sense pilota: peu dret davant de l'esquerre, esquerra curt, dreta llarg clavant el taló i esquerra molt petit per saltar.",
+   "(6) La mateixa batuda, ens tirem la pilota i l'agafem amb dues mans al punt més alt del salt.",
+   "(7) La batuda sencera acabant amb un colpeig suau cap a l'altre camp."
+  ],
+  "rotacio": "No es passa al pas següent fins que el gest surt net. 20 repeticions per pas; els passos 5 i 6 es fan dos cops.",
+  "claus": [
+   "La batuda és el que més costa: per això s'hi dedica el doble."
+  ]
+ },
+ "R13": {
+  "objectiu": "Rematar de peu controlant la direcció, amb bloc i defensa davant.",
+  "organitzacio": "Grups de quatre al llarg de la xarxa: un col·loca, un remata de peu, i a l'altra banda un bloqueja i un defensa darrere el bloc. Si en sobren, recullen pilotes.",
+  "passos": [
+   "El col·locador col·loca i el rematador remata de peu, sense saltar, controlant el gest i no la potència.",
+   "El bloquejador fa bloc i el defensa, darrere seu, defensa i torna la pilota al col·locador.",
+   "Cada rematador fa 10 remats a línia, 10 en diagonal esquerra i 10 en diagonal dreta."
+  ],
+  "rotacio": "Es rota el rol cada 5 repeticions. Els recollidors entren a cada rotació.",
+  "claus": [
+   "Control del gest, no potència."
+  ]
+ },
+ "R14": {
+  "objectiu": "Encadenar autobraços, autocol·locació i colpeig, amb desplaçament i ritme.",
+  "organitzacio": "Per parelles escampades per la pista.",
+  "passos": [
+   "Autobraços, autocol·locació i toc amb el palmell de la mà.",
+   "El mateix i tot seguit es corre cap al company, se li fa una volta i es torna al lloc.",
+   "Igual però amb dues pilotes.",
+   "El cicle sencer acabant amb un remat controlat."
+  ],
+  "rotacio": "Canvi de rol cada 5 repeticions, fins a fer 10 per pas i per jugador.",
+  "claus": []
+ },
+ "R15": {
+  "objectiu": "Aixecar una pilota que surt de la xarxa i rematar-la, contra bloc i defensa.",
+  "organitzacio": "Per mitja pista: un col·locador, els rematadors en cua, i a l'altra banda un bloc i un defensa.",
+  "passos": [
+   "El col·locador tira la pilota a la xarxa.",
+   "El rematador l'aixeca ell mateix.",
+   "El col·locador li col·loca i ell remata a línia.",
+   "A l'altre camp, el bloc salta i el defensa ha d'aixecar la pilota.",
+   "Es repeteix en diagonal i després des de Z2."
+  ],
+  "rotacio": "Es roten els rols cada 4 repeticions, fins a fer 8 per rematador a cada ronda. Cada jugador fa 2 torns.",
+  "claus": []
+ },
+ "R16": {
+  "objectiu": "Rematar llegint cap a on s'obre el bloc.",
+  "organitzacio": "Per mitja pista: un col·locador, un rematador, dos fent de bloc i un recollint. La resta, en cua a la mateixa mitja pista.",
+  "passos": [
+   "El col·locador col·loca al rematador.",
+   "Just abans del salt, el bloc s'obre a un costat o a l'altre, a l'atzar.",
+   "El rematador remata cap a la direcció contrària a la que s'ha obert el bloc."
+  ],
+  "rotacio": "Es roten els rols cada 4 repeticions i la cua entra a cada rotació, fins a fer 12 per rematador.",
+  "claus": [
+   "El bloc obre a l'atzar, no alternant."
+  ]
+ },
+ "R17": {
+  "objectiu": "Colpejar el centre exacte de la pilota en el remat.",
+  "organitzacio": "Per parelles amb pilota de platja, escampats. Si no n'hi ha per a tothom, es fa en estacions amb un altre exercici.",
+  "passos": [
+   "Cada jugador fa 15 remats amb la pilota de platja cap al company.",
+   "Després en fa 10 amb pilota normal."
+  ],
+  "rotacio": "Els dos de la parella s'alternen. Si es fa en estacions, els grups es canvien a la meitat del bloc.",
+  "claus": [
+   "Si no es colpeja el centre de la pilota, no va enlloc."
+  ]
+ },
+ "R18": {
+  "objectiu": "Pujar l'alçada del contacte i corregir el remat pla.",
+  "organitzacio": "Per mitja pista amb una corda o goma tensada per sobre de la xarxa: un col·locador, els rematadors en cua i dos recollint.",
+  "passos": [
+   "El col·locador col·loca i el rematador remata.",
+   "La pilota ha de passar per sobre de la corda."
+  ],
+  "rotacio": "Es roten els rols cada 4 repeticions, fins a fer 12 per rematador. Cada jugador fa 3 torns.",
+  "claus": [
+   "Haver de passar per sobre de la corda obliga a colpejar més amunt."
+  ]
+ },
+ "R19": {
+  "objectiu": "Ajustar el temps d'aproximació a col·locacions de diferent alçada.",
+  "organitzacio": "Per mitja pista: un col·locador que varia l'alçada, els rematadors en cua i dos recollint.",
+  "passos": [
+   "El col·locador col·loca alta, després mitjana i després tensa.",
+   "El rematador ajusta el moment d'arrencar l'aproximació a cada col·locació i remata.",
+   "Es fan 3 cicles complets (alta, mitjana, tensa)."
+  ],
+  "rotacio": "Es roten els rols cada 4 pilotes. Cada jugador fa 3 torns.",
+  "claus": []
+ },
+ "R20": {
+  "objectiu": "No quedar-se mirant després de rematar: rematar i defensar tot seguit.",
+  "organitzacio": "Per mitja pista: un col·locador, un rematador, l'entrenador entrant pilotes i la resta en cua.",
+  "passos": [
+   "El col·locador col·loca i el jugador remata.",
+   "Just després, l'entrenador li entra una pilota i el mateix jugador la defensa."
+  ],
+  "rotacio": "Es roten els rols cada 5 cicles, fins a fer 10 cicles per jugador. Cada jugador fa 2 torns.",
+  "claus": [
+   "Elimina el vici de rematar i quedar-se mirant."
+  ]
+ },
+ "R21": {
+  "objectiu": "Rematar per fer punt contra un defensa, en forma de competició.",
+  "organitzacio": "Per mitja pista: dos rematadors, un col·locador, un defensa fix a l'altre camp i la resta recollint i apuntant.",
+  "passos": [
+   "Els dos rematadors s'alternen atacant des de la mateixa zona.",
+   "El defensa intenta defensar cada remat.",
+   "Cada rematador fa 10 intents i s'apunten les pilotes que cauen a terra. Guanya qui en fa més."
+  ],
+  "rotacio": "Es roten els rols després de cada duel.",
+  "claus": []
+ },
+ "R22": {
+  "objectiu": "Atacar des de darrere de la línia de 3.",
+  "organitzacio": "Per mitja pista: un col·locador, els rematadors de zaguera en cua, un bloc passiu i dos recollint.",
+  "passos": [
+   "El rematador comença la batuda molt enrere i salta darrere de la línia de 3.",
+   "Primer 10 remats sense bloc.",
+   "Després 10 amb un bloc passiu."
+  ],
+  "rotacio": "Es roten els rols cada 5 repeticions. Cada jugador fa 2 torns.",
+  "claus": []
+ },
+ "R23": {
+  "objectiu": "Fer la finta amb la mateixa aproximació i armat que el remat.",
+  "organitzacio": "Per mitja pista: un col·locador, els rematadors en cua i un defensa a l'altre camp.",
+  "passos": [
+   "El col·locador col·loca i el rematador ataca.",
+   "Cada tercer atac ha de ser una finta.",
+   "L'aproximació i l'armat han de ser idèntics en els tres atacs."
+  ],
+  "rotacio": "Es roten els rols cada 5 repeticions, fins a fer 15 per jugador. Cada jugador fa 3 torns.",
+  "claus": []
+ },
+ "R24": {
+  "objectiu": "Canviar la direcció del remat en ple salt.",
+  "organitzacio": "Per mitja pista: un col·locador, un company que canta la zona, els rematadors en cua i dos recollint.",
+  "passos": [
+   "El col·locador col·loca i el rematador salta.",
+   "Quan el rematador ja és a l'aire, el company crida una zona en veu alta, a l'atzar.",
+   "El rematador remata cap a la zona cantada."
+  ],
+  "rotacio": "Es roten els rols cada 4 repeticions, fins a fer 12 per rematador. Cada jugador fa 3 torns.",
+  "claus": []
+ },
+ "R25": {
+  "objectiu": "Resoldre l'atac contra un bloc doble.",
+  "organitzacio": "Per mitja pista: un col·locador, els rematadors en cua, i a l'altra banda dos bloquejadors i dos defenses.",
+  "passos": [
+   "El col·locador col·loca i els dos bloquejadors munten bloc doble.",
+   "El rematador tria entre buscar les mans del bloc, fer una finta llarga o tirar pel forat entre el bloc i la línia, barrejant les opcions.",
+   "Els defenses defensen."
+  ],
+  "rotacio": "Es roten bloc i atac cada 4 repeticions, fins a fer 12 per rematador.",
+  "claus": []
+ },
+ "R26": {
+  "objectiu": "Encadenar toc de braços, col·locació i remat de canell a la xarxa.",
+  "organitzacio": "Per parelles, un a cada banda de la xarxa, repartides per les dues pistes.",
+  "passos": [
+   "Toc de braços.",
+   "Col·locació.",
+   "Remat cap a l'altra banda fent el moviment de canell, i continua el company."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "S1": {
+  "objectiu": "Aprendre i corregir el gest tècnic del saque, primer de baix i després de dalt.",
+  "organitzacio": "Tots alhora a la línia de fons, cadascú amb una pilota. L'entrenador passa per tots i corregeix un per un.",
+  "passos": [
+   "20 serveis de baix, corregint la postura.",
+   "20 serveis de dalt sense xarxa, buscant només el gest.",
+   "20 serveis de dalt des de la línia de 3, que passin per sobre de la xarxa.",
+   "20 serveis de dalt des de la línia de fons."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Mà tancada amb el polze obert per crear tensió i toc sec.",
+   "Cama contrària al braç que colpeja endavant, pes a la cama de darrere i els peus a terra."
+  ]
+ },
+ "S2": {
+  "objectiu": "Repetir el saque buscant precisió i lligar-lo amb la recepció.",
+  "organitzacio": "Estacions: la meitat del grup a la paret i l'altra meitat en parelles a la pista. Cadascú amb una pilota.",
+  "passos": [
+   "30 serveis contra la paret, apuntant sempre al mateix punt.",
+   "Servei a la paret i el mateix jugador recepciona el rebot.",
+   "En parelles: un serveix i l'altre recepciona.",
+   "Igual que el pas 3, però el receptor ha de deixar la pilota a la zona de col·locació, no només tornar-la."
+  ],
+  "rotacio": "Els de la paret i els de la pista s'intercanvien a la meitat del bloc. Dins la parella es canvien els rols de servidor i receptor.",
+  "claus": []
+ },
+ "S3": {
+  "objectiu": "Guanyar regularitat al saque allargant la distància a poc a poc.",
+  "organitzacio": "Tots alhora, la meitat servint des de cada banda de la xarxa. Cadascú amb la seva pilota.",
+  "passos": [
+   "Pujada: es comença a la línia de 3. Amb dos serveis bons seguits, una passa enrere, fins a la línia de fons. Si se'n falla un, no s'avança.",
+   "Baixada: el mateix, però tornant cap endavant fins a la línia de 3.",
+   "Pujada altra vegada, però ara calen tres serveis bons per avançar.",
+   "Des de la línia de fons: dos serveis bons a cada meitat del camp."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "S4": {
+  "objectiu": "Dirigir el saque a les zones i mesurar-ne la precisió al llarg de la temporada.",
+  "organitzacio": "Cons a Z1, Z2, Z4, Z5 i Z6 del camp contrari. Tots serveixen alhora des de les dues bandes, dos recullen i l'entrenador apunta.",
+  "passos": [
+   "Cada jugador serveix fins que ha tocat les cinc zones marcades.",
+   "L'entrenador apunta quants intents ha necessitat cadascú.",
+   "Els quatre primers a acabar juguen una final; els últims, una segona final.",
+   "Les altres vegades que es fa, es compara el nombre d'intents amb els registres anteriors."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "S5": {
+  "objectiu": "Servir amb precisió cap a un jugador concret i recepcionar amb control.",
+  "organitzacio": "Parelles, una a cada banda de la xarxa: un serveix i l'altre recepciona des de l'altre camp.",
+  "passos": [
+   "El servidor tria el company com a objectiu i li serveix a ell.",
+   "El receptor recepciona alt i a prop, com si després se la col·loqués ell mateix.",
+   "Es fan 10 serveis i es canvien els rols."
+  ],
+  "rotacio": "Canvi de servidor i receptor cada 10 serveis.",
+  "claus": []
+ },
+ "S6": {
+  "objectiu": "Recepcionar alt i precís cap al col·locador sota volum de serveis seguits.",
+  "organitzacio": "A cada mitja pista: 1 receptor, 1 jugador a la posició de col·locador que agafa la pilota, i la resta serveix des de l'altre camp.",
+  "passos": [
+   "Els servidors saquen sense parar cap al receptor.",
+   "El receptor recepciona cap al col·locador, que agafa la pilota.",
+   "Es continua així durant tota la sèrie.",
+   "Es repeteix fins que tothom ha fet de receptor dues vegades."
+  ],
+  "rotacio": "En acabar cada sèrie, entra un altre receptor i el que recepcionava passa a servir o a fer de col·locador.",
+  "claus": [
+   "Compta la recepció alta que arriba bé al col·locador, no el punt."
+  ]
+ },
+ "S7": {
+  "objectiu": "Recepcionar amb regularitat, primer amb saque fàcil i després amb saque real.",
+  "organitzacio": "Pista sencera, les dues bandes alhora. A cada camp hi ha 3 receptors i 1 col·locador; la resta serveix cap a l'altre camp, de manera que els serveis van en els dos sentits i ningú espera.",
+  "passos": [
+   "Foc amic: els servidors fan un saque fàcil.",
+   "Cada grup de receptors ha d'enllaçar 10 recepcions bones seguides. Si en falla una, torna a zero.",
+   "Foc enemic: el mateix amb saque real, 10 recepcions bones seguides més."
+  ],
+  "rotacio": "Quan un grup completa les 10 seguides, els seus tres receptors passen a servir i entren tres dels que servien.",
+  "claus": []
+ },
+ "S8": {
+  "objectiu": "Recepcionar arribant en moviment a la pilota.",
+  "organitzacio": "A cada mitja pista: 1 receptor, 1 col·locador i la resta servint i recollint des de l'altre camp. El receptor comença fora del camp.",
+  "passos": [
+   "El receptor surt de fora del camp i entra corrent a recepcionar el saque cap al col·locador.",
+   "Variant més dura: el receptor comença estirat a terra i s'ha d'aixecar per recepcionar."
+  ],
+  "rotacio": "Canvi de receptor cada 5 repeticions. Cada jugador fa 2 torns.",
+  "claus": []
+ },
+ "S9": {
+  "objectiu": "Dirigir el saque a les zones amb la pressió del rellotge.",
+  "organitzacio": "Les zones Z1, Z2, Z4, Z5 i Z6 del camp contrari. Els jugadors van per parelles. Mentre una parella competeix, la resta serveix des de l'altra banda.",
+  "passos": [
+   "Una parella serveix fins a encertar les cinc zones. L'entrenador cronometra.",
+   "Passen totes les parelles per torns i s'apunten els temps.",
+   "Les quatre millors parelles juguen semifinals i les guanyadores, la final."
+  ],
+  "rotacio": "Les parelles competeixen per torns.",
+  "claus": []
+ },
+ "S10": {
+  "objectiu": "Recepcionar els serveis a cada zona de recepció i acabar la jugada en atac, en totes les rotacions.",
+  "organitzacio": "Sis jugadors per posicions en un camp, amb els tres receptors fixos. A l'altre camp, la resta serveix i dos recullen.",
+  "passos": [
+   "Des de l'altre camp es fan tres serveis: un a Z1, un a Z6 i un a Z5.",
+   "Cada servei es recepciona i la jugada continua fins a l'atac.",
+   "Fets els tres serveis, els sis roten una posició.",
+   "Es repeteix fins a completar les sis rotacions."
+  ],
+  "rotacio": "Després de les sis rotacions, entren uns altres sis a rebre i els que rebien passen a servir.",
+  "claus": []
+ },
+ "S11": {
+  "objectiu": "Servir a un punt concret que canvia de lloc.",
+  "organitzacio": "A cada mitja pista: 1 jugador fa de diana al camp contrari i la resta serveix.",
+  "passos": [
+   "La diana es col·loca en una zona del camp contrari i es va movent.",
+   "El servidor ha de servir allà on és la diana en aquell moment.",
+   "S'apunten els encerts de cada jugador."
+  ],
+  "rotacio": "Canvi de diana cada 15 serveis.",
+  "claus": []
+ },
+ "S12": {
+  "objectiu": "Servir sense errors amb la pressió de competir per equips.",
+  "organitzacio": "Dos equips que alternen torns de servei. Dos jugadors recullen pilotes tota l'estona.",
+  "passos": [
+   "Els dos equips serveixen per torns alterns.",
+   "Qui falla el saque fa perdre el torn al seu equip.",
+   "Guanya l'equip que aguanta més rondes. Es juga al millor de tres."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "S13": {
+  "objectiu": "Mantenir la tècnica del saque amb cansament.",
+  "organitzacio": "Tots alhora: la meitat fa els desplaçaments mentre l'altra meitat serveix.",
+  "passos": [
+   "Cinc desplaçaments ràpids de línia a línia i dos serveis tot seguit.",
+   "Deu desplaçaments i dos serveis.",
+   "Cinc desplaçaments, un bloc a la xarxa i dos serveis.",
+   "Cinc desplaçaments i dos serveis a una zona cantada.",
+   "Com el pas 4, però tot l'equip compta en veu alta els serveis que entren."
+  ],
+  "rotacio": "Les dues meitats s'intercanvien.",
+  "claus": [
+   "Servir immediatament després del desplaçament: la tècnica sota cansament és la que falla al partit."
+  ]
+ },
+ "S14": {
+  "objectiu": "Llegir el camp contrari i servir al forat que queda.",
+  "organitzacio": "Sis receptors al camp contrari. La resta serveix per torns.",
+  "passos": [
+   "Just abans del servei, un dels sis receptors es retira del camp.",
+   "El servidor ha de servir al forat que s'ha obert.",
+   "A cada servei es retira un receptor diferent."
+  ],
+  "rotacio": "Els receptors es canvien a cada volta.",
+  "claus": []
+ },
+ "S15": {
+  "objectiu": "Aprendre el servei flotant.",
+  "organitzacio": "Tots alhora amb una pilota cadascú, la meitat des de cada banda de la xarxa.",
+  "passos": [
+   "20 serveis flotants des de la línia de 3.",
+   "20 des de mig camp.",
+   "20 des de la línia de fons.",
+   "Des de la línia de fons, 10 buscant Z1 i 10 buscant Z5."
+  ],
+  "rotacio": "",
+  "claus": [
+   "Cop sec sense acompanyar la pilota, buscant que no giri."
+  ]
+ },
+ "S16": {
+  "objectiu": "Servir bé amb la pressió de no fallar per l'equip.",
+  "organitzacio": "Tot l'equip en fila, servint per torns des d'una banda. Dos recullen pilotes.",
+  "passos": [
+   "Cada jugador serveix un cop i passa al final de la fila.",
+   "L'equip ha d'enllaçar 10 serveis bons seguits.",
+   "Si un falla, el compte torna a zero. Màxim 5 minuts."
+  ],
+  "rotacio": "",
+  "claus": []
+ },
+ "S17": {
+  "objectiu": "Enllaçar el saque amb l'entrada ràpida al camp per defensar.",
+  "organitzacio": "A cada mitja pista: 1 servidor, 1 jugador que li torna la pilota i la resta en cua per servir.",
+  "passos": [
+   "El jugador serveix.",
+   "Tot seguit entra corrent al camp.",
+   "Defensa la pilota que li torna el company."
+  ],
+  "rotacio": "Canvi de servidor cada 5 repeticions. Cada jugador fa 2 torns.",
+  "claus": []
+ },
+ "S18": {
+  "objectiu": "Servir a les zones difícils, amb un marcador individual que dura diverses setmanes.",
+  "organitzacio": "Tots serveixen alhora. Cons marcant les zones del camp contrari.",
+  "passos": [
+   "Cada jugador fa 15 serveis.",
+   "Cada servei puntua segons on cau: Z1 i Z5, 3 punts; Z6, 2 punts; Z2 i Z4, 1 punt.",
+   "Cadascú apunta la seva puntuació, que s'acumula al llarg de tot el bloc de setmanes."
+  ],
+  "rotacio": "",
+  "claus": []
+ }
+}
