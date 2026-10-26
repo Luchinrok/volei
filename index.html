@@ -469,6 +469,7 @@ button.mini { flex: none; width: 30px; height: 30px; border-radius: 8px; border:
 .fgrup > small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
 .fgrup .accs { grid-template-columns: 1fr 1fr; }
 .fgrup .acc { min-height: 42px; font-size: 13px; padding: 5px 8px; }
+#dlg { z-index: 70; }   /* per sobre de la foto en gran */
 #dlg .mbox { max-height: calc(100vh - 32px); overflow-y: auto; }
 #dlg .posgrid { margin-top: 10px; }
 /* partit compacte */
@@ -614,9 +615,9 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .saqrow > small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 4px; }
 .accs.quatre { grid-template-columns: repeat(4, 1fr); gap: 5px; }
 .accs.quatre .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
-.pmini { display: flex; gap: 6px; align-items: center; }
-.pmini button, .pmini a { width: 48px; height: 48px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; background: var(--line); cursor: pointer; display: grid; place-items: center; text-decoration: none; color: var(--ink); font-weight: 700; }
+.pmini { position: relative; display: block; width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: var(--line); }
 .pmini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pmini b { position: absolute; right: 3px; bottom: 3px; min-width: 20px; padding: 1px 5px; border-radius: 10px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; text-align: center; }
 .fgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 10px 0 6px; }
 .fgrid button { padding: 0; border: 0; aspect-ratio: 1; overflow: hidden; border-radius: 6px; background: var(--line); cursor: pointer; }
 .fgrid img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -860,7 +861,7 @@ async function openSeason() {
 }
 
 // calendari/{id}: el que veuen les famílies de cada partit (sense convocats ni estadístiques). El manté l'app dels entrenadors.
-const CALK = ['data', 'hora', 'equip', 'rival', 'lloc', 'adreca', 'resultat', 'punts', 'fotos'];
+const CALK = ['data', 'hora', 'equip', 'rival', 'lloc', 'adreca', 'resultat', 'punts', 'fotos', 'portada'];
 const calDe = p => Object.fromEntries(CALK.map(k => [k, p[k] ?? '']));
 function sincCal() {
   if (!PAR.__ok || !CAL || !['admin', 'entrenador'].includes(rolActual())) return;
@@ -1770,7 +1771,7 @@ function viewPartit(id) {
       <span class="grow"><span class="pxt">${p.lloc === 'fora' ? rivH + ' vs ' + nosH : nosH + ' vs ' + rivH}</span>
         <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}${p.resultat ? ` <b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</span></span>
       <span class="chev">✎</span></button>
-    <div class="actions" style="margin-top:0;justify-content:center">${p.adreca ? `<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}${fs_.length ? `<span class="pmini">${fs_.slice(0, 3).map((x, i) => `<button onclick="fotoGran('${id}', ${i})" aria-label="Foto ${i + 1}"><img src="${fotoUrl(x, 200)}" alt=""></button>`).join('')}<a href="#/fotos/${id}" aria-label="Totes les fotos">${fs_.length > 3 ? '+' + (fs_.length - 3) : '＋'}</a></span>` : `<a class="btn" style="text-decoration:none" href="#/fotos/${id}">📷 Fotos</a>`}</div>
+    <div class="actions" style="margin-top:0;justify-content:center">${p.adreca ? `<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}${fs_.length ? miniFoto(p): `<a class="btn" style="text-decoration:none" href="#/fotos/${id}">📷 Fotos</a>`}</div>
     <div class="setbtns">${[1, 2, 3, 4, 5].map(n => { const v = (p.punts || {})[n] || []; const g = v.length === 2 && v[0] !== '' && v[1] !== '' ? ((+v[0] > +v[1]) !== (p.lloc === 'fora') ? 'guanyat' : 'perdut') : '';
       return `<button class="setbtn ${g}" onclick="roda('${id}', ${n})"><small>Set ${n}</small><b>${v.length ? `${v[0] === '' ? '–' : v[0]}-${v[1] === '' ? '–' : v[1]}` : '–'}</b></button>`; }).join('')}</div>
   </div>
@@ -1813,7 +1814,7 @@ function viewFamilia() {
       <span class="mbody"><span class="mteams">${p.lloc === 'fora' ? riv + '<i>vs</i>' + nos(p) : nos(p) + '<i>vs</i>' + riv}</span>
         <span class="meta">${p.hora ? `<span class="nw">🕗 ${esc(p.hora)}</span> ` : ''}<span class="nw">${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span></span>
         ${p.adreca ? `<a class="meta" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}
-        ${p.fotos || fotosDe(p.id).length ? `<a class="btn" style="text-decoration:none;margin-top:6px;align-self:flex-start" href="#/fotos/${p.id}">📷 Fotos del partit${fotosDe(p.id).length ? ' (' + fotosDe(p.id).length + ')' : ''}</a>` : ''}</span>
+        ${fotosDe(p.id).length ? `<span style="margin-top:6px">${miniFoto(p)}</span>` : p.fotos ? `<a class="btn" style="text-decoration:none;margin-top:6px;align-self:flex-start" href="#/fotos/${p.id}">📷 Fotos del partit</a>` : ''}</span>
       <span class="mres">${p.resultat ? `<b class="score ${g}">${esc(p.resultat)}</b><small class="${g}">${g === 'guanyat' ? 'Guanyat' : g === 'perdut' ? 'Perdut' : ''}</small>` : dies >= 0 ? `<small class="falta">${dies === 0 ? 'Avui!' : dies === 1 ? 'Demà' : `D'aquí ${dies} dies`}</small>` : ''}</span></div>`;
   };
   const fut = CAL.filter(p => p.data >= avui() && !p.resultat), pas = CAL.filter(p => !fut.includes(p)).reverse();
@@ -1825,6 +1826,10 @@ const parVis = id => PAR.find(x => x.id === id) || (CAL || []).find(x => x.id ==
 const potFotos = () => !!rolActual();                       // penjar: tothom de l'equip
 const fotosDe = id => FOTOS.filter(f => f.partit === id).map(f => f.id);
 const potTreure = f => ['admin', 'entrenador'].includes(rolActual()) || FOTOS.find(x => x.id === f)?.per === USR?.uid;
+const portadaDe = p => { const ids = fotosDe(p.id); return ids.includes(p.portada) ? p.portada : ids[0]; };
+const miniFoto = p => { const n = fotosDe(p.id).length; return `<a class="pmini" href="#/fotos/${p.id}" aria-label="Fotos del partit"><img src="${fotoUrl(portadaDe(p), 300)}" alt="">${n > 1 ? `<b>${n}</b>` : ''}</a>`; };
+const potPortada = () => ['admin', 'entrenador'].includes(rolActual());
+window.fotoPortada = (id, f) => { const p = PAR.find(x => x.id === id); if (!p) return; p.portada = f; fs.updateDoc(parRef(id), { portada: f }); fotoGran(id, fotosDe(id).indexOf(f)); };
 const fotoUrl = (f, w) => `https://drive.google.com/thumbnail?id=${f}&sz=w${w}`;
 function viewFotos(id) {
   const p = parVis(id);
@@ -1854,6 +1859,7 @@ window.fotoGran = (id, i) => {
   o.innerHTML = `<img src="${fotoUrl(ids[i], 2000)}" alt="">
     <div class="fbar"><button aria-label="Anterior" onclick="fotoGran('${id}', ${i - 1})">‹</button><span>${i + 1} / ${ids.length}</span>
     <a aria-label="Descarrega" href="https://drive.google.com/uc?export=download&id=${ids[i]}" target="_blank" rel="noopener">⬇</a>
+    ${potPortada() ? `<button aria-label="Previsualitza aquesta" title="Que sigui la que es veu al partit" onclick="fotoPortada('${id}', '${ids[i]}')">${portadaDe(parVis(id)) === ids[i] ? '⭐' : '☆'}</button>` : ''}
     ${potTreure(ids[i]) ? `<button aria-label="Treu-la" onclick="fotoTreu('${id}', '${ids[i]}')">🗑</button>` : ''}
     <button aria-label="Següent" onclick="fotoGran('${id}', ${i + 1})">›</button></div>
     <button class="fx" aria-label="Tanca" onclick="fotoTanca()">✕</button>`;
@@ -1863,7 +1869,7 @@ window.fotoTreu = async (id, f) => {
   if (!await dialeg('Treure aquesta foto del partit?', { ok: 'Treu-la', perill: true })) return;
   const ids = fotosDe(id), i = ids.indexOf(f);
   await fs.deleteDoc(ref('fotos', f));
-  if (gTok?.fins > Date.now()) gd(gTok.t, 'files/' + f, { method: 'DELETE' }).catch(() => {});   // si és seva, també del Drive
+  if (tokDrive()) gd(tokDrive(), 'files/' + f, { method: 'DELETE' }).catch(() => {});   // si és seva, també del Drive
   const n = ids.filter(x => x !== f); n.length ? setTimeout(() => fotoGran(id, Math.min(i, n.length - 1)), 50) : fotoTanca();
 };
 
