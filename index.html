@@ -93,7 +93,7 @@ button.btn:disabled { opacity: .45; }
 button.btn.danger { color: var(--no); }
 .legend { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
 .empty { color: var(--muted); text-align: center; padding: 30px 0; }
-textarea, input[type=text], input[type=date], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
+textarea, input[type=text], input[type=search], input[type=url], input[type=date], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
 label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
@@ -319,7 +319,7 @@ a.nomlink { color: inherit; text-decoration: none; }
 .hero .prog .pb { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.18); overflow: hidden; }
 .hero .prog .pb i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
 @media (min-width: 640px) { .heros { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .heros .hero { margin: 0; } }
-.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 4px; }
+.quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0 4px; }
 .quick button, .quick a { font: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 4px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow); }
 .quick .qi { font-size: 24px; line-height: 1; }
 .quick button:active, .quick a:active { transform: scale(.96); }
@@ -634,6 +634,16 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 #fedit .fico { width: 40px; height: 40px; display: grid; place-items: center; background: none; border: 0; color: rgba(255,255,255,.85); cursor: pointer; }
 #fedit .flink { background: none; border: 0; color: rgba(255,255,255,.75); font-size: 14px; padding: 8px 10px; cursor: pointer; }
 #fedit .fok { background: #f5c518; color: #14181f; border: 0; border-radius: 10px; font-weight: 700; font-size: 14px; padding: 9px 18px; cursor: pointer; }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: none; }
+.chips button { flex: none; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.chips button.on { background: var(--ink); color: var(--card); border-color: var(--ink); }
+#bibq { width: 100%; margin: 4px 0 10px; }
+.card.exrow { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; padding: 10px 12px; margin-bottom: 8px; }
+.card.exrow[hidden] { display: none; }
+.exrow .code { min-width: 42px; text-align: center; }
+.exrow .grow { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.exrow .meta .ori-teu { color: #12a07c; } .exrow .meta .ori-modificat { color: #d9822b; } .exrow .meta .ori-claude { color: #6b7cff; }
+.tags .code a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
 .fgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 10px 0 6px; }
 .fgrid button { padding: 0; border: 0; aspect-ratio: 1; overflow: hidden; border-radius: 6px; background: var(--line); cursor: pointer; }
 .fgrid img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -929,6 +939,57 @@ function fields(b) {
 const MOTIU = { repetitiu: 'Repetitiu', altredia: 'Un altre dia', noviable: 'No viable' };
 let nofEdit = null;   // {id, motiu, text} mentre s'omple el formulari de "no l'hem fet"
 
+// ------------------------------------------------------------------ biblioteca d'exercicis (annex del Word)
+let EXS = null, bibFam = '', bibOri = '';
+const exercicis = () => D?.exercicis?.length ? D.exercicis : EXS || [];
+function carregaExs() { if (EXS || D?.exercicis?.length) return; EXS = []; fetch('data/sessions.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXS = d.exercicis || []; render(); }).catch(() => {}); }
+// on surt cada exercici (sessions d'aquest equip, en ordre de calendari)
+function usosExs() {
+  const ord = {}; (D?.calendari || []).forEach((c, i) => { ord[c.dimarts] = 2 * i; ord[c.dijous] = 2 * i + 1; });
+  const u = {};
+  [...(D?.sessions || [])].sort((a, b) => (ord[a.codi] ?? 999) - (ord[b.codi] ?? 999)).forEach(s => s.blocs.forEach(b => {
+    if (b.tret) return;
+    (b.codi.match(/\b(BL|[DBSRCJG])\d+\b/g) || []).forEach(k => { (u[k] = u[k] || []).includes(s.codi) || u[k].push(s.codi); });
+  }));
+  return u;
+}
+const textEx = e => (e.codi + ' ' + e.nom + ' ' + e.com).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+function viewBiblio() {
+  carregaExs();
+  const es = exercicis(), u = usosExs();
+  if (!es.length) return '<p class="empty">Carregant…</p>';
+  const vis = es.filter(e => (!bibFam || e.fam === bibFam) && (!bibOri || ORI[e.codi] === bibOri));
+  const fil = (v, cur, fn, t) => `<button class="${cur === v ? 'on' : ''}" onclick="${fn}('${v}')">${t}</button>`;
+  return `<h2>Exercicis <span class="sub">${es.length}</span></h2>
+  <input type="search" id="bibq" placeholder="Busca per nom, codi o paraula (p. ex. «paret», «R5», «bloqueig»)" oninput="bibFiltra(this.value)" autocomplete="off">
+  <div class="chips">${fil('', bibFam, 'bibF', 'Tots')}${Object.entries(FAM).map(([k, v]) => fil(k, bibFam, 'bibF', `<b>${k}</b> ${v.split(/[ ,]/)[0]}`)).join('')}</div>
+  <div class="chips">${fil('', bibOri, 'bibO', 'Tots')}${Object.entries(ORIT).map(([k, v]) => fil(k, bibOri, 'bibO', v)).join('')}</div>
+  <div id="bibl">${vis.map(e => { const us = u[e.codi] || [], fets = us.filter(isFet);
+    return `<a class="card exrow f-${e.fam}" href="#/e/${e.codi}" data-q="${esc(textEx(e))}"><span class="code fam f-${e.fam}">${e.codi}</span>
+      <span class="grow"><b>${esc(e.nom)}</b><span class="meta">${us.length ? `${us.length} ${us.length > 1 ? 'sessions' : 'sessió'}${fets.length ? ` · última feta ${fets[fets.length - 1]}` : ''}` : 'No és a cap sessió'}${ORI[e.codi] ? ` · <span class="ori-${ORI[e.codi]}">${ORIT[ORI[e.codi]]}</span>` : ''}</span></span></a>`; }).join('')}</div>
+  <p class="meta" id="bibcap" hidden>Cap exercici amb aquestes paraules.</p>`;
+}
+window.bibF = v => { bibFam = v; render(); };
+window.bibO = v => { bibOri = v; render(); };
+// filtrar sense tornar a pintar la pantalla (perquè no es tanqui el teclat)
+window.bibFiltra = q => {
+  const w = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean); let n = 0;
+  document.querySelectorAll('#bibl .exrow').forEach(a => { const ok = w.every(x => a.dataset.q.includes(x)); a.hidden = !ok; n += ok; });
+  $('#bibcap').hidden = n > 0;
+};
+function viewExercici(c) {
+  carregaExs();
+  const e = exercicis().find(x => x.codi === c); if (!e) return exercicis().length ? `<p class="empty">No trobo l'exercici ${esc(c)}.</p>` : '<p class="empty">Carregant…</p>';
+  const us = usosExs()[c] || [];
+  return `<div class="shead"><span class="code fam f-${e.fam}" style="font-size:18px;padding:6px 10px">${e.codi}</span><h2>${esc(e.nom)}</h2></div>
+  <div class="tags"><span class="meta">${esc(e.famNom || FAM[e.fam] || '')}</span>${origens(e.codi)}</div>
+  <div class="card block f-${e.fam}">${fields(e)}</div>
+  ${(() => { const k = us.find(x => !isFet(x)) || us[us.length - 1], b = k && byCode(k)?.blocs.find(x => !x.tret && (x.codi.match(/\b(BL|[DBSRCJG])\d+\b/g) || []).includes(c));
+    return b && b.com !== e.com ? `<details class="card"><summary><b>Com es fa a ${k}</b> <span class="meta">${esc(b.titol)}</span></summary><div class="block" style="margin-top:8px">${fields(b)}</div></details>` : ''; })()}
+  <h3>On surt</h3>
+  <div class="card">${us.length ? us.map(k => { const s = byCode(k); return `<a class="hist nomlink" href="#/s/${k}"><span class="grow"><span class="code">${k}</span> ${esc(s?.titol || '')}</span>${isFet(k) ? '<b class="ok">✓ Feta</b>' : '<span class="meta">Per fer</span>'}</a>`; }).join('') : '<p class="meta" style="margin:0">Encara no és a cap sessió.</p>'}</div>`;
+}
+
 function blockCard(b, s, ord) {
   const id = `${s.codi}-${b.n}`, nf = NOF[id], ed = nofEdit?.id === id ? nofEdit : null;
   const nofHtml = nf && !ed
@@ -943,7 +1004,7 @@ function blockCard(b, s, ord) {
     <div class="bhead"><span class="bnum">${b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
       <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span>
       ${ord ? `<span class="ord"><button ${ord.first ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, -1)">▲</button><button ${ord.last ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, 1)">▼</button></span>` : ''}</div>
-    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}${origens(b.codi)}</div>` : ''}
+    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi).replace(/\b(BL|[DBSRCJG])\d+\b/g, k => `<a href="#/e/${k}">${k}</a>`)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}${origens(b.codi)}</div>` : ''}
     ${fields(b)}
     ${b.lloc ? `<div class="field"><b>Lloc</b>${esc(b.lloc)}</div>` : ''}
     ${nofHtml}${form}`}
@@ -1038,7 +1099,8 @@ function viewHome() {
   ${CLAU ? `<div class="quick">
     <button onclick="goLlista()"><span class="qi">📋</span>Passar llista</button>
     <button onclick="timerToggle(true)"><span class="qi">⏱️</span>Cronòmetre</button>
-    <a href="#/pissarra"><span class="qi">🏐</span>Pissarra</a></div>
+    <a href="#/pissarra"><span class="qi">🏐</span>Pissarra</a>
+    <a href="#/exercicis"><span class="qi">📚</span>Exercicis</a></div>
   <h3>Pròxims partits</h3>
   <div class="card pxlist">${prox.map(linia).join('') || '<p class="meta" style="margin:0">Cap partit planificat. Afegeix-los a Partits.</p>'}
     ${prox.length ? `<div class="actions" style="margin:6px 0 8px"><button class="btn primary" style="flex:1" onclick="copiaPartits()">📋 Copia el text per al WhatsApp</button></div><div class="actions" style="margin:0 0 10px"><button class="btn" style="flex:1" onclick="copiaImatge()">🖼️ Copia imatge</button><button class="btn" style="flex:1" onclick="desaImatge()">⬇️ Desa imatge</button></div>` : ''}</div>`
@@ -2529,6 +2591,8 @@ function pintaPantalla() {
   else if (r === 'f') { html = viewList(arg); tab = arg; }
   else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
   else if (r === 'config') { html = viewConfig(); tab = ''; title = 'Configuració'; }
+  else if (r === 'exercicis') { html = viewBiblio(); tab = ''; title = 'Exercicis'; }
+  else if (r === 'e') { html = viewExercici(arg); tab = ''; title = arg; }
   else if (r === 'j') { html = viewJugador(arg); tab = 'assistencia'; title = 'Jugador'; }
   else if (r === 'partits') { html = viewPartits(); tab = 'partits'; title = 'Partits'; }
   else if (r === 'p') { html = viewPartit(arg); tab = 'partits'; title = 'Partit'; }
@@ -2542,14 +2606,14 @@ function pintaPantalla() {
     <a href="#/partits" data-t="partits"><span class="ico">${ICO.partits}</span>Partits</a>`;
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
-  if (a && (a.id === 'com' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
+  if (a && (a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   const ruta = r + '/' + arg;
   muntaCalendari(); capitalitza();
   document.documentElement.style.setProperty('--hh', $('header').offsetHeight + 'px');   // per al marcador fix del directe
   if (ruta !== lastRuta) { lastRuta = ruta; const ap = $('#app'); ap.classList.remove('view'); void ap.offsetWidth; ap.classList.add('view'); }
   $('#title').textContent = title;
-  $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra', 'directe', 'fotos'].includes(r);
+  $('#back').hidden = !['s', 'config', 'j', 'p', 'pissarra', 'directe', 'fotos', 'exercicis', 'e'].includes(r);
   document.querySelectorAll('nav.tabs a').forEach(x => x.classList.toggle('on', x.dataset.t === tab));
 }
 window.render = render;
