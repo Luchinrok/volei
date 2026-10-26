@@ -203,11 +203,11 @@
  },
  "B16": {
   "objectiu": "Recorregut de defensa per tota la mitja pista, alternant pilotes curtes i llargues.",
-  "organitzacio": "Grups de 4 o 5, un a cada mitja pista. A cada grup: un entra les pilotes amb la mà des de la xarxa, un defensa, un recull i dos fan cua. L'entrenador va passant pels grups i corregeix.",
+  "organitzacio": "Grups de 4 o 5, un a cada mitja pista. A cada grup: un tira les pilotes amb la mà des de la xarxa (i també fa la col·locació final), un defensa, un recull i dos fan cua. L'entrenador va passant pels grups i corregeix.",
   "passos": [
-   "Des de la xarxa, el llançador entra cinc pilotes amb la mà, seguint l'ordre: curta a Z4, llarga a Z6, curta a Z3, llarga a Z1 i curta a Z2.",
+   "Des de la xarxa, el que tira entra cinc pilotes amb la mà, seguint l'ordre: curta a Z4, llarga a Z6, curta a Z3, llarga a Z1 i curta a Z2.",
    "El defensa va a cada pilota i la defensa: fa el recorregut en W.",
-   "El recorregut acaba amb un remat a línia del defensa.",
+   "Per acabar, el mateix que tira les pilotes li col·loca una pilota i el defensa remata a línia.",
    "Tres voltes per jugador."
   ],
   "rotacio": "Es rota després de cada recorregut sencer: el defensa passa a recollir i entra el primer de la cua.",
@@ -1062,11 +1062,11 @@
   "objectiu": "Fer dits mentre s'atén una segona pilota.",
   "organitzacio": "Parelles escampades, asseguts a terra l'un davant de l'altre amb les cames obertes. Dues pilotes per parella.",
   "passos": [
-   "Una pilota va d'un a l'altre de dits.",
-   "Alhora, l'altra pilota va d'un a l'altre rodant per terra.",
+   "Les dues pilotes es mouen alhora: una va d'un a l'altre de dits, per dalt, i l'altra va rodant per terra.",
+   "Els dos jugadors fan les dues coses: quan reben la de dalt la tornen de dits, i quan els arriba la de terra la tornen rodant.",
    "Fan 3 sèries de 20 passades."
   ],
-  "rotacio": "Es canvia de rol a cada sèrie.",
+  "rotacio": "",
   "claus": []
  },
  "D12": {
@@ -1492,10 +1492,11 @@
   "objectiu": "Encadenar defensa, col·locació i remat en un joc continu.",
   "organitzacio": "A cada mitja pista, quatre o cinc parelles repartides entre els dos costats de la xarxa. Una parella juga a cada banda i la resta espera darrere la línia de fons del seu costat.",
   "passos": [
+   "La parella que entra posa la pilota en joc.",
    "La parella fa defensa, col·locació i remat, i la pilota passa a l'altre camp.",
    "L'altra parella torna a fer defensa, col·locació i remat, sense aturar el joc.",
    "Cada cop que la pilota creua la xarxa, la parella que l'ha enviada surt i entra la que esperava al seu costat.",
-   "Es compta quants ral·lis seguits aguanta el grup i s'intenta millorar la marca a cada sèrie de 5 minuts."
+   "Es compta quantes vegades seguides passa la pilota per sobre de la xarxa sense caure, i s'intenta millorar la marca a cada sèrie de 5 minuts. Quan cau, es torna a començar a comptar i la posa en joc la parella que entra."
   ],
   "rotacio": "A cada pilota que creua la xarxa: surt la parella que l'ha enviada i entra la següent del seu costat.",
   "claus": []
@@ -2173,12 +2174,13 @@
  },
  "R6": {
   "objectiu": "Rematar després de recular des de la xarxa, com en una transició.",
-  "organitzacio": "Grups de quatre o cinc per mitja pista: un rematador, un col·locador, un que passa pilotes i un defensa a l'altra banda. Un con a Z5 i un altre a Z1.",
+  "organitzacio": "Grups de quatre o cinc per mitja pista: un rematador, un col·locador, un que passa pilotes al col·locador i un defensa a l'altra banda. Un con a Z5 (per rematar per Z4) i un altre a Z1 (per rematar per Z2).",
   "passos": [
-   "El rematador toca la xarxa i corre enrere fins al con.",
-   "Torna endavant i remata a línia la pilota que li col·loquen.",
+   "El rematador toca la xarxa i corre enrere fins al con: el de Z5 si remata per Z4, el de Z1 si remata per Z2.",
+   "Mentrestant, el que passa pilotes la dona al col·locador, que la col·loca.",
+   "El rematador torna endavant i remata a línia.",
    "El defensa de l'altra banda la defensa.",
-   "Es fa per Z4 i per Z2, i després tot es repeteix en diagonal."
+   "Es fa per Z4 i per Z2, i després tot es repeteix rematant en diagonal."
   ],
   "rotacio": "Es roten els rols després de cada tanda de 5 remats, fins que cada rematador n'ha fet 10.",
   "claus": []
@@ -2214,10 +2216,12 @@
   "passos": [
    "El rematador, dalt del banc, remata cap al defensa.",
    "El defensa defensa la pilota cap al col·locador.",
-   "El col·locador col·loca i el que ha defensat fa veure que remata."
+   "El col·locador li col·loca i el que ha defensat fa la carrera i salta com si rematés, però agafa la pilota a l'aire amb les mans."
   ],
   "rotacio": "Es roten els rols cada 5 repeticions, fins a fer 10 per jugador. Cada jugador fa 2 torns.",
-  "claus": []
+  "claus": [
+   "Agafar la pilota a dalt de tot del salt, on la remataria."
+  ]
  },
  "R10": {
   "objectiu": "Autocol·locar-se de dits i rematar cap a zones concretes.",
