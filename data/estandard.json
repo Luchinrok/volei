@@ -6,8 +6,8 @@
   "tambe": "Shuffle setting",
   "com": "Parelles a 4 metres. Un col·loca de dits i, just després de tocar, fa dues passes laterals; el company l'obliga a moure's col·locant-li la pilota una mica al costat. Cada vegada cap a un costat diferent. Important: arribar-hi abans que la pilota i tocar de cara, amb el cos parat.",
   "dosi": "2 minuts per jugador, dues vegades cadascun (8 minuts).",
-  "muntatge": "Parelles escampades per tota la pista. Tothom treballa alhora.",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles escampades per la pista sencera, tothom alhora.",
+  "pistes": "1",
   "font": "Clàssic d'escola (shuffle setting)."
  },
  {
@@ -17,8 +17,8 @@
   "tambe": "Setting to target",
   "com": "Un llança la pilota des de Z6 cap a la zona de col·locació (entre Z2 i Z3). El col·locador la col·loca alta cap a Z4, on hi ha un company dret amb els braços amunt fent de diana: si l'agafa sense moure els peus, compta. El que fa de diana torna la pilota al que llança.",
   "dosi": "10 col·locacions per jugador i rotar. Dues voltes.",
-  "muntatge": "Trios: llançador a Z6, col·locador a Z2-3 i diana a Z4. Dos trios per mitja pista i camp (fins a 4 trios per pista). Es rota cada 10 col·locacions.",
-  "pistes": "1 o 2",
+  "muntatge": "4 trios (amb 13-14, trios de 4 i el quart descansa fent de llançador de reserva). Dos trios a cada camp, un a cada mitja pista. Es rota cada 10 col·locacions.",
+  "pistes": "1",
   "font": "Clàssic (setting to target)."
  },
  {
@@ -28,8 +28,8 @@
   "tambe": "Setter triangle",
   "com": "Tres vèrtexs: un a Z6 passa de braços una pilota fàcil, el de Z2-3 col·loca de dits cap a Z4, el de Z4 l'agafa i la llança al de Z6. Cada jugador segueix la seva pilota: després de tocar, va al vèrtex on l'ha enviada.",
   "dosi": "Continu, 6 minuts. Canvi de sentit a la meitat.",
-  "muntatge": "Grups de 4-5 per triangle (un a cada vèrtex i la resta a la cua de Z6). Tres triangles per pista. Ningú espera més d'una pilota.",
-  "pistes": "1 o 2",
+  "muntatge": "3 triangles de 4-5 jugadors: dos en un camp (un a cada mitja pista) i un a l'altre camp. Ningú espera més d'una pilota.",
+  "pistes": "1",
   "font": "Clàssic d'escola."
  },
  {
@@ -39,8 +39,8 @@
   "tambe": "Set and turn",
   "com": "Parelles. Toc de dits al company, gir de 180 graus sobre si mateix i tornar a estar a punt per al toc següent. Quan surt bé: gir de 360.",
   "dosi": "3 sèries d'1 minut per jugador, alternant qui gira.",
-  "muntatge": "Parelles escampades. Tothom alhora.",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles escampades per la pista sencera, tothom alhora.",
+  "pistes": "1",
   "font": "Clàssic d'escola."
  },
  {
@@ -50,8 +50,8 @@
   "tambe": "Three-person setting line",
   "com": "Tres jugadors en línia, a 3-4 metres. L'extrem col·loca al del mig, que la torna de dits a l'altre extrem d'esquena (sense girar-se) o girant-se, segons la variant. El del mig sempre rep i envia endavant o enrere.",
   "dosi": "1 minut i mig al mig per jugador; tres voltes.",
-  "muntatge": "Trios escampats per la pista. Es rota el del mig cada minut i mig.",
-  "pistes": "1 o 2",
+  "muntatge": "4 trios escampats (amb 13-14, un o dos grups de 4 i es rota l'extrem). Es rota el del mig cada minut i mig.",
+  "pistes": "1",
   "font": "Clàssic d'escola."
  },
  {
@@ -61,8 +61,8 @@
   "tambe": "Jump set",
   "com": "Parelles. Un llança alta per sobre del cap del company, que salta i col·loca de dits a dalt del salt cap al llançador. Primer sense xarxa, després amb el col·locador d'esquena a la xarxa.",
   "dosi": "10 col·locacions en salt per jugador, tres torns.",
-  "muntatge": "Parelles a la xarxa, repartides per les dues bandes. Tothom alhora.",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles a la xarxa, repartides a les dues bandes de tota la xarxa.",
+  "pistes": "1",
   "font": "Clàssic tècnic."
  },
  {
@@ -72,8 +72,8 @@
   "tambe": "Keep-up",
   "com": "Grup en cercle petit. S'ha de fer arribar a 21 tocs seguits sense que la pilota toqui a terra, de dits, sense repetir el mateix jugador dos cops seguits. Si cau, es torna a zero.",
   "dosi": "Fins a fer-ho 3 vegades, o 6 minuts.",
-  "muntatge": "Grups de 4 (tres o quatre grups per pista). Si en sobren, grups de 5.",
-  "pistes": "1 o 2",
+  "muntatge": "3 grups de 4 (amb 13-14, grups de 4 i 5), un a cada mitja pista i un al centre de l'altre camp.",
+  "pistes": "1",
   "font": "Joc clàssic d'escalfament amb pilota."
  },
  {
@@ -83,8 +83,8 @@
   "tambe": "Out-of-system setting",
   "com": "L'entrenador envia una pilota alta i lluny de la xarxa (a Z5, Z6 o Z1). Un jugador hi va i la col·loca alta i a 1 metre de la xarxa cap a Z4, de dits o de braços. Un company a Z4 l'agafa i la torna a l'entrenador.",
   "dosi": "8 pilotes per jugador, dues voltes.",
-  "muntatge": "Dues files a Z6 (una a cada mitja pista) i dos receptors a Z4 que es rellevem. Entrenador a l'altra banda llançant per sobre de la xarxa. A dues pistes, un entrenador o jugador llançador per pista.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files a Z6, una a cada camp (6-7 per fila). Un receptor a Z4 de cada camp, que es relleva cada 4 pilotes. Llança l'entrenador a un camp i un jugador a l'altre.",
+  "pistes": "1",
   "font": "Clàssic tàctic (out-of-system)."
  },
  {
@@ -94,8 +94,8 @@
   "tambe": "Over the net setting",
   "com": "Parelles una a cada banda de la xarxa, a 2-3 metres. Dits continus per sobre de la xarxa. Variant: control de dits i passe; després directe; després el que passa fa un toc a la xarxa amb la mà i torna.",
   "dosi": "3 minuts per variant.",
-  "muntatge": "Parelles al llarg de la xarxa (6-8 parelles per pista).",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles al llarg de tota la xarxa, una a cada banda.",
+  "pistes": "1",
   "font": "Clàssic d'escola."
  },
  {
@@ -105,8 +105,8 @@
   "tambe": "Pepper",
   "com": "Parelles. Braços - dits - remat controlat, i el company defensa de braços, col·loca de dits i remata. Sense parar. El remat és de control, cap al company, perquè la pilota segueixi viva.",
   "dosi": "3 sèries de 2 minuts. Compten quants tocs seguits fan.",
-  "muntatge": "Parelles escampades per la pista (a 5-6 metres). Tothom alhora.",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles escampades per la pista sencera (a 5-6 metres). Tothom alhora.",
+  "pistes": "1",
   "font": "El clàssic de tots els equips (pepper)."
  },
  {
@@ -116,8 +116,8 @@
   "tambe": "Three-person pepper",
   "com": "Tres en línia: A remata cap a B, que defensa cap a C; C col·loca a B, que remata cap a A... El del mig sempre defensa i remata. Els extrems col·loquen i defensen.",
   "dosi": "2 minuts al mig per jugador; dues voltes.",
-  "muntatge": "Trios escampats per la pista. Es rota el del mig cada 2 minuts.",
-  "pistes": "1 o 2",
+  "muntatge": "4 trios escampats (amb 13-14, un o dos grups de 4 que es rellevem al mig). Es rota el del mig cada 2 minuts.",
+  "pistes": "1",
   "font": "Clàssic (three-person pepper)."
  },
  {
@@ -127,8 +127,8 @@
   "tambe": "Butterfly passing",
   "com": "A una banda, sacadors a Z1. A l'altra, receptors a Z5 o Z1 i un objectiu a la zona de col·locació. Saque, recepció a l'objectiu, l'objectiu agafa la pilota i se la porta a la fila de saque. Cadascú segueix la pilota: el sacador va a recepció, el receptor fa d'objectiu i l'objectiu passa a sacar.",
   "dosi": "Continu, 10 minuts. A la meitat, la recepció passa de Z1 a Z5.",
-  "muntatge": "Tota la pista amb tres files (saque, recepció i objectiu) a cada costat: dues papallones simètriques que es creuen. A dues pistes, 6-8 per pista.",
-  "pistes": "1 o 2",
+  "muntatge": "Pista sencera: a cada costat, tres files (saque, recepció i objectiu) de 2-3 jugadors. Dues papallones simètriques que es creuen. Tothom toca pilota cada 30 segons.",
+  "pistes": "1",
   "font": "El clàssic de recepció (butterfly)."
  },
  {
@@ -138,8 +138,8 @@
   "tambe": "Dig line",
   "com": "L'entrenador, des de dalt d'un banc a Z4 a l'altra banda (o de peu a la línia de 3), remata cap a Z5. El de la fila defensa cap a la zona de col·locació, on un company agafa la pilota i la porta a l'entrenador. Després es canvia a Z1.",
   "dosi": "6 defenses per jugador a Z5 i 6 a Z1.",
-  "muntatge": "Una fila a Z5 (i després a Z1), un recollidor a Z2-3 que es rellevem cada 6 pilotes. A dues pistes, dos entrenadors o un jugador fent de rematador a la segona.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files, una a cada camp (Z5 i després Z1), i un recollidor per camp que es relleva cada 6 pilotes. Remata l'entrenador a un camp i un jugador des d'un banc a l'altre.",
+  "pistes": "1",
   "font": "Clàssic (dig line)."
  },
  {
@@ -149,8 +149,8 @@
   "tambe": "Pancake",
   "com": "Tècnica de defensa d'emergència: mà plana a terra, palmell avall, i la pilota bota sobre el dors de la mà. Primer el company llança la pilota curta de genolls; després des de dret; després llançant-la una mica lluny perquè s'hagi d'estirar.",
   "dosi": "10 per costat i braç, en tres progressions.",
-  "muntatge": "Parelles escampades. Un llança i l'altre fa la planxa; es canvia cada 10.",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles escampades. Un llança i l'altre fa la planxa; es canvia cada 10.",
+  "pistes": "1",
   "font": "Tècnica clàssica de defensa (pancake)."
  },
  {
@@ -160,8 +160,8 @@
   "tambe": "Pass and follow",
   "com": "Dues files cara a cara a 6 metres. El primer de la fila A passa de braços al primer de la fila B i corre a la cua de la fila B. I així successivament. Variant: amb xarxa al mig.",
   "dosi": "4 minuts de braços, 4 de dits.",
-  "muntatge": "Dues files per grup de 6-8 (dos grups per pista). Ningú espera més d'una pilota.",
-  "pistes": "1 o 2",
+  "muntatge": "Dos grups de 6-7, cadascun en dues files cara a cara a un camp. Ningú espera més d'una pilota.",
+  "pistes": "1",
   "font": "Clàssic d'escola."
  },
  {
@@ -171,8 +171,8 @@
   "tambe": "Tip drill",
   "com": "L'entrenador o un company, des de l'altra banda i a prop de la xarxa, fa fintes (pilota tocada suau per sobre del bloc). El defensa surt des de la seva posició de base a Z5, Z6 o Z1 i la defensa alta cap a la zona de col·locació.",
   "dosi": "8 per jugador des de cada zona del fons.",
-  "muntatge": "Tres files (Z5, Z6, Z1) i un o dos que finten. Recollidor a la zona de col·locació que es relleva.",
-  "pistes": "1 o 2",
+  "muntatge": "A cada camp, una fila de defensa (Z5, Z6 o Z1, canviant cada 8) i un jugador a la xarxa de l'altra banda que finta. Recollidor a la zona de col·locació que es relleva.",
+  "pistes": "1",
   "font": "Clàssic de defensa (tip drill)."
  },
  {
@@ -182,8 +182,8 @@
   "tambe": "Run-through",
   "com": "El jugador surt de la línia de fons. L'entrenador envia una pilota baixa davant seu, a 3-4 metres. El jugador corre i la defensa de braços sense aturar-se, passant per sota de la pilota, cap al centre de la pista.",
   "dosi": "8 per jugador, alternant esquerra i dreta.",
-  "muntatge": "Dues files al fons (una a cada mitja pista) i un llançador per fila.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files al fons, una a cada camp (6-7 per fila), i un llançador per fila. Es rellevem cada 8 pilotes.",
+  "pistes": "1",
   "font": "Clàssic de defensa (run-through)."
  },
  {
@@ -193,8 +193,8 @@
   "tambe": "Serve and pass",
   "com": "A cada banda, dos receptors i dos sacadors. Es saca per torns cap als receptors de l'altra banda; cada receptor ha de dur la pilota a la zona de col·locació. Després de sacar, el sacador passa a receptor, i el receptor a sacador.",
   "dosi": "10 recepcions per jugador. Puntuació: perfecta 3, bona 2, dolenta 1.",
-  "muntatge": "Pista sencera: 4 per banda (8 per pista). A dues pistes caben 16.",
-  "pistes": "1 o 2",
+  "muntatge": "Pista sencera: 3 sacadors i 3 receptors a cada banda (12). Amb 13-14, un o dos més fan de col·locador objectiu i entren a cada canvi.",
+  "pistes": "1",
   "font": "Clàssic (serve and pass)."
  },
  {
@@ -204,8 +204,8 @@
   "tambe": "Serve receive for points",
   "com": "Tres receptors fixos en recepció a pista sencera; la resta saca des de l'altra banda. L'equip de recepció ha de sumar 15 punts (perfecta 3, bona 2, dolenta 1, error -2) abans que els sacadors facin 5 aces o errors forçats. Després es canvia el trio.",
   "dosi": "Partides de 3-4 minuts, tots passen per recepció.",
-  "muntatge": "Pista sencera: 3 receptors i un col·locador objectiu; la resta sacant. A dues pistes, dos grups simultanis.",
-  "pistes": "1 o 2",
+  "muntatge": "Pista sencera: 3 receptors i un col·locador objectiu a una banda; la resta (8-10) saca des de l'altra banda per torns. Es canvia el trio de recepció cada partida.",
+  "pistes": "1",
   "font": "Clàssic (serve receive game)."
  },
  {
@@ -215,8 +215,8 @@
   "tambe": "Over and under",
   "com": "Parelles. A remata controlat cap a B, B defensa amunt i la torna a agafar ell mateix de dits (autocol·locació), després remata cap a A. Pilota sempre viva.",
   "dosi": "3 sèries de 2 minuts.",
-  "muntatge": "Parelles escampades. Tothom alhora.",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles escampades. Tothom alhora.",
+  "pistes": "1",
   "font": "Variant del pepper."
  },
  {
@@ -226,8 +226,8 @@
   "tambe": "Defense in base",
   "com": "Tres defenses a Z5, Z6 i Z1 en posició de base. L'entrenador remata des de Z4 o Z2 de l'altra banda. Els defenses s'han de moure cap a la seva posició de defensa segons d'on ataca i defensar cap a la zona de col·locació. Un col·locador col·loca i un atacant torna la pilota a l'altra banda per acabar.",
   "dosi": "10 pilotes per trio i rotar posicions.",
-  "muntatge": "Trios de defensa, un col·locador i un atacant; la resta a la cua a punt d'entrar a cada canvi (cada 10 pilotes).",
-  "pistes": "1 o 2",
+  "muntatge": "Un trio de defensa, un col·locador i un atacant a una banda; a l'altra, l'entrenador i dos recollidors. La resta (6-8) fa saque a l'altra mitja pista o espera una sola ronda: es canvia el trio cada 10 pilotes.",
+  "pistes": "1",
   "font": "Clàssic de sistema defensiu."
  },
  {
@@ -237,8 +237,8 @@
   "tambe": "Deep and short",
   "com": "Parelles una a cada banda. Saque alternant un llarg (darrere la línia de 3 de l'altra banda, al fons) i un curt (just darrere la xarxa). El company l'agafa i saca cap a l'altra banda igual.",
   "dosi": "20 saques per jugador (10 llargs i 10 curts).",
-  "muntatge": "Parelles al llarg de la pista: la meitat saca des d'un costat i l'altra meitat des de l'altre, per torns.",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles, una a cada fons. Saquen per torns una banda i l'altra.",
+  "pistes": "1",
   "font": "Clàssic de saque."
  },
  {
@@ -246,10 +246,10 @@
   "fam": "S",
   "nom": "Escala de saque i recepció",
   "tambe": "Serve vs pass ladder",
-  "com": "Un sacador contra un receptor. Si la recepció és bona (al col·locador), punt per al receptor; si no, punt per al sacador. Qui arriba a 5 puja de pista (o de posició a l'escala); qui perd baixa.",
+  "com": "Un sacador contra un receptor. Si la recepció és bona (al col·locador), punt per al receptor; si no, punt per al sacador. Qui arriba a 5 puja una posició a l'escala (canvia de rival cap a un de més amunt); qui perd baixa.",
   "dosi": "Partides fins a 5, durant 10 minuts.",
-  "muntatge": "Parelles repartides: dos duels per pista simultanis (un a cada meitat), amb el sacador a una banda i el receptor a l'altra. Cada partida, canvi de rival.",
-  "pistes": "1 o 2",
+  "muntatge": "Duels d'un sacador contra un receptor: tres duels alhora per camp (6 sacadors i 6 receptors). Cada partida, canvi de rival. Amb 13-14, un o dos fan de col·locador objectiu i entren a la partida següent.",
+  "pistes": "1",
   "font": "Joc clàssic."
  },
  {
@@ -259,8 +259,8 @@
   "tambe": "Flat serve",
   "com": "Saque flotant buscant que passi a pocs centímetres de la xarxa i caigui ràpid al centre de la pista. A l'altra banda, una corda o cinta a 50 cm per sobre de la xarxa: el saque ha de passar entre la xarxa i la corda.",
   "dosi": "15 saques per jugador. Es compten els que passen per dins.",
-  "muntatge": "Saquen des de les dues bandes per torns, amb la corda als dos costats.",
-  "pistes": "1 o 2",
+  "muntatge": "Tothom saca: la meitat des d'un fons i la meitat des de l'altre, per torns, amb la corda als dos costats.",
+  "pistes": "1",
   "font": "Clàssic tècnic."
  },
  {
@@ -270,8 +270,8 @@
   "tambe": "Jump float",
   "com": "(1) Llançament de la pilota amb la mà de colpejar, sense saltar, mirant que caigui un pas davant. (2) Dues passes i saque sense saltar. (3) Dues passes, salt petit i saque flotant. Només per a qui ja fa bé el flotant de terra.",
   "dosi": "10 saques per pas.",
-  "muntatge": "Tothom saca des del fons de les dues bandes. Qui no fa el salt flotant treballa el flotant de terra al mateix temps.",
-  "pistes": "1 o 2",
+  "muntatge": "Tothom saca: la meitat des d'un fons i la meitat des de l'altre. Qui no fa el salt flotant treballa el flotant de terra al mateix temps.",
+  "pistes": "1",
   "font": "Progressió clàssica."
  },
  {
@@ -281,8 +281,8 @@
   "tambe": "Serve at the seam",
   "com": "A l'altra banda, dos receptors que es mouen. Cal sacar just entre els dos (a la frontera) o a la persona que indica l'entrenador just abans de sacar.",
   "dosi": "12 saques per jugador.",
-  "muntatge": "Sacadors repartits als dos fons; dos receptors a cada banda que es rellevem cada 6 saques.",
-  "pistes": "1 o 2",
+  "muntatge": "6 sacadors a cada fons (3 i 3) i dos receptors a cada banda que es rellevem cada 6 saques.",
+  "pistes": "1",
   "font": "Clàssic tàctic."
  },
  {
@@ -292,8 +292,8 @@
   "tambe": "Serve and defend",
   "com": "El jugador saca i entra immediatament a la seva posició de defensa (Z1, Z6 o Z5). L'entrenador li envia una pilota de defensa. Treballa la transició del saque a la defensa.",
   "dosi": "8 saques per jugador amb la defensa.",
-  "muntatge": "Dues files de saque (una a cada mitja pista) i l'entrenador a l'altra banda. Recollidor a la zona de col·locació.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files de saque al mateix fons (una a cada mitja pista), 6-7 per fila. L'entrenador i un jugador llancen la defensa des de l'altra banda. Recollidor a la zona de col·locació.",
+  "pistes": "1",
   "font": "Clàssic de transició."
  },
  {
@@ -303,8 +303,8 @@
   "tambe": "Arm swing to floor",
   "com": "Parelles a 6 metres. Un es llança la pilota i remata contra terra a 2 metres davant seu perquè boti i arribi al company. El company l'agafa i fa el mateix. Treball del braç: colze alt, picar per sobre i dalt de tot.",
   "dosi": "3 sèries de 15 remats.",
-  "muntatge": "Parelles escampades. Tothom alhora.",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles escampades per la pista sencera. Tothom alhora.",
+  "pistes": "1",
   "font": "Clàssic tècnic."
  },
  {
@@ -314,8 +314,8 @@
   "tambe": "Down ball",
   "com": "Sense saltar, des de la línia de 3, el jugador remata una pilota col·locada fàcil cap a l'altra banda, buscant el fons. És el remat d'emergència quan no es pot saltar.",
   "dosi": "10 remats per jugador.",
-  "muntatge": "Dues files a la línia de 3 i un col·locador o llançador per fila. Defensa a l'altra banda que recull i torna les pilotes.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files a la línia de 3 del mateix camp i un col·locador o llançador per fila. A l'altra banda, dos defenses que recullen i tornen les pilotes i es rellevem cada 5.",
+  "pistes": "1",
   "font": "Clàssic (down ball)."
  },
  {
@@ -325,8 +325,8 @@
   "tambe": "Hitting lines",
   "com": "Una fila a Z4. El jugador dona la pilota al col·locador, fa la carrera i remata la col·locació alta. Després recull la pilota i va a la cua. Primer tothom remata a diagonal; després a paral·lela.",
   "dosi": "8 remats per jugador.",
-  "muntatge": "Una fila a Z4 a cada pista (o dues files: Z4 i Z2 alternant amb un sol col·locador). Dos jugadors a l'altra banda recullen pilotes i es rellevem.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files, a Z4 i a Z2, amb un sol col·locador que alterna. Dos jugadors a l'altra banda recullen pilotes i es rellevem cada 6 remats.",
+  "pistes": "1",
   "font": "El clàssic de tots els equips."
  },
  {
@@ -336,8 +336,8 @@
   "tambe": "Pass-set-hit",
   "com": "L'entrenador envia una pilota fàcil de recepció. El jugador la passa al col·locador, fa la carrera i remata la col·locació. Després va a la cua de l'altra fila.",
   "dosi": "8 remats per jugador.",
-  "muntatge": "Dues files (Z4 i Z2), un col·locador fix que es relleva cada 10 pilotes i dos recollidors a l'altra banda.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files (Z4 i Z2) d'uns 5 jugadors, un col·locador fix que es relleva cada 10 pilotes i dos recollidors a l'altra banda.",
+  "pistes": "1",
   "font": "Clàssic (pass-set-hit)."
  },
  {
@@ -347,8 +347,8 @@
   "tambe": "Line and cross targets",
   "com": "A l'altra banda, dues zones marcades amb cons: una al llarg de la línia lateral (paral·lela) i una a la diagonal curta. L'entrenador crida «línia» o «diagonal» just quan el col·locador toca la pilota, i el rematador ha d'atacar a aquella zona.",
   "dosi": "10 remats per jugador.",
-  "muntatge": "Fila de remat a Z4 i col·locador. Recollidors a l'altra banda dins les zones, que es rellevem.",
-  "pistes": "1 o 2",
+  "muntatge": "Fila de remat a Z4 i col·locador. Dos recollidors a l'altra banda dins les zones, que es rellevem cada 6 remats.",
+  "pistes": "1",
   "font": "Clàssic tàctic."
  },
  {
@@ -358,8 +358,8 @@
   "tambe": "Tool the block",
   "com": "Un bloc a l'altra banda. El rematador apunta a la mà exterior del bloc perquè la pilota surti fora. També: pilota tocada contra el bloc per recuperar-la (rebot) i tornar a atacar.",
   "dosi": "8 remats per jugador; es rota el bloc cada 8.",
-  "muntatge": "Fila de remat a Z4, col·locador, un bloc a Z2 de l'altra banda i un recollidor. La resta a la fila.",
-  "pistes": "1 o 2",
+  "muntatge": "Fila de remat a Z4, col·locador, un bloc a Z2 de l'altra banda i un recollidor. La resta a la fila (8-9 jugadors).",
+  "pistes": "1",
   "font": "Clàssic tàctic."
  },
  {
@@ -369,8 +369,8 @@
   "tambe": "High ball out of system",
   "com": "L'entrenador envia una pilota lluny de la xarxa; un jugador la col·loca alta a Z4 de dits o de braços, i el de Z4 remata o, si la pilota no és bona, la passa controlada al fons de l'altra banda.",
   "dosi": "8 pilotes per jugador a cada rol.",
-  "muntatge": "Trios: col·locador de circumstància, rematador a Z4 i recollidor. Dos trios per pista, un a cada mitja pista en sentit contrari.",
-  "pistes": "1 o 2",
+  "muntatge": "4 trios: dos a cada camp, un a cada mitja pista (un treballa cap a Z4 i l'altre cap a Z2). Amb 13-14, trios de 4 que es rellevem.",
+  "pistes": "1",
   "font": "Clàssic tàctic."
  },
  {
@@ -380,8 +380,8 @@
   "tambe": "Quick attack",
   "com": "Central i col·locador. El central arriba a la xarxa abans que la col·locació i salta quan el col·locador toca la pilota; la col·locació és curta i ràpida, just per sobre de la xarxa davant del col·locador. Primer agafant la pilota a dalt; després rematant.",
   "dosi": "10 pilotes per central, primer agafant i després rematant.",
-  "muntatge": "Centrals en fila a Z3, un o dos col·locadors i un llançador a Z6. La resta fa un altre exercici a l'altra pista o mitja pista.",
-  "pistes": "2",
+  "muntatge": "Mitja pista: centrals, un col·locador i un llançador a Z6 (5-6 jugadors). L'altra mitja pista: la resta fa pepper (EB1). Es canvia a la meitat del temps perquè tothom passi pel primer temps.",
+  "pistes": "1",
   "font": "Clàssic tàctic."
  },
  {
@@ -391,8 +391,8 @@
   "tambe": "Mirror blocking",
   "com": "Parelles, una a cada banda de la xarxa, cara a cara. Un es desplaça lateralment i salta a bloquejar; l'altre l'ha de seguir com un mirall i saltar alhora, mans per sobre de la xarxa tocant les mans del company.",
   "dosi": "3 sèries de 6 salts per jugador fent de guia.",
-  "muntatge": "Parelles al llarg de la xarxa (fins a 8 parelles per pista).",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles al llarg de tota la xarxa.",
+  "pistes": "1",
   "font": "Clàssic tècnic."
  },
  {
@@ -402,8 +402,8 @@
   "tambe": "Block footwork",
   "com": "Sense pilota i després amb pilota. De Z3 a Z4 i de Z3 a Z2: per a distàncies curtes, pas lateral; per a llargues, pas creuat (creuar la cama de fora). Acabar amb salt i mans penetrant per sobre de la xarxa. Amb pilota: el company a l'altra banda sosté la pilota per sobre de la xarxa i el bloquejador la toca.",
   "dosi": "6 desplaçaments per costat i tipus.",
-  "muntatge": "Tres jugadors per xarxa a cada mitja pista; els companys de l'altra banda sostenen la pilota i es canvia cada 6.",
-  "pistes": "1 o 2",
+  "muntatge": "Tres jugadors a la xarxa de cada camp; els de l'altra banda sostenen la pilota per sobre de la xarxa. Es canvia cada 6. La resta (6-8) a la cua, una sola sèrie d'espera.",
+  "pistes": "1",
   "font": "Clàssic tècnic."
  },
  {
@@ -413,8 +413,8 @@
   "tambe": "Block vs box",
   "com": "L'entrenador, a dalt d'un banc a l'altra banda tocant a la xarxa, remata pilotes. El bloquejador salta i penetra amb les mans cap a l'altra banda. Primer remats al mig, després a un costat i a l'altre.",
   "dosi": "8 blocs per jugador.",
-  "muntatge": "Fila de bloquejadors a Z4 (o Z2). Recollidor a la banda del bloquejador. A dues pistes, un jugador alt fa d'entrenador.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files de bloquejadors (Z4 i Z2) i dos rematadors a l'altra banda dalt d'un banc (l'entrenador i un jugador). Recollidor a la banda del bloquejador.",
+  "pistes": "1",
   "font": "Clàssic (block vs box)."
  },
  {
@@ -424,8 +424,8 @@
   "tambe": "Read blocking",
   "com": "Un bloquejador central a Z3. Al costat contrari, el col·locador col·loca a Z4 o a Z2 i hi ha un rematador a cada lloc. El central no s'avança: mira el col·locador i va on va la pilota per fer bloc doble amb el lateral.",
   "dosi": "10 pilotes per central.",
-  "muntatge": "A una banda: central i dos laterals fixos. A l'altra: col·locador i dos rematadors. Es roten els rols cada 10 pilotes.",
-  "pistes": "1 o 2",
+  "muntatge": "A una banda: central i dos laterals. A l'altra: col·locador i dos rematadors. La resta (6-8) llança pilotes al col·locador i recull, i entren a cada canvi (cada 10 pilotes).",
+  "pistes": "1",
   "font": "Clàssic tàctic (read blocking)."
  },
  {
@@ -435,8 +435,8 @@
   "tambe": "Seal the net",
   "com": "Treball de mans: el bloquejador salta i penetra les mans per sobre de la xarxa, amb els polzes amunt i els dits oberts, sense deixar espai entre les mans i la xarxa. Un company, a l'altra banda dalt d'un banc, deixa caure la pilota just a la xarxa.",
   "dosi": "10 salts per jugador.",
-  "muntatge": "Parelles a la xarxa, repartides per tota la pista.",
-  "pistes": "1 o 2",
+  "muntatge": "6-7 parelles a la xarxa, repartides per tota la xarxa.",
+  "pistes": "1",
   "font": "Clàssic tècnic."
  },
  {
@@ -446,8 +446,8 @@
   "tambe": "Three-blocker shuffle",
   "com": "Tres bloquejadors (Z4, Z3, Z2). L'entrenador assenyala on serà l'atac (esquerra, centre o dreta) i el bloc es desplaça junt: el central sempre hi va, el lateral de l'altre costat tanca l'espai del mig.",
   "dosi": "10 desplaçaments per trio, rotant posicions.",
-  "muntatge": "Trios de bloc a cada mitja xarxa. Els altres trios fan d'atacants o recullen. Es canvia cada 10.",
-  "pistes": "1 o 2",
+  "muntatge": "Un trio de bloc a cada mitja xarxa (dos trios). A l'altra banda, dos trios fan d'atacants i recullen. Es canvia cada 10.",
+  "pistes": "1",
   "font": "Clàssic tàctic."
  },
  {
@@ -457,8 +457,8 @@
   "tambe": "Setter release",
   "com": "El col·locador surt de Z1 (com si estigués al fons). L'entrenador llança una pilota a la zona de col·locació quan el col·locador comença a córrer. El col·locador hi arriba, para els peus de cara a Z4 i col·loca alta a Z4.",
   "dosi": "15 col·locacions per col·locador.",
-  "muntatge": "Col·locadors en fila a Z1. Un o dos receptors a Z4 agafen i tornen la pilota. La resta, en un altre exercici.",
-  "pistes": "2",
+  "muntatge": "Mitja pista: col·locadors, un llançador i un o dos receptors a Z4. L'altra mitja pista: la resta fa pepper (EB1) o files de defensa. Es canvia de grup a la meitat.",
+  "pistes": "1",
   "font": "Clàssic per a col·locadors."
  },
  {
@@ -468,8 +468,8 @@
   "tambe": "Called sets",
   "com": "L'entrenador llança la pilota al col·locador i, just quan la pilota és a l'aire, crida «quatre», «tres», «dos» o «pipe». El col·locador la fa arribar a aquella zona, on un company agafa la pilota per comprovar l'alçada.",
   "dosi": "20 col·locacions per col·locador.",
-  "muntatge": "Col·locador a la zona de col·locació, quatre dianes (Z4, Z3, Z2, Z6). Es rota la diana i el col·locador cada 20 pilotes.",
-  "pistes": "1 o 2",
+  "muntatge": "Mitja pista: col·locador, llançador i quatre dianes (Z4, Z3, Z2, Z6). L'altra mitja pista, un segon grup igual. Es rota cada 20 pilotes.",
+  "pistes": "1",
   "font": "Clàssic per a col·locadors."
  },
  {
@@ -479,8 +479,8 @@
   "tambe": "Bump set",
   "com": "Col·locació amb els braços quan la pilota ve baixa: el jugador es posa de cara a l'objectiu, abaixa el cos i envia una pilota alta i sense efecte a Z4, a 1 metre de la xarxa.",
   "dosi": "15 per jugador.",
-  "muntatge": "Trios: llançador, col·locador i diana a Z4. Tres trios per pista.",
-  "pistes": "1 o 2",
+  "muntatge": "4 trios (amb 13-14, grups de 4): dos a cada camp, un a cada mitja pista.",
+  "pistes": "1",
   "font": "Clàssic tècnic."
  },
  {
@@ -490,8 +490,8 @@
   "tambe": "Back set",
   "com": "El col·locador, de cara a Z4, envia la pilota enrere cap a Z2 sense girar-se, arquejant l'esquena i amb els polzes enrere al final. Primer curta, després alta a l'antena.",
   "dosi": "20 col·locacions per jugador.",
-  "muntatge": "Trios: llançador a Z6, col·locador i diana a Z2. Tres trios per pista.",
-  "pistes": "1 o 2",
+  "muntatge": "4 trios (amb 13-14, grups de 4): dos a cada camp, un a cada mitja pista.",
+  "pistes": "1",
   "font": "Clàssic tècnic."
  },
  {
@@ -501,7 +501,7 @@
   "tambe": "Butterfly with attack",
   "com": "Com la papallona de recepció, però amb col·locador fix i atac: saque, recepció, col·locació a Z4 i remat. Cadascú segueix la pilota: el sacador va a recepció, el receptor a atacar, el rematador recull i va a sacar.",
   "dosi": "Continu, 12 minuts. Canvi de costat a la meitat.",
-  "muntatge": "Pista sencera amb dos col·locadors (un per banda). 12-16 jugadors repartits en files de saque, recepció i atac a les dues bandes.",
+  "muntatge": "Pista sencera amb dos col·locadors (un per banda) i la resta (10-12) repartits en files de saque, recepció i atac a les dues bandes.",
   "pistes": "1",
   "font": "Clàssic (butterfly)."
  },
@@ -512,7 +512,7 @@
   "tambe": "Bingo-bango-bongo",
   "com": "6x6. Cada ronda són tres pilotes seguides cap al mateix equip: un saque (bingo), una pilota fàcil de free ball (bango) i una pilota difícil de l'entrenador (bongo). L'equip que guanya dues de les tres pilotes guanya la ronda.",
   "dosi": "Fins que un equip guanya 5 rondes; després es canvia.",
-  "muntatge": "6x6 a pista sencera amb canvi de jugadors a cada ronda. Amb 14-16, el tercer equip entra per l'equip que perd la ronda.",
+  "muntatge": "6x6 a pista sencera. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
   "pistes": "1",
   "font": "Joc clàssic."
  },
@@ -523,7 +523,7 @@
   "tambe": "Bounce ball",
   "com": "6x6. Es juga un punt normal; quan acaba, l'entrenador llança immediatament una segona pilota a l'equip que ha perdut el punt. Per guanyar la ronda s'han de guanyar les dues pilotes.",
   "dosi": "Partit a 15 rondes guanyades.",
-  "muntatge": "6x6 a pista sencera. Si n'hi ha més de 12, el tercer equip entra per l'equip que perd 2 rondes seguides.",
+  "muntatge": "6x6 a pista sencera. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
   "pistes": "1",
   "font": "Clàssic de transició."
  },
@@ -534,7 +534,7 @@
   "tambe": "Side-out drill",
   "com": "L'equip A en recepció, l'equip B saca. A ha de guanyar el punt de recepció (side out) 3 vegades en una rotació abans de rotar. Si B guanya el punt, compta per a B.",
   "dosi": "Fins que A ha fet les 6 rotacions o 12 minuts. Després es canvia.",
-  "muntatge": "6x6 a pista sencera. Els que sobren són sacadors de l'equip B i entren per rotació.",
+  "muntatge": "6x6 a pista sencera. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
   "pistes": "1",
   "font": "Clàssic tàctic."
  },
@@ -545,7 +545,7 @@
   "tambe": "Free ball transition",
   "com": "L'equip comença en base de defensa amb bloc a la xarxa. L'entrenador crida «free!» i envia una pilota fàcil: els de la xarxa baixen a la línia d'atac, el col·locador penetra, el lliure o qui toqui passa, i s'ataca.",
   "dosi": "10 pilotes per equip; es rota cada 5.",
-  "muntatge": "Un equip de 6 a una banda, i a l'altra banda un equip que defensa l'atac i després fa ell la transició. Els que sobren entren a cada rotació.",
+  "muntatge": "6x6 a pista sencera: un equip fa la transició i l'altre defensa i torna la pilota. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
   "pistes": "1",
   "font": "Clàssic tàctic."
  },
@@ -556,7 +556,7 @@
   "tambe": "Cooperative rally",
   "com": "6x6 amb l'objectiu de fer rallies llargues: cada pilota que passa la xarxa després de tres tocs (defensa, col·locació i remat controlat) val un punt per als dos equips. Es compta el rècord del grup.",
   "dosi": "3 intents de 3 minuts.",
-  "muntatge": "6x6 a pista sencera (amb més, rotació cada intent).",
+  "muntatge": "6x6 a pista sencera. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
   "pistes": "1",
   "font": "Clàssic d'escola."
  },
@@ -567,8 +567,8 @@
   "tambe": "Scramble",
   "com": "L'entrenador envia pilotes difícils (curtes, llunyanes, tocades contra la xarxa) a un equip de 6. L'equip ha de salvar-les i convertir-les en un atac o una pilota passada amb sentit. 5 pilotes seguides; l'equip que n'aconsegueix més, guanya.",
   "dosi": "Dues rondes de 5 pilotes per equip.",
-  "muntatge": "Dos o tres equips; a una pista, un equip treballa i un altre torna les pilotes de l'altra banda; es canvia cada ronda.",
-  "pistes": "1 o 2",
+  "muntatge": "Dos equips de 6-7: un treballa i l'altre torna les pilotes des de l'altra banda; es canvia cada ronda.",
+  "pistes": "1",
   "font": "Clàssic (scramble drill)."
  },
  {
@@ -578,8 +578,8 @@
   "tambe": "Net recovery",
   "com": "Un llança la pilota contra la xarxa (a dalt, al mig i a baix) i un company l'ha de jugar després del rebot, a sota i de braços, cap amunt perquè un tercer la pugui col·locar.",
   "dosi": "10 per jugador, de cada alçada.",
-  "muntatge": "Trios a la xarxa (llançador, defensa i col·locador), repartits per tota la xarxa.",
-  "pistes": "1 o 2",
+  "muntatge": "4 trios a la xarxa (llançador, defensa i col·locador), repartits per tota la xarxa. Amb 13-14, grups de 4.",
+  "pistes": "1",
   "font": "Clàssic tècnic."
  },
  {
@@ -589,8 +589,8 @@
   "tambe": "Triples",
   "com": "Partits de 3 contra 3 a mitja pista (de lateral a centre de pista), amb tres tocs obligats. Punt directe. Es canvia de rival cada 5 minuts.",
   "dosi": "3 partits de 5 minuts.",
-  "muntatge": "Quatre equips de 3 per pista (dues mitges pistes). Si hi ha més jugadors, 4x4.",
-  "pistes": "1 o 2",
+  "muntatge": "Quatre equips de 3 a les dues mitges pistes (dos partits alhora). Amb 13-14, un o dos jugadors entren per l'equip que perd.",
+  "pistes": "1",
   "font": "Format clàssic."
  },
  {
@@ -598,10 +598,10 @@
   "fam": "G",
   "nom": "Rei de la pista: un contra dos",
   "tambe": "Cutthroat",
-  "com": "Tres equips de 2 (o de 3). Un equip, el «rei», defensa sol tota la pista a una banda; els altres dos equips juguen junts a l'altra banda. El que guanya punt fent de rei suma; quan el rei perd, rota.",
+  "com": "Tres equips de 4. Un equip, el «rei», defensa sol tota una banda; els altres dos equips es van alternant a l'altra banda a cada punt. L'equip rei suma un punt cada vegada que guanya; quan perd, passa a l'altra banda i entra un altre equip com a rei.",
   "dosi": "Fins a 7 punts.",
-  "muntatge": "Tres equips per pista. Amb 12-16, dues pistes o una pista amb canvi ràpid.",
-  "pistes": "1 o 2",
+  "muntatge": "Tres equips de 4 (amb 13-14, equips de 4 i 5 que roten a cada punt) a pista sencera.",
+  "pistes": "1",
   "font": "Joc clàssic (cutthroat)."
  },
  {
@@ -611,8 +611,8 @@
   "tambe": "Speedball",
   "com": "6x6 o 4x4. Quan acaba un punt, l'entrenador llança immediatament una pilota nova a l'equip que ha guanyat (o al que ha perdut, segons el que es vulgui treballar). Ningú descansa entre punts.",
   "dosi": "Partides de 3 minuts. Guanya qui té més punts.",
-  "muntatge": "6x6 a pista sencera, o 4x4 a dues mitges pistes. Els de fora entren a cada partida.",
-  "pistes": "1 o 2",
+  "muntatge": "6x6 a pista sencera, o 4x4 a les dues mitges pistes amb 3 equips de 4 que entren a cada partida. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
+  "pistes": "1",
   "font": "Joc clàssic."
  },
  {
@@ -622,7 +622,7 @@
   "tambe": "Big point / small point",
   "com": "6x6. Cada punt normal és «petit». Per sumar un punt «gran», un equip ha de guanyar dos punts petits seguits. Guanya qui arriba abans a 5 punts grans. Obliga a no relaxar-se després de guanyar.",
   "dosi": "Partit a 5 punts grans.",
-  "muntatge": "6x6 a pista sencera, el tercer equip entra per l'equip que perd cada punt gran.",
+  "muntatge": "6x6 a pista sencera. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
   "pistes": "1",
   "font": "Joc clàssic."
  },
@@ -633,20 +633,9 @@
   "tambe": "Attack-only scoring",
   "com": "6x6 normal, però només es compten els punts guanyats amb remat. Els punts per error del rival o per saque no compten. Obliga a construir l'atac.",
   "dosi": "Partit a 10.",
-  "muntatge": "6x6 a pista sencera. Si n'hi ha més de 12, canvi de dos jugadors a cada rotació.",
+  "muntatge": "6x6 a pista sencera. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
   "pistes": "1",
   "font": "Joc clàssic."
- },
- {
-  "codi": "EG6",
-  "fam": "G",
-  "nom": "Torneig de 2x2 per pistes",
-  "tambe": "King of the beach",
-  "com": "Parelles. Partits de 2x2 a mitja pista amb tres tocs. Cada 4 minuts, la parella guanyadora puja una pista i la perdedora baixa. Es canvien les parelles cada tres rondes.",
-  "dosi": "6 rondes de 4 minuts.",
-  "muntatge": "Fins a quatre partits simultanis (dues mitges pistes per pista, a les dues pistes).",
-  "pistes": "2",
-  "font": "Format clàssic."
  },
  {
   "codi": "EG7",
@@ -655,7 +644,7 @@
   "tambe": "Target zones game",
   "com": "6x6 amb una zona marcada amb cons a cada camp (canvia cada 5 minuts). Si la pilota guanyadora toca terra dins la zona, val doble.",
   "dosi": "Partit a 15.",
-  "muntatge": "6x6 a pista sencera.",
+  "muntatge": "6x6 a pista sencera. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
   "pistes": "1",
   "font": "Joc clàssic."
  },
@@ -666,7 +655,7 @@
   "tambe": "Short serve game",
   "com": "Partit 6x6 on el saque es fa des de la línia de 3 de pròpia pista amb toc de dits o de braços per sobre de la xarxa. Treballa la construcció a partir d'una pilota fàcil, sense saque dur.",
   "dosi": "Partit a 15.",
-  "muntatge": "6x6 a pista sencera; amb més, canvi de jugadors a cada rotació.",
+  "muntatge": "6x6 a pista sencera. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
   "pistes": "1",
   "font": "Joc clàssic d'escola."
  },
@@ -677,8 +666,8 @@
   "tambe": "Zig-zag",
   "com": "El jugador surt del fons i avança cap a la xarxa en ziga-zaga. L'entrenador li envia pilotes alternant esquerra i dreta; ell les defensa cap al centre i continua avançant fins a la línia de 3.",
   "dosi": "3 recorreguts de 5 pilotes per jugador.",
-  "muntatge": "Dues files al fons (una a cada mitja pista), un llançador per fila i un recollidor a la zona de col·locació que es relleva.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files al fons, una a cada camp (6-7 per fila), un llançador per fila i un recollidor que es relleva.",
+  "pistes": "1",
   "font": "Clàssic de defensa."
  },
  {
@@ -688,8 +677,8 @@
   "tambe": "Four corners",
   "com": "El defensa és al centre del camp. L'entrenador envia quatre pilotes seguides a les quatre cantonades del camp (davant esquerra, fons dret, davant dreta, fons esquerre). Totes s'han de defensar amunt cap al centre.",
   "dosi": "2 sèries de 4 pilotes per jugador.",
-  "muntatge": "Un defensa per mitja pista i un llançador per mitja pista; la resta a la cua de cada mitja pista o recollint. Es canvia cada sèrie.",
-  "pistes": "1 o 2",
+  "muntatge": "Un defensa per camp i un llançador per camp; la resta (8-10) a la cua dels dos camps o recollint. Es canvia cada sèrie de 4 pilotes, que és molt ràpida.",
+  "pistes": "1",
   "font": "Clàssic de defensa."
  },
  {
@@ -699,8 +688,8 @@
   "tambe": "Libero dig and set",
   "com": "El lliure (o qui faci de defensa) defensa a Z6 una pilota de l'entrenador i, a la segona pilota, col·loca de dits des de darrere la línia de 3 cap a Z4, com quan el col·locador ha fet el primer toc.",
   "dosi": "10 parelles de pilotes per jugador.",
-  "muntatge": "Fila a Z6, un rematador o diana a Z4 que torna la pilota. Dos grups, un a cada mitja pista.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files a Z6, una a cada camp, i un rematador o diana a Z4 de cada camp que torna la pilota.",
+  "pistes": "1",
   "font": "Clàssic per a lliures."
  },
  {
@@ -710,8 +699,8 @@
   "tambe": "Pre-serve routine",
   "com": "Cada jugador es fa una rutina curta i sempre igual abans de sacar: botar la pilota dues vegades, respirar, mirar la zona on vol sacar i sacar. L'objectiu és que el saque sigui igual sota pressió.",
   "dosi": "15 saques per jugador fent la rutina; els últims 5, comptats en veu alta per l'equip.",
-  "muntatge": "Tothom saca des dels dos fons per torns.",
-  "pistes": "1 o 2",
+  "muntatge": "Tothom saca: la meitat des d'un fons i la meitat des de l'altre, per torns.",
+  "pistes": "1",
   "font": "Pràctica estàndard."
  },
  {
@@ -721,8 +710,8 @@
   "tambe": "Serve the hitter",
   "com": "A l'altra banda hi ha tres receptors; un porta un pitet: és el rematador que l'equip vol fer recepcionar. Els sacadors han de sacar-li a ell perquè hagi de rebre i després atacar.",
   "dosi": "12 saques per jugador; es canvia qui porta el pitet cada 6.",
-  "muntatge": "Sacadors repartits als dos fons; tres receptors a cada banda que es rellevem.",
-  "pistes": "1 o 2",
+  "muntatge": "Sacadors (6-8) repartits als dos fons; tres receptors a cada banda que es rellevem cada 6 saques.",
+  "pistes": "1",
   "font": "Clàssic tàctic."
  },
  {
@@ -732,8 +721,8 @@
   "tambe": "Right-side attack",
   "com": "Com les files de remat, però des de Z2 amb col·locació d'esquena o de cara (si el col·locador està a Z3). Carrera adaptada a la dreta: cal obrir-se cap a l'antena.",
   "dosi": "8 remats per jugador.",
-  "muntatge": "Fila de remat a Z2, col·locador i dos recollidors a l'altra banda. A dues pistes, una amb Z4 i una amb Z2, i es canvia.",
-  "pistes": "1 o 2",
+  "muntatge": "Fila de remat a Z2 (8-9 jugadors), col·locador i dos recollidors a l'altra banda que es rellevem cada 6.",
+  "pistes": "1",
   "font": "Clàssic tàctic."
  },
  {
@@ -743,8 +732,8 @@
   "tambe": "Dig-set-hit",
   "com": "El jugador defensa una pilota de l'entrenador a Z4 de defensa (prop de la línia de 3), el col·locador col·loca i el mateix jugador fa la carrera i remata. Treballa la transició de defensar a atacar.",
   "dosi": "8 pilotes per jugador.",
-  "muntatge": "Fila a Z4, col·locador fix, entrenador a l'altra banda, dos recollidors. A dues pistes, dos grups.",
-  "pistes": "1 o 2",
+  "muntatge": "Dues files, a Z4 de cada camp, amb un col·locador per camp i l'entrenador llançant d'una banda a l'altra. Recollidor a cada camp.",
+  "pistes": "1",
   "font": "Clàssic de transició."
  },
  {
@@ -754,8 +743,8 @@
   "tambe": "Setter movement",
   "com": "L'entrenador llança pilotes imperfectes a diferents llocs (prop de la xarxa, lluny, cap a Z1, cap a Z4). El col·locador hi ha d'arribar, parar-se de cara a Z4 i col·locar-la alta. La diana a Z4 la torna.",
   "dosi": "16 col·locacions (4 per lloc).",
-  "muntatge": "Col·locadors en fila a la zona de col·locació, una diana a Z4. Es rota cada 16 pilotes.",
-  "pistes": "2",
+  "muntatge": "Mitja pista: col·locadors i una diana a Z4. L'altra mitja pista: la resta fa pepper (EB1). Es canvia a la meitat del temps.",
+  "pistes": "1",
   "font": "Clàssic per a col·locadors."
  },
  {
@@ -765,7 +754,7 @@
   "tambe": "Serve receive walk-through",
   "com": "L'equip de 6 es col·loca en recepció a cada rotació (6-2 o 5-1): primer sense pilota, caminant cap a la posició i comprovant que ningú està fora de posició; després amb un saque fàcil i atac.",
   "dosi": "Les 6 rotacions, 2 pilotes per rotació.",
-  "muntatge": "6 en recepció i 6 a l'altra banda sacant fàcil; després es canvia. Si n'hi ha més, entren a cada rotació.",
+  "muntatge": "6 en recepció i 6 a l'altra banda sacant fàcil; després es canvia. Amb 13-14, els que sobren entren a cada rotació.",
   "pistes": "1",
   "font": "Pràctica estàndard."
  },
@@ -776,8 +765,8 @@
   "tambe": "4v4 full court",
   "com": "4x4 a pista sencera: dos a la xarxa i dos al fons. Els del fons poden atacar des de darrere la línia de 3. Molts tocs per jugador i molta transició.",
   "dosi": "Partits a 15.",
-  "muntatge": "Tres equips de 4 per pista; l'equip que perd surt i entra el de fora. Amb 16, dues pistes.",
-  "pistes": "1 o 2",
+  "muntatge": "Tres equips de 4 (amb 13-14, equips de 4 i 5): dos juguen a pista sencera i l'equip que perd surt i entra el de fora a cada punt.",
+  "pistes": "1",
   "font": "Format clàssic."
  },
  {
@@ -787,8 +776,8 @@
   "tambe": "Forearms only",
   "com": "6x6 o 4x4 on només es pot tocar la pilota de braços (també el segon toc). Obliga a col·locar de braços i a defensar bé.",
   "dosi": "Partit a 15.",
-  "muntatge": "6x6 a pista sencera o 4x4 a dues mitges pistes.",
-  "pistes": "1 o 2",
+  "muntatge": "6x6 a pista sencera, o 4x4 a les dues mitges pistes. Amb 13 o 14, els que sobren entren per Z1 a cada rotació.",
+  "pistes": "1",
   "font": "Joc clàssic."
  },
  {
@@ -798,7 +787,7 @@
   "tambe": "Rotate every point",
   "com": "6x6 on els dos equips roten a cada punt, guanyin o perdin. Tothom passa per totes les posicions i ha de saber on ha d'anar de seguida.",
   "dosi": "Partit a 18 (tres voltes senceres).",
-  "muntatge": "6x6 a pista sencera. Els que sobren entren per la posició de Z1 quan l'equip rota.",
+  "muntatge": "6x6 a pista sencera. Els que sobren entren per Z1 quan l'equip rota.",
   "pistes": "1",
   "font": "Joc clàssic."
  }
