@@ -983,15 +983,14 @@ function viewBiblio() {
   carregaExs();
   const es = exercicis(), u = usosExs();
   if (!es.length) return '<p class="empty">Carregant…</p>';
-  const vis = es.filter(e => (!bibFam || e.fam === bibFam) && (!bibOri || ORI[e.codi] === bibOri));
+  const vis = es.filter(e => (!bibFam || e.fam === bibFam));
   const fil = (v, cur, fn, t) => `<button class="${cur === v ? 'on' : ''}" onclick="${fn}('${v}')">${t}</button>`;
   return `<h2>Exercicis <span class="sub">${es.length}</span></h2>
   <input type="search" id="bibq" placeholder="Busca per nom, codi o paraula (p. ex. «paret», «R5», «bloqueig»)" oninput="bibFiltra(this.value)" autocomplete="off">
   <div class="chips">${fil('', bibFam, 'bibF', 'Tots')}${Object.entries(FAM).map(([k, v]) => fil(k, bibFam, 'bibF', `<b>${k}</b> ${v.split(/[ ,]/)[0]}`)).join('')}</div>
-  <div class="chips">${fil('', bibOri, 'bibO', 'Tots')}${Object.entries(ORIT).map(([k, v]) => fil(k, bibOri, 'bibO', v)).join('')}</div>
   <div id="bibl">${vis.map(e => { const us = u[e.codi] || [], fets = us.filter(isFet);
     return `<a class="card exrow f-${e.fam}" href="#/e/${e.codi}" data-q="${esc(textEx(e))}"><span class="code fam f-${e.fam}">${e.codi}</span>
-      <span class="grow"><b>${esc(e.nom)}</b><span class="meta">${us.length ? `${us.length} ${us.length > 1 ? 'sessions' : 'sessió'}${fets.length ? ` · última feta ${fets[fets.length - 1]}` : ''}` : 'No és a cap sessió'}${ORI[e.codi] ? ` · <span class="ori-${ORI[e.codi]}">${ORIT[ORI[e.codi]]}</span>` : ''}</span></span></a>`; }).join('')}</div>
+      <span class="grow"><b>${esc(e.nom)}</b><span class="meta">${us.length ? `${us.length} ${us.length > 1 ? 'sessions' : 'sessió'}${fets.length ? ` · última feta ${fets[fets.length - 1]}` : ''}` : 'No és a cap sessió'}</span></span></a>`; }).join('')}</div>
   <p class="meta" id="bibcap" hidden>Cap exercici amb aquestes paraules.</p>`;
 }
 window.bibF = v => { bibFam = v; render(); };
@@ -1007,7 +1006,7 @@ function viewExercici(c) {
   const e = totsExs().find(x => x.codi === c); if (!e) return exercicis().length ? `<p class="empty">No trobo l'exercici ${esc(c)}.</p>` : '<p class="empty">Carregant…</p>';
   const us = usosExs()[c] || [];
   return `<div class="shead"><span class="code fam f-${e.fam}" style="font-size:18px;padding:6px 10px">${e.codi}</span><h2>${esc(e.nom)}</h2></div>
-  <div class="tags"><span class="meta">${esc(e.famNom || FAM[e.fam] || '')}</span>${ORI[e.codi] ? ` <span class="tag ori-${ORI[e.codi]}">${ORIT[ORI[e.codi]]}</span>` : ''}${e.pistes ? ` <span class="meta">· ${e.pistes === '2' ? '2 pistes' : e.pistes === '1' ? '1 pista' : '1 o 2 pistes'}</span>` : ''}</div>
+  <div class="tags"><span class="meta">${esc(e.famNom || FAM[e.fam] || '')}</span>${ORI[e.codi] && USR && esAdmin() ? ` <span class="tag ori-${ORI[e.codi]}">${ORIT[ORI[e.codi]]}</span>` : ''}${e.pistes ? ` <span class="meta">· ${e.pistes === '2' ? '2 pistes' : e.pistes === '1' ? '1 pista' : '1 o 2 pistes'}</span>` : ''}</div>
   ${RETIRATS.includes(e.codi) ? `<p class="card" style="margin:8px 0">Retirat de la biblioteca: no funciona. Es canviarà per un altre a cada sessió on surt, quan es revisi.</p>` : ''}
   ${e.tambe ? `<p class="meta" style="margin:4px 0 8px">També se'n diu: <i>${esc(e.tambe)}</i></p>` : ''}
   ${CLAR[e.codi] ? `<div class="card"><h4 class="clart">Explicació pas a pas</h4>${clarHtml(e.codi)}<p class="meta" style="margin:6px 0 0">Escrita per Claude a partir del text original, per a qui no ha vist mai l'exercici.</p></div><h3>Text original</h3>` : ''}
@@ -1033,7 +1032,7 @@ function blockCard(b, s, ord) {
     <div class="bhead"><span class="bnum">${b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
       <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span>
       ${ord ? `<span class="ord"><button ${ord.first ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, -1)">▲</button><button ${ord.last ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, 1)">▼</button></span>` : ''}</div>
-    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi).replace(/\b(BL|[DBSRCJG])\d+\b/g, k => `<a href="#/e/${k}">${k}</a>`)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}${origens(b.codi)}</div>` : ''}
+    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi).replace(/\b(BL|[DBSRCJG])\d+\b/g, k => `<a href="#/e/${k}">${k}</a>`)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}</div>` : ''}
     ${fields(b)}
     ${ord ? '' : clarBloc(b)}
     ${b.lloc ? `<div class="field"><b>Lloc</b>${esc(b.lloc)}</div>` : ''}
@@ -1084,7 +1083,6 @@ window.dialeg = dialeg;
 let ORI = {};
 fetch('data/origen.json', { cache: 'no-cache' }).then(r => r.json()).then(o => { Object.assign(ORI, o); render(); }).catch(() => {});
 const ORIT = { teu: 'Teu', modificat: 'Modificat', claude: 'De Claude', estandard: 'Estàndard' };
-const origens = codi => [...new Set((codi.match(/\b[A-Z]{1,2}\d+\b/g) || []).map(k => ORI[k]).filter(Boolean))].map(o => ` <span class="tag ori-${o}">${ORIT[o]}</span>`).join('');
 function viewEntra() {
   const inv = store.get('volei.invitacio', null);
   return `<div class="entra card">
@@ -1265,7 +1263,7 @@ function viewEntrenos() {
         <button class="btn" onclick="selMode(false)">Cancel·la</button></div>
        <div class="selbar bottom"><button class="btn primary" onclick="markSel(true)" ${sel.size ? '' : 'disabled'}>✓ Marca com a fetes</button>
         <button class="btn" onclick="markSel(false)" ${sel.size ? '' : 'disabled'}>Com a no fetes</button></div>`
-    : `<div class="selbar"><span class="grow"></span><button class="btn" onclick="selMode(true)">Marcar fetes</button></div>`;
+    : `<div class="selbar"><a class="btn" href="#/exercicis">Exercicis</a><span class="grow"></span><button class="btn" onclick="selMode(true)">Marcar fetes</button></div>`;
   return `<h2>Sessions</h2>
   <div class="card progcard"><div class="row"><span class="grow"><b>${fetes.length}</b> de ${ss.length} sessions fetes</span><span class="pct">${ss.length ? Math.round(100 * fetes.length / ss.length) : 0}%</span></div>
     <div class="pbar"><i style="width:${ss.length ? 100 * fetes.length / ss.length : 0}%"></i></div></div>
@@ -2660,8 +2658,8 @@ function pintaPantalla() {
   else if (r === 'f') { html = viewList(arg); tab = 'entrenos'; }
   else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
   else if (r === 'config') { html = viewConfig(); tab = ''; title = 'Configuració'; }
-  else if (r === 'exercicis') { html = viewBiblio(); tab = 'exercicis'; title = 'Exercicis'; }
-  else if (r === 'e') { html = viewExercici(arg); tab = 'exercicis'; title = arg; }
+  else if (r === 'exercicis') { html = viewBiblio(); tab = 'entrenos'; title = 'Exercicis'; }
+  else if (r === 'e') { html = viewExercici(arg); tab = 'entrenos'; title = arg; }
   else if (r === 'j') { html = viewJugador(arg); tab = 'assistencia'; title = 'Jugador'; }
   else if (r === 'partits') { html = viewPartits(); tab = 'partits'; title = 'Partits'; }
   else if (r === 'p') { html = viewPartit(arg); tab = 'partits'; title = 'Partit'; }
@@ -2672,8 +2670,7 @@ function pintaPantalla() {
   $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">${ICO.inici}</span>Inici</a>
     <a href="#/entrenos" data-t="entrenos"><span class="ico">${ICO.pista}</span>Sessions</a>
     <a href="#/assistencia" data-t="assistencia"><span class="ico">${ICO.ass}</span>Assistència</a>
-    <a href="#/partits" data-t="partits"><span class="ico">${ICO.partits}</span>Partits</a>
-    <a href="#/exercicis" data-t="exercicis"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 1.5Z"/><path d="M4 19.5A2 2 0 0 0 6 21h13v-3"/><path d="M9 7h6"/></svg></span>Exercicis</a>`;
+    <a href="#/partits" data-t="partits"><span class="ico">${ICO.partits}</span>Partits</a>`;
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
   if (a && (a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
