@@ -758,6 +758,8 @@ const gcfg = () => grups()[grupDe(TEMP)] || grups()[GP];
 const club = () => gcfg().club || '';
 const dosEq = () => +(gcfg().nEq || 2) === 2;            // 2 equips de partit (Negre i Groc) o 1 de sol
 const tempNom = t => CFG.temporades[t]?.nom || t;
+const anyDe = t => t.split(' · ')[0];                                  // «26-27 · infantil masculí» -> «26-27»
+const tempDe = (g, a) => Object.keys(CFG.temporades).find(x => grupDe(x) === g && anyDe(x) === a);
 const fam = s => s.codi.slice(0, 2);
 const diesDe = f => Object.keys(tcfg().dies).filter(d => tcfg().dies[d] === f).map(Number).sort();
 const famLabel = f => diesDe(f).map(d => DIES[d]).join(' i ') || (f === 'DT' ? 'Sessions DT' : 'Sessions DJ');
@@ -2352,11 +2354,20 @@ function viewConfig() {
   const t = store.get('volei.tema', 'auto');
   const temaHtml = `<h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>`;
   if (!CLAU) return `<h2>Configuració</h2>${temaHtml}<h3>El teu compte</h3>${USR ? `<div class="card row"><span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')}</div></span><button class="btn" onclick="surt()">Surt</button></div>` : `<div class="card"><button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button></div>`}`;
-  const g = grupDe(TEMP), G = grups(), ts = Object.keys(CFG.temporades).filter(x => grupDe(x) === g).sort();
+  const g = grupDe(TEMP), G = grups(), any = anyDe(TEMP);
+  const anys = [...new Set(Object.keys(CFG.temporades).filter(x => rolDe(grupDe(x))).map(anyDe))].sort();
+  const eqs = Object.entries(G).filter(([k]) => rolDe(k) && tempDe(k, any));
   return `<h2>Configuració</h2>
+  <h3>Temporada</h3>
+  <div class="card">
+    <div class="seg" style="margin:0">${anys.map(a => `<button class="${a === any ? 'on' : ''}" onclick="triaAny('${esc(a)}')">${esc(a)}</button>`).join('')}</div>
+    <details style="margin-top:12px"><summary class="meta" style="cursor:pointer">＋ Crear una temporada nova</summary>
+    <div class="row" style="margin-top:8px"><input type="text" id="noutemp" placeholder="Per exemple 27-28"><button class="btn primary" onclick="newTemp()">Crea-la</button></div>
+    <p class="meta" style="margin:8px 0 0">Es crea per a l'equip <b>${esc(gcfg().nom || '')}</b>, amb els jugadors que no has tret i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p></details>
+  </div>
   <h3>Equip</h3>
   <div class="card">
-    ${Object.keys(G).filter(k => rolDe(k)).length > 1 ? `<div class="seg" style="margin:0 0 6px">${Object.entries(G).filter(([k]) => rolDe(k)).map(([k, x]) => `<button class="${k === g ? 'on' : ''}" onclick="triaGrup('${k}')">${esc(x.nom)}</button>`).join('')}</div>` : ''}
+    ${eqs.length > 1 ? `<div class="seg" style="margin:0 0 6px">${eqs.map(([k, x]) => `<button class="${k === g ? 'on' : ''}" onclick="setTemp('${esc(tempDe(k, any))}')">${esc(x.nom)}</button>`).join('')}</div>` : ''}
     <label class="lbl">Nom de l'equip</label><input type="text" id="gnom" value="${esc(gcfg().nom || '')}" onchange="setGrup('nom', this.value)">
     <label class="lbl">Club</label><input type="text" id="club" value="${esc(club())}" placeholder="Per exemple Sant Pere" onchange="setGrup('club', this.value)">
     <label class="lbl">Equips de partit</label>
@@ -2364,23 +2375,15 @@ function viewConfig() {
     <p class="meta" style="margin:8px 0 0">El club surt als pròxims partits («${esc(club() || 'Sant Pere')}${dosEq() ? ' Groc' : ''} vs Aloges»).</p>
     <div class="actions"><button class="btn" style="flex:1" onclick="nouGrup()">＋ Afegir un altre equip</button></div>
   </div>
-  <h3>Temporada</h3>
-  <div class="card">
-    <div class="seg" style="margin:0">${ts.map(x => `<button class="${x === TEMP ? 'on' : ''}" onclick="setTemp('${esc(x)}')">${esc(tempNom(x))}</button>`).join('')}</div>
-    <details style="margin-top:12px"><summary class="meta" style="cursor:pointer">＋ Crear una temporada nova</summary>
-    <div class="row" style="margin-top:8px"><input type="text" id="noutemp" placeholder="Per exemple 27-28 o 26-27 masculí infantil"><button class="btn primary" onclick="newTemp()">Crea-la</button></div>
-    <p class="meta" style="margin:8px 0 0">Comença amb l'equip actual (els que no has tret) i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p></details>
-  </div>
-  <h3>Dies d'entreno ${esc(tempNom(TEMP))}</h3>
+  <h3>Dies d'entreno</h3>
   <div class="card">${[1, 2, 3, 4, 5].map(d => `<div class="cfgday"><span>${DIES[d]}</span>
     <div class="seg mini">${[['', 'No'], ['DT', '1 pista'], ['DJ', '2 pistes']].map(([v, l]) => `<button class="${(tcfg().dies[d] || '') === v ? 'on' : ''}" onclick="setDia(${d}, '${v}')">${l}</button>`).join('')}</div></div>`).join('')}
     <p class="meta" style="margin:8px 0 0">Els dies d'1 pista fan les sessions DT i els de 2 pistes les DJ.</p>
   </div>
   ${temaHtml}
-  ${viewPersones()}
-  <h3>El teu compte</h3>
+  ${USR && esAdmin() ? viewPersones() : `<h3>El teu compte</h3>
   ${USR ? `<div class="card row">${USR.photoURL ? `<img class="foto" src="${esc(USR.photoURL)}" alt="">` : ''}<span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')} ${rolActual() ? '(' + ROLS[rolActual()] + ')' : ''}</div></span><button class="btn" onclick="surt()">Surt</button></div>`
-    : `<div class="card"><b>Encara entres amb la clau d'aquest mòbil.</b><div class="meta">Entra amb el teu compte de Google: així podràs convidar altres entrenadors i entrar des de qualsevol mòbil.</div><div class="actions"><button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button></div></div>`}`;
+    : `<div class="card"><b>Encara entres amb la clau d'aquest mòbil.</b><div class="meta">Entra amb el teu compte de Google: així podràs convidar altres entrenadors i entrar des de qualsevol mòbil.</div><div class="actions"><button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button></div></div>`}`}`;
 }
 // persones de l'espai (només administradors): rol a cada equip, treure, convidar
 function viewPersones() {
@@ -2388,10 +2391,10 @@ function viewPersones() {
   const G = grups();
   return `<h3>Persones</h3>
   <div class="card">
-    ${MEMBRES.map(m => `<div class="memb"><div class="row">${m.foto ? `<img class="foto sm" src="${esc(m.foto)}" alt="">` : `<span class="av" style="--h:${hue(m.nom || m.email || '')}">${esc(inicials(m.nom || m.email))}</span>`}
+    ${[...MEMBRES].sort((a, b) => (b.uid === USR.uid) - (a.uid === USR.uid)).map(m => `<div class="memb"><div class="row">${m.foto ? `<img class="foto sm" src="${esc(m.foto)}" alt="">` : `<span class="av" style="--h:${hue(m.nom || m.email || '')}">${esc(inicials(m.nom || m.email))}</span>`}
       <span class="grow"><b>${esc(m.nom || m.email || 'Sense nom')}</b>${m.uid === USR.uid ? ' <small class="meta">(tu)</small>' : ''}<div class="meta">${esc(m.email || '')}${m.pendent && !Object.keys(m.rols || {}).length ? ' <b class="red">pendent de permís</b>' : ''}</div></span>
-      ${m.uid !== USR.uid ? `<button class="mini" title="Treu-lo" onclick="treuMembre('${m.uid}')">✕</button>` : ''}</div>
-      <div class="mrols">${Object.entries(G).map(([g, x]) => `<label>${esc(x.nom)}</label><select ${m.uid === USR.uid ? 'disabled' : ''} onchange="posaRol('${m.uid}','${g}',this.value)"><option value="">Cap accés</option>${Object.entries(ROLS).map(([k, t]) => `<option value="${k}" ${(m.rols || {})[g] === k ? 'selected' : ''}>${t}</option>`).join('')}</select>`).join('')}</div></div>`).join('')}
+      ${m.uid !== USR.uid ? `<button class="mini" title="Treu-lo" onclick="treuMembre('${m.uid}')">✕</button>` : `<button class="btn" onclick="surt()">Surt</button>`}</div>
+      ${m.uid === USR.uid ? '' : `<div class="mrols">${Object.entries(G).map(([g, x]) => `<label>${esc(x.nom)}</label><select ${m.uid === USR.uid ? 'disabled' : ''} onchange="posaRol('${m.uid}','${g}',this.value)"><option value="">Cap accés</option>${Object.entries(ROLS).map(([k, t]) => `<option value="${k}" ${(m.rols || {})[g] === k ? 'selected' : ''}>${t}</option>`).join('')}</select>`).join('')}</div>`}</div>`).join('')}
     <div class="actions"><button class="btn primary" style="flex:1" onclick="convida()">＋ Convida algú</button></div>
     <p class="meta" style="margin:8px 0 0"><b>Administrador</b>: ho pot fer tot, també convidar. <b>Entrenador</b>: ho pot editar tot de l'equip. <b>Només mirar</b>: ho veu però no pot canviar res. <b>Família</b>: només veu els partits (dia, hora i lloc) i les fotos.</p>
   </div>`;
@@ -2426,11 +2429,15 @@ window.triaGrup = g => {
   const ts = Object.keys(CFG.temporades).filter(x => grupDe(x) === g).sort();
   const t = store.get('volei.temp.' + g, null); setTemp(ts.includes(t) ? t : ts[ts.length - 1]);
 };
+window.triaAny = a => {
+  const t = tempDe(grupDe(TEMP), a) || Object.keys(CFG.temporades).find(x => anyDe(x) === a && rolDe(grupDe(x)));
+  if (t) setTemp(t);
+};
 window.nouGrup = async (prev = {}) => {
   const ok = await dialeg(`<b>Equip nou</b><br><small>Totalment a part: jugadors, assistència, partits, dies d'entreno i sessions propis. Començarà buit.</small>
     <div class="form"><label class="lbl">Nom de l'equip</label><input type="text" id="nougrup" placeholder="Per exemple Masculí infantil" value="${esc(prev.nom || '')}">
     <label class="lbl">Club</label><input type="text" id="nouclub" placeholder="Nom del club" value="${esc(prev.cl || '')}">
-    <label class="lbl">Temporada</label><input type="text" id="noutempg" value="${esc(prev.tp || tempNom(TEMP).split(' ')[0])}"></div>`, { ok: 'Crea l\'equip', ico: '🏐' });
+    <label class="lbl">Temporada</label><input type="text" id="noutempg" value="${esc(prev.tp || anyDe(TEMP))}"></div>`, { ok: 'Crea l\'equip', ico: '🏐' });
   if (!ok) return;
   const nom = $('#nougrup').value.trim(), cl = $('#nouclub').value.trim(), tp = $('#noutempg').value.trim();
   if (nom.length < 2 || /[\/\\'"`]/.test(nom + tp) || !tp) { await dialeg('Posa el nom de l\'equip i la temporada, sense barres ni cometes.', { sol: true }); return nouGrup({ nom, cl, tp }); }
