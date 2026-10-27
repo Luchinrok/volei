@@ -1247,6 +1247,33 @@ window.goLlista = () => {
   location.hash = '#/assistencia';
 };
 
+// tots els entrenaments junts (dimarts i dijous barrejats), en ordre de calendari: primer els pròxims
+function viewEntrenos() {
+  const fs_ = ['DT', 'DJ'].filter(f => diesDe(f).length);
+  const ord = {}; (D?.calendari || []).forEach((c, i) => { ord[c.dimarts] = 2 * i; ord[c.dijous] = 2 * i + 1; });
+  const pos = s => ord[s.codi] ?? 2 * num(s.codi) + (fam(s) === 'DJ');
+  const ss = D.sessions.filter(s => fs_.includes(fam(s))).sort((a, b) => pos(a) - pos(b));
+  // pròxim dia d'entreno de cada família (avui inclòs), per posar-les en l'ordre en què toquen
+  const avui = new Date(); avui.setHours(0, 0, 0, 0); const w = avui.getDay() || 7;
+  const quan = f => Math.min(...diesDe(f).map(d => (d - w + 7) % 7));
+  const px = fs_.map(f => ({ s: next(f), f, d: quan(f) })).filter(x => x.s).sort((a, b) => a.d - b.d);
+  const dataTxt = d => { const x = new Date(avui); x.setDate(x.getDate() + d); return d === 0 ? 'Avui' : d === 1 ? 'Demà' : `${DIES[x.getDay()]} ${x.getDate()}/${x.getMonth() + 1}`; };
+  const fetes = ss.filter(s => isFet(s.codi)), perFer = ss.filter(s => !isFet(s.codi) && !px.some(x => x.s.codi === s.codi));
+  const bar = !CLAU ? '' : sel
+    ? `<div class="selbar"><span class="grow">${sel.size} seleccionades</span>
+        <button class="btn" onclick="selMode(false)">Cancel·la</button></div>
+       <div class="selbar bottom"><button class="btn primary" onclick="markSel(true)" ${sel.size ? '' : 'disabled'}>✓ Marca com a fetes</button>
+        <button class="btn" onclick="markSel(false)" ${sel.size ? '' : 'disabled'}>Com a no fetes</button></div>`
+    : `<div class="selbar"><span class="grow"></span><button class="btn" onclick="selMode(true)">Marcar fetes</button></div>`;
+  return `<h2>Entrenaments</h2>
+  <div class="card progcard"><div class="row"><span class="grow"><b>${fetes.length}</b> de ${ss.length} sessions fetes</span><span class="pct">${ss.length ? Math.round(100 * fetes.length / ss.length) : 0}%</span></div>
+    <div class="pbar"><i style="width:${ss.length ? 100 * fetes.length / ss.length : 0}%"></i></div></div>
+  ${bar}
+  ${px.length ? `<h3>Pròxims</h3><div class="list">${px.map(x => `<p class="meta" style="margin:6px 2px 2px">${dataTxt(x.d)} · ${PISTES[x.f]}</p>${sessRow(x.s, true)}`).join('')}</div>` : ''}
+  ${perFer.length ? `<h3>Després</h3><div class="list">${perFer.map(s => sessRow(s)).join('')}</div>` : ''}
+  ${fetes.length ? `<details ${sel ? 'open' : ''} style="margin-top:14px"><summary class="meta" style="cursor:pointer">Fetes (${fetes.length})</summary><div class="list" style="margin-top:8px">${fetes.map(s => sessRow(s)).join('')}</div></details>` : ''}`;
+}
+
 function viewList(dia) {
   const ss = D.sessions.filter(s => fam(s) === dia).sort((a, b) => num(a.codi) - num(b.codi));
   const bar = !CLAU ? '' : sel
@@ -2618,15 +2645,16 @@ function render() {
 function pintaPantalla() {
   if (!D) return;
   let [r, arg] = location.hash.replace(/^#\/?/, '').split('/');
-  if (r === 'dimarts') { r = 'f'; arg = 'DT'; } else if (r === 'dijous') { r = 'f'; arg = 'DJ'; }   // enllaços antics
+  if (r === 'dimarts' || r === 'dijous' || r === 'f') r = 'entrenos';   // enllaços antics (abans hi havia una pestanya per a dimarts i una per a dijous)
   let html, tab = 'inici', title = (Object.keys(grups()).length > 1 ? gcfg().nom : 'Vòlei') + ' ' + tempNom(TEMP);
   // sense equip, o amb una invitació per acceptar i sense compte: pantalla d'entrada
   if (!USR && (NOMES_COMPTES || (r !== 'config' && (!CLAU || store.get('volei.invitacio', null))))) { html = viewEntra(); title = 'Vòlei'; }
   else if (USR && (!CLAU || (MEM && !rolActual() && (r !== 'config' || !Object.values(MEM.rols || {}).some(Boolean))))) { html = sensePermis(); }
   else if (esFam()) { html = r === 'fotos' ? viewFotos(arg) : r === 'config' ? viewConfigFam() : viewFamilia(); tab = ''; if (r === 'fotos') title = 'Fotos'; }
   else if (r === 'fotos') { html = viewFotos(arg); tab = 'partits'; title = 'Fotos'; }
-  else if (r === 's') { html = viewSession(arg); tab = byCode(arg) ? fam(byCode(arg)) : ''; title = arg; }
-  else if (r === 'f') { html = viewList(arg); tab = arg; }
+  else if (r === 's') { html = viewSession(arg); tab = byCode(arg) ? 'entrenos' : ''; title = arg; }
+  else if (r === 'entrenos') { html = viewEntrenos(); tab = 'entrenos'; title = 'Entrenaments'; }
+  else if (r === 'f') { html = viewList(arg); tab = 'entrenos'; }
   else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
   else if (r === 'config') { html = viewConfig(); tab = ''; title = 'Configuració'; }
   else if (r === 'exercicis') { html = viewBiblio(); tab = 'exercicis'; title = 'Exercicis'; }
@@ -2639,7 +2667,7 @@ function pintaPantalla() {
   else html = viewHome();
   $('#tabs').hidden = $('#tbtn').hidden = USR && esFam();
   $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">${ICO.inici}</span>Inici</a>
-    ${['DT', 'DJ'].filter(f => diesDe(f).length).map(f => `<a href="#/f/${f}" data-t="${f}"><span class="ico">${f === 'DT' ? ICO.pista : ICO.pistes}</span>${diesDe(f).map(d => CURT[d]).join('+') === 'Dt' ? 'Dimarts' : diesDe(f).map(d => CURT[d]).join('+') === 'Dj' ? 'Dijous' : diesDe(f).length === 1 ? DIES[diesDe(f)[0]] : diesDe(f).map(d => CURT[d]).join(' + ')}</a>`).join('')}
+    <a href="#/entrenos" data-t="entrenos"><span class="ico">${ICO.pista}</span>Entrenaments</a>
     <a href="#/assistencia" data-t="assistencia"><span class="ico">${ICO.ass}</span>Assistència</a>
     <a href="#/partits" data-t="partits"><span class="ico">${ICO.partits}</span>Partits</a>
     <a href="#/exercicis" data-t="exercicis"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 1.5Z"/><path d="M4 19.5A2 2 0 0 0 6 21h13v-3"/><path d="M9 7h6"/></svg></span>Exercicis</a>`;
