@@ -1265,7 +1265,7 @@ function viewEntrenos() {
        <div class="selbar bottom"><button class="btn primary" onclick="markSel(true)" ${sel.size ? '' : 'disabled'}>✓ Marca com a fetes</button>
         <button class="btn" onclick="markSel(false)" ${sel.size ? '' : 'disabled'}>Com a no fetes</button></div>`
     : `<div class="selbar"><span class="grow"></span><button class="btn" onclick="selMode(true)">Marcar fetes</button></div>`;
-  return `<h2>Entrenaments</h2>
+  return `<h2>Sessions</h2>
   <div class="card progcard"><div class="row"><span class="grow"><b>${fetes.length}</b> de ${ss.length} sessions fetes</span><span class="pct">${ss.length ? Math.round(100 * fetes.length / ss.length) : 0}%</span></div>
     <div class="pbar"><i style="width:${ss.length ? 100 * fetes.length / ss.length : 0}%"></i></div></div>
   ${bar}
@@ -2653,7 +2653,7 @@ function pintaPantalla() {
   else if (esFam()) { html = r === 'fotos' ? viewFotos(arg) : r === 'config' ? viewConfigFam() : viewFamilia(); tab = ''; if (r === 'fotos') title = 'Fotos'; }
   else if (r === 'fotos') { html = viewFotos(arg); tab = 'partits'; title = 'Fotos'; }
   else if (r === 's') { html = viewSession(arg); tab = byCode(arg) ? 'entrenos' : ''; title = arg; }
-  else if (r === 'entrenos') { html = viewEntrenos(); tab = 'entrenos'; title = 'Entrenaments'; }
+  else if (r === 'entrenos') { html = viewEntrenos(); tab = 'entrenos'; title = 'Sessions'; }
   else if (r === 'f') { html = viewList(arg); tab = 'entrenos'; }
   else if (r === 'assistencia') { html = viewAssistencia(); tab = 'assistencia'; title = 'Assistència'; }
   else if (r === 'config') { html = viewConfig(); tab = ''; title = 'Configuració'; }
@@ -2667,7 +2667,7 @@ function pintaPantalla() {
   else html = viewHome();
   $('#tabs').hidden = $('#tbtn').hidden = USR && esFam();
   $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">${ICO.inici}</span>Inici</a>
-    <a href="#/entrenos" data-t="entrenos"><span class="ico">${ICO.pista}</span>Entrenaments</a>
+    <a href="#/entrenos" data-t="entrenos"><span class="ico">${ICO.pista}</span>Sessions</a>
     <a href="#/assistencia" data-t="assistencia"><span class="ico">${ICO.ass}</span>Assistència</a>
     <a href="#/partits" data-t="partits"><span class="ico">${ICO.partits}</span>Partits</a>
     <a href="#/exercicis" data-t="exercicis"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 1.5Z"/><path d="M4 19.5A2 2 0 0 0 6 21h13v-3"/><path d="M9 7h6"/></svg></span>Exercicis</a>`;
