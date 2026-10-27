@@ -958,8 +958,12 @@ let nofEdit = null;   // {id, motiu, text} mentre s'omple el formulari de "no l'
 let EXS = null, EXEST = [], bibFam = '', bibOri = '';
 // exercicis estàndard (clàssics que fa tothom, redactats per Claude): web/data/estandard.json
 fetch('data/estandard.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXEST = d; d.forEach(e => { ORI[e.codi] = 'estandard'; }); render(); }).catch(() => {});
-const RETIRATS = ['S4'];                               // retirats de la biblioteca (S4: redundant amb S9, 26-10-2026)
-const exercicis = () => [...(D?.exercicis?.length ? D.exercicis : EXS || []), ...EXEST].filter(e => !RETIRATS.includes(e.codi));
+// retirats de la biblioteca (S4: redundant amb S9, 26-10-2026; la resta, inventats per Claude que no funcionen, 27-10-2026)
+const RETIRATS = ['S4', 'D25', 'D31', 'R16', 'J24', 'J30',
+  'D23', 'D27', 'D28', 'D29', 'B28', 'B29', 'B31', 'B34', 'B36', 'B38', 'B39', 'R17', 'R18', 'R24',
+  'S12', 'S13', 'S14', 'S16', 'BL12', 'BL13', 'BL14', 'C15', 'J22', 'G14', 'G15', 'G16', 'G17', 'G19', 'G22', 'G23', 'G24'];
+const totsExs = () => [...(D?.exercicis?.length ? D.exercicis : EXS || []), ...EXEST];
+const exercicis = () => totsExs().filter(e => !RETIRATS.includes(e.codi));
 function carregaExs() { if (EXS || D?.exercicis?.length) return; EXS = []; fetch('data/sessions.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXS = d.exercicis || []; render(); }).catch(() => {}); }
 // on surt cada exercici (sessions d'aquest equip, en ordre de calendari)
 function usosExs() {
@@ -997,10 +1001,11 @@ window.bibFiltra = q => {
 };
 function viewExercici(c) {
   carregaExs();
-  const e = exercicis().find(x => x.codi === c); if (!e) return exercicis().length ? `<p class="empty">No trobo l'exercici ${esc(c)}.</p>` : '<p class="empty">Carregant…</p>';
+  const e = totsExs().find(x => x.codi === c); if (!e) return exercicis().length ? `<p class="empty">No trobo l'exercici ${esc(c)}.</p>` : '<p class="empty">Carregant…</p>';
   const us = usosExs()[c] || [];
   return `<div class="shead"><span class="code fam f-${e.fam}" style="font-size:18px;padding:6px 10px">${e.codi}</span><h2>${esc(e.nom)}</h2></div>
   <div class="tags"><span class="meta">${esc(e.famNom || FAM[e.fam] || '')}</span>${ORI[e.codi] ? ` <span class="tag ori-${ORI[e.codi]}">${ORIT[ORI[e.codi]]}</span>` : ''}${e.pistes ? ` <span class="meta">· ${e.pistes === '2' ? '2 pistes' : e.pistes === '1' ? '1 pista' : '1 o 2 pistes'}</span>` : ''}</div>
+  ${RETIRATS.includes(e.codi) ? `<p class="card" style="margin:8px 0">Retirat de la biblioteca: no funciona. Es canviarà per un altre a cada sessió on surt, quan es revisi.</p>` : ''}
   ${e.tambe ? `<p class="meta" style="margin:4px 0 8px">També se'n diu: <i>${esc(e.tambe)}</i></p>` : ''}
   ${CLAR[e.codi] ? `<div class="card"><h4 class="clart">Explicació pas a pas</h4>${clarHtml(e.codi)}<p class="meta" style="margin:6px 0 0">Escrita per Claude a partir del text original, per a qui no ha vist mai l'exercici.</p></div><h3>Text original</h3>` : ''}
   <div class="card block f-${e.fam}">${fields(e)}</div>
