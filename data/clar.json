@@ -96,12 +96,12 @@
  },
  "B8": {
   "objectiu": "Desplaçament lateral i tornada al centre per defensar alt.",
-  "organitzacio": "Trios amb tres cons: un llança, un defensa i un recull. Un con al mig i un a cada costat del defensa.",
+  "organitzacio": "Trios amb dos cons, un a cada costat del defensa (al mig no n'hi ha). Un llança, un defensa i un recull.",
   "passos": [
    "El defensa corre al con de la dreta, torna al mig i defensa la pilota que li llancen.",
    "Corre al con de l'esquerra, torna al mig i defensa.",
    "Ronda 1: 10 defenses al mig.",
-   "Ronda 2 (variant): defensar directament als cons."
+   "Ronda 2 (variant): la pilota s'envia a l'altura d'un con i el defensa la defensa allà."
   ],
   "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 2 torns de defensa.",
   "claus": [
@@ -217,10 +217,11 @@
  },
  "B17": {
   "objectiu": "Defensa explosiva després de desplaçar-se enrere i endavant.",
-  "organitzacio": "Trios amb quatre cons: un defensa, un llança i un recull.",
+  "organitzacio": "Trios amb tres cons en triangle: un con enrere al mig (el de sortida) i dos davant, un a l'esquerra i un a la dreta. Un defensa, un llança i un recull.",
   "passos": [
-   "El defensa va d'esquena fins a un con i defensa la pilota que li llancen.",
-   "Torna endavant i defensa una altra pilota.",
+   "El defensa surt del con del mig i avança fins al con de davant a l'esquerra, on defensa la pilota que li llancen.",
+   "Torna al con de sortida.",
+   "Avança fins al con de davant a la dreta i defensa.",
    "8 defenses per jugador, de manera explosiva."
   ],
   "rotacio": "Es rota cada 4 repeticions. Cada jugador fa 2 torns de defensa.",
@@ -291,11 +292,11 @@
  },
  "B23": {
   "objectiu": "Toc de braços controlat a la xarxa, passant-la per sobre i per sota.",
-  "organitzacio": "Cinc parelles a una sola banda de la xarxa, una a cada tram. L'altra meitat del grup fa un altre exercici.",
+  "organitzacio": "Cinc parelles a la xarxa, una a cada tram, amb un jugador a cada banda de la xarxa. L'altra meitat del grup fa un altre exercici.",
   "passos": [
-   "Un passa la pilota de braços per sobre de la xarxa i l'altre per sota, alternant. 20 per parella.",
-   "Progressió 1: un toc de braços i un per sota.",
-   "Progressió 2: un toc, un a la xarxa i un per sobre."
+   "Un jugador passa la pilota de braços per sobre de la xarxa i el company la torna per sota, alternant. 20 per parella.",
+   "Progressió 1: un toc de braços i la pilota passa per sota.",
+   "Progressió 2: un toc, un toc a la xarxa i la pilota passa per sobre."
   ],
   "rotacio": "Les dues meitats del grup s'intercanvien.",
   "claus": []
@@ -653,7 +654,7 @@
   "organitzacio": "Per mitja pista: un que bloqueja i després remata, un que li aguanta una pilota a la xarxa, un col·locador i dos a l'altre camp que continuen la jugada.",
   "passos": [
    "El jugador salta a bloc i toca la pilota que li aguanten.",
-   "La deixen anar i ell fa una curta.",
+   "La deixen anar i ell mateix l'aixeca.",
    "Li col·loquen i remata.",
    "Els dos de l'altre camp continuen la jugada."
   ],
@@ -1511,7 +1512,7 @@
   "organitzacio": "Partits 4x4 a mitja pista, amb una cua de quartets.",
   "passos": [
    "Es juga un partit 4x4 normal a 15 punts.",
-   "Entre un toc i el següent, la pilota pot botar un cop a terra."
+   "Quan la pilota arriba de l'altre camp, pot botar un cop a terra abans del primer toc. Els altres tocs, sense bot."
   ],
   "rotacio": "La cua de quartets entra a cada set.",
   "claus": []
@@ -2127,10 +2128,10 @@
   "objectiu": "Fer el remat sencer apuntant amunt i cap a un objectiu, amb pilota de tennis.",
   "organitzacio": "Per parelles, una pilota de tennis per parella, escampats per la pista. Un remata i l'altre fa d'objectiu.",
   "passos": [
-   "Sense salt: el rematador fa el gest sencer i envia la pilota cap al company, que l'agafa amb els braços estirats amunt.",
-   "Amb salt.",
-   "Amb dues passes i salt.",
-   "Amb dues passes i salt, però el company es desplaça i cal apuntar on és."
+   "Sense salt: el rematador fa el gest sencer i envia la pilota cap al company, que l'agafa amb els braços estirats amunt. 15 remats.",
+   "Amb salt. 15 remats.",
+   "Amb dues passes i salt. 15 remats.",
+   "Amb dues passes i salt, però el company es desplaça i cal apuntar on és. 15 remats."
   ],
   "rotacio": "Canvi de rol cada 15 remats.",
   "claus": [
@@ -2157,7 +2158,8 @@
    "Primera passa: peu esquerre a l'aro, amb les mans davant.",
    "Segona passa: peu dret llarg, amb les mans darrere.",
    "Tercera passa: peu esquerre i salt.",
-   "Primer 10 cops sense pilota, després 10 amb pilota de tennis i finalment 10 amb pilota de vòlei."
+   "Primer 10 cops sense pilota, després 10 amb pilota de tennis i 10 amb pilota de vòlei: el mateix jugador es llança la pilota i la colpeja en saltar.",
+   "Últim pas: un company li col·loca la pilota."
   ],
   "rotacio": "Cada jugador fa la batuda i torna al final de la cua del seu circuit. Ningú espera més de dos torns.",
   "claus": []
@@ -2426,9 +2428,9 @@
   "objectiu": "Encadenar toc de braços, col·locació i remat de canell a la xarxa.",
   "organitzacio": "Per parelles, un a cada banda de la xarxa, repartides per les dues pistes.",
   "passos": [
-   "Toc de braços.",
-   "Col·locació.",
-   "Remat cap a l'altra banda fent el moviment de canell, i continua el company."
+   "Cada jugador fa ell sol els tres tocs: primer un toc de braços per controlar la pilota.",
+   "Després se la col·loca.",
+   "I la remata cap al company de l'altra banda fent el moviment de canell. El company fa el mateix."
   ],
   "rotacio": "",
   "claus": []
