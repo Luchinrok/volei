@@ -627,9 +627,9 @@
  },
  "BL5": {
   "objectiu": "Fer les cobertures quan l'atac troba bloc.",
-  "organitzacio": "Pista 1: sis contra sis i l'entrenador entrant pilotes. Pista 2: la resta fa el mateix a 3x3, entrant-se les pilotes entre ells.",
+  "organitzacio": "Pista 1: sis contra sis. Pista 2: la resta fa el mateix a 3x3.",
   "passos": [
-   "Saque, recepció i col·locació.",
+   "La jugada comença amb un saque fàcil, i després recepció i col·locació.",
    "En comptes de rematar, l'atacant fa una finta dins del propi camp, com si hagués trobat bloc.",
    "Els companys de cobertura l'han d'aixecar.",
    "Es torna a col·locar i llavors es remata normal."
