@@ -96,6 +96,7 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.bibfil { margin: 10px 0; } .bibfil > summary { list-style: none; display: inline-block; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 7px 14px; font-size: 14px; cursor: pointer; } .bibfil > summary::-webkit-details-marker { display: none; }
 .comfi textarea { min-height: 48px; transition: min-height .2s; } .comfi textarea:focus { min-height: 100px; } .comfi .actions { margin-top: 8px; }
 label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
 .selbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
@@ -958,7 +959,7 @@ const MOTIU = { repetitiu: 'Repetitiu', altredia: 'Un altre dia', noviable: 'No 
 let nofEdit = null;   // {id, motiu, text} mentre s'omple el formulari de "no l'hem fet"
 
 // ------------------------------------------------------------------ biblioteca d'exercicis (annex del Word)
-let EXS = null, EXEST = [], bibFam = '', bibOri = '';
+let EXS = null, EXEST = [], bibFam = new Set();   // famílies triades al filtre (cap = totes)
 // exercicis estàndard (clàssics que fa tothom, redactats per Claude): web/data/estandard.json
 fetch('data/estandard.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXEST = d; d.forEach(e => { ORI[e.codi] = 'estandard'; }); render(); }).catch(() => {});
 // retirats de la biblioteca (S4: redundant amb S9, 26-10-2026; la resta, inventats per Claude que no funcionen, 27-10-2026)
@@ -983,18 +984,20 @@ function viewBiblio() {
   carregaExs();
   const es = exercicis(), u = usosExs();
   if (!es.length) return '<p class="empty">Carregant…</p>';
-  const vis = es.filter(e => (!bibFam || e.fam === bibFam));
-  const fil = (v, cur, fn, t) => `<button class="${cur === v ? 'on' : ''}" onclick="${fn}('${v}')">${t}</button>`;
+  const vis = es.filter(e => !bibFam.size || bibFam.has(e.fam));
+  const triades = [...bibFam].map(k => FAM[k].split(/[ ,]/)[0]).join(', ');
   return `<h2>Exercicis <span class="sub">${es.length}</span></h2>
   <input type="search" id="bibq" placeholder="Busca per nom, codi o paraula (p. ex. «paret», «R5», «bloqueig»)" oninput="bibFiltra(this.value)" autocomplete="off">
-  <div class="chips">${fil('', bibFam, 'bibF', 'Tots')}${Object.entries(FAM).map(([k, v]) => fil(k, bibFam, 'bibF', `<b>${k}</b> ${v.split(/[ ,]/)[0]}`)).join('')}</div>
+  <details class="bibfil" ${bibObert ? 'open' : ''} ontoggle="bibObert = this.open"><summary class="btn">Filtra: ${bibFam.size ? esc(triades) : 'tots'} ▾</summary>
+    <div class="card" style="margin-top:6px">${Object.entries(FAM).map(([k, v]) => `<label class="row" style="gap:8px;margin:6px 0"><input type="checkbox" ${bibFam.has(k) ? 'checked' : ''} onchange="bibF('${k}')"> <b>${k}</b> ${esc(v)}</label>`).join('')}
+    ${bibFam.size ? `<div class="actions"><button class="btn" onclick="bibF('')">Mostra'ls tots</button></div>` : ''}</div></details>
   <div id="bibl">${vis.map(e => { const us = u[e.codi] || [], fets = us.filter(isFet);
     return `<a class="card exrow f-${e.fam}" href="#/e/${e.codi}" data-q="${esc(textEx(e))}"><span class="code fam f-${e.fam}">${e.codi}</span>
       <span class="grow"><b>${esc(e.nom)}</b><span class="meta">${us.length ? `${us.length} ${us.length > 1 ? 'sessions' : 'sessió'}${fets.length ? ` · última feta ${fets[fets.length - 1]}` : ''}` : 'No és a cap sessió'}</span></span></a>`; }).join('')}</div>
   <p class="meta" id="bibcap" hidden>Cap exercici amb aquestes paraules.</p>`;
 }
-window.bibF = v => { bibFam = v; render(); };
-window.bibO = v => { bibOri = v; render(); };
+window.bibObert = false;
+window.bibF = v => { if (!v) bibFam.clear(); else bibFam.has(v) ? bibFam.delete(v) : bibFam.add(v); render(); };
 // filtrar sense tornar a pintar la pantalla (perquè no es tanqui el teclat)
 window.bibFiltra = q => {
   const w = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean); let n = 0;
