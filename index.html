@@ -96,6 +96,7 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.comfi textarea { min-height: 48px; transition: min-height .2s; } .comfi textarea:focus { min-height: 100px; } .comfi .actions { margin-top: 8px; }
 label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
 .selbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .selbar .grow { flex: 1; color: var(--muted); font-size: 14px; }
@@ -962,7 +963,7 @@ let EXS = null, EXEST = [], bibFam = '', bibOri = '';
 fetch('data/estandard.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXEST = d; d.forEach(e => { ORI[e.codi] = 'estandard'; }); render(); }).catch(() => {});
 // retirats de la biblioteca (S4: redundant amb S9, 26-10-2026; la resta, inventats per Claude que no funcionen, 27-10-2026)
 const RETIRATS = ['S4', 'D25', 'D31', 'R16', 'J24', 'J30',
-  'D23', 'D27', 'D28', 'D29', 'B28', 'B29', 'B31', 'B32', 'B34', 'B36', 'B38', 'B39', 'R17', 'R18', 'R24',
+  'D23', 'D27', 'D28', 'D29', 'B28', 'B29', 'B31', 'B32', 'B34', 'B37', 'D32', 'S11', 'B36', 'B38', 'B39', 'R17', 'R18', 'R24',
   'S12', 'S13', 'S14', 'S16', 'BL12', 'BL13', 'BL14', 'C15', 'J22', 'G14', 'G15', 'G16', 'G17', 'G19', 'G22', 'G23', 'G24'];
 const totsExs = () => [...(D?.exercicis?.length ? D.exercicis : EXS || []), ...EXEST];
 const exercicis = () => totsExs().filter(e => !RETIRATS.includes(e.codi));
@@ -1322,12 +1323,12 @@ function viewSession(c) {
       <button class="btn ${ordering ? 'primary' : ''}" onclick="toggleOrdering()">${ordering ? 'Fet' : '↕ Canviar l\'ordre'}</button></div>` : ''}
     ${bs.map((b, i) => blockCard(b, s, ordering ? { first: i === 0, last: i === bs.length - 1 } : null)).join('')}
     ${s.notaFinal ? `<p class="note">${esc(s.notaFinal)}</p>` : ''}
-    <h3>Comentaris de l'entreno</h3>
-    ${coms}
-    ${CLAU ? `<div class="card">
-      <textarea id="com" placeholder="Com ha anat? Què canviaries? Quin exercici no heu fet?" oninput="saveDraft('${c}', this.value)">${esc(store.get('volei.draft.' + c, ''))}</textarea>
-      <div class="actions"><button class="btn primary" onclick="sendComment('${c}')">Desa el comentari</button>
-      <button class="btn" onclick="toggleFet('${c}')">${isFet(c) ? '✓ Feta desmarca' : 'Marca-la com a feta'}</button></div>
+    ${coms ? `<h3>Comentaris</h3>${coms}` : ''}
+    ${CLAU ? `<div class="card comfi">
+      <textarea id="com" rows="2" placeholder="Com ha anat? (opcional)" oninput="saveDraft('${c}', this.value)">${esc(store.get('volei.draft.' + c, ''))}</textarea>
+      <div class="actions">${isFet(c)
+        ? `<button class="btn primary" style="flex:1" onclick="sendComment('${c}')">Desa el comentari</button><button class="btn" onclick="toggleFet('${c}')" title="Desmarca-la">✓ Feta</button>`
+        : `<button class="btn primary" style="flex:1" onclick="acabaSessio('${c}')">✓ Feta</button>`}</div>
     </div>` : needKey('escriure comentaris')}`;
 }
 
@@ -1336,6 +1337,8 @@ window.selMode = on => { sel = on ? new Set() : null; render(); };
 window.selAll = f => { D.sessions.filter(s => fam(s) === f).forEach(s => sel.add(s.codi)); render(); };
 window.markSel = fet => { setFets([...sel], fet); if (fet) festa(); sel = null; render(); };
 window.toggleFet = c => { if (!isFet(c)) festa(); setFets([c], !isFet(c)); };
+// marca la sessió com a feta i, si hi ha comentari escrit, el desa alhora
+window.acabaSessio = c => { if ($('#com').value.trim()) sendComment(c); toggleFet(c); };
 window.saveDraft = (c, v) => store.set('volei.draft.' + c, v);
 window.sendComment = c => {
   const txt = $('#com').value.trim();
