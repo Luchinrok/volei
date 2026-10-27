@@ -762,7 +762,7 @@
   "organitzacio": "Els col·locadors a la paret, mentre la resta fa l'altre exercici del bloc.",
   "passos": [
    "20 tocs de dits molt junts contra la paret.",
-   "5 cicles pujant i baixant.",
+   "5 cicles tocant mentre el jugador s'ajup i es torna a aixecar, sense que la pilota pari.",
    "20 tocs amb una sola mà."
   ],
   "rotacio": "",
@@ -815,12 +815,12 @@
  },
  "C7": {
   "objectiu": "Col·locar enllaçant amb una defensa, en un circuit continu.",
-  "organitzacio": "Circuits de tres: un a Z2 (o a Z4), un defensor a Z1 i el col·locador a Z8.",
+  "organitzacio": "Circuits de tres: un a Z2 (o a Z4), un defensa a Z1 (o a Z5) i el col·locador a Z8, que és la posició de Z3 però més endins, al mig de la pista.",
   "passos": [
    "El de Z2 envia la pilota de dits o de remat cap a Z1.",
    "El de Z1 defensa cap a Z8.",
    "El col·locador col·loca a Z2 i el circuit continua. Es fan 5 col·locacions seguides.",
-   "Tres circuits des de Z2 i després tres des de Z4."
+   "Tres circuits des de Z2 i després tres des de Z4, amb el defensa a Z5."
   ],
   "rotacio": "Es rota cada 5 col·locacions.",
   "claus": []
@@ -832,7 +832,7 @@
    "El col·locador col·loca d'esquena a Z2.",
    "El de Z2 passa la pilota per sota de la xarxa a l'altra banda.",
    "El de Z4 de l'altra banda l'aixeca cap al col·locador, que torna a col·locar.",
-   "Es repeteix col·locant cap a Z4."
+   "Es repeteix col·locant de cara cap a Z4. L'aixecada de l'altra banda la continua fent el mateix jugador de Z4."
   ],
   "rotacio": "Es rota cada 5 repeticions. Cada jugador fa 2 torns.",
   "claus": []
@@ -1388,14 +1388,14 @@
  },
  "G3": {
   "objectiu": "Jugar partits curts i competir contra equips del mateix nivell.",
-  "organitzacio": "Quatre o sis equips repartits entre les mitges pistes, tots jugant alhora.",
+  "organitzacio": "Partits 2x2 a mitja pista, tots alhora.",
   "passos": [
    "Cada partit es juga a 10 punts.",
-   "En acabar, es refan els grups: guanyadors amb guanyadors i perdedors amb perdedors.",
+   "En acabar, les parelles que han guanyat juguen contra parelles guanyadores i les que han perdut contra perdedores.",
    "Es torna a jugar a 10 i es tornen a comptar els resultats.",
    "Es fan tres rondes en total."
   ],
-  "rotacio": "Després de cada ronda, els grups es refan segons el resultat.",
+  "rotacio": "Després de cada ronda, es canvia de rival segons el resultat.",
   "claus": []
  },
  "G4": {
@@ -1426,7 +1426,7 @@
  },
  "G6": {
   "objectiu": "Controlar la pilota a la xarxa amb diverses pilotes en joc alhora.",
-  "organitzacio": "La pista es parteix al llarg en dues mitges pistes, amb un 3x3 a cada una i tres pilotes per partida. La resta fa el mateix per parelles al lateral amb dues pilotes.",
+  "organitzacio": "La pista es parteix al llarg en dues mitges pistes, amb un 3x3 a cada una i tres pilotes per partida. La resta, per parelles al lateral, fa el mateix amb dues pilotes: una creua d'un a l'altre i l'altra no.",
   "passos": [
    "A cada 3x3 hi ha tres pilotes en joc, però només una passa de camp a camp.",
    "Les altres dues es passen entre els jugadors del mateix equip, sense creuar la xarxa.",
@@ -1456,19 +1456,19 @@
   "passos": [
    "Es juga un partit normal a 21 punts.",
    "Cada saque fallat resta un punt a l'equip que l'ha fallat.",
-   "Si un equip falla dos saques seguits, el seu marcador torna a zero."
+   "Si un equip falla dos saques seguits seus (encara que entremig hagi sacat el rival), el seu marcador torna a zero."
   ],
   "rotacio": "Els que arbitren i recullen entren a cada set.",
   "claus": []
  },
  "G9": {
   "objectiu": "Rematar a línia.",
-  "organitzacio": "Partits 4x4 a mitja pista, amb una cua de quartets.",
+  "organitzacio": "Partit 6x6 a pista sencera. Els que sobren entren a cada set.",
   "passos": [
    "Es juga un partit normal a 21 punts.",
-   "Els punts que s'aconsegueixen amb un remat a línia (paral·lel a la línia lateral) valen dos."
+   "Els punts que s'aconsegueixen amb un remat a línia (paral·lel a la línia lateral de la pista) valen dos."
   ],
-  "rotacio": "La cua de quartets entra a cada set.",
+  "rotacio": "Els que sobren entren a cada set.",
   "claus": []
  },
  "G10": {
@@ -1484,7 +1484,7 @@
  },
  "G11": {
   "objectiu": "Tocar de braços en 3x3 i competir contra equips del mateix nivell.",
-  "organitzacio": "Sis equips de tres repartits entre les dues mitges pistes.",
+  "organitzacio": "Pensat per a 12 jugadors i dues pistes: equips de tres, tots jugant alhora.",
   "passos": [
    "Es juga 3x3 a un sol toc de braços. L'equip que guanya el punt suma un punt.",
    "En acabar el set a 10, s'ajunten els tres equips amb més punts i es torna a jugar.",
