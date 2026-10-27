@@ -2363,9 +2363,9 @@ function viewConfig() {
     <div class="seg" style="margin:0">${anys.map(a => `<button class="${a === any ? 'on' : ''}" onclick="triaAny('${esc(a)}')">${esc(a)}</button>`).join('')}</div>
     <details style="margin-top:12px"><summary class="meta" style="cursor:pointer">＋ Crear una temporada nova</summary>
     <div class="row" style="margin-top:8px"><input type="text" id="noutemp" placeholder="Per exemple 27-28"><button class="btn primary" onclick="newTemp()">Crea-la</button></div>
-    <p class="meta" style="margin:8px 0 0">Es crea per a l'equip <b>${esc(gcfg().nom || '')}</b>, amb els jugadors que no has tret i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p></details>
+    <p class="meta" style="margin:8px 0 0">Triaràs quins equips d'aquesta temporada hi passen. Cada un hi entra amb els jugadors que no has tret i els mateixos dies d'entreno, sense assistència ni sessions fetes. La d'ara queda guardada i hi pots tornar quan vulguis.</p></details>
   </div>
-  <h3>Equip</h3>
+  <h3>Equips de la temporada ${esc(any)}</h3>
   <div class="card">
     ${eqs.length > 1 ? `<div class="seg" style="margin:0 0 6px">${eqs.map(([k, x]) => `<button class="${k === g ? 'on' : ''}" onclick="setTemp('${esc(tempDe(k, any))}')">${esc(x.nom)}</button>`).join('')}</div>` : ''}
     <label class="lbl">Nom de l'equip</label><input type="text" id="gnom" value="${esc(gcfg().nom || '')}" onchange="setGrup('nom', this.value)">
@@ -2373,9 +2373,9 @@ function viewConfig() {
     <label class="lbl">Equips de partit</label>
     <div class="seg" style="margin:0">${[[1, 'Un sol equip'], [2, 'Dos (Negre i Groc)']].map(([v, l]) => `<button class="${(dosEq() ? 2 : 1) === v ? 'on' : ''}" onclick="setGrup('nEq', ${v})">${l}</button>`).join('')}</div>
     <p class="meta" style="margin:8px 0 0">El club surt als pròxims partits («${esc(club() || 'Sant Pere')}${dosEq() ? ' Groc' : ''} vs Aloges»).</p>
-    <div class="actions"><button class="btn" style="flex:1" onclick="nouGrup()">＋ Afegir un altre equip</button></div>
+    <div class="actions"><button class="btn" style="flex:1" onclick="nouGrup()">＋ Afegir un equip a la ${esc(any)}</button></div>
   </div>
-  <h3>Dies d'entreno</h3>
+  <h3>Dies d'entreno · ${esc(gcfg().nom || '')}</h3>
   <div class="card">${[1, 2, 3, 4, 5].map(d => `<div class="cfgday"><span>${DIES[d]}</span>
     <div class="seg mini">${[['', 'No'], ['DT', '1 pista'], ['DJ', '2 pistes']].map(([v, l]) => `<button class="${(tcfg().dies[d] || '') === v ? 'on' : ''}" onclick="setDia(${d}, '${v}')">${l}</button>`).join('')}</div></div>`).join('')}
     <p class="meta" style="margin:8px 0 0">Els dies d'1 pista fan les sessions DT i els de 2 pistes les DJ.</p>
@@ -2434,13 +2434,12 @@ window.triaAny = a => {
   if (t) setTemp(t);
 };
 window.nouGrup = async (prev = {}) => {
-  const ok = await dialeg(`<b>Equip nou</b><br><small>Totalment a part: jugadors, assistència, partits, dies d'entreno i sessions propis. Començarà buit.</small>
+  const ok = await dialeg(`<b>Equip nou a la temporada ${esc(anyDe(TEMP))}</b><br><small>Totalment a part: jugadors, assistència, partits, dies d'entreno i sessions propis. Començarà buit.</small>
     <div class="form"><label class="lbl">Nom de l'equip</label><input type="text" id="nougrup" placeholder="Per exemple Masculí infantil" value="${esc(prev.nom || '')}">
-    <label class="lbl">Club</label><input type="text" id="nouclub" placeholder="Nom del club" value="${esc(prev.cl || '')}">
-    <label class="lbl">Temporada</label><input type="text" id="noutempg" value="${esc(prev.tp || anyDe(TEMP))}"></div>`, { ok: 'Crea l\'equip', ico: '🏐' });
+    <label class="lbl">Club</label><input type="text" id="nouclub" placeholder="Nom del club" value="${esc(prev.cl || '')}"></div>`, { ok: 'Crea l\'equip', ico: '🏐' });
   if (!ok) return;
-  const nom = $('#nougrup').value.trim(), cl = $('#nouclub').value.trim(), tp = $('#noutempg').value.trim();
-  if (nom.length < 2 || /[\/\\'"`]/.test(nom + tp) || !tp) { await dialeg('Posa el nom de l\'equip i la temporada, sense barres ni cometes.', { sol: true }); return nouGrup({ nom, cl, tp }); }
+  const nom = $('#nougrup').value.trim(), cl = $('#nouclub').value.trim(), tp = anyDe(TEMP);
+  if (nom.length < 2 || /[\/\\'"`]/.test(nom + tp) || !tp) { await dialeg('Posa el nom de l\'equip, sense barres ni cometes.', { sol: true }); return nouGrup({ nom, cl }); }
   const g = 'g' + Date.now().toString(36), key = `${tp} · ${nom}`;
   if (CFG.temporades[key]) { dialeg('Aquest equip ja existeix en aquesta temporada.', { sol: true }); return; }
   await fs.setDoc(cfgRef(), { grups: { [g]: { nom, club: cl, nEq: 1 } }, temporades: { [key]: { nom: tp, grup: g, dies: {}, sessions: '' } } }, { merge: true });
@@ -2454,18 +2453,24 @@ window.setDia = (d, v) => {
   fs.updateDoc(cfgRef(), new fs.FieldPath('temporades', TEMP, 'dies'), dies);   // substitueix el mapa sencer (merge no esborraria dies)
 };
 window.newTemp = async () => {
-  const t = $('#noutemp').value.trim();
-  // el nom és l'identificador de la temporada a Firebase: tot permès menys / \ ' " ` i fins a 40 lletres
-  if (t.length < 2 || t.length > 40 || /[\/\\'"`]/.test(t)) { dialeg('Posa un nom d\'entre 2 i 40 lletres, sense barres ni cometes. Per exemple: 26-27 masculí infantil.', { sol: true }); return; }
-  const g = grupDe(TEMP), key = g === GP ? t : `${t} · ${gcfg().nom}`;
-  if (CFG.temporades[key]) { dialeg('Aquesta temporada ja existeix.', { sol: true }); return; }
-  if (!await dialeg(`Crear la temporada <b>${esc(t)}</b>?`, { ok: 'Crea-la', ico: '🏐' })) return;
-  const nova = { ...tcfg(), nom: t, grup: g }, equip = JUG.filter(j => j.actiu !== false);
-  const ant = TEMP; TEMP = key;
-  await Promise.all(equip.map(j => { const { id, ...dades } = j; return fs.setDoc(ref('jugadors', id), dades); }));
-  TEMP = ant;
-  await fs.setDoc(cfgRef(), { ...(g === GP ? { actual: key } : {}), temporades: { [key]: nova } }, { merge: true });
-  setTemp(key);
+  const t = $('#noutemp').value.trim(), ara = anyDe(TEMP);
+  // el nom és part de l'identificador de cada equip a Firebase: tot permès menys / \ ' " ` i ·
+  if (t.length < 2 || t.length > 20 || /[\/\\'"`·]/.test(t)) { dialeg('Posa un nom d\'entre 2 i 20 lletres, sense barres ni cometes. Per exemple: 27-28.', { sol: true }); return; }
+  if (Object.keys(CFG.temporades).some(x => anyDe(x) === t)) { dialeg('Aquesta temporada ja existeix.', { sol: true }); return; }
+  const eqs = Object.entries(grups()).filter(([g]) => tempDe(g, ara) && ['admin', 'entrenador'].includes(rolDe(g)));
+  if (!await dialeg(`<b>Temporada ${esc(t)}</b><br><small>Quins equips de la ${esc(ara)} hi passen? Els que no marquis, els podràs afegir després com a equip nou.</small>
+    <div class="form">${eqs.map(([g, x]) => `<label class="row" style="gap:8px;margin:6px 0"><input type="checkbox" data-g="${g}" checked> ${esc(x.nom)}</label>`).join('')}</div>`, { ok: 'Crea-la', ico: '🏐' })) return;
+  const tria = [...document.querySelectorAll('#dlg input[data-g]:checked')].map(c => c.dataset.g);
+  if (!tria.length) { dialeg('Marca com a mínim un equip.', { sol: true }); return; }
+  const noves = {};
+  for (const g of tria) {
+    const vella = tempDe(g, ara), key = g === GP ? t : `${t} · ${grups()[g].nom}`;
+    const js = await fs.getDocs(fs.collection(db, 'equips', CLAU, 'temporades', vella, 'jugadors'));
+    await Promise.all(js.docs.filter(d => d.data().actiu !== false).map(d => fs.setDoc(fs.doc(db, 'equips', CLAU, 'temporades', key, 'jugadors', d.id), d.data())));
+    noves[key] = { ...CFG.temporades[vella], nom: t, grup: g };
+  }
+  await fs.setDoc(cfgRef(), { ...(tria.includes(GP) ? { actual: t } : {}), temporades: noves }, { merge: true });
+  setTemp(tempDe(grupDe(TEMP), t) || Object.keys(noves)[0]);
 };
 
 // ---------------------------------------------------------------- cronòmetre
