@@ -963,7 +963,7 @@ let EXS = null, EXEST = [], bibFam = '', bibOri = '';
 fetch('data/estandard.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXEST = d; d.forEach(e => { ORI[e.codi] = 'estandard'; }); render(); }).catch(() => {});
 // retirats de la biblioteca (S4: redundant amb S9, 26-10-2026; la resta, inventats per Claude que no funcionen, 27-10-2026)
 const RETIRATS = ['S4', 'D25', 'D31', 'R16', 'J24', 'J30',
-  'D23', 'D27', 'D28', 'D29', 'B28', 'B29', 'B31', 'B32', 'B34', 'B37', 'D32', 'S11', 'R19', 'R21', 'R23', 'C11', 'BL10', 'BL11', 'C12', 'C13', 'C14', 'C16', 'B36', 'B38', 'B39', 'R17', 'R18', 'R24',
+  'D23', 'D27', 'D28', 'D29', 'B28', 'B29', 'B31', 'B32', 'B34', 'B37', 'D32', 'S11', 'R19', 'R21', 'R23', 'C11', 'BL10', 'BL11', 'C12', 'C13', 'C14', 'C16', 'J21', 'J27', 'B36', 'B38', 'B39', 'R17', 'R18', 'R24',
   'S12', 'S13', 'S14', 'S16', 'BL12', 'BL13', 'BL14', 'C15', 'J22', 'G14', 'G15', 'G16', 'G17', 'G19', 'G22', 'G23', 'G24'];
 const totsExs = () => [...(D?.exercicis?.length ? D.exercicis : EXS || []), ...EXEST];
 const exercicis = () => totsExs().filter(e => !RETIRATS.includes(e.codi));
