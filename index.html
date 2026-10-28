@@ -1450,10 +1450,10 @@ function novaHtml() {
   const ms = MODELS === null ? null : MODELS;
   return `<b>Sessió nova</b><p class="meta" style="margin:6px 0">Comença en blanc, o copia una sessió i la canvies.</p>
     <div class="actions" style="margin:0 0 10px"><button class="btn primary" style="flex:1" onclick="creaSessio()">Comença en blanc</button><button class="btn" style="flex:1" onclick="importaObre()">Importa un fitxer</button></div>
-    <div class="seg" style="margin:0 0 8px"><button class="${novaTab === 'meves' ? 'on' : ''}" onclick="novaTab='meves';novaSessio()">Les meves</button><button class="${novaTab === 'models' ? 'on' : ''}" onclick="novaTab='models';novaSessio()">Modèliques</button></div>
+    <div class="seg" style="margin:0 0 8px"><button class="${novaTab === 'meves' ? 'on' : ''}" onclick="novaTab='meves';novaSessio()">Les meves</button><button class="${novaTab === 'models' ? 'on' : ''}" onclick="novaTab='models';novaSessio()">Compartides</button></div>
     <input type="search" id="sesq" placeholder="Busca una sessió per copiar-la" oninput="sesFiltra(this.value)" autocomplete="off">
     <div id="sesl" style="max-height:42vh;overflow:auto;margin-top:8px">${novaTab === 'meves' ? D.sessions.map(x => filaSes(x, `creaSessio('${x.codi}')`)).join('')
-      : ms === null ? '<p class="meta">Carregant…</p>' : ms.length ? ms.map(x => filaSes(x, `creaSessio(null, '${x.id}')`)).join('') : '<p class="meta">Encara no hi ha cap sessió modèlica. A cada sessió, l\u2019interruptor «Sessió modèlica» la comparteix.</p>'}</div>`;
+      : ms === null ? '<p class="meta">Carregant…</p>' : ms.length ? ms.map(x => filaSes(x, `creaSessio(null, '${x.id}')`)).join('') : '<p class="meta">Encara no hi ha cap sessió compartida. A cada sessió, la casella «Comparteix-la» la posa aquí.</p>'}</div>`;
 }
 window.novaSessio = () => {
   obreFitxa(novaHtml(), `<button class="btn" style="flex:1" onclick="tancaFitxa()">Cancel·la</button>`);
@@ -1772,11 +1772,11 @@ window.posaModel = async (c, on) => {
   const s = byCode(c);
   if (on) await fs.setDoc(fs.doc(db, 'models', modelId(c)), modelDe(s)); else await fs.deleteDoc(fs.doc(db, 'models', modelId(c)));
   await fs.updateDoc(ref('sessions', c), { model: on }); MODELS = null;
-  desat(on ? '✓ Ara és una sessió modèlica' : 'Ja no és modèlica');
+  desat(on ? '✓ Sessió compartida' : 'Ja no es comparteix');
 };
 function capSessio(c) {
   const ll = CLAU ? llistaSessio(c) : '', boto = ll.startsWith('<button'), ed = esFS() && potEditar() ? `<button class="btn" onclick="editaSessio('${c}')">✎ Edita la sessió</button>` : '';
-  const s = byCode(c), mod = esFS() && potEditar() && USR ? `<label class="modchk"><input type="checkbox" ${s.model ? 'checked' : ''} onchange="posaModel('${c}', this.checked)"> Sessió modèlica <span class="meta">(la poden copiar altres equips)</span></label>` : '';
+  const s = byCode(c), mod = esFS() && potEditar() && USR ? `<label class="modchk"><input type="checkbox" ${s.model ? 'checked' : ''} onchange="posaModel('${c}', this.checked)"> Comparteix-la <span class="meta">(la poden copiar altres equips)</span></label>` : '';
   return `${boto || ed ? `<div class="selbar tres">${boto ? ll : ''}${ed}</div>` : ''}${boto ? '' : ll}${mod}`;
 }
 window.passaLlista = c => {
@@ -3042,6 +3042,7 @@ Object.defineProperty(window, 'editEquip', { get: () => editEquip, set: v => { e
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 Object.defineProperty(window, 'sesEd', { get: () => sesEd, set: v => { sesEd = v; } });
 Object.defineProperty(window, 'exEd', { get: () => exEd, set: v => { exEd = v; } });
+Object.defineProperty(window, 'novaTab', { get: () => novaTab, set: v => { novaTab = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
 addEventListener('hashchange', () => { fotoTanca(); const mi = location.hash.match(/^#\/uneix\/([A-Za-z0-9]{24,})\/([A-Za-z0-9]{12,})/); if (mi) { store.set('volei.invitacio', { clau: mi[1], codi: mi[2] }); if (USR) quiSoc(); } sel = null; convDesfes = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; tancaFitxa(); render(); scrollTo(0, 0); });
