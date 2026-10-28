@@ -96,6 +96,7 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], input[type=number], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.btn.compartida { color: var(--si); border-color: var(--si); background: var(--si-soft); }
 .modchk { display: flex; align-items: center; gap: 8px; margin: 2px 2px 10px; font-weight: 600; } .modchk input { width: 18px; height: 18px; } .modchk .meta { font-weight: 400; }
 .avisos { border-left: 4px solid #e8a33d; } .avisos ul { margin: 6px 0 0; padding-left: 18px; } .avisos li { margin: 3px 0; }
 .pills .warnp { color: #c0392b; border-color: #c0392b; }
@@ -1767,6 +1768,7 @@ function llistaSessio(c) {
 const modelId = c => `${USR?.uid}_${TEMP}_${c}`.replace(/[\/\s·]+/g, '_');
 const modelDe = s => ({ per: USR.uid, equip: [club(), gcfg().nom].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(' · '), codi: s.codi, titol: s.titol, min: +s.min || durada(s), nota: s.nota || '', ordre: s.ordre ?? 0,
   blocs: s.blocs.filter(b => !b.tret).map(netBloc), t: Date.now() });
+window.treuModel = async c => { if (await dialeg('Deixar de compartir aquesta sessió?<br><small>Els equips que ja l’hagin copiada es queden la seva còpia.</small>', { ok: 'Deixa de compartir-la' })) posaModel(c, false); };
 window.posaModel = async (c, on) => {
   if (!USR) return desat('Cal entrar amb el compte de Google');
   const s = byCode(c);
@@ -1776,8 +1778,10 @@ window.posaModel = async (c, on) => {
 };
 function capSessio(c) {
   const ll = CLAU ? llistaSessio(c) : '', boto = ll.startsWith('<button'), ed = esFS() && potEditar() ? `<button class="btn" onclick="editaSessio('${c}')">✎ Edita la sessió</button>` : '';
-  const s = byCode(c), mod = esFS() && potEditar() && USR ? `<label class="modchk"><input type="checkbox" ${s.model ? 'checked' : ''} onchange="posaModel('${c}', this.checked)"> Comparteix-la <span class="meta">(la poden copiar altres equips)</span></label>` : '';
-  return `${boto || ed ? `<div class="selbar tres">${boto ? ll : ''}${ed}</div>` : ''}${boto ? '' : ll}${mod}`;
+  const s = byCode(c), mod = esFS() && potEditar() && USR ? (s.model
+    ? `<button class="btn compartida" onclick="treuModel('${c}')" title="Compartida: la poden copiar altres equips">✓ Compartida</button>`
+    : `<button class="btn" onclick="posaModel('${c}', true)" title="Que la puguin copiar altres equips">↗ Comparteix</button>`) : '';
+  return `${boto || ed || mod ? `<div class="selbar tres">${boto ? ll : ''}${ed}${mod}</div>` : ''}${boto ? '' : ll}`;
 }
 window.passaLlista = c => {
   const ja = ASS.find(x => x.id === avui());
