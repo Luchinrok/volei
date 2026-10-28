@@ -96,6 +96,7 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], input[type=number], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.pills .warnp { color: #c0392b; border-color: #c0392b; }
 .abib { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0 0; } .abib select { width: auto; flex: 1; min-width: 140px; padding: 6px 8px; }
 .famchk { display: flex; align-items: center; gap: 10px; margin: 8px 0; white-space: nowrap; } .famchk input { width: 18px; height: 18px; flex: none; } .famchk .code { min-width: 30px; text-align: center; }
 .selbar.tres { gap: 6px; } .selbar.tres > .btn { flex: 1; padding: 9px 6px; text-align: center; text-decoration: none; white-space: nowrap; font-size: 14px; }
@@ -1522,7 +1523,7 @@ function viewSession(c) {
   const totMin = bs.reduce((t, b) => t + (b.min || 0), 0) || 1;
   if (sesEd && sesEd.codi === c) return viewSesEdit();
   return `<div class="shead"><span class="sbadge lg">${badge(s.codi)}</span><h2>${esc(s.titol)}</h2></div>
-    <div class="pills">${esFS() ? '' : `<span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span>`}<span>⏱ ${esFS() ? (s.min || durada(s)) : s.min} min</span><span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
+    <div class="pills">${esFS() ? '' : `<span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span>`}<span>⏱ ${esFS() ? (s.min || durada(s)) : s.min} min</span>${esFS() && s.min && durada(s) !== s.min ? `<span class="warnp">els blocs sumen ${durada(s)}</span>` : ''}<span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
     ${capSessio(c)}
     <div class="tline" title="Minuts de cada bloc">${bs.map(b => `<i class="${famC(b.codi) ? 'f-' + famC(b.codi) : ''}" style="flex:${b.min || 0}"><span>${b.nd ?? b.n ?? ''}</span></i>`).join('')}</div>
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
