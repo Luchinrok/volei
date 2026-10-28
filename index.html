@@ -1349,7 +1349,7 @@ function viewSesEdit() {
       <span class="ord"><button ${i ? '' : 'disabled'} onclick="sesMou(${i},-1)">▲</button><button ${i < e.blocs.length - 1 ? '' : 'disabled'} onclick="sesMou(${i},1)">▼</button><button onclick="sesTreu(${i})" title="Treu el bloc">✕</button></span></div>
     <div class="row" style="gap:8px;margin:6px 0">${b.codi ? `<span class="code fam">${esc(b.codi)}</span><span class="grow"></span><button class="small" onclick="triaEx(${i})">Canvia l'exercici</button>` : `<span class="meta grow">Escrit per tu</span><button class="small" onclick="aBiblioteca(${i})">Guarda'l a la biblioteca</button>`}
       <label class="meta" style="display:flex;align-items:center;gap:4px"><input type="number" inputmode="numeric" min="0" style="width:64px" value="${b.min}" onchange="sesEd.blocs[${i}].min=+this.value||0;render()"> min</label></div>
-    <details ${b.codi ? '' : 'open'}><summary class="meta" style="cursor:pointer">Com es fa, dosi i muntatge</summary>
+    <details ${b.codi && !b.bibViu ? '' : 'open'}><summary class="meta" style="cursor:pointer">Com es fa, dosi i muntatge</summary>
       ${[['com', 'Com es fa'], ['dosi', 'Dosi'], ['muntatge', 'Muntatge'], ['lloc', 'Lloc']].map(([k, l]) => `<label class="lbl">${l}</label><textarea style="min-height:${k === 'com' ? 90 : 50}px" oninput="sesEd.blocs[${i}].${k}=this.value">${esc(b[k])}</textarea>`).join('')}</details>
   </div>`).join('')}
   <div class="actions"><button class="btn" style="flex:1" onclick="triaEx(-1)">＋ Afegeix un exercici</button><button class="btn" onclick="sesBuit()">＋ Escriu-lo tu</button></div>
@@ -1392,14 +1392,16 @@ window.triaFet = (i, k) => {
 // un bloc escrit a mà passa a ser un exercici de la biblioteca (i el bloc hi queda lligat)
 window.aBiblioteca = async i => {
   const b = sesEd.blocs[i]; if (!b.titol.trim()) return desat('Primer posa-li un nom');
+  if (!(b.com || '').trim() && !await dialeg('Encara no has escrit com es fa.<br><small>El pots guardar ara i escriure-ho després: en desar la sessió, el que escriguis també anirà a la biblioteca.</small>', { ok: 'Guarda’l igualment' })) return;
   if (!await dialeg(`<b>Guardar «${esc(b.titol)}» a la biblioteca</b><br><small>El podràs triar en altres sessions.</small><div class="form"><label class="lbl">Família</label>
     <select id="abfam">${Object.entries(FAMC).map(([k, v]) => `<option value="${k}">${k} ${esc(v)}</option>`).join('')}</select></div>`, { ok: 'Guarda-ho', ico: '📚' })) return;
   const fam = $('#abfam').value, n = Math.max(0, ...totsExs().filter(e => e.fam === fam).map(e => +(e.codi.match(/\d+$/) || [0])[0])) + 1, codi = fam + n;
   await fs.setDoc(bibRef(codi), { nom: b.titol.trim(), fam, com: (b.com || '').trim(), dosi: (b.dosi || '').trim(), muntatge: (b.muntatge || '').trim(), nou: true, t: Date.now() });
-  b.codi = codi; desat(`✓ Guardat a la biblioteca com a ${codi}`); render();
+  b.codi = codi; b.bibViu = true; desat(`✓ Guardat a la biblioteca com a ${codi}`); render();
 };
 window.desaSessio = async () => {
   const e = sesEd; if (!e.titol.trim()) return desat('Posa-li un títol');
+  await Promise.all(e.blocs.filter(b => b.bibViu && b.codi).map(b => fs.setDoc(bibRef(b.codi), { nom: b.titol.trim(), com: (b.com || '').trim(), dosi: (b.dosi || '').trim(), muntatge: (b.muntatge || '').trim(), t: Date.now() }, { merge: true })));
   await fs.setDoc(ref('sessions', e.codi), { titol: e.titol.trim(), min: +e.min || 0, nota: e.nota.trim(), notaFinal: e.notaFinal || '', ordre: e.ordre, blocs: e.blocs.map(netBloc), t: Date.now() });
   sesEd = null; desat('✓ Sessió desada'); render();
 };
