@@ -1449,7 +1449,7 @@ const filaSes = (x, on) => `<button class="card exrow" style="width:100%;text-al
 function novaHtml() {
   const ms = MODELS === null ? null : MODELS;
   return `<b>Sessió nova</b><p class="meta" style="margin:6px 0">Comença en blanc, o copia una sessió i la canvies.</p>
-    <button class="btn primary" style="width:100%;margin-bottom:10px" onclick="creaSessio()">Comença en blanc</button>
+    <div class="actions" style="margin:0 0 10px"><button class="btn primary" style="flex:1" onclick="creaSessio()">Comença en blanc</button><button class="btn" style="flex:1" onclick="importaObre()">Importa un fitxer</button></div>
     <div class="seg" style="margin:0 0 8px"><button class="${novaTab === 'meves' ? 'on' : ''}" onclick="novaTab='meves';novaSessio()">Les meves</button><button class="${novaTab === 'models' ? 'on' : ''}" onclick="novaTab='models';novaSessio()">Modèliques</button></div>
     <input type="search" id="sesq" placeholder="Busca una sessió per copiar-la" oninput="sesFiltra(this.value)" autocomplete="off">
     <div id="sesl" style="max-height:42vh;overflow:auto;margin-top:8px">${novaTab === 'meves' ? D.sessions.map(x => filaSes(x, `creaSessio('${x.codi}')`)).join('')
@@ -1461,6 +1461,61 @@ window.novaSessio = () => {
     MODELS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.equip || '').localeCompare(b.equip || '') || (a.ordre ?? 0) - (b.ordre ?? 0));
     if (!$('#dlg').hidden) novaSessio();
   }).catch(() => { MODELS = []; novaSessio(); });
+};
+// ---- importar sessions d'un Excel o CSV: una fila per bloc (Sessió, Exercici, Minuts, Com es fa, Dosi, Muntatge, Codi)
+const XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+const carregaXlsx = () => window.XLSX ? Promise.resolve(window.XLSX) : new Promise((ok, ko) => { const sc = document.createElement('script'); sc.src = XLSX_URL; sc.onload = () => ok(window.XLSX); sc.onerror = ko; document.head.appendChild(sc); });
+const COLS = { sessio: ['sessio', 'sessio titol', 'titol sessio', 'entrenament', 'dia'], titol: ['exercici', 'bloc', 'titol', 'nom'], min: ['minuts', 'min', 'temps', 'durada'],
+  com: ['com es fa', 'com', 'descripcio', 'explicacio'], dosi: ['dosi', 'repeticions'], muntatge: ['muntatge', 'organitzacio'], codi: ['codi'], lloc: ['lloc'] };
+let IMP = null;   // sessions llegides del fitxer, a punt per importar
+window.importaObre = () => obreFitxa(`<b>Importa sessions</b>
+  <p class="meta" style="margin:6px 0">Un Excel o CSV amb <b>una fila per exercici</b>. Columnes: <b>Sessió</b> (les files amb el mateix nom de sessió van juntes, en ordre), <b>Exercici</b>, <b>Minuts</b>, <b>Com es fa</b>, <b>Dosi</b>, <b>Muntatge</b> i, si en té, <b>Codi</b> de la biblioteca.</p>
+  <div class="actions" style="margin:0 0 8px"><button class="btn" style="flex:1" onclick="plantillaImp()">⬇️ Descarrega la plantilla</button></div>
+  <input type="file" id="impf" accept=".xlsx,.xls,.csv,.ods" onchange="importaLlegeix(this.files[0])" style="width:100%">
+  <div id="impv" style="margin-top:10px"></div>`, `<button class="btn" style="flex:1" onclick="tancaFitxa()">Cancel·la</button>`);
+window.plantillaImp = async () => {
+  const X = await carregaXlsx();
+  const files = [['Sessió', 'Exercici', 'Minuts', 'Com es fa', 'Dosi', 'Muntatge', 'Codi'],
+    ['Recepció 1', 'Parelles de dits', 10, 'Per parelles, tocs de dits...', '3 sèries de 20', 'Parelles escampades', ''],
+    ['Recepció 1', 'Papallona de recepció', 15, 'Saque, recepció i objectiu...', '10 recepcions per jugador', 'Tres files a cada camp', 'EB3'],
+    ['Recepció 1', 'Partit 4x4', 20, 'Partit a mitja pista...', 'Sets a 15', 'Dos 4x4', ''],
+    ['Defensa 1', 'Pepper', 10, 'Defensa, col·locació i remat per parelles', '', '', 'EB1']];
+  const wb = X.utils.book_new(); X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(files), 'Sessions'); X.writeFile(wb, 'plantilla-sessions.xlsx');
+};
+window.importaLlegeix = async f => {
+  if (!f) return;
+  const v = $('#impv'); v.innerHTML = '<p class="meta">Llegint…</p>';
+  try {
+    const X = await carregaXlsx(), buf = await f.arrayBuffer();
+    let wb;
+    if (/\.(csv|txt)$/i.test(f.name)) {   // CSV: UTF-8 (o el del Windows si no ho és) i separador ; , o tabulador
+      let txt = new TextDecoder('utf-8').decode(buf); if (txt.includes('\ufffd')) txt = new TextDecoder('windows-1252').decode(buf);
+      const l1 = txt.split(/\r?\n/)[0], sep = [';', '\t', ','].sort((x, y) => l1.split(y).length - l1.split(x).length)[0];
+      wb = X.read(txt.replace(/^\ufeff/, ''), { type: 'string', FS: sep });
+    } else wb = X.read(buf);
+    const rows = X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
+    const cap = (rows[0] || []).map(h => normq(String(h)).replace(/[^a-z ]/g, '').trim()), col = {};
+    Object.entries(COLS).forEach(([k, noms]) => { const i = cap.findIndex(h => noms.includes(h)); if (i >= 0) col[k] = i; });
+    if (col.sessio == null || col.titol == null) { v.innerHTML = '<p class="red">No trobo les columnes <b>Sessió</b> i <b>Exercici</b> a la primera fila.</p>'; return; }
+    const ses = []; let ant = null;
+    rows.slice(1).forEach(r => {
+      const g = k => col[k] == null ? '' : String(r[col[k]] ?? '').trim(), nom = g('sessio') || ant, tit = g('titol');
+      if (!nom || !(tit || g('com'))) return; ant = nom;
+      let x = ses.find(q => q.titol === nom); if (!x) ses.push(x = { titol: nom, blocs: [] });
+      x.blocs.push({ n: x.blocs.length + 1, titol: tit, codi: g('codi').toUpperCase(), min: parseInt(g('min')) || 0, com: g('com'), dosi: g('dosi'), muntatge: g('muntatge'), lloc: g('lloc') });
+    });
+    if (!ses.length) { v.innerHTML = '<p class="red">El fitxer no té cap exercici.</p>'; return; }
+    IMP = ses;
+    v.innerHTML = `<p><b>${ses.length} sessions</b>, ${ses.reduce((t, x) => t + x.blocs.length, 0)} exercicis:</p>
+      <div style="max-height:30vh;overflow:auto">${ses.map(x => `<div class="card" style="padding:8px 10px;margin:4px 0"><b>${esc(x.titol)}</b> <span class="meta">${x.blocs.length} ${x.blocs.length === 1 ? 'exercici' : 'exercicis'} · ${x.blocs.reduce((t, b) => t + b.min, 0)} min</span></div>`).join('')}</div>
+      <div class="actions"><button class="btn primary" style="flex:1" onclick="importaFes()">Importa-les</button></div>`;
+  } catch (e) { registraError(e, 'importa'); v.innerHTML = '<p class="red">No he pogut llegir el fitxer. Ha de ser un Excel (.xlsx) o un CSV.</p>'; }
+};
+window.importaFes = async () => {
+  let n = Math.max(0, ...D.sessions.map(s => /^SE(\d+)$/.exec(s.codi)).filter(Boolean).map(m => +m[1])), ordre = Math.max(0, ...D.sessions.map(s => s.ordre || 0));
+  await Promise.all(IMP.map(x => { n++; ordre += 10; const codi = 'SE' + String(n).padStart(2, '0');
+    return fs.setDoc(ref('sessions', codi), { titol: x.titol, min: x.blocs.reduce((t, b) => t + b.min, 0), nota: '', notaFinal: '', ordre, blocs: x.blocs.map(netBloc), t: Date.now() }); }));
+  desat(`✓ ${IMP.length} sessions importades`); IMP = null; tancaFitxa(); location.hash = '#/entrenos';
 };
 window.sesFiltra = q => { const w = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean); document.querySelectorAll('#sesl [data-q]').forEach(el => { el.hidden = !w.every(x => el.dataset.q.includes(x)); }); };
 window.creaSessio = async (de, model) => {
