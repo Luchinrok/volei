@@ -96,6 +96,7 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], input[type=number], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.abib { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0 0; } .abib select { width: auto; flex: 1; min-width: 140px; padding: 6px 8px; }
 .famchk { display: flex; align-items: center; gap: 10px; margin: 8px 0; white-space: nowrap; } .famchk input { width: 18px; height: 18px; flex: none; } .famchk .code { min-width: 30px; text-align: center; }
 .selbar.tres { gap: 6px; } .selbar.tres > .btn { flex: 1; padding: 9px 6px; text-align: center; text-decoration: none; white-space: nowrap; font-size: 14px; }
 .durbar { padding: 10px 14px; } .durbar.be { color: var(--si); } .durbar.mal { color: #c0392b; }
@@ -1347,10 +1348,12 @@ function viewSesEdit() {
   ${e.blocs.map((b, i) => `<div class="card block ${famC(b.codi) ? 'f-' + famC(b.codi) : ''}">
     <div class="bhead"><span class="bnum">${i + 1}</span><span class="btitle"><input type="text" value="${esc(b.titol)}" placeholder="${b.codi ? 'Títol del bloc' : 'Nom de l&#39;exercici'}" oninput="sesEd.blocs[${i}].titol=this.value"></span>
       <span class="ord"><button ${i ? '' : 'disabled'} onclick="sesMou(${i},-1)">▲</button><button ${i < e.blocs.length - 1 ? '' : 'disabled'} onclick="sesMou(${i},1)">▼</button><button onclick="sesTreu(${i})" title="Treu el bloc">✕</button></span></div>
-    <div class="row" style="gap:8px;margin:6px 0">${b.codi ? `<span class="code fam">${esc(b.codi)}</span><span class="grow"></span><button class="small" onclick="triaEx(${i})">Canvia l'exercici</button>` : `<span class="meta grow">Escrit per tu</span><button class="small" onclick="aBiblioteca(${i})">Guarda'l a la biblioteca</button>`}
+    <div class="row" style="gap:8px;margin:6px 0">${b.codi ? `<span class="code fam">${esc(b.codi)}</span><span class="grow"></span><button class="small" onclick="triaEx(${i})">Canvia l'exercici</button>` : `<span class="meta grow">Escrit per tu</span>`}
       <label class="meta" style="display:flex;align-items:center;gap:4px"><input type="number" inputmode="numeric" min="0" style="width:64px" value="${b.min}" onchange="sesEd.blocs[${i}].min=+this.value||0;render()"> min</label></div>
     <details ${b.codi && !b.bibViu ? '' : 'open'}><summary class="meta" style="cursor:pointer">Com es fa, dosi i muntatge</summary>
       ${[['com', 'Com es fa'], ['dosi', 'Dosi'], ['muntatge', 'Muntatge'], ['lloc', 'Lloc']].map(([k, l]) => `<label class="lbl">${l}</label><textarea style="min-height:${k === 'com' ? 90 : 50}px" oninput="sesEd.blocs[${i}].${k}=this.value">${esc(b[k])}</textarea>`).join('')}</details>
+    ${b.bibViu ? `<p class="meta abib">📚 A la biblioteca com a <b>${esc(b.codi)}</b>. El que escriguis s'hi desarà quan desis la sessió.</p>`
+      : b.codi ? '' : `<div class="abib"><span class="meta">📚 Guarda'l a la biblioteca com a</span><select onchange="aBiblioteca(${i}, this.value)"><option value="">família…</option>${Object.entries(FAMC).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('')}</select></div>`}
   </div>`).join('')}
   <div class="actions"><button class="btn" style="flex:1" onclick="triaEx(-1)">＋ Afegeix un exercici</button><button class="btn" onclick="sesBuit()">＋ Escriu-lo tu</button></div>
   <p class="meta" style="margin:4px 0 0">«Escriu-lo tu» afegeix un bloc que no és de la biblioteca (una explicació, un exercici que només fareu aquell dia…).</p>
@@ -1390,14 +1393,13 @@ window.triaFet = (i, k) => {
   tancaFitxa(); render(); if (i < 0) alNouBloc();
 };
 // un bloc escrit a mà passa a ser un exercici de la biblioteca (i el bloc hi queda lligat)
-window.aBiblioteca = async i => {
-  const b = sesEd.blocs[i]; if (!b.titol.trim()) return desat('Primer posa-li un nom');
-  if (!(b.com || '').trim() && !await dialeg('Encara no has escrit com es fa.<br><small>El pots guardar ara i escriure-ho després: en desar la sessió, el que escriguis també anirà a la biblioteca.</small>', { ok: 'Guarda’l igualment' })) return;
-  if (!await dialeg(`<b>Guardar «${esc(b.titol)}» a la biblioteca</b><br><small>El podràs triar en altres sessions.</small><div class="form"><label class="lbl">Família</label>
-    <select id="abfam">${Object.entries(FAMC).map(([k, v]) => `<option value="${k}">${k} ${esc(v)}</option>`).join('')}</select></div>`, { ok: 'Guarda-ho', ico: '📚' })) return;
-  const fam = $('#abfam').value, n = Math.max(0, ...totsExs().filter(e => e.fam === fam).map(e => +(e.codi.match(/\d+$/) || [0])[0])) + 1, codi = fam + n;
+window.aBiblioteca = async (i, fam) => {
+  const b = sesEd.blocs[i]; if (!fam) return;
+  if (!b.titol.trim()) { desat('Primer posa-li un nom'); return render(); }
+  const n = Math.max(0, ...totsExs().filter(e => e.fam === fam).map(e => +(e.codi.match(/\d+$/) || [0])[0])) + 1, codi = fam + n;
   await fs.setDoc(bibRef(codi), { nom: b.titol.trim(), fam, com: (b.com || '').trim(), dosi: (b.dosi || '').trim(), muntatge: (b.muntatge || '').trim(), nou: true, t: Date.now() });
-  b.codi = codi; b.bibViu = true; desat(`✓ Guardat a la biblioteca com a ${codi}`); render();
+  b.codi = codi; b.bibViu = true; desat(`✓ Guardat a la biblioteca com a ${codi}`);
+  document.activeElement?.blur(); render();
 };
 window.desaSessio = async () => {
   const e = sesEd; if (!e.titol.trim()) return desat('Posa-li un títol');
