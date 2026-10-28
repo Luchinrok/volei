@@ -97,7 +97,7 @@ textarea, input[type=text], input[type=search], input[type=url], input[type=date
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
 .bibfil { margin: 10px 0; } .bibfil > summary { list-style: none; display: inline-block; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 7px 14px; font-size: 14px; cursor: pointer; } .bibfil > summary::-webkit-details-marker { display: none; }
-.comfi textarea { min-height: 48px; transition: min-height .2s; } .comfi textarea:focus { min-height: 100px; } .comfi .actions { margin-top: 8px; }
+.comfi textarea { min-height: 48px; transition: min-height .2s; } .comfi textarea:focus { min-height: 100px; } .comfi .actions { margin-top: 8px; } .comfi .ok { color: var(--si); }
 label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
 .selbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .selbar .grow { flex: 1; color: var(--muted); font-size: 14px; }
@@ -1328,7 +1328,8 @@ function viewSession(c) {
     ${CLAU ? `<div class="card comfi">
       <textarea id="com" rows="2" placeholder="Com ha anat? (opcional)" oninput="saveDraft('${c}', this.value)">${esc(store.get('volei.draft.' + c, ''))}</textarea>
       <div class="actions">${isFet(c)
-        ? `<button class="btn primary" style="flex:1" onclick="sendComment('${c}')">Desa el comentari</button><button class="btn" onclick="toggleFet('${c}')" title="Desmarca-la">✓ Feta</button>`
+        ? `<button class="btn primary" style="flex:1" onclick="sendComment('${c}')">Desa el comentari</button></div>
+      <div class="row" style="margin-top:8px"><span class="grow ok"><b>✓ Sessió feta</b>${FETS[c]?.t ? ` el ${new Date(FETS[c].t).toLocaleDateString('ca')}` : ''}</span><button class="mini" style="width:auto;padding:0 10px" onclick="desmarcaFet('${c}')">Desmarca-la</button>`
         : `<button class="btn primary" style="flex:1" onclick="acabaSessio('${c}')">✓ Feta</button>`}</div>
     </div>` : needKey('escriure comentaris')}`;
 }
@@ -1339,6 +1340,7 @@ window.selAll = f => { D.sessions.filter(s => fam(s) === f).forEach(s => sel.add
 window.markSel = fet => { setFets([...sel], fet); if (fet) festa(); sel = null; render(); };
 window.toggleFet = c => { if (!isFet(c)) festa(); setFets([c], !isFet(c)); };
 // marca la sessió com a feta i, si hi ha comentari escrit, el desa alhora
+window.desmarcaFet = async c => { if (await dialeg(`Desmarcar <b>${c}</b>? Tornarà a sortir com a pendent.`, { ok: 'Desmarca-la' })) setFets([c], false); };
 window.acabaSessio = c => { if ($('#com').value.trim()) sendComment(c); toggleFet(c); };
 window.saveDraft = (c, v) => store.set('volei.draft.' + c, v);
 window.sendComment = c => {
