@@ -96,6 +96,7 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], input[type=number], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.modchk { display: flex; align-items: center; gap: 8px; margin: 2px 2px 10px; font-weight: 600; } .modchk input { width: 18px; height: 18px; } .modchk .meta { font-weight: 400; }
 .avisos { border-left: 4px solid #e8a33d; } .avisos ul { margin: 6px 0 0; padding-left: 18px; } .avisos li { margin: 3px 0; }
 .pills .warnp { color: #c0392b; border-color: #c0392b; }
 .abib { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0 0; } .abib select { width: auto; flex: 1; min-width: 140px; padding: 6px 8px; }
@@ -1436,21 +1437,34 @@ window.aBiblioteca = async (i, fam) => {
 window.desaSessio = async () => {
   const e = sesEd; if (!e.titol.trim()) return desat('Posa-li un títol');
   await Promise.all(e.blocs.filter(b => b.bibViu && b.codi).map(b => fs.setDoc(bibRef(b.codi), { nom: b.titol.trim(), com: (b.com || '').trim(), dosi: (b.dosi || '').trim(), muntatge: (b.muntatge || '').trim(), t: Date.now() }, { merge: true })));
+  if (byCode(e.codi)?.model && USR) fs.setDoc(fs.doc(db, 'models', modelId(e.codi)), modelDe({ ...e, titol: e.titol.trim(), blocs: e.blocs })).catch(er => registraError(er, 'model'));
   await fs.setDoc(ref('sessions', e.codi), { titol: e.titol.trim(), min: +e.min || 0, nota: e.nota.trim(), notaFinal: e.notaFinal || '', ordre: e.ordre, blocs: e.blocs.map(netBloc), t: Date.now() });
   sesEd = null; desat('✓ Sessió desada'); render();
 };
 const nouCodi = () => 'SE' + String(Math.max(0, ...D.sessions.map(s => /^SE(\d+)$/.exec(s.codi)).filter(Boolean).map(m => +m[1])) + 1).padStart(2, '0');
-window.novaSessio = () => {
-  obreFitxa(`<b>Sessió nova</b><p class="meta" style="margin:6px 0">Comença en blanc o copia una sessió que ja tens i la canvies.</p>
+let MODELS = null, novaTab = 'meves';   // sessions modèliques (/models), compartides entre tots els equips
+const normq = t => (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const filaSes = (x, on) => `<button class="card exrow" style="width:100%;text-align:left" data-q="${esc(normq(x.codi + ' ' + x.titol + ' ' + (x.equip || '')))}" onclick="${on}">
+  <span class="sbadge">${badge(x.codi)}</span><span class="grow"><b>${esc(x.titol)}</b><span class="meta">${x.min || durada(x)} min · ${x.blocs.length} blocs${x.equip ? ' · ' + esc(x.equip) : isFet(x.codi) ? ' · feta' : ''}</span></span></button>`;
+function novaHtml() {
+  const ms = MODELS === null ? null : MODELS;
+  return `<b>Sessió nova</b><p class="meta" style="margin:6px 0">Comença en blanc, o copia una sessió i la canvies.</p>
     <button class="btn primary" style="width:100%;margin-bottom:10px" onclick="creaSessio()">Comença en blanc</button>
-    <input type="search" id="sesq" placeholder="O busca una sessió per copiar-la" oninput="sesFiltra(this.value)" autocomplete="off">
-    <div id="sesl" style="max-height:45vh;overflow:auto;margin-top:8px">${D.sessions.map(x => `<button class="card exrow" style="width:100%;text-align:left" data-q="${esc((x.codi + ' ' + x.titol).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''))}" onclick="creaSessio('${x.codi}')">
-      <span class="sbadge">${badge(x.codi)}</span><span class="grow"><b>${esc(x.titol)}</b><span class="meta">${x.min || durada(x)} min · ${x.blocs.length} blocs${isFet(x.codi) ? ' · feta' : ''}</span></span></button>`).join('')}</div>`,
-    `<button class="btn" style="flex:1" onclick="tancaFitxa()">Cancel·la</button>`);
+    <div class="seg" style="margin:0 0 8px"><button class="${novaTab === 'meves' ? 'on' : ''}" onclick="novaTab='meves';novaSessio()">Les meves</button><button class="${novaTab === 'models' ? 'on' : ''}" onclick="novaTab='models';novaSessio()">Modèliques</button></div>
+    <input type="search" id="sesq" placeholder="Busca una sessió per copiar-la" oninput="sesFiltra(this.value)" autocomplete="off">
+    <div id="sesl" style="max-height:42vh;overflow:auto;margin-top:8px">${novaTab === 'meves' ? D.sessions.map(x => filaSes(x, `creaSessio('${x.codi}')`)).join('')
+      : ms === null ? '<p class="meta">Carregant…</p>' : ms.length ? ms.map(x => filaSes(x, `creaSessio(null, '${x.id}')`)).join('') : '<p class="meta">Encara no hi ha cap sessió modèlica. A cada sessió, l\u2019interruptor «Sessió modèlica» la comparteix.</p>'}</div>`;
+}
+window.novaSessio = () => {
+  obreFitxa(novaHtml(), `<button class="btn" style="flex:1" onclick="tancaFitxa()">Cancel·la</button>`);
+  if (novaTab === 'models' && MODELS === null) fs.getDocs(fs.collection(db, 'models')).then(q => {
+    MODELS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.equip || '').localeCompare(b.equip || '') || (a.ordre ?? 0) - (b.ordre ?? 0));
+    if (!$('#dlg').hidden) novaSessio();
+  }).catch(() => { MODELS = []; novaSessio(); });
 };
 window.sesFiltra = q => { const w = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean); document.querySelectorAll('#sesl [data-q]').forEach(el => { el.hidden = !w.every(x => el.dataset.q.includes(x)); }); };
-window.creaSessio = async de => {
-  const o = de && byCode(de), codi = nouCodi(), ordre = Math.max(0, ...D.sessions.map(s => s.ordre || 0)) + 10;
+window.creaSessio = async (de, model) => {
+  const o = model ? MODELS.find(m => m.id === model) : de && byCode(de), codi = nouCodi(), ordre = Math.max(0, ...D.sessions.map(s => s.ordre || 0)) + 10;
   const nova = { titol: o ? o.titol : 'Sessió nova', min: o ? (o.min || durada(o)) : 90, nota: o?.nota || '', notaFinal: o?.notaFinal || '', ordre, blocs: o ? o.blocs.filter(b => !b.tret).map(netBloc) : [] };
   await fs.setDoc(ref('sessions', codi), { ...nova, t: Date.now() });
   tancaFitxa(); location.hash = '#/s/' + codi;
@@ -1694,9 +1708,21 @@ function llistaSessio(c) {
   return `<button class="btn primary" onclick="passaLlista('${c}')">📋 Passar llista</button>`;
 }
 // a dalt de la sessió: passar llista i editar, en una sola fila
+// compartir la sessió com a modèlica: una còpia a /models/{uid}_{temporada}_{codi}, que es manté al dia en desar-la
+const modelId = c => `${USR?.uid}_${TEMP}_${c}`.replace(/[\/\s·]+/g, '_');
+const modelDe = s => ({ per: USR.uid, equip: [club(), gcfg().nom].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(' · '), codi: s.codi, titol: s.titol, min: +s.min || durada(s), nota: s.nota || '', ordre: s.ordre ?? 0,
+  blocs: s.blocs.filter(b => !b.tret).map(netBloc), t: Date.now() });
+window.posaModel = async (c, on) => {
+  if (!USR) return desat('Cal entrar amb el compte de Google');
+  const s = byCode(c);
+  if (on) await fs.setDoc(fs.doc(db, 'models', modelId(c)), modelDe(s)); else await fs.deleteDoc(fs.doc(db, 'models', modelId(c)));
+  await fs.updateDoc(ref('sessions', c), { model: on }); MODELS = null;
+  desat(on ? '✓ Ara és una sessió modèlica' : 'Ja no és modèlica');
+};
 function capSessio(c) {
   const ll = CLAU ? llistaSessio(c) : '', boto = ll.startsWith('<button'), ed = esFS() && potEditar() ? `<button class="btn" onclick="editaSessio('${c}')">✎ Edita la sessió</button>` : '';
-  return `${boto || ed ? `<div class="selbar tres">${boto ? ll : ''}${ed}</div>` : ''}${boto ? '' : ll}`;
+  const s = byCode(c), mod = esFS() && potEditar() && USR ? `<label class="modchk"><input type="checkbox" ${s.model ? 'checked' : ''} onchange="posaModel('${c}', this.checked)"> Sessió modèlica <span class="meta">(la poden copiar altres equips)</span></label>` : '';
+  return `${boto || ed ? `<div class="selbar tres">${boto ? ll : ''}${ed}</div>` : ''}${boto ? '' : ll}${mod}`;
 }
 window.passaLlista = c => {
   const ja = ASS.find(x => x.id === avui());
