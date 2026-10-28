@@ -96,6 +96,7 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], input[type=number], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.famchk { display: flex; align-items: center; gap: 10px; margin: 8px 0; white-space: nowrap; } .famchk input { width: 18px; height: 18px; flex: none; } .famchk .code { min-width: 30px; text-align: center; }
 .selbar.tres { gap: 6px; } .selbar.tres > .btn { flex: 1; padding: 9px 6px; text-align: center; text-decoration: none; white-space: nowrap; font-size: 14px; }
 .durbar { padding: 10px 14px; } .durbar.be { color: var(--si); } .durbar.mal { color: #c0392b; }
 .sesed .btitle input { width: 100%; font: inherit; font-weight: 700; } .sesed .ord button { min-width: 32px; }
@@ -714,6 +715,7 @@ const FB = {
   appId: '1:447113557075:web:8b34eb13e92ce04a8ec2a6'
 };
 const FAM = { D: 'Dits i col·locació', B: 'Braços, recepció i defensa', S: 'Saque', R: 'Remat', BL: 'Bloqueig', C: 'Col·locadors', J: 'Jugada', G: 'Jocs' };
+const FAMC = { D: 'Dits', B: 'Braços i defensa', S: 'Saque', R: 'Remat', BL: 'Bloqueig', C: 'Col·locadors', J: 'Jugades', G: 'Jocs' };   // noms curts per als filtres
 const LABEL = { dosi: 'Dosi', muntatge: 'Muntatge' };
 const EST = { si: 'Ve', avisa: 'Avisa', no: 'No avisa' };
 const ESTI = { si: '✅', avisa: '❌', no: '💀' };
@@ -1010,12 +1012,12 @@ function viewBiblio() {
   const es = exercicis(), u = usosExs();
   if (!es.length) return '<p class="empty">Carregant…</p>';
   const vis = es.filter(e => !bibFam.size || bibFam.has(e.fam));
-  const triades = [...bibFam].map(k => FAM[k].split(/[ ,]/)[0]).join(', ');
+  const triades = [...bibFam].map(k => FAMC[k]).join(', ');
   return `<h2>Exercicis <span class="sub">${es.length}</span></h2>
   ${potEditar() ? `<div class="selbar"><span class="grow"></span><button class="btn" onclick="nouExercici()">＋ Exercici nou</button></div>` : ''}
   <input type="search" id="bibq" placeholder="Busca per nom, codi o paraula (p. ex. «paret», «R5», «bloqueig»)" oninput="bibFiltra(this.value)" autocomplete="off">
   <details class="bibfil" ${bibObert ? 'open' : ''} ontoggle="bibObert = this.open"><summary class="btn">Filtra: ${bibFam.size ? esc(triades) : 'tots'} ▾</summary>
-    <div class="card" style="margin-top:6px">${Object.entries(FAM).map(([k, v]) => `<label class="row" style="gap:8px;margin:6px 0"><input type="checkbox" ${bibFam.has(k) ? 'checked' : ''} onchange="bibF('${k}')"> <b>${k}</b> ${esc(v)}</label>`).join('')}
+    <div class="card" style="margin-top:6px">${Object.entries(FAM).map(([k, v]) => `<label class="famchk"><input type="checkbox" ${bibFam.has(k) ? 'checked' : ''} onchange="bibF('${k}')"><span class="code fam f-${k}">${k}</span>${esc(FAMC[k])}</label>`).join('')}
     ${bibFam.size ? `<div class="actions"><button class="btn" onclick="bibF('')">Mostra'ls tots</button></div>` : ''}</div></details>
   <div id="bibl">${vis.map(e => { const us = u[e.codi] || [], fets = us.filter(isFet);
     return `<a class="card exrow f-${e.fam}" href="#/e/${e.codi}" data-q="${esc(textEx(e))}"><span class="code fam f-${e.fam}">${e.codi}</span>
@@ -1343,12 +1345,11 @@ function viewSesEdit() {
     <label class="lbl">Nota (opcional)</label><textarea style="min-height:56px" oninput="sesEd.nota=this.value">${esc(e.nota)}</textarea></div>
   <div class="card durbar ${dif ? 'mal' : 'be'}"><b>${sum} de ${e.min} min</b> ${dif > 0 ? `· en sobren ${dif}` : dif < 0 ? `· en falten ${-dif}` : '· quadra'}</div>
   ${e.blocs.map((b, i) => `<div class="card block ${famC(b.codi) ? 'f-' + famC(b.codi) : ''}">
-    <div class="bhead"><span class="bnum">${i + 1}</span><span class="btitle"><input type="text" value="${esc(b.titol)}" placeholder="Títol del bloc" oninput="sesEd.blocs[${i}].titol=this.value"></span>
+    <div class="bhead"><span class="bnum">${i + 1}</span><span class="btitle"><input type="text" value="${esc(b.titol)}" placeholder="${b.codi ? 'Títol del bloc' : 'Nom de l&#39;exercici'}" oninput="sesEd.blocs[${i}].titol=this.value"></span>
       <span class="ord"><button ${i ? '' : 'disabled'} onclick="sesMou(${i},-1)">▲</button><button ${i < e.blocs.length - 1 ? '' : 'disabled'} onclick="sesMou(${i},1)">▼</button><button onclick="sesTreu(${i})" title="Treu el bloc">✕</button></span></div>
-    <div class="row" style="gap:8px;margin:6px 0"><span class="code fam">${esc(b.codi || 'sense exercici')}</span><span class="grow"></span>
-      <button class="small" onclick="triaEx(${i})">${b.codi ? 'Canvia l\'exercici' : 'Tria un exercici'}</button>
+    <div class="row" style="gap:8px;margin:6px 0">${b.codi ? `<span class="code fam">${esc(b.codi)}</span><span class="grow"></span><button class="small" onclick="triaEx(${i})">Canvia l'exercici</button>` : `<span class="meta grow">Escrit per tu</span>`}
       <label class="meta" style="display:flex;align-items:center;gap:4px"><input type="number" inputmode="numeric" min="0" style="width:64px" value="${b.min}" onchange="sesEd.blocs[${i}].min=+this.value||0;render()"> min</label></div>
-    <details><summary class="meta" style="cursor:pointer">Com es fa, dosi i muntatge</summary>
+    <details ${b.codi ? '' : 'open'}><summary class="meta" style="cursor:pointer">Com es fa, dosi i muntatge</summary>
       ${[['com', 'Com es fa'], ['dosi', 'Dosi'], ['muntatge', 'Muntatge'], ['lloc', 'Lloc']].map(([k, l]) => `<label class="lbl">${l}</label><textarea style="min-height:${k === 'com' ? 90 : 50}px" oninput="sesEd.blocs[${i}].${k}=this.value">${esc(b[k])}</textarea>`).join('')}</details>
   </div>`).join('')}
   <div class="actions"><button class="btn" style="flex:1" onclick="triaEx(-1)">＋ Afegeix un exercici</button><button class="btn" onclick="sesBuit()">＋ Escriu-lo tu</button></div>
@@ -1369,7 +1370,7 @@ window.triaEx = i => {
   const u = usosExs(); triaFam = new Set();
   obreFitxa(`<b>Tria un exercici</b><input type="search" id="triaq" placeholder="Busca per nom o codi" oninput="triaFiltra()" autocomplete="off" style="margin:8px 0">
     <details class="bibfil" id="triaf"><summary class="btn" id="triafs">Filtra: tots ▾</summary>
-      <div class="card" style="margin-top:6px">${Object.entries(FAM).map(([k, v]) => `<label class="row" style="gap:8px;margin:6px 0"><input type="checkbox" data-f="${k}" onchange="triaF()"> <b>${k}</b> ${esc(v)}</label>`).join('')}</div></details>
+      <div class="card" style="margin-top:6px">${Object.entries(FAM).map(([k, v]) => `<label class="famchk"><input type="checkbox" data-f="${k}" onchange="triaF()"><span class="code fam f-${k}">${k}</span>${esc(FAMC[k])}</label>`).join('')}</div></details>
     <div id="trial" style="max-height:50vh;overflow:auto">${exercicis().map(e => { const us = (u[e.codi] || []).filter(isFet), ult = us[us.length - 1];
       return `<button class="card exrow" style="width:100%;text-align:left" data-q="${esc(textEx(e))}" data-f="${e.fam}" onclick="triaFet(${i}, '${e.codi}')"><span class="code fam f-${e.fam}">${e.codi}</span>
         <span class="grow"><b>${esc(e.nom)}</b><span class="meta">${ult ? `fet al ${ult}` : 'encara no fet'}</span></span></button>`; }).join('')}</div>`,
@@ -1377,7 +1378,7 @@ window.triaEx = i => {
 };
 window.triaF = () => {
   triaFam = new Set([...document.querySelectorAll('#triaf input:checked')].map(c => c.dataset.f));
-  $('#triafs').textContent = `Filtra: ${triaFam.size ? [...triaFam].map(k => FAM[k].split(/[ ,]/)[0]).join(', ') : 'tots'} ▾`; triaFiltra();
+  $('#triafs').textContent = `Filtra: ${triaFam.size ? [...triaFam].map(k => FAMC[k]).join(', ') : 'tots'} ▾`; triaFiltra();
 };
 window.triaFiltra = () => {
   const w = ($('#triaq')?.value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean);
