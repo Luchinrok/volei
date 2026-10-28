@@ -96,6 +96,7 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], input[type=number], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.avisos { border-left: 4px solid #e8a33d; } .avisos ul { margin: 6px 0 0; padding-left: 18px; } .avisos li { margin: 3px 0; }
 .pills .warnp { color: #c0392b; border-color: #c0392b; }
 .abib { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0 0; } .abib select { width: auto; flex: 1; min-width: 140px; padding: 6px 8px; }
 .famchk { display: flex; align-items: center; gap: 10px; margin: 8px 0; white-space: nowrap; } .famchk input { width: 18px; height: 18px; flex: none; } .famchk .code { min-width: 30px; text-align: center; }
@@ -1347,6 +1348,8 @@ function viewSesEdit() {
     <label class="lbl">Durada (minuts)</label><input type="number" inputmode="numeric" min="0" value="${e.min}" onchange="sesEd.min=+this.value||0;render()">
     <label class="lbl">Nota (opcional)</label><textarea style="min-height:56px" oninput="sesEd.nota=this.value">${esc(e.nota)}</textarea></div>
   <div class="card durbar ${dif ? 'mal' : 'be'}"><b>${sum} de ${e.min} min</b> ${dif > 0 ? `· en sobren ${dif}` : dif < 0 ? `· en falten ${-dif}` : '· quadra'}</div>
+  ${(() => { const av = avisosSessio(e); return av.length ? `<div class="card avisos"><b>Avisos</b><ul>${av.map(x => `<li>${x}</li>`).join('')}</ul><p class="meta" style="margin:4px 0 0">Només són avisos: pots desar igualment.</p></div>` : ''; })()}
+  <div class="actions" style="margin:0 0 10px"><button class="btn" style="flex:1" onclick="mouSessio(-1)">▲ Fes-la abans</button><button class="btn" style="flex:1" onclick="mouSessio(1)">▼ Fes-la després</button></div>
   ${e.blocs.map((b, i) => `<div class="card block ${famC(b.codi) ? 'f-' + famC(b.codi) : ''}">
     <div class="bhead"><span class="bnum">${i + 1}</span><span class="btitle"><input type="text" value="${esc(b.titol)}" placeholder="${b.codi ? 'Títol del bloc' : 'Nom de l&#39;exercici'}" oninput="sesEd.blocs[${i}].titol=this.value"></span>
       <span class="ord"><button ${i ? '' : 'disabled'} onclick="sesMou(${i},-1)">▲</button><button ${i < e.blocs.length - 1 ? '' : 'disabled'} onclick="sesMou(${i},1)">▼</button><button onclick="sesTreu(${i})" title="Treu el bloc">✕</button></span></div>
@@ -1363,6 +1366,33 @@ function viewSesEdit() {
   <div class="actions"><button class="btn" style="flex:1" onclick="duplicaSessio()">Fes-ne una còpia</button><button class="btn danger" onclick="esborraSessio()">Esborra-la</button></div>
   <p class="meta" style="margin:4px 0 0">«Fes-ne una còpia» crea una sessió nova igual que aquesta, just darrere, per fer-ne una variant.</p></div>`;
 }
+// avisos del constructor (normes de l'entrenador): exercicis repetits fa poc, retirats, format que no creix, no acabar amb joc
+const codisBloc = c => (c || '').match(/\b(BL|[DBSRCJG])\d+\b/g) || [];
+const formatDe = b => { const m = [...`${b.titol} ${b.muntatge}`.matchAll(/\b([1-6])\s?[x×]\s?[1-6]\b/g)].map(x => +x[1]); return m.length ? Math.max(...m) : 0; };
+function avisosSessio(e) {
+  const av = [], ss = D.sessions, i = ss.findIndex(x => x.codi === e.codi), ex = Object.fromEntries(totsExs().map(x => [x.codi, x]));
+  const prop = (i < 0 ? [] : ss.slice(Math.max(0, i - 4), i).concat(ss.slice(i + 1, i + 5)));   // les 4 d'abans i les 4 de després
+  const vistos = new Set();
+  e.blocs.forEach(b => codisBloc(b.codi).forEach(k => {
+    if (ex[k] && retirat(ex[k])) av.push(`<b>${k}</b> és un exercici retirat de la biblioteca.`);
+    if (vistos.has(k)) return; vistos.add(k);
+    const on = prop.filter(x => x.blocs.some(y => !y.tret && codisBloc(y.codi).includes(k))).map(x => x.codi);
+    if (on.length) av.push(`<b>${k}</b> ${esc(ex[k]?.nom || '')} també surt a ${on.join(', ')}, molt a prop.`);
+  }));
+  const f = e.blocs.map(formatDe); let max = 0;
+  f.forEach((x, j) => { if (x && x < max) av.push(`El bloc ${j + 1} és ${x}x${x} però abans ja hi ha un ${max}x${max}: el format hauria d'anar creixent.`); max = Math.max(max, x); });
+  const ult = e.blocs[e.blocs.length - 1];
+  if (ult && !codisBloc(ult.codi).some(k => /^[GJ]/.test(k)) && !formatDe(ult)) av.push('La sessió no acaba amb un joc.');
+  return av;
+}
+// canviar l'ordre de la sessió dins la temporada: s'intercanvia amb la del costat
+window.mouSessio = async d => {
+  const ss = D.sessions, i = ss.findIndex(x => x.codi === sesEd.codi), j = i + d;
+  if (i < 0 || j < 0 || j >= ss.length) return desat(d < 0 ? 'Ja és la primera' : 'Ja és l\u2019última');
+  const a = ss[i], b = ss[j], oa = a.ordre ?? i * 10, ob = b.ordre ?? j * 10;
+  await Promise.all([fs.updateDoc(ref('sessions', a.codi), { ordre: ob }), fs.updateDoc(ref('sessions', b.codi), { ordre: oa === ob ? ob + d : oa })]);
+  sesEd.ordre = ob; desat(`Ara va ${d < 0 ? 'abans' : 'després'} de ${b.codi}`);
+};
 const nouN = () => Math.max(0, ...sesEd.blocs.map(b => +b.n || 0)) + 1;
 window.sesMou = (i, d) => { const b = sesEd.blocs; [b[i], b[i + d]] = [b[i + d], b[i]]; render(); };
 window.sesTreu = async i => { if (await dialeg(`Treure el bloc <b>${esc(sesEd.blocs[i].titol || i + 1)}</b>?`, { ok: 'Treu-lo', perill: true })) { sesEd.blocs.splice(i, 1); render(); } };
