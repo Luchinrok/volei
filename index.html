@@ -381,6 +381,7 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 /* Passar llista */
 .counts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .counts .est { font-size: 14px; padding: 4px 10px; border-radius: 999px; }
+.perpos { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: -2px 0 10px; font-weight: 700; } .perpos span { display: inline-flex; align-items: center; gap: 4px; } .perpos .meta { font-weight: 400; }
 /* Fitxa del jugador */
 .jcard { display: flex; align-items: center; gap: 14px; }
 .jcard h2 { margin: 0 0 6px; }
@@ -1442,6 +1443,8 @@ function viewEditAss() {
 
 function llistaRows(a, actius) {
   return `<div class="counts"><span class="est si">✅ ${Object.values(a.estat).filter(e => e === 'si').length} venen</span><span class="est avisa">❌ ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen</span><span class="est no">💀 ${Object.values(a.estat).filter(e => e === 'no').length} no avisen</span></div>
+    ${(() => { const v = Object.keys(a.estat).filter(id => a.estat[id] === 'si'), n = k => v.filter(id => posJ(id) === k).length, sense = v.filter(id => !posJ(id)).length;
+      return v.length ? `<div class="perpos">${Object.keys(POS).map(k => `<span title="${POS[k].t}"><i class="pb pb-${k} inl">${POS[k].l}</i> ${n(k)}</span>`).join('')}${sense ? `<span class="meta">${sense} sense posició</span>` : ''}</div>` : ''; })()}
     ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}<span class="nm">${esc(j.nom)}</span></span><span class="tri">
       ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" title="${EST[e]}" aria-label="${EST[e]}" onclick="setEst('${j.id}','${e}')">${ESTI[e]}</button>`).join('')}
     </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}`;
