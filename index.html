@@ -1363,20 +1363,24 @@ window.sesTreu = async i => { if (await dialeg(`Treure el bloc <b>${esc(sesEd.bl
 const alNouBloc = () => { const bs = document.querySelectorAll('.sesed .block'), b = bs[bs.length - 1]; if (b) { b.scrollIntoView({ block: 'center' }); b.querySelector('.btitle input')?.focus(); } };
 window.sesBuit = () => { sesEd.blocs.push(netBloc({ n: nouN(), min: 10 })); render(); alNouBloc(); };
 // triar un exercici de la biblioteca (i = -1: bloc nou al final)
-let triaFam = '';
+let triaFam = new Set();   // famílies triades al filtre en triar exercici (cap = totes), com a la biblioteca
 window.triaEx = i => {
-  const u = usosExs(); triaFam = '';
+  const u = usosExs(); triaFam = new Set();
   obreFitxa(`<b>Tria un exercici</b><input type="search" id="triaq" placeholder="Busca per nom o codi" oninput="triaFiltra()" autocomplete="off" style="margin:8px 0">
-    <div class="chips" id="triaf">${[['', 'Tots'], ...Object.entries(FAM).map(([k, v]) => [k, v.split(/[ ,]/)[0]])].map(([k, v]) => `<button class="${k ? '' : 'on'}" data-f="${k}" onclick="triaF('${k}')">${v}</button>`).join('')}</div>
+    <details class="bibfil" id="triaf"><summary class="btn" id="triafs">Filtra: tots ▾</summary>
+      <div class="card" style="margin-top:6px">${Object.entries(FAM).map(([k, v]) => `<label class="row" style="gap:8px;margin:6px 0"><input type="checkbox" data-f="${k}" onchange="triaF()"> <b>${k}</b> ${esc(v)}</label>`).join('')}</div></details>
     <div id="trial" style="max-height:50vh;overflow:auto">${exercicis().map(e => { const us = (u[e.codi] || []).filter(isFet), ult = us[us.length - 1];
       return `<button class="card exrow" style="width:100%;text-align:left" data-q="${esc(textEx(e))}" data-f="${e.fam}" onclick="triaFet(${i}, '${e.codi}')"><span class="code fam f-${e.fam}">${e.codi}</span>
         <span class="grow"><b>${esc(e.nom)}</b><span class="meta">${ult ? `fet al ${ult}` : 'encara no fet'}</span></span></button>`; }).join('')}</div>`,
     `<button class="btn" style="flex:1" onclick="tancaFitxa()">Cancel·la</button>`);
 };
-window.triaF = k => { triaFam = k; document.querySelectorAll('#triaf button').forEach(b => b.classList.toggle('on', b.dataset.f === k)); triaFiltra(); };
+window.triaF = () => {
+  triaFam = new Set([...document.querySelectorAll('#triaf input:checked')].map(c => c.dataset.f));
+  $('#triafs').textContent = `Filtra: ${triaFam.size ? [...triaFam].map(k => FAM[k].split(/[ ,]/)[0]).join(', ') : 'tots'} ▾`; triaFiltra();
+};
 window.triaFiltra = () => {
   const w = ($('#triaq')?.value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean);
-  document.querySelectorAll('#trial [data-q]').forEach(el => { el.hidden = (triaFam && el.dataset.f !== triaFam) || !w.every(x => el.dataset.q.includes(x)); });
+  document.querySelectorAll('#trial [data-q]').forEach(el => { el.hidden = (triaFam.size && !triaFam.has(el.dataset.f)) || !w.every(x => el.dataset.q.includes(x)); });
 };
 window.triaFet = (i, k) => {
   const e = totsExs().find(x => x.codi === k), dades = { titol: e.nom, codi: k, com: e.com || '', dosi: e.dosi || '', muntatge: e.muntatge || '' };
