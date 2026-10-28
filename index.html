@@ -1349,26 +1349,31 @@ function viewSesEdit() {
     <details><summary class="meta" style="cursor:pointer">Com es fa, dosi i muntatge</summary>
       ${[['com', 'Com es fa'], ['dosi', 'Dosi'], ['muntatge', 'Muntatge'], ['lloc', 'Lloc']].map(([k, l]) => `<label class="lbl">${l}</label><textarea style="min-height:${k === 'com' ? 90 : 50}px" oninput="sesEd.blocs[${i}].${k}=this.value">${esc(b[k])}</textarea>`).join('')}</details>
   </div>`).join('')}
-  <div class="actions"><button class="btn" style="flex:1" onclick="triaEx(-1)">＋ Afegeix un exercici</button><button class="btn" onclick="sesBuit()">＋ Bloc buit</button></div>
+  <div class="actions"><button class="btn" style="flex:1" onclick="triaEx(-1)">＋ Afegeix un exercici</button><button class="btn" onclick="sesBuit()">＋ Escriu-lo tu</button></div>
+  <p class="meta" style="margin:4px 0 0">«Escriu-lo tu» afegeix un bloc que no és de la biblioteca (una explicació, un exercici que només fareu aquell dia…).</p>
   <div class="actions"><button class="btn primary" style="flex:1" onclick="desaSessio()">Desa</button><button class="btn" onclick="sesEd=null;render()">Cancel·la</button></div>
-  <div class="actions"><button class="btn" style="flex:1" onclick="duplicaSessio()">Duplica-la</button><button class="btn danger" onclick="esborraSessio()">Esborra-la</button></div></div>`;
+  <div class="actions"><button class="btn" style="flex:1" onclick="duplicaSessio()">Fes-ne una còpia</button><button class="btn danger" onclick="esborraSessio()">Esborra-la</button></div>
+  <p class="meta" style="margin:4px 0 0">«Fes-ne una còpia» crea una sessió nova igual que aquesta, just darrere, per fer-ne una variant.</p></div>`;
 }
 const nouN = () => Math.max(0, ...sesEd.blocs.map(b => +b.n || 0)) + 1;
 window.sesMou = (i, d) => { const b = sesEd.blocs; [b[i], b[i + d]] = [b[i + d], b[i]]; render(); };
 window.sesTreu = async i => { if (await dialeg(`Treure el bloc <b>${esc(sesEd.blocs[i].titol || i + 1)}</b>?`, { ok: 'Treu-lo', perill: true })) { sesEd.blocs.splice(i, 1); render(); } };
 window.sesBuit = () => { sesEd.blocs.push(netBloc({ n: nouN(), min: 10 })); render(); };
 // triar un exercici de la biblioteca (i = -1: bloc nou al final)
+let triaFam = '';
 window.triaEx = i => {
-  const u = usosExs();
-  obreFitxa(`<b>Tria un exercici</b><input type="search" id="triaq" placeholder="Busca per nom o codi" oninput="triaFiltra(this.value)" autocomplete="off" style="margin:8px 0">
-    <div id="trial" style="max-height:55vh;overflow:auto">${exercicis().map(e => { const us = (u[e.codi] || []).filter(isFet), ult = us[us.length - 1];
-      return `<button class="card exrow" style="width:100%;text-align:left" data-q="${esc(textEx(e))}" onclick="triaFet(${i}, '${e.codi}')"><span class="code fam f-${e.fam}">${e.codi}</span>
+  const u = usosExs(); triaFam = '';
+  obreFitxa(`<b>Tria un exercici</b><input type="search" id="triaq" placeholder="Busca per nom o codi" oninput="triaFiltra()" autocomplete="off" style="margin:8px 0">
+    <div class="chips" id="triaf">${[['', 'Tots'], ...Object.entries(FAM).map(([k, v]) => [k, v.split(/[ ,]/)[0]])].map(([k, v]) => `<button class="${k ? '' : 'on'}" data-f="${k}" onclick="triaF('${k}')">${v}</button>`).join('')}</div>
+    <div id="trial" style="max-height:50vh;overflow:auto">${exercicis().map(e => { const us = (u[e.codi] || []).filter(isFet), ult = us[us.length - 1];
+      return `<button class="card exrow" style="width:100%;text-align:left" data-q="${esc(textEx(e))}" data-f="${e.fam}" onclick="triaFet(${i}, '${e.codi}')"><span class="code fam f-${e.fam}">${e.codi}</span>
         <span class="grow"><b>${esc(e.nom)}</b><span class="meta">${ult ? `fet al ${ult}` : 'encara no fet'}</span></span></button>`; }).join('')}</div>`,
     `<button class="btn" style="flex:1" onclick="tancaFitxa()">Cancel·la</button>`);
 };
-window.triaFiltra = q => {
-  const w = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean);
-  document.querySelectorAll('#trial [data-q]').forEach(el => { el.hidden = !w.every(x => el.dataset.q.includes(x)); });
+window.triaF = k => { triaFam = k; document.querySelectorAll('#triaf button').forEach(b => b.classList.toggle('on', b.dataset.f === k)); triaFiltra(); };
+window.triaFiltra = () => {
+  const w = ($('#triaq')?.value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean);
+  document.querySelectorAll('#trial [data-q]').forEach(el => { el.hidden = (triaFam && el.dataset.f !== triaFam) || !w.every(x => el.dataset.q.includes(x)); });
 };
 window.triaFet = (i, k) => {
   const e = totsExs().find(x => x.codi === k), dades = { titol: e.nom, codi: k, com: e.com || '', dosi: e.dosi || '', muntatge: e.muntatge || '' };
@@ -1381,10 +1386,21 @@ window.desaSessio = async () => {
   sesEd = null; desat('✓ Sessió desada'); render();
 };
 const nouCodi = () => 'SE' + String(Math.max(0, ...D.sessions.map(s => /^SE(\d+)$/.exec(s.codi)).filter(Boolean).map(m => +m[1])) + 1).padStart(2, '0');
-window.novaSessio = async () => {
-  const codi = nouCodi(), ordre = Math.max(0, ...D.sessions.map(s => s.ordre || 0)) + 10;
-  await fs.setDoc(ref('sessions', codi), { titol: 'Sessió nova', min: 90, nota: '', notaFinal: '', ordre, blocs: [], t: Date.now() });
-  location.hash = '#/s/' + codi; sesEd = { codi, titol: 'Sessió nova', min: 90, nota: '', notaFinal: '', ordre, blocs: [] }; render();
+window.novaSessio = () => {
+  obreFitxa(`<b>Sessió nova</b><p class="meta" style="margin:6px 0">Comença en blanc o copia una sessió que ja tens i la canvies.</p>
+    <button class="btn primary" style="width:100%;margin-bottom:10px" onclick="creaSessio()">Comença en blanc</button>
+    <input type="search" id="sesq" placeholder="O busca una sessió per copiar-la" oninput="sesFiltra(this.value)" autocomplete="off">
+    <div id="sesl" style="max-height:45vh;overflow:auto;margin-top:8px">${D.sessions.map(x => `<button class="card exrow" style="width:100%;text-align:left" data-q="${esc((x.codi + ' ' + x.titol).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''))}" onclick="creaSessio('${x.codi}')">
+      <span class="sbadge">${badge(x.codi)}</span><span class="grow"><b>${esc(x.titol)}</b><span class="meta">${x.min || durada(x)} min · ${x.blocs.length} blocs${isFet(x.codi) ? ' · feta' : ''}</span></span></button>`).join('')}</div>`,
+    `<button class="btn" style="flex:1" onclick="tancaFitxa()">Cancel·la</button>`);
+};
+window.sesFiltra = q => { const w = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean); document.querySelectorAll('#sesl [data-q]').forEach(el => { el.hidden = !w.every(x => el.dataset.q.includes(x)); }); };
+window.creaSessio = async de => {
+  const o = de && byCode(de), codi = nouCodi(), ordre = Math.max(0, ...D.sessions.map(s => s.ordre || 0)) + 10;
+  const nova = { titol: o ? o.titol : 'Sessió nova', min: o ? (o.min || durada(o)) : 90, nota: o?.nota || '', notaFinal: o?.notaFinal || '', ordre, blocs: o ? o.blocs.filter(b => !b.tret).map(netBloc) : [] };
+  await fs.setDoc(ref('sessions', codi), { ...nova, t: Date.now() });
+  tancaFitxa(); location.hash = '#/s/' + codi;
+  setTimeout(() => { sesEd = JSON.parse(JSON.stringify({ codi, ...nova })); render(); }, 50);
 };
 window.duplicaSessio = async () => {
   const e = sesEd, codi = nouCodi(), i = D.sessions.findIndex(s => s.codi === e.codi), seg = D.sessions[i + 1];
@@ -2878,6 +2894,8 @@ function pintaPantalla() {
 window.render = render;
 Object.defineProperty(window, 'editEquip', { get: () => editEquip, set: v => { editEquip = v; } });
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
+Object.defineProperty(window, 'sesEd', { get: () => sesEd, set: v => { sesEd = v; } });
+Object.defineProperty(window, 'exEd', { get: () => exEd, set: v => { exEd = v; } });
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
 addEventListener('hashchange', () => { fotoTanca(); const mi = location.hash.match(/^#\/uneix\/([A-Za-z0-9]{24,})\/([A-Za-z0-9]{12,})/); if (mi) { store.set('volei.invitacio', { clau: mi[1], codi: mi[2] }); if (USR) quiSoc(); } sel = null; convDesfes = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; tancaFitxa(); render(); scrollTo(0, 0); });
