@@ -1359,7 +1359,9 @@ function viewSesEdit() {
 const nouN = () => Math.max(0, ...sesEd.blocs.map(b => +b.n || 0)) + 1;
 window.sesMou = (i, d) => { const b = sesEd.blocs; [b[i], b[i + d]] = [b[i + d], b[i]]; render(); };
 window.sesTreu = async i => { if (await dialeg(`Treure el bloc <b>${esc(sesEd.blocs[i].titol || i + 1)}</b>?`, { ok: 'Treu-lo', perill: true })) { sesEd.blocs.splice(i, 1); render(); } };
-window.sesBuit = () => { sesEd.blocs.push(netBloc({ n: nouN(), min: 10 })); render(); };
+// el bloc nou va al final: s'hi baixa i es posa el cursor al títol
+const alNouBloc = () => { const bs = document.querySelectorAll('.sesed .block'), b = bs[bs.length - 1]; if (b) { b.scrollIntoView({ block: 'center' }); b.querySelector('.btitle input')?.focus(); } };
+window.sesBuit = () => { sesEd.blocs.push(netBloc({ n: nouN(), min: 10 })); render(); alNouBloc(); };
 // triar un exercici de la biblioteca (i = -1: bloc nou al final)
 let triaFam = '';
 window.triaEx = i => {
@@ -1379,7 +1381,7 @@ window.triaFiltra = () => {
 window.triaFet = (i, k) => {
   const e = totsExs().find(x => x.codi === k), dades = { titol: e.nom, codi: k, com: e.com || '', dosi: e.dosi || '', muntatge: e.muntatge || '' };
   if (i < 0) sesEd.blocs.push(netBloc({ n: nouN(), min: 10, ...dades })); else Object.assign(sesEd.blocs[i], dades);
-  tancaFitxa(); render();
+  tancaFitxa(); render(); if (i < 0) alNouBloc();
 };
 window.desaSessio = async () => {
   const e = sesEd; if (!e.titol.trim()) return desat('Posa-li un títol');
@@ -2889,7 +2891,7 @@ function pintaPantalla() {
     <a href="#/partits" data-t="partits"><span class="ico">${ICO.partits}</span>Partits</a>`;
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
-  if (a && (a.closest?.('.sesed, .exed') || a.id === 'triaq' || a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
+  if (a && ((a.matches?.('input, textarea, select') && a.closest('.sesed, .exed')) || a.id === 'triaq' || a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   const ruta = r + '/' + arg;
   muntaCalendari(); capitalitza();
