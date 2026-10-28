@@ -96,6 +96,7 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.llses { margin: 4px 0 10px; } .llses > summary { cursor: pointer; margin-bottom: 8px; }
 .bibfil { margin: 10px 0; } .bibfil > summary { list-style: none; display: inline-block; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 7px 14px; font-size: 14px; cursor: pointer; } .bibfil > summary::-webkit-details-marker { display: none; }
 .comfi textarea { min-height: 48px; transition: min-height .2s; } .comfi textarea:focus { min-height: 100px; } .comfi .actions { margin-top: 8px; } .comfi .ok { color: var(--si); }
 label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
@@ -1244,6 +1245,9 @@ window.desaImatge = async () => {
   document.body.appendChild(a); a.click(); a.remove(); desat('⬇️ ' + nomImatge());
 };
 window.goLlista = () => {
+  // si avui hi ha sessió, la llista es passa a la sessió
+  const d = avui(), ja = ASS.find(x => x.id === d), f = famDia(d), c = ja?.sessio || (f ? next(f)?.codi : '');
+  if (c && byCode(c)) { location.hash = '#/s/' + c; return passaLlista(c); }
   if (location.hash === '#/assistencia') return newAss();
   addEventListener('hashchange', () => newAss(), { once: true });
   location.hash = '#/assistencia';
@@ -1317,6 +1321,7 @@ function viewSession(c) {
   const totMin = bs.reduce((t, b) => t + (b.min || 0), 0) || 1;
   return `<div class="shead"><span class="sbadge lg">${s.codi.slice(0, 2)}<b>${s.codi.slice(2)}</b></span><h2>${esc(s.titol)}</h2></div>
     <div class="pills"><span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span><span>⏱ ${s.min} min</span><span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
+    ${CLAU ? llistaSessio(c) : ''}
     <div class="tline" title="Minuts de cada bloc">${bs.map(b => `<i class="${famC(b.codi) ? 'f-' + famC(b.codi) : ''}" style="flex:${b.min || 0}"><span>${b.n ?? ''}</span></i>`).join('')}</div>
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
     ${CLAU ? `<div class="selbar"><span class="grow">${ORD[c] ? 'Ordre canviat per tu' : ''}</span>
@@ -1428,27 +1433,49 @@ function viewEditAss() {
     <select onchange="assSessio(this.value)"><option value="">—</option>${ss.map(s => `<option value="${s.codi}" ${a.sessio === s.codi ? 'selected' : ''}>${s.codi} ${esc(s.titol)}</option>`).join('')}</select>
   </div>
   <div class="card">
-    <div class="counts"><span class="est si">✅ ${Object.values(a.estat).filter(e => e === 'si').length} venen</span><span class="est avisa">❌ ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen</span><span class="est no">💀 ${Object.values(a.estat).filter(e => e === 'no').length} no avisen</span></div>
-    ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}<span class="nm">${esc(j.nom)}</span></span><span class="tri">
-      ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" title="${EST[e]}" aria-label="${EST[e]}" onclick="setEst('${j.id}','${e}')">${ESTI[e]}</button>`).join('')}
-    </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}
+    ${llistaRows(a, actius)}
   </div>
   <p class="meta">Es desa sol a cada toc.</p>
   <div class="actions"><button class="btn primary" style="flex:1" onclick="editAss=null;render()">✓ Fet</button>
   <button class="btn danger" onclick="delAss()">Esborra la llista</button></div>`;
 }
 
+function llistaRows(a, actius) {
+  return `<div class="counts"><span class="est si">✅ ${Object.values(a.estat).filter(e => e === 'si').length} venen</span><span class="est avisa">❌ ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen</span><span class="est no">💀 ${Object.values(a.estat).filter(e => e === 'no').length} no avisen</span></div>
+    ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}<span class="nm">${esc(j.nom)}</span></span><span class="tri">
+      ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" title="${EST[e]}" aria-label="${EST[e]}" onclick="setEst('${j.id}','${e}')">${ESTI[e]}</button>`).join('')}
+    </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}`;
+}
+const actiusLlista = a => JUG.filter(j => a.estat[j.id] || (j.actiu !== false && ve(j, a.data) && (!j.alta || j.alta <= a.data)));
+// la llista es passa des de la mateixa sessió (28-10-2026): queda lligada a la sessió del dia
+function llistaSessio(c) {
+  if (editAss && editAss.sessio === c) return `<details class="card llses" open><summary><b>📋 Llista del ${dataCa(editAss.data)}</b></summary>
+    ${llistaRows(editAss, actiusLlista(editAss))}
+    <div class="actions"><button class="btn primary" style="flex:1" onclick="editAss=null;render()">✓ Llista feta</button></div></details>`;
+  const a = ASS.find(x => x.sessio === c);
+  if (a) return `<div class="card row llses"><span class="grow">📋 <b>${dataCa(a.data)}</b> · ✅ ${venen(a)} venen${noAvisen(a) ? ` · <span class="red">💀${noAvisen(a)}</span>` : ''}</span><button class="btn" onclick="openAss('${a.id}')">Edita la llista</button></div>`;
+  if (isFet(c)) return '';
+  return `<button class="btn primary" style="width:100%;padding:12px;margin:4px 0 10px" onclick="passaLlista('${c}')">📋 Passar llista</button>`;
+}
+window.passaLlista = c => {
+  const ja = ASS.find(x => x.id === avui());
+  if (!ja) return newAss(c);
+  editAss = JSON.parse(JSON.stringify(ja));
+  if (editAss.sessio !== c) { editAss.sessio = c; assWrite(); }
+  render();
+};
+
 function assWrite() {
   const a = editAss;
   fs.setDoc(ref('assistencia', a.id), { data: a.data, sessio: a.sessio || '', estat: a.estat });
   if (a.sessio && a.data <= avui() && !isFet(a.sessio)) setFets([a.sessio], true);   // només si l'entreno ja ha passat
 }
-window.newAss = () => {
+window.newAss = c => {
   const d = avui(), ja = ASS.find(x => x.id === d);
   if (ja) return openAss(d);                                   // ja hi ha llista d'avui: s'obre
   const f = famDia(d);
   const estat = {}; JUG.filter(j => j.actiu !== false && ve(j, d) && (!j.alta || j.alta <= d)).forEach(j => estat[j.id] = 'si');
-  editAss = { id: d, data: d, sessio: f ? next(f)?.codi || '' : '', estat }; assWrite(); render(); scrollTo(0, 0);
+  editAss = { id: d, data: d, sessio: c || (f ? next(f)?.codi || '' : ''), estat }; assWrite(); render(); scrollTo(0, 0);
 };
 window.openAss = id => { const a = ASS.find(x => x.id === id); editAss = JSON.parse(JSON.stringify(a)); render(); scrollTo(0, 0); };
 window.setEst = (jid, e) => {
