@@ -93,9 +93,11 @@ button.btn:disabled { opacity: .45; }
 button.btn.danger { color: var(--no); }
 .legend { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
 .empty { color: var(--muted); text-align: center; padding: 30px 0; }
-textarea, input[type=text], input[type=search], input[type=url], input[type=date], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
+textarea, input[type=text], input[type=search], input[type=url], input[type=date], input[type=number], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.durbar { padding: 10px 14px; } .durbar.be { color: var(--si); } .durbar.mal { color: #c0392b; }
+.sesed .btitle input { width: 100%; font: inherit; font-weight: 700; } .sesed .ord button { min-width: 32px; }
 .llses { margin: 4px 0 10px; } .llses > summary { cursor: pointer; margin-bottom: 8px; }
 .bibfil { margin: 10px 0; } .bibfil > summary { list-style: none; display: inline-block; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 7px 14px; font-size: 14px; cursor: pointer; } .bibfil > summary::-webkit-details-marker { display: none; }
 .comfi textarea { min-height: 48px; transition: min-height .2s; } .comfi textarea:focus { min-height: 100px; } .comfi .actions { margin-top: 8px; } .comfi .ok { color: var(--si); }
@@ -770,6 +772,10 @@ const famLabel = f => diesDe(f).map(d => DIES[d]).join(' i ') || (f === 'DT' ? '
 const famDia = data => tcfg().dies[new Date(data + 'T12:00').getDay()] || null;
 
 let D;                                               // sessions de la temporada
+// constructor (28-10-2026): si la temporada té sessions a Firebase (temporades/{T}/sessions/{codi}), són aquestes
+// les que valen (D.fs = true) i data/sessions.json ja no compta. BIB: biblioteca del club editada a l'app.
+let BIB = {}, sesEd = null, exEd = null;
+const esFS = () => !!D?.fs;
 let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}, PAR = [], CAL = null, FOTOS = []; // dades de Firebase (NOF: exercicis no fets)
 let UNSUB = [];
 let fs = null, db = null;
@@ -889,6 +895,7 @@ async function openSeason() {
   }
   if (UNSUB.__t === TEMP) return render();
   UNSUB.forEach(u => u()); UNSUB = []; UNSUB.__t = TEMP;
+  if (D?.fs) { D.sessions = D.__json || []; D.fs = false; } sesEd = null;
   FETS = {}; COMS = []; JUG = []; ASS = []; NOF = {}; ORD = {}; PAR = []; CAL = null; PAR.__ok = false; FOTOS = [];
   // fotos/{id del fitxer de Drive}: {partit, per (uid), t}. Les pot penjar tothom de l'equip (també les famílies), cadascú al seu Drive
   UNSUB.push(fs.onSnapshot(col('fotos'), q => { FOTOS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.t - b.t); render(); }, () => {}));
@@ -898,6 +905,12 @@ async function openSeason() {
   UNSUB.push(fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); }));
   UNSUB.push(fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); }));
   UNSUB.push(fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); }));
+  UNSUB.push(fs.onSnapshot(col('sessions'), q => {
+    if (!D.fs) D.__json = D.sessions;
+    const ss = q.docs.map(d => ({ ...d.data(), codi: d.id })).sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0));
+    D.sessions = ss.length ? ss : D.__json; D.fs = !!ss.length; render();
+  }, () => {}));
+  UNSUB.push(fs.onSnapshot(fs.collection(db, 'equips', CLAU, 'biblioteca'), q => { BIB = {}; q.docs.forEach(d => BIB[d.id] = d.data()); render(); }, () => {}));
   UNSUB.push(fs.onSnapshot(col('ordre'), q => { ORD = {}; q.docs.forEach(d => ORD[d.id] = d.data().ordre); render(); }));
   UNSUB.push(fs.onSnapshot(col('exercicis'), q => { NOF = {}; q.docs.forEach(d => NOF[d.id] = d.data()); render(); }));
   UNSUB.push(fs.onSnapshot(col('partits'), q => { PAR = q.docs.map(d => ({ id: d.id, ...d.data() })).map(p => ({ ...p, data: p.data || avui(), convocats: Array.isArray(p.convocats) ? p.convocats : [], accions: Array.isArray(p.accions) ? p.accions : [], sets: p.sets || {} })).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || ''))); PAR.__ok = true; sincCal(); render(); }));
@@ -925,6 +938,7 @@ function setFets(codes, fet) {
 
 // ------------------------------------------------------------------ sessions
 function next(f) {
+  if (esFS()) return D.sessions.find(s => !isFet(s.codi));   // una sola llista en ordre
   return D.sessions.filter(s => fam(s) === f && !isFet(s.codi)).sort((a, b) => num(a.codi) - num(b.codi))[0];
 }
 
@@ -933,7 +947,7 @@ function sessRow(s, prox) {
   const fams = [...new Set(s.blocs.filter(b => !b.tret).map(b => famC(b.codi)).filter(Boolean))];
   const inner = `<div class="row">
     ${sel ? `<input type="checkbox" class="chk" ${sel.has(s.codi) ? 'checked' : ''}>` : ''}
-    <span class="sbadge">${s.codi.slice(0, 2)}<b>${s.codi.slice(2)}</b></span>
+    <span class="sbadge">${badge(s.codi)}</span>
     <span class="grow"><span class="stit">${esc(s.titol)}</span><span class="sfams">${fams.map(k => `<i class="f-${k}" title="${FAM[k]}"></i>`).join('')}</span></span>
     ${n ? `<span class="tag">💬 ${n}</span>` : ''}
     ${fet ? '<span class="sfet" title="Feta">✓</span>' : prox ? '<span class="sprox">Pròxima</span>' : ''}</div>`;
@@ -968,8 +982,15 @@ fetch('data/estandard.json', { cache: 'no-cache' }).then(r => r.json()).then(d =
 const RETIRATS = ['S4', 'D25', 'D31', 'R16', 'J24', 'J30',
   'D23', 'D27', 'D28', 'D29', 'B28', 'B29', 'B31', 'B32', 'B34', 'B37', 'D32', 'S11', 'R19', 'R21', 'R23', 'C11', 'BL10', 'BL11', 'C12', 'C13', 'C14', 'C16', 'J21', 'J27', 'D30', 'G21', 'B36', 'B38', 'B39', 'R17', 'R18', 'R24',
   'S12', 'S13', 'S14', 'S16', 'BL12', 'BL13', 'BL14', 'C15', 'J22', 'G14', 'G15', 'G16', 'G17', 'G19', 'G22', 'G23', 'G24'];
-const totsExs = () => [...(D?.exercicis?.length ? D.exercicis : EXS || []), ...EXEST];
-const exercicis = () => totsExs().filter(e => !RETIRATS.includes(e.codi));
+// els canvis fets a l'app (BIB) passen per sobre dels de l'annex i dels estàndard; els codis nous són exercicis creats a l'app
+const totsExs = () => {
+  const base = [...(D?.exercicis?.length ? D.exercicis : EXS || []), ...EXEST].map(e => BIB[e.codi] ? { ...e, ...BIB[e.codi] } : e);
+  const nous = Object.entries(BIB).filter(([k]) => !base.some(e => e.codi === k)).map(([codi, v]) => ({ codi, ...v }));
+  return [...base, ...nous].map(e => ({ ...e, famNom: FAM[e.fam] || e.famNom }));
+};
+const retirat = e => RETIRATS.includes(e.codi) || !!e.retirat;
+const exercicis = () => totsExs().filter(e => !retirat(e));
+const potEditar = () => !!CLAU && (!USR || ['admin', 'entrenador'].includes(rolActual()));
 function carregaExs() { if (EXS || D?.exercicis?.length) return; EXS = []; fetch('data/sessions.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { EXS = d.exercicis || []; render(); }).catch(() => {}); }
 // on surt cada exercici (sessions d'aquest equip, en ordre de calendari)
 function usosExs() {
@@ -989,6 +1010,7 @@ function viewBiblio() {
   const vis = es.filter(e => !bibFam.size || bibFam.has(e.fam));
   const triades = [...bibFam].map(k => FAM[k].split(/[ ,]/)[0]).join(', ');
   return `<h2>Exercicis <span class="sub">${es.length}</span></h2>
+  ${potEditar() ? `<div class="selbar"><span class="grow"></span><button class="btn" onclick="nouExercici()">＋ Exercici nou</button></div>` : ''}
   <input type="search" id="bibq" placeholder="Busca per nom, codi o paraula (p. ex. «paret», «R5», «bloqueig»)" oninput="bibFiltra(this.value)" autocomplete="off">
   <details class="bibfil" ${bibObert ? 'open' : ''} ontoggle="bibObert = this.open"><summary class="btn">Filtra: ${bibFam.size ? esc(triades) : 'tots'} ▾</summary>
     <div class="card" style="margin-top:6px">${Object.entries(FAM).map(([k, v]) => `<label class="row" style="gap:8px;margin:6px 0"><input type="checkbox" ${bibFam.has(k) ? 'checked' : ''} onchange="bibF('${k}')"> <b>${k}</b> ${esc(v)}</label>`).join('')}
@@ -999,6 +1021,37 @@ function viewBiblio() {
   <p class="meta" id="bibcap" hidden>Cap exercici amb aquestes paraules.</p>`;
 }
 window.bibObert = false;
+// editar un exercici de la biblioteca (es guarda a equips/{clau}/biblioteca/{codi}; les sessions on ja surt no canvien)
+function exEditHtml(e) {
+  return `<div class="card exed"><b>Edita ${e.codi}</b>
+    <label class="lbl">Nom</label><input type="text" id="ex_nom" value="${esc(e.nom || '')}">
+    <label class="lbl">Família</label><select id="ex_fam">${Object.entries(FAM).map(([k, v]) => `<option value="${k}" ${e.fam === k ? 'selected' : ''}>${k} ${esc(v)}</option>`).join('')}</select>
+    <label class="lbl">Com es fa</label><textarea id="ex_com">${esc(e.com || '')}</textarea>
+    <label class="lbl">Dosi</label><textarea id="ex_dosi" style="min-height:60px">${esc(e.dosi || '')}</textarea>
+    <label class="lbl">Muntatge</label><textarea id="ex_muntatge" style="min-height:60px">${esc(e.muntatge || '')}</textarea>
+    <p class="meta" style="margin:8px 0 0">Les sessions on ja surt no canvien: cada sessió té la seva còpia, que es pot retocar a la mateixa sessió.</p>
+    <div class="actions"><button class="btn primary" style="flex:1" onclick="desaExercici('${e.codi}')">Desa</button><button class="btn" onclick="exEd=null;render()">Cancel·la</button></div>
+    <div class="actions"><button class="btn danger" style="flex:1" onclick="retiraExercici('${e.codi}', ${!retirat(e)})">${retirat(e) ? 'Torna-la a posar a la biblioteca' : 'Treu-lo de la biblioteca'}</button></div></div>`;
+}
+const bibRef = k => fs.doc(db, 'equips', CLAU, 'biblioteca', k);
+window.desaExercici = async k => {
+  const nom = $('#ex_nom').value.trim(); if (!nom) return desat('Posa-li un nom');
+  await fs.setDoc(bibRef(k), { nom, fam: $('#ex_fam').value, com: $('#ex_com').value.trim(), dosi: $('#ex_dosi').value.trim(), muntatge: $('#ex_muntatge').value.trim(), t: Date.now() }, { merge: true });
+  exEd = null; desat('✓ Desat'); render();
+};
+window.retiraExercici = async (k, treu) => {
+  if (treu && !await dialeg(`Treure <b>${k}</b> de la biblioteca?<br><small>No sortirà en triar exercicis. Les sessions on ja surt no canvien.</small>`, { ok: 'Treu-lo', perill: true })) return;
+  await fs.setDoc(bibRef(k), { retirat: treu, t: Date.now() }, { merge: true }); exEd = null; render();
+};
+window.nouExercici = async () => {
+  const ok = await dialeg(`<b>Exercici nou</b><div class="form"><label class="lbl">Nom</label><input type="text" id="nex_nom" placeholder="Per exemple Pepper a tres">
+    <label class="lbl">Família</label><select id="nex_fam">${Object.entries(FAM).map(([k, v]) => `<option value="${k}">${k} ${esc(v)}</option>`).join('')}</select></div>`, { ok: 'Crea\'l', ico: '🏐' });
+  if (!ok) return;
+  const nom = $('#nex_nom').value.trim(), fam = $('#nex_fam').value; if (!nom) return;
+  const n = Math.max(0, ...totsExs().filter(e => e.fam === fam).map(e => +(e.codi.match(/\d+$/) || [0])[0])) + 1, codi = fam + n;
+  await fs.setDoc(bibRef(codi), { nom, fam, com: '', dosi: '', muntatge: '', nou: true, t: Date.now() });
+  exEd = { codi }; location.hash = '#/e/' + codi;
+};
 window.bibF = v => { if (!v) bibFam.clear(); else bibFam.has(v) ? bibFam.delete(v) : bibFam.add(v); render(); };
 // filtrar sense tornar a pintar la pantalla (perquè no es tanqui el teclat)
 window.bibFiltra = q => {
@@ -1012,7 +1065,8 @@ function viewExercici(c) {
   const us = usosExs()[c] || [];
   return `<div class="shead"><span class="code fam f-${e.fam}" style="font-size:18px;padding:6px 10px">${e.codi}</span><h2>${esc(e.nom)}</h2></div>
   <div class="tags"><span class="meta">${esc(e.famNom || FAM[e.fam] || '')}</span>${ORI[e.codi] && USR && esAdmin() ? ` <span class="tag ori-${ORI[e.codi]}">${ORIT[ORI[e.codi]]}</span>` : ''}${e.pistes ? ` <span class="meta">· ${e.pistes === '2' ? '2 pistes' : e.pistes === '1' ? '1 pista' : '1 o 2 pistes'}</span>` : ''}</div>
-  ${RETIRATS.includes(e.codi) ? `<p class="card" style="margin:8px 0">Retirat de la biblioteca: no funciona. Es canviarà per un altre a cada sessió on surt, quan es revisi.</p>` : ''}
+  ${potEditar() ? (exEd?.codi === e.codi ? exEditHtml(e) : `<div class="selbar"><span class="grow"></span><button class="btn" onclick="exEd={codi:'${e.codi}'};render()">✎ Edita l'exercici</button></div>`) : ''}
+  ${retirat(e) ? `<p class="card" style="margin:8px 0">Retirat de la biblioteca: no funciona. Es canviarà per un altre a cada sessió on surt, quan es revisi.</p>` : ''}
   ${e.tambe ? `<p class="meta" style="margin:4px 0 8px">També se'n diu: <i>${esc(e.tambe)}</i></p>` : ''}
   ${CLAR[e.codi] ? `<div class="card"><h4 class="clart">Explicació pas a pas</h4>${clarHtml(e.codi)}<p class="meta" style="margin:6px 0 0">Escrita per Claude a partir del text original, per a qui no ha vist mai l'exercici.</p></div><h3>Text original</h3>` : ''}
   <div class="card block f-${e.fam}">${fields(e)}</div>
@@ -1034,7 +1088,7 @@ function blockCard(b, s, ord) {
       <div class="actions"><button class="btn primary" onclick="nofSave('${s.codi}', ${b.n})">Desa</button><button class="btn" onclick="nofEdit=null;render()">Cancel·la</button></div></div>` : '';
   const fc = famC(b.codi);
   return `<div class="card block ${nf ? 'nofet' : ''} ${fc ? 'f-' + fc : ''}">
-    <div class="bhead"><span class="bnum">${b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
+    <div class="bhead"><span class="bnum">${b.nd ?? b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
       <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span>
       ${ord ? `<span class="ord"><button ${ord.first ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, -1)">▲</button><button ${ord.last ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, 1)">▼</button></span>` : ''}</div>
     ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi).replace(/\b(BL|[DBSRCJG])\d+\b/g, k => `<a href="#/e/${k}">${k}</a>`)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}</div>` : ''}
@@ -1101,6 +1155,19 @@ const sensePermis = () => `<div class="card warn"><b>Encara no tens accés a aqu
 const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil.</b><div class="meta">Per ${what} obre una vegada l'enllaç amb la clau que et va passar Claude.</div></div>`;
 
 // pròxim dia d'entreno d'una família (avui inclòs)
+// constructor: les pròximes n sessions pendents, cadascuna amb el pròxim dia d'entreno (avui inclòs si encara no s'ha fet)
+function proximes(n) {
+  const ds = Object.keys(tcfg().dies || {}).map(Number), pend = D.sessions.filter(s => !isFet(s.codi)), out = [];
+  const fetaAvui = Object.values(FETS).some(f => f?.fet && f.t && new Date(f.t).toDateString() === new Date().toDateString());
+  for (let i = fetaAvui ? 1 : 0; i < 60 && out.length < Math.min(n, pend.length); i++) {
+    const d = new Date(Date.now() + i * 864e5);
+    if (!ds.length || ds.includes(d.getDay())) out.push({ s: pend[out.length], i, iso: d.toISOString().slice(0, 10) });
+  }
+  return out;
+}
+const quanTxt = x => x.i === 0 ? 'Avui' : x.i === 1 ? 'Demà' : dataCa(x.iso);
+const badge = c => { const m = /^([A-Z]+)(\d+)$/.exec(c) || [, c, '']; return `${m[1]}<b>${m[2]}</b>`; };
+const durada = s => s.blocs.filter(b => !b.tret).reduce((t, b) => t + (+b.min || 0), 0);
 function properDia(f) {
   const ds = diesDe(f); if (!ds.length) return null;
   for (let i = 0; i < 7; i++) { const d = new Date(Date.now() + i * 864e5); if (ds.includes(d.getDay())) return { i, iso: d.toISOString().slice(0, 10) }; }
@@ -1120,6 +1187,14 @@ function viewHome() {
       <div class="dots">${fams.map(k => `<i class="f-${k}">${FAM[k]}</i>`).join('')}</div>
       <div class="prog"><span class="pb"><i style="width:${Math.round(100 * fetes / tot)}%"></i></span>${fetes} de ${tot} fetes</div></a>`;
   };
+  const heroFS = ({ s, i, iso }) => {
+    const tot = D.sessions.length, fetes = D.sessions.filter(x => isFet(x.codi)).length;
+    const fams = [...new Set(s.blocs.filter(b => !b.tret).map(b => famC(b.codi)).filter(Boolean))];
+    return `<a class="hero" href="#/s/${s.codi}"><span class="when ${i > 1 ? 'later' : ''}">${quanTxt({ i, iso })}</span>
+      <div class="kick">${s.min || durada(s)} min</div><div class="t"><b>${s.codi}</b> ${esc(s.titol)}</div>
+      <div class="dots">${fams.map(k => `<i class="f-${k}">${FAM[k]}</i>`).join('')}</div>
+      <div class="prog"><span class="pb"><i style="width:${Math.round(100 * fetes / tot)}%"></i></span>${fetes} de ${tot} fetes</div></a>`;
+  };
   // pròxims partits: «Dijous 5/11 20:00 Sant Pere Groc vs Aloges» (sempre el local primer)
   const prox = PAR.filter(p => !jugat(p));
   const nos = p => `<span class="nosn ${p.equip === 'G' ? 'g' : 'n'}">${esc(nomNostre(p))}</span>`;
@@ -1128,7 +1203,7 @@ function viewHome() {
       <span class="pxt">${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}</span></a>`; };
   return `<div class="hello"><h2>${salutacio()}! 👋</h2><span>${new Date().toLocaleDateString('ca', { weekday: 'long', day: 'numeric', month: 'long' })}</span></div>
   ${D.sessions.length ? '' : `<div class="card warn"><b>Aquest equip encara no té sessions.</b><div class="meta">Les prepararem amb Claude. L'assistència, els partits i la resta ja funcionen.</div></div>`}
-  <div class="heros">${['DT', 'DJ'].map(f => [f, properDia(f)]).filter(([, d]) => d).sort((a, b) => a[1].i - b[1].i).map(([f]) => hero(f)).join('')}</div>
+  <div class="heros">${esFS() ? proximes(2).map(x => heroFS(x)).join('') : ['DT', 'DJ'].map(f => [f, properDia(f)]).filter(([, d]) => d).sort((a, b) => a[1].i - b[1].i).map(([f]) => hero(f)).join('')}</div>
   ${CLAU ? `<div class="quick">
     <button onclick="goLlista()"><span class="qi">📋</span>Passar llista</button>
     <button onclick="timerToggle(true)"><span class="qi">⏱️</span>Cronòmetre</button>
@@ -1254,16 +1329,94 @@ window.goLlista = () => {
   location.hash = '#/assistencia';
 };
 
+// ---------------------------------------------------------------- constructor de sessions
+const BCAMPS = ['titol', 'codi', 'min', 'com', 'dosi', 'muntatge', 'lloc'];
+const netBloc = b => ({ n: b.n, ...Object.fromEntries(BCAMPS.map(k => [k, k === 'min' ? (+b.min || 0) : (b[k] || '')])) });
+window.editaSessio = c => { const s = byCode(c); sesEd = JSON.parse(JSON.stringify({ codi: c, titol: s.titol, min: s.min || durada(s), nota: s.nota || '', notaFinal: s.notaFinal || '', ordre: s.ordre ?? 0, blocs: s.blocs.filter(b => !b.tret).map(netBloc) })); render(); scrollTo(0, 0); };
+function viewSesEdit() {
+  const e = sesEd, sum = e.blocs.reduce((t, b) => t + (+b.min || 0), 0), dif = sum - (+e.min || 0);
+  return `<div class="sesed"><h2>Edita ${esc(e.codi)}</h2>
+  <div class="card"><label class="lbl">Títol</label><input type="text" value="${esc(e.titol)}" oninput="sesEd.titol=this.value">
+    <label class="lbl">Durada (minuts)</label><input type="number" inputmode="numeric" min="0" value="${e.min}" onchange="sesEd.min=+this.value||0;render()">
+    <label class="lbl">Nota (opcional)</label><textarea style="min-height:56px" oninput="sesEd.nota=this.value">${esc(e.nota)}</textarea></div>
+  <div class="card durbar ${dif ? 'mal' : 'be'}"><b>${sum} de ${e.min} min</b> ${dif > 0 ? `· en sobren ${dif}` : dif < 0 ? `· en falten ${-dif}` : '· quadra'}</div>
+  ${e.blocs.map((b, i) => `<div class="card block ${famC(b.codi) ? 'f-' + famC(b.codi) : ''}">
+    <div class="bhead"><span class="bnum">${i + 1}</span><span class="btitle"><input type="text" value="${esc(b.titol)}" placeholder="Títol del bloc" oninput="sesEd.blocs[${i}].titol=this.value"></span>
+      <span class="ord"><button ${i ? '' : 'disabled'} onclick="sesMou(${i},-1)">▲</button><button ${i < e.blocs.length - 1 ? '' : 'disabled'} onclick="sesMou(${i},1)">▼</button><button onclick="sesTreu(${i})" title="Treu el bloc">✕</button></span></div>
+    <div class="row" style="gap:8px;margin:6px 0"><span class="code fam">${esc(b.codi || 'sense exercici')}</span><span class="grow"></span>
+      <button class="small" onclick="triaEx(${i})">${b.codi ? 'Canvia l\'exercici' : 'Tria un exercici'}</button>
+      <label class="meta" style="display:flex;align-items:center;gap:4px"><input type="number" inputmode="numeric" min="0" style="width:64px" value="${b.min}" onchange="sesEd.blocs[${i}].min=+this.value||0;render()"> min</label></div>
+    <details><summary class="meta" style="cursor:pointer">Com es fa, dosi i muntatge</summary>
+      ${[['com', 'Com es fa'], ['dosi', 'Dosi'], ['muntatge', 'Muntatge'], ['lloc', 'Lloc']].map(([k, l]) => `<label class="lbl">${l}</label><textarea style="min-height:${k === 'com' ? 90 : 50}px" oninput="sesEd.blocs[${i}].${k}=this.value">${esc(b[k])}</textarea>`).join('')}</details>
+  </div>`).join('')}
+  <div class="actions"><button class="btn" style="flex:1" onclick="triaEx(-1)">＋ Afegeix un exercici</button><button class="btn" onclick="sesBuit()">＋ Bloc buit</button></div>
+  <div class="actions"><button class="btn primary" style="flex:1" onclick="desaSessio()">Desa</button><button class="btn" onclick="sesEd=null;render()">Cancel·la</button></div>
+  <div class="actions"><button class="btn" style="flex:1" onclick="duplicaSessio()">Duplica-la</button><button class="btn danger" onclick="esborraSessio()">Esborra-la</button></div></div>`;
+}
+const nouN = () => Math.max(0, ...sesEd.blocs.map(b => +b.n || 0)) + 1;
+window.sesMou = (i, d) => { const b = sesEd.blocs; [b[i], b[i + d]] = [b[i + d], b[i]]; render(); };
+window.sesTreu = async i => { if (await dialeg(`Treure el bloc <b>${esc(sesEd.blocs[i].titol || i + 1)}</b>?`, { ok: 'Treu-lo', perill: true })) { sesEd.blocs.splice(i, 1); render(); } };
+window.sesBuit = () => { sesEd.blocs.push(netBloc({ n: nouN(), min: 10 })); render(); };
+// triar un exercici de la biblioteca (i = -1: bloc nou al final)
+window.triaEx = i => {
+  const u = usosExs();
+  obreFitxa(`<b>Tria un exercici</b><input type="search" id="triaq" placeholder="Busca per nom o codi" oninput="triaFiltra(this.value)" autocomplete="off" style="margin:8px 0">
+    <div id="trial" style="max-height:55vh;overflow:auto">${exercicis().map(e => { const us = (u[e.codi] || []).filter(isFet), ult = us[us.length - 1];
+      return `<button class="card exrow" style="width:100%;text-align:left" data-q="${esc(textEx(e))}" onclick="triaFet(${i}, '${e.codi}')"><span class="code fam f-${e.fam}">${e.codi}</span>
+        <span class="grow"><b>${esc(e.nom)}</b><span class="meta">${ult ? `fet al ${ult}` : 'encara no fet'}</span></span></button>`; }).join('')}</div>`,
+    `<button class="btn" style="flex:1" onclick="tancaFitxa()">Cancel·la</button>`);
+};
+window.triaFiltra = q => {
+  const w = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean);
+  document.querySelectorAll('#trial [data-q]').forEach(el => { el.hidden = !w.every(x => el.dataset.q.includes(x)); });
+};
+window.triaFet = (i, k) => {
+  const e = totsExs().find(x => x.codi === k), dades = { titol: e.nom, codi: k, com: e.com || '', dosi: e.dosi || '', muntatge: e.muntatge || '' };
+  if (i < 0) sesEd.blocs.push(netBloc({ n: nouN(), min: 10, ...dades })); else Object.assign(sesEd.blocs[i], dades);
+  tancaFitxa(); render();
+};
+window.desaSessio = async () => {
+  const e = sesEd; if (!e.titol.trim()) return desat('Posa-li un títol');
+  await fs.setDoc(ref('sessions', e.codi), { titol: e.titol.trim(), min: +e.min || 0, nota: e.nota.trim(), notaFinal: e.notaFinal || '', ordre: e.ordre, blocs: e.blocs.map(netBloc), t: Date.now() });
+  sesEd = null; desat('✓ Sessió desada'); render();
+};
+const nouCodi = () => 'SE' + String(Math.max(0, ...D.sessions.map(s => /^SE(\d+)$/.exec(s.codi)).filter(Boolean).map(m => +m[1])) + 1).padStart(2, '0');
+window.novaSessio = async () => {
+  const codi = nouCodi(), ordre = Math.max(0, ...D.sessions.map(s => s.ordre || 0)) + 10;
+  await fs.setDoc(ref('sessions', codi), { titol: 'Sessió nova', min: 90, nota: '', notaFinal: '', ordre, blocs: [], t: Date.now() });
+  location.hash = '#/s/' + codi; sesEd = { codi, titol: 'Sessió nova', min: 90, nota: '', notaFinal: '', ordre, blocs: [] }; render();
+};
+window.duplicaSessio = async () => {
+  const e = sesEd, codi = nouCodi(), i = D.sessions.findIndex(s => s.codi === e.codi), seg = D.sessions[i + 1];
+  const ordre = seg ? (e.ordre + (seg.ordre ?? e.ordre + 10)) / 2 : e.ordre + 10;    // just darrere de l'original
+  await fs.setDoc(ref('sessions', codi), { titol: e.titol + ' (còpia)', min: +e.min || 0, nota: e.nota, notaFinal: e.notaFinal || '', ordre, blocs: e.blocs.map(netBloc), t: Date.now() });
+  sesEd = null; location.hash = '#/s/' + codi; desat('✓ Còpia feta');
+};
+window.esborraSessio = async () => {
+  if (!await dialeg(`Esborrar la sessió <b>${esc(sesEd.codi)} ${esc(sesEd.titol)}</b>?<br><small>No es pot desfer.</small>`, { ok: 'Esborra-la', perill: true })) return;
+  await fs.deleteDoc(ref('sessions', sesEd.codi)); sesEd = null; location.hash = '#/entrenos';
+};
+// un sol cop: les sessions del fitxer (data/sessions.json) passen a Firebase, en l'ordre del calendari i amb els canvis d'ordre ja aplicats
+window.migraSessions = async () => {
+  if (!await dialeg(`Passar les ${D.sessions.length} sessions a l'app?<br><small>A partir d'ara les sessions es canvien aquí. Les fetes, els comentaris i les llistes es mantenen.</small>`, { ok: 'Passa-les', ico: '🏐' })) return;
+  const ord = {}; (D?.calendari || []).forEach((c, i) => { ord[c.dimarts] = 2 * i; ord[c.dijous] = 2 * i + 1; });
+  const pos = s => ord[s.codi] ?? 2 * num(s.codi) + (fam(s) === 'DJ');
+  const ss = D.sessions.slice().sort((a, b) => pos(a) - pos(b));
+  await Promise.all(ss.map((s, i) => { const bs = blocsOrdenats(s);
+    return fs.setDoc(ref('sessions', s.codi), { titol: s.titol, min: bs.reduce((t, b) => t + (+b.min || 0), 0), nota: s.nota || '', notaFinal: s.notaFinal || '', ordre: (i + 1) * 10, blocs: bs.map(netBloc), t: Date.now() }); }));
+  desat('✓ Sessions passades a l\'app');
+};
+
 // tots els entrenaments junts (dimarts i dijous barrejats), en ordre de calendari: primer els pròxims
 function viewEntrenos() {
   const fs_ = ['DT', 'DJ'].filter(f => diesDe(f).length);
   const ord = {}; (D?.calendari || []).forEach((c, i) => { ord[c.dimarts] = 2 * i; ord[c.dijous] = 2 * i + 1; });
   const pos = s => ord[s.codi] ?? 2 * num(s.codi) + (fam(s) === 'DJ');
-  const ss = D.sessions.filter(s => fs_.includes(fam(s))).sort((a, b) => pos(a) - pos(b));
+  const ss = esFS() ? D.sessions.slice() : D.sessions.filter(s => fs_.includes(fam(s))).sort((a, b) => pos(a) - pos(b));
   // pròxim dia d'entreno de cada família (avui inclòs), per posar-les en l'ordre en què toquen
   const avui = new Date(); avui.setHours(0, 0, 0, 0); const w = avui.getDay() || 7;
   const quan = f => Math.min(...diesDe(f).map(d => (d - w + 7) % 7));
-  const px = fs_.map(f => ({ s: next(f), f, d: quan(f) })).filter(x => x.s).sort((a, b) => a.d - b.d);
+  const px = esFS() ? proximes(2).map(x => ({ s: x.s, d: x.i, iso: x.iso })) : fs_.map(f => ({ s: next(f), f, d: quan(f) })).filter(x => x.s).sort((a, b) => a.d - b.d);
   const dataTxt = d => { const x = new Date(avui); x.setDate(x.getDate() + d); return d === 0 ? 'Avui' : d === 1 ? 'Demà' : `${DIES[x.getDay()]} ${x.getDate()}/${x.getMonth() + 1}`; };
   const fetes = ss.filter(s => isFet(s.codi)), perFer = ss.filter(s => !isFet(s.codi) && !px.some(x => x.s.codi === s.codi));
   const bar = !CLAU ? '' : sel
@@ -1276,9 +1429,11 @@ function viewEntrenos() {
   <div class="card progcard"><div class="row"><span class="grow"><b>${fetes.length}</b> de ${ss.length} sessions fetes</span><span class="pct">${ss.length ? Math.round(100 * fetes.length / ss.length) : 0}%</span></div>
     <div class="pbar"><i style="width:${ss.length ? 100 * fetes.length / ss.length : 0}%"></i></div></div>
   ${bar}
-  ${px.length ? `<h3>Pròxims</h3><div class="list">${px.map(x => `<p class="meta" style="margin:6px 2px 2px">${dataTxt(x.d)} · ${PISTES[x.f]}</p>${sessRow(x.s, true)}`).join('')}</div>` : ''}
+  ${px.length ? `<h3>Pròxims</h3><div class="list">${px.map(x => `<p class="meta" style="margin:6px 2px 2px">${dataTxt(x.d)}${x.f ? ' · ' + PISTES[x.f] : ''}</p>${sessRow(x.s, true)}`).join('')}</div>` : ''}
   ${perFer.length ? `<h3>Després</h3><div class="list">${perFer.map(s => sessRow(s)).join('')}</div>` : ''}
-  ${fetes.length ? `<details ${sel ? 'open' : ''} style="margin-top:14px"><summary class="meta" style="cursor:pointer">Fetes (${fetes.length})</summary><div class="list" style="margin-top:8px">${fetes.map(s => sessRow(s)).join('')}</div></details>` : ''}`;
+  ${fetes.length ? `<details ${sel ? 'open' : ''} style="margin-top:14px"><summary class="meta" style="cursor:pointer">Fetes (${fetes.length})</summary><div class="list" style="margin-top:8px">${fetes.map(s => sessRow(s)).join('')}</div></details>` : ''}
+  ${potEditar() ? (esFS() ? `<div class="actions" style="margin-top:14px"><button class="btn" style="flex:1" onclick="novaSessio()">＋ Sessió nova</button></div>`
+    : D.sessions.length ? `<div class="card" style="margin-top:14px"><b>Constructor de sessions</b><div class="meta">Passa les sessions a l'app per poder-les editar, afegir-ne i treure'n. Es fa un sol cop.</div><div class="actions"><button class="btn primary" style="flex:1" onclick="migraSessions()">Passa les sessions a l'app</button></div></div>` : '') : ''}`;
 }
 
 function viewList(dia) {
@@ -1300,7 +1455,8 @@ function viewList(dia) {
 let ordering = false;
 function blocsOrdenats(s) {
   // ordre guardat a Firebase (si l'entrenador l'ha canviat); franges recalculades
-  const bs = s.blocs.filter(b => !b.tret), o = ORD[s.codi];
+  const bs = s.blocs.filter(b => !b.tret), o = esFS() ? null : ORD[s.codi];
+  if (esFS()) { let t = 0; return bs.map((b, i) => { const f = `min ${t}-${t + (+b.min || 0)}`; t += +b.min || 0; return { ...b, nd: i + 1, franja: f }; }); }
   if (!o) return bs;
   const out = o.map(n => bs.find(b => b.n === n)).filter(Boolean).concat(bs.filter(b => !o.includes(b.n)));
   let t = 0;
@@ -1320,12 +1476,13 @@ function viewSession(c) {
   const bs = blocsOrdenats(s);
   const coms = comments(c).map(x => `<div class="card comment"><div class="meta">${new Date(x.t).toLocaleDateString('ca')}${x.aplicat ? ' aplicat per Claude' : ''}</div>${esc(x.text).replace(/\n/g, '<br>')}</div>`).join('');
   const totMin = bs.reduce((t, b) => t + (b.min || 0), 0) || 1;
-  return `<div class="shead"><span class="sbadge lg">${s.codi.slice(0, 2)}<b>${s.codi.slice(2)}</b></span><h2>${esc(s.titol)}</h2></div>
-    <div class="pills"><span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span><span>⏱ ${s.min} min</span><span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
+  if (sesEd && sesEd.codi === c) return viewSesEdit();
+  return `<div class="shead"><span class="sbadge lg">${badge(s.codi)}</span><h2>${esc(s.titol)}</h2></div>
+    <div class="pills">${esFS() ? '' : `<span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span>`}<span>⏱ ${esFS() ? (s.min || durada(s)) : s.min} min</span><span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
     ${CLAU ? llistaSessio(c) : ''}
-    <div class="tline" title="Minuts de cada bloc">${bs.map(b => `<i class="${famC(b.codi) ? 'f-' + famC(b.codi) : ''}" style="flex:${b.min || 0}"><span>${b.n ?? ''}</span></i>`).join('')}</div>
+    <div class="tline" title="Minuts de cada bloc">${bs.map(b => `<i class="${famC(b.codi) ? 'f-' + famC(b.codi) : ''}" style="flex:${b.min || 0}"><span>${b.nd ?? b.n ?? ''}</span></i>`).join('')}</div>
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
-    ${CLAU ? `<div class="selbar"><span class="grow">${ORD[c] ? 'Ordre canviat per tu' : ''}</span>
+    ${esFS() ? (potEditar() ? `<div class="selbar"><span class="grow"></span><button class="btn" onclick="editaSessio('${c}')">✎ Edita la sessió</button></div>` : '') : CLAU ? `<div class="selbar"><span class="grow">${ORD[c] ? 'Ordre canviat per tu' : ''}</span>
       ${ORD[c] && ordering ? `<button class="btn" onclick="resetOrder('${c}')">Ordre original</button>` : ''}
       <button class="btn ${ordering ? 'primary' : ''}" onclick="toggleOrdering()">${ordering ? 'Fet' : '↕ Canviar l\'ordre'}</button></div>` : ''}
     ${bs.map((b, i) => blockCard(b, s, ordering ? { first: i === 0, last: i === bs.length - 1 } : null)).join('')}
@@ -2708,7 +2865,7 @@ function pintaPantalla() {
     <a href="#/partits" data-t="partits"><span class="ico">${ICO.partits}</span>Partits</a>`;
   // no repintar mentre s'escriu un comentari
   const a = document.activeElement;
-  if (a && (a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
+  if (a && (a.closest?.('.sesed, .exed') || a.id === 'triaq' || a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
   const ruta = r + '/' + arg;
   muntaCalendari(); capitalitza();
