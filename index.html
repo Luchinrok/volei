@@ -907,8 +907,9 @@ async function openSeason() {
   UNSUB.push(fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); }));
   UNSUB.push(fs.onSnapshot(col('sessions'), q => {
     if (!D.fs) D.__json = D.sessions;
-    const ss = q.docs.map(d => ({ ...d.data(), codi: d.id })).sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0));
-    D.sessions = ss.length ? ss : D.__json; D.fs = !!ss.length; render();
+    const tot = q.docs.map(d => ({ ...d.data(), codi: d.id })).sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0)), ss = tot.filter(x => !x.esborrada);
+    D.paperera = tot.filter(x => x.esborrada).sort((a, b) => b.esborrada - a.esborrada);
+    D.sessions = tot.length ? ss : D.__json; D.fs = !!tot.length; render();
   }, () => {}));
   UNSUB.push(fs.onSnapshot(fs.collection(db, 'equips', CLAU, 'biblioteca'), q => { BIB = {}; q.docs.forEach(d => BIB[d.id] = d.data()); render(); }, () => {}));
   UNSUB.push(fs.onSnapshot(col('ordre'), q => { ORD = {}; q.docs.forEach(d => ORD[d.id] = d.data().ordre); render(); }));
@@ -1409,8 +1410,12 @@ window.duplicaSessio = async () => {
   sesEd = null; location.hash = '#/s/' + codi; desat('✓ Còpia feta');
 };
 window.esborraSessio = async () => {
-  if (!await dialeg(`Esborrar la sessió <b>${esc(sesEd.codi)} ${esc(sesEd.titol)}</b>?<br><small>No es pot desfer.</small>`, { ok: 'Esborra-la', perill: true })) return;
-  await fs.deleteDoc(ref('sessions', sesEd.codi)); sesEd = null; location.hash = '#/entrenos';
+  if (!await dialeg(`Esborrar la sessió <b>${esc(sesEd.codi)} ${esc(sesEd.titol)}</b>?<br><small>Anirà a la paperera, a baix de tot de Sessions, i la podràs recuperar.</small>`, { ok: 'Esborra-la', perill: true })) return;
+  await fs.updateDoc(ref('sessions', sesEd.codi), { esborrada: Date.now() }); sesEd = null; location.hash = '#/entrenos'; desat('Sessió a la paperera');
+};
+window.recuperaSessio = async c => { await fs.updateDoc(ref('sessions', c), { esborrada: fs.deleteField() }); desat('✓ Sessió recuperada'); };
+window.esborraDelTot = async c => {
+  if (await dialeg(`Esborrar <b>${esc(c)}</b> per sempre?<br><small>Ja no es podrà recuperar.</small>`, { ok: 'Esborra-la', perill: true })) fs.deleteDoc(ref('sessions', c));
 };
 // un sol cop: les sessions del fitxer (data/sessions.json) passen a Firebase, en l'ordre del calendari i amb els canvis d'ordre ja aplicats
 window.migraSessions = async () => {
@@ -1448,7 +1453,10 @@ function viewEntrenos() {
   ${px.length ? `<h3>Pròxims</h3><div class="list">${px.map(x => `<p class="meta" style="margin:6px 2px 2px">${dataTxt(x.d)}${x.f ? ' · ' + PISTES[x.f] : ''}</p>${sessRow(x.s, true)}`).join('')}</div>` : ''}
   ${perFer.length ? `<h3>Després</h3><div class="list">${perFer.map(s => sessRow(s)).join('')}</div>` : ''}
   ${fetes.length ? `<details ${sel ? 'open' : ''} style="margin-top:14px"><summary class="meta" style="cursor:pointer">Fetes (${fetes.length})</summary><div class="list" style="margin-top:8px">${fetes.map(s => sessRow(s)).join('')}</div></details>` : ''}
-  ${potEditar() ? (esFS() ? `<div class="actions" style="margin-top:14px"><button class="btn" style="flex:1" onclick="novaSessio()">＋ Sessió nova</button></div>`
+  ${potEditar() ? (esFS() ? `<div class="actions" style="margin-top:14px"><button class="btn" style="flex:1" onclick="novaSessio()">＋ Sessió nova</button></div>
+    ${D.paperera?.length ? `<details style="margin-top:14px"><summary class="meta" style="cursor:pointer">🗑 Paperera (${D.paperera.length})</summary><div class="list" style="margin-top:8px">${D.paperera.map(x => `<div class="card row">
+      <span class="sbadge">${badge(x.codi)}</span><span class="grow"><b>${esc(x.titol)}</b><span class="meta" style="display:block">esborrada el ${new Date(x.esborrada).toLocaleDateString('ca')}</span></span>
+      <button class="btn" onclick="recuperaSessio('${x.codi}')">Recupera-la</button><button class="mini" title="Esborra-la per sempre" onclick="esborraDelTot('${x.codi}')">✕</button></div>`).join('')}</div></details>` : ''}`
     : D.sessions.length ? `<div class="card" style="margin-top:14px"><b>Constructor de sessions</b><div class="meta">Passa les sessions a l'app per poder-les editar, afegir-ne i treure'n. Es fa un sol cop.</div><div class="actions"><button class="btn primary" style="flex:1" onclick="migraSessions()">Passa les sessions a l'app</button></div></div>` : '') : ''}`;
 }
 
