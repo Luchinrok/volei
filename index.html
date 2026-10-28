@@ -1047,7 +1047,8 @@ window.desaExercici = async k => {
 };
 window.retiraExercici = async (k, treu) => {
   if (treu && !await dialeg(`Treure <b>${k}</b> de la biblioteca?<br><small>No sortirà en triar exercicis. Les sessions on ja surt no canvien.</small>`, { ok: 'Treu-lo', perill: true })) return;
-  await fs.setDoc(bibRef(k), { retirat: treu, t: Date.now() }, { merge: true }); exEd = null; render();
+  await fs.setDoc(bibRef(k), { retirat: treu, t: Date.now() }, { merge: true }); exEd = null;
+  if (treu) { desat(`${k} fora de la biblioteca`); location.hash = '#/exercicis'; } else render();
 };
 window.nouExercici = async () => {
   const ok = await dialeg(`<b>Exercici nou</b><div class="form"><label class="lbl">Nom</label><input type="text" id="nex_nom" placeholder="Per exemple Pepper a tres">
