@@ -1510,10 +1510,10 @@ function viewSession(c) {
   if (sesEd && sesEd.codi === c) return viewSesEdit();
   return `<div class="shead"><span class="sbadge lg">${badge(s.codi)}</span><h2>${esc(s.titol)}</h2></div>
     <div class="pills">${esFS() ? '' : `<span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span>`}<span>⏱ ${esFS() ? (s.min || durada(s)) : s.min} min</span><span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
-    ${CLAU ? llistaSessio(c) : ''}
+    ${capSessio(c)}
     <div class="tline" title="Minuts de cada bloc">${bs.map(b => `<i class="${famC(b.codi) ? 'f-' + famC(b.codi) : ''}" style="flex:${b.min || 0}"><span>${b.nd ?? b.n ?? ''}</span></i>`).join('')}</div>
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
-    ${esFS() ? (potEditar() ? `<div class="selbar"><span class="grow"></span><button class="btn" onclick="editaSessio('${c}')">✎ Edita la sessió</button></div>` : '') : CLAU ? `<div class="selbar"><span class="grow">${ORD[c] ? 'Ordre canviat per tu' : ''}</span>
+    ${esFS() ? '' : CLAU ? `<div class="selbar"><span class="grow">${ORD[c] ? 'Ordre canviat per tu' : ''}</span>
       ${ORD[c] && ordering ? `<button class="btn" onclick="resetOrder('${c}')">Ordre original</button>` : ''}
       <button class="btn ${ordering ? 'primary' : ''}" onclick="toggleOrdering()">${ordering ? 'Fet' : '↕ Canviar l\'ordre'}</button></div>` : ''}
     ${bs.map((b, i) => blockCard(b, s, ordering ? { first: i === 0, last: i === bs.length - 1 } : null)).join('')}
@@ -1646,7 +1646,12 @@ function llistaSessio(c) {
   const a = ASS.find(x => x.sessio === c);
   if (a) return `<div class="card row llses"><span class="grow">📋 <b>${dataCa(a.data)}</b> · ✅ ${venen(a)} venen${noAvisen(a) ? ` · <span class="red">💀${noAvisen(a)}</span>` : ''}</span><button class="btn" onclick="openAss('${a.id}')">Edita la llista</button></div>`;
   if (isFet(c)) return '';
-  return `<button class="btn primary" style="width:100%;padding:12px;margin:4px 0 10px" onclick="passaLlista('${c}')">📋 Passar llista</button>`;
+  return `<button class="btn primary" onclick="passaLlista('${c}')">📋 Passar llista</button>`;
+}
+// a dalt de la sessió: passar llista i editar, en una sola fila
+function capSessio(c) {
+  const ll = CLAU ? llistaSessio(c) : '', boto = ll.startsWith('<button'), ed = esFS() && potEditar() ? `<button class="btn" onclick="editaSessio('${c}')">✎ Edita la sessió</button>` : '';
+  return `${boto || ed ? `<div class="selbar tres">${boto ? ll : ''}${ed}</div>` : ''}${boto ? '' : ll}`;
 }
 window.passaLlista = c => {
   const ja = ASS.find(x => x.id === avui());
