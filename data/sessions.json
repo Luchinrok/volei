@@ -2275,9 +2275,12 @@
      "min": 12,
      "franja": "min 25-37",
      "lloc": "Tots escampats.",
-     "com": "Un fa dits, dos o tres tocs, i l'altre la torna. Quan l'ha tornada, corre fins al company, el toca i torna al seu lloc abans de la pilota següent. PROGRESSIÓ: (1) la torna de dits. (2) La torna de braços. (3) La torna amb remat controlat. (4) La torna de dits però corrent d'esquena.",
+     "com": "Un fa dits, dos o tres tocs, i l'altre la torna. Quan l'ha tornada, corre fins al company, el toca i torna al seu lloc abans de la pilota següent. PROGRESSIÓ: (1) la torna de dits. (2) La torna de braços. (3) La torna amb remat controlat. (4) Es repeteix tot amb el doble de distància: 8 metres, de lateral a lateral. Un es queda al seu lateral i l'altre surt corrent del seu lateral cap al mig, on toca la pilota mentre s'acosta al company.",
      "dosi": "×10 per jugador i per pas, canviant de rol a cada pas.",
-     "muntatge": "9 parelles escampades per la pista. Canvi de rol cada 5 repeticions."
+     "muntatge": "9 parelles escampades per la pista. Canvi de rol cada 5 repeticions.",
+     "abans": {
+      "com": "Un fa dits, dos o tres tocs, i l'altre la torna. Quan l'ha tornada, corre fins al company, el toca i torna al seu lloc abans de la pilota següent. PROGRESSIÓ: (1) la torna de dits. (2) La torna de braços. (3) La torna amb remat controlat. (4) La torna de dits però corrent d'esquena."
+     }
     },
     {
      "n": 4,
@@ -5914,7 +5917,7 @@
    "fam": "D",
    "famNom": "Dits i col·locació",
    "nom": "El company corre",
-   "com": "Un fa dits, dos o tres tocs, i l'altre la torna. Quan l'ha tornada, corre fins al company, el toca i torna al seu lloc abans de la pilota següent. PROGRESSIÓ: (1) la torna de dits. (2) La torna de braços. (3) La torna amb remat controlat. (4) La torna de dits però corrent d'esquena.",
+   "com": "Un fa dits, dos o tres tocs, i l'altre la torna. Quan l'ha tornada, corre fins al company, el toca i torna al seu lloc abans de la pilota següent. PROGRESSIÓ: (1) la torna de dits. (2) La torna de braços. (3) La torna amb remat controlat. (4) Es repeteix tot amb el doble de distància: 8 metres, de lateral a lateral. Un es queda al seu lateral i l'altre surt corrent del seu lateral cap al mig, on toca la pilota mentre s'acosta al company.",
    "dosi": "×10 per jugador i per pas, canviant de rol a cada pas.",
    "muntatge": "9 parelles escampades per la pista. Canvi de rol cada 5 repeticions."
   },
