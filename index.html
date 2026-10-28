@@ -1352,7 +1352,7 @@ function viewSesEdit() {
       <label class="meta" style="display:flex;align-items:center;gap:4px"><input type="number" inputmode="numeric" min="0" style="width:64px" value="${b.min}" onchange="sesEd.blocs[${i}].min=+this.value||0;render()"> min</label></div>
     <details ${b.codi && !b.bibViu ? '' : 'open'}><summary class="meta" style="cursor:pointer">Com es fa, dosi i muntatge</summary>
       ${[['com', 'Com es fa'], ['dosi', 'Dosi'], ['muntatge', 'Muntatge'], ['lloc', 'Lloc']].map(([k, l]) => `<label class="lbl">${l}</label><textarea style="min-height:${k === 'com' ? 90 : 50}px" oninput="sesEd.blocs[${i}].${k}=this.value">${esc(b[k])}</textarea>`).join('')}</details>
-    ${b.bibViu ? `<p class="meta abib">📚 A la biblioteca com a <b>${esc(b.codi)}</b>. El que escriguis s'hi desarà quan desis la sessió.</p>`
+    ${b.bibViu ? `<p class="meta" style="margin:10px 0 0">📚 A la biblioteca com a <b>${esc(b.codi)}</b>. El que escriguis s'hi desarà quan desis la sessió.</p>`
       : b.codi ? '' : `<div class="abib"><span class="meta">📚 Guarda'l a la biblioteca com a</span><select onchange="aBiblioteca(${i}, this.value)"><option value="">família…</option>${Object.entries(FAMC).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('')}</select></div>`}
   </div>`).join('')}
   <div class="actions"><button class="btn" style="flex:1" onclick="triaEx(-1)">＋ Afegeix un exercici</button><button class="btn" onclick="sesBuit()">＋ Escriu-lo tu</button></div>
