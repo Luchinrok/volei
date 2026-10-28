@@ -1445,7 +1445,8 @@ function viewEntrenos() {
         <button class="btn" onclick="selMode(false)">Cancel·la</button></div>
        <div class="selbar bottom"><button class="btn primary" onclick="markSel(true)" ${sel.size ? '' : 'disabled'}>✓ Marca com a fetes</button>
         <button class="btn" onclick="markSel(false)" ${sel.size ? '' : 'disabled'}>Com a no fetes</button></div>`
-    : `<div class="selbar"><a class="btn" href="#/exercicis">Exercicis</a><span class="grow"></span><button class="btn" onclick="selMode(true)">Marcar fetes</button></div>`;
+    : `<div class="selbar"><a class="btn" href="#/exercicis">Exercicis</a><span class="grow"></span><button class="btn" onclick="selMode(true)">Marcar fetes</button></div>
+       ${esFS() && potEditar() ? `<button class="btn primary" style="width:100%;padding:11px;margin:2px 0 6px" onclick="novaSessio()">＋ Sessió nova</button>` : ''}`;
   return `<h2>Sessions</h2>
   <div class="card progcard"><div class="row"><span class="grow"><b>${fetes.length}</b> de ${ss.length} sessions fetes</span><span class="pct">${ss.length ? Math.round(100 * fetes.length / ss.length) : 0}%</span></div>
     <div class="pbar"><i style="width:${ss.length ? 100 * fetes.length / ss.length : 0}%"></i></div></div>
@@ -1453,8 +1454,7 @@ function viewEntrenos() {
   ${px.length ? `<h3>Pròxims</h3><div class="list">${px.map(x => `<p class="meta" style="margin:6px 2px 2px">${dataTxt(x.d)}${x.f ? ' · ' + PISTES[x.f] : ''}</p>${sessRow(x.s, true)}`).join('')}</div>` : ''}
   ${perFer.length ? `<h3>Després</h3><div class="list">${perFer.map(s => sessRow(s)).join('')}</div>` : ''}
   ${fetes.length ? `<details ${sel ? 'open' : ''} style="margin-top:14px"><summary class="meta" style="cursor:pointer">Fetes (${fetes.length})</summary><div class="list" style="margin-top:8px">${fetes.map(s => sessRow(s)).join('')}</div></details>` : ''}
-  ${potEditar() ? (esFS() ? `<div class="actions" style="margin-top:14px"><button class="btn" style="flex:1" onclick="novaSessio()">＋ Sessió nova</button></div>
-    ${D.paperera?.length ? `<details style="margin-top:14px"><summary class="meta" style="cursor:pointer">🗑 Paperera (${D.paperera.length})</summary><div class="list" style="margin-top:8px">${D.paperera.map(x => `<div class="card row">
+  ${potEditar() ? (esFS() ? `${D.paperera?.length ? `<details style="margin-top:14px"><summary class="meta" style="cursor:pointer">🗑 Paperera (${D.paperera.length})</summary><div class="list" style="margin-top:8px">${D.paperera.map(x => `<div class="card row">
       <span class="sbadge">${badge(x.codi)}</span><span class="grow"><b>${esc(x.titol)}</b><span class="meta" style="display:block">esborrada el ${new Date(x.esborrada).toLocaleDateString('ca')}</span></span>
       <button class="btn" onclick="recuperaSessio('${x.codi}')">Recupera-la</button><button class="mini" title="Esborra-la per sempre" onclick="esborraDelTot('${x.codi}')">✕</button></div>`).join('')}</div></details>` : ''}`
     : D.sessions.length ? `<div class="card" style="margin-top:14px"><b>Constructor de sessions</b><div class="meta">Passa les sessions a l'app per poder-les editar, afegir-ne i treure'n. Es fa un sol cop.</div><div class="actions"><button class="btn primary" style="flex:1" onclick="migraSessions()">Passa les sessions a l'app</button></div></div>` : '') : ''}`;
