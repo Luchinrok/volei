@@ -1191,14 +1191,19 @@ const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil
 
 // pròxim dia d'entreno d'una família (avui inclòs)
 // constructor: les pròximes n sessions pendents, cadascuna amb el pròxim dia d'entreno (avui inclòs si encara no s'ha fet)
-const deDia = (s, f) => !['DT', 'DJ'].includes(fam(s)) || fam(s) === f;
+// opció de l'equip (temporades.{T}.perDia): cada sessió és per a un dia de la setmana concret (camp dia, 1-5) o les sessions van
+// en ordre el dia que toqui. Les DT/DJ d'aquesta temporada, sense camp dia, són del dia configurat com a DT o DJ.
+const perDia = () => tcfg().perDia ?? Object.values(tcfg().dies || {}).includes('DJ');
+const diaDe = s => (typeof s.dia === 'number' && s.dia) || (['DT', 'DJ'].includes(fam(s)) ? +(Object.keys(tcfg().dies || {}).find(d => tcfg().dies[d] === fam(s)) || 0) || null : null);
+const perAlDia = (s, wd) => !perDia() || !diaDe(s) || diaDe(s) === wd;
+const deDia = (s, f) => perAlDia(s, typeof f === 'number' ? f : +(Object.keys(tcfg().dies || {}).find(d => tcfg().dies[d] === f) || 0));
 function proximes(n) {
   const dies = tcfg().dies || {}, ds = Object.keys(dies).map(Number), pend = D.sessions.filter(s => !isFet(s.codi)), out = [];
   const fetaAvui = Object.values(FETS).some(f => f?.fet && f.t && new Date(f.t).toDateString() === new Date().toDateString());
   for (let i = fetaAvui ? 1 : 0; i < 60 && out.length < Math.min(n, pend.length); i++) {
     const d = new Date(Date.now() + i * 864e5);
     if (ds.length && !ds.includes(d.getDay())) continue;
-    const s = pend.find(x => !out.some(o => o.s === x) && deDia(x, dies[d.getDay()])); if (!s) continue;
+    const s = pend.find(x => !out.some(o => o.s === x) && perAlDia(x, d.getDay())); if (!s) continue;
     out.push({ s, i, iso: d.toISOString().slice(0, 10) });
   }
   return out;
@@ -1360,7 +1365,7 @@ window.desaImatge = async () => {
 };
 window.goLlista = () => {
   // si avui hi ha sessió, la llista es passa a la sessió
-  const d = avui(), ja = ASS.find(x => x.id === d), f = famDia(d), c = ja?.sessio || (f ? next(f)?.codi : '');
+  const d = avui(), ja = ASS.find(x => x.id === d), f = esFS() ? (tcfg().dies?.[new Date(d + 'T12:00').getDay()] ? new Date(d + 'T12:00').getDay() : null) : famDia(d), c = ja?.sessio || (f ? next(f)?.codi : '');
   if (c && byCode(c)) { location.hash = '#/s/' + c; return passaLlista(c); }
   if (location.hash === '#/assistencia') return newAss();
   addEventListener('hashchange', () => newAss(), { once: true });
@@ -1370,11 +1375,12 @@ window.goLlista = () => {
 // ---------------------------------------------------------------- constructor de sessions
 const BCAMPS = ['titol', 'codi', 'min', 'com', 'dosi', 'muntatge', 'lloc'];
 const netBloc = b => ({ n: b.n, ...Object.fromEntries(BCAMPS.map(k => [k, k === 'min' ? (+b.min || 0) : (b[k] || '')])) });
-window.editaSessio = c => { const s = byCode(c); sesEd = JSON.parse(JSON.stringify({ codi: c, titol: s.titol, min: s.min || durada(s), nota: s.nota || '', notaFinal: s.notaFinal || '', ordre: s.ordre ?? 0, blocs: s.blocs.filter(b => !b.tret).map(netBloc) })); sesEd.orig = Object.fromEntries(sesEd.blocs.map(b => [b.n, b.com])); render(); scrollTo(0, 0); };
+window.editaSessio = c => { const s = byCode(c); sesEd = JSON.parse(JSON.stringify({ codi: c, dia: diaDe(s) || 0, titol: s.titol, min: s.min || durada(s), nota: s.nota || '', notaFinal: s.notaFinal || '', ordre: s.ordre ?? 0, blocs: s.blocs.filter(b => !b.tret).map(netBloc) })); sesEd.orig = Object.fromEntries(sesEd.blocs.map(b => [b.n, b.com])); render(); scrollTo(0, 0); };
 function viewSesEdit() {
   const e = sesEd, sum = e.blocs.reduce((t, b) => t + (+b.min || 0), 0), dif = sum - (+e.min || 0);
   return `<div class="sesed"><h2>Edita ${esc(e.codi)}</h2>
   <div class="card"><label class="lbl">Títol</label><input type="text" value="${esc(e.titol)}" oninput="sesEd.titol=this.value">
+    ${perDia() ? `<label class="lbl">Dia de la setmana</label><select onchange="sesEd.dia=+this.value"><option value="0">Qualsevol</option>${Object.keys(tcfg().dies || {}).map(Number).sort().map(d => `<option value="${d}" ${e.dia === d ? 'selected' : ''}>${DIES[d]}</option>`).join('')}</select>` : ''}
     <label class="lbl">Durada (minuts)</label><input type="number" inputmode="numeric" min="0" value="${e.min}" onchange="sesEd.min=+this.value||0;render()">
     <label class="lbl">Nota (opcional)</label><textarea style="min-height:56px" oninput="sesEd.nota=this.value">${esc(e.nota)}</textarea></div>
   <div class="card durbar ${dif ? 'mal' : 'be'}"><b>${sum} de ${e.min} min</b> ${dif > 0 ? `· en sobren ${dif}` : dif < 0 ? `· en falten ${-dif}` : '· quadra'}</div>
@@ -1469,7 +1475,7 @@ window.desaSessio = async () => {
     .map(b => fs.setDoc(bibRef(codisBloc(b.codi)[0]), { com: b.com.trim(), t: Date.now() }, { merge: true })));
   await Promise.all(e.blocs.filter(b => b.bibViu && b.codi).map(b => fs.setDoc(bibRef(b.codi), { nom: b.titol.trim(), com: (b.com || '').trim(), dosi: (b.dosi || '').trim(), muntatge: (b.muntatge || '').trim(), t: Date.now() }, { merge: true })));
   if (byCode(e.codi)?.model && USR) fs.setDoc(fs.doc(db, 'models', modelId(e.codi)), modelDe({ ...e, titol: e.titol.trim(), blocs: e.blocs })).catch(er => registraError(er, 'model'));
-  await fs.setDoc(ref('sessions', e.codi), { titol: e.titol.trim(), min: +e.min || 0, nota: e.nota.trim(), notaFinal: e.notaFinal || '', ordre: e.ordre, blocs: e.blocs.map(netBloc), t: Date.now() });
+  await fs.setDoc(ref('sessions', e.codi), { titol: e.titol.trim(), min: +e.min || 0, nota: e.nota.trim(), notaFinal: e.notaFinal || '', ordre: e.ordre, blocs: e.blocs.map(netBloc), t: Date.now(), ...(perDia() ? { dia: e.dia || null } : {}) }, { merge: true });
   sesEd = null; desat('✓ Sessió desada'); render();
 };
 const nouCodi = () => 'SE' + String(Math.max(0, ...D.sessions.map(s => /^SE(\d+)$/.exec(s.codi)).filter(Boolean).map(m => +m[1])) + 1).padStart(2, '0');
@@ -1551,7 +1557,7 @@ window.importaFes = async () => {
 window.sesFiltra = q => { const w = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean); document.querySelectorAll('#sesl [data-q]').forEach(el => { el.hidden = !w.every(x => el.dataset.q.includes(x)); }); };
 window.creaSessio = async (de, model) => {
   const o = model ? MODELS.find(m => m.id === model) : de && byCode(de), codi = nouCodi(), ordre = Math.max(0, ...D.sessions.map(s => s.ordre || 0)) + 10;
-  const nova = { titol: o ? o.titol : 'Sessió nova', min: o ? (o.min || durada(o)) : 90, nota: o?.nota || '', notaFinal: o?.notaFinal || '', ordre, blocs: o ? o.blocs.filter(b => !b.tret).map(netBloc) : [] };
+  const nova = { ...(o && !model && diaDe(o) ? { dia: diaDe(o) } : {}), titol: o ? o.titol : 'Sessió nova', min: o ? (o.min || durada(o)) : 90, nota: o?.nota || '', notaFinal: o?.notaFinal || '', ordre, blocs: o ? o.blocs.filter(b => !b.tret).map(netBloc) : [] };
   await fs.setDoc(ref('sessions', codi), { ...nova, t: Date.now() });
   tancaFitxa(); location.hash = '#/s/' + codi;
   setTimeout(() => { sesEd = JSON.parse(JSON.stringify({ codi, ...nova })); render(); }, 50);
@@ -1654,7 +1660,7 @@ function viewSession(c) {
   const totMin = bs.reduce((t, b) => t + (b.min || 0), 0) || 1;
   if (sesEd && sesEd.codi === c) return viewSesEdit();
   return `<div class="shead"><span class="sbadge lg">${badge(s.codi)}</span><h2>${esc(s.titol)}</h2></div>
-    <div class="pills">${esFS() ? '' : `<span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span>`}<span>⏱ ${esFS() ? (s.min || durada(s)) : s.min} min</span>${esFS() && s.min && durada(s) !== s.min ? `<span class="warnp">els blocs sumen ${durada(s)}</span>` : ''}<span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
+    <div class="pills">${esFS() ? (perDia() && diaDe(s) ? `<span>📅 ${DIES[diaDe(s)]}</span>` : '') : `<span>📅 ${famLabel(fam(s))}</span><span>🏐 ${PISTES[fam(s)]}</span>`}<span>⏱ ${esFS() ? (s.min || durada(s)) : s.min} min</span>${esFS() && s.min && durada(s) !== s.min ? `<span class="warnp">els blocs sumen ${durada(s)}</span>` : ''}<span>🧩 ${bs.length} blocs</span>${isFet(c) ? '<span class="ok">✓ Feta</span>' : ''}</div>
     ${capSessio(c)}
     <div class="tline" title="Minuts de cada bloc">${bs.map(b => `<i class="${famC(b.codi) ? 'f-' + famC(b.codi) : ''}" style="flex:${b.min || 0}"><span>${b.nd ?? b.n ?? ''}</span></i>`).join('')}</div>
     ${s.nota ? `<p class="note">${esc(s.nota)}</p>` : '<div style="height:10px"></div>'}
@@ -1829,7 +1835,7 @@ function assWrite() {
 window.newAss = c => {
   const d = avui(), ja = ASS.find(x => x.id === d);
   if (ja) return openAss(d);                                   // ja hi ha llista d'avui: s'obre
-  const f = famDia(d);
+  const f = esFS() ? (tcfg().dies?.[new Date(d + 'T12:00').getDay()] ? new Date(d + 'T12:00').getDay() : null) : famDia(d);
   const estat = {}; JUG.filter(j => j.actiu !== false && ve(j, d) && (!j.alta || j.alta <= d)).forEach(j => estat[j.id] = 'si');
   editAss = { id: d, data: d, sessio: c || (f ? next(f)?.codi || '' : ''), estat }; assWrite(); render(); scrollTo(0, 0);
 };
@@ -2792,9 +2798,10 @@ function viewConfig() {
     <div class="actions"><button class="btn" style="flex:1" onclick="nouGrup()">＋ Afegir un equip a la ${esc(any)}</button></div>
   </div>
   <h3>Dies d'entreno · ${esc(gcfg().nom || '')}</h3>
-  <div class="card">${[1, 2, 3, 4, 5].map(d => `<div class="cfgday"><span>${DIES[d]}</span>
-    <div class="seg mini">${[['', 'No'], ['DT', '1 pista'], ['DJ', '2 pistes']].map(([v, l]) => `<button class="${(tcfg().dies[d] || '') === v ? 'on' : ''}" onclick="setDia(${d}, '${v}')">${l}</button>`).join('')}</div></div>`).join('')}
-    <p class="meta" style="margin:8px 0 0">Els dies d'1 pista fan les sessions DT i els de 2 pistes les DJ.</p>
+  <div class="card"><div class="seg" style="margin:0">${[1, 2, 3, 4, 5].map(d => `<button class="${tcfg().dies?.[d] ? 'on' : ''}" onclick="setDia(${d}, '${tcfg().dies?.[d] ? '' : 'DT'}')">${CURT[d]}</button>`).join('')}</div>
+    <label class="lbl" style="margin-top:12px">Sessions</label>
+    <div class="seg" style="margin:0">${[[true, 'Cada una per a un dia'], [false, 'En ordre, el dia que toqui']].map(([v, l]) => `<button class="${perDia() === v ? 'on' : ''}" onclick="setPerDia(${v})">${l}</button>`).join('')}</div>
+    <p class="meta" style="margin:8px 0 0">${perDia() ? 'Cada sessió diu quin dia de la setmana es fa (es tria a l\u2019editor de la sessió) i l\u2019app proposa la següent d\u2019aquell dia.' : 'L\u2019app proposa la sessió següent de la llista, sigui quin sigui el dia.'}</p>
   </div>
   ${temaHtml}
   ${USR && esAdmin() ? viewPersones() : `<h3>El teu compte</h3>
@@ -2863,6 +2870,7 @@ window.nouGrup = async (prev = {}) => {
 };
 window.setTema = v => { store.set('volei.tema', v); tema(v); render(); };
 window.setTemp = t => { TEMP = t; store.set('volei.temp', t); store.set('volei.temp.' + grupDe(t), t); openSeason(); };
+window.setPerDia = v => fs.updateDoc(cfgRef(), new fs.FieldPath('temporades', TEMP, 'perDia'), v);
 window.setDia = (d, v) => {
   const dies = { ...tcfg().dies }; if (v) dies[d] = v; else delete dies[d];
   if (!Object.keys(dies).length && Object.keys(tcfg().dies).length) { dialeg('Com a mínim hi ha d\'haver un dia d\'entreno.', { sol: true }); return render(); }
