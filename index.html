@@ -1367,7 +1367,7 @@ window.goLlista = () => {
 // ---------------------------------------------------------------- constructor de sessions
 const BCAMPS = ['titol', 'codi', 'min', 'com', 'dosi', 'muntatge', 'lloc'];
 const netBloc = b => ({ n: b.n, ...Object.fromEntries(BCAMPS.map(k => [k, k === 'min' ? (+b.min || 0) : (b[k] || '')])) });
-window.editaSessio = c => { const s = byCode(c); sesEd = JSON.parse(JSON.stringify({ codi: c, titol: s.titol, min: s.min || durada(s), nota: s.nota || '', notaFinal: s.notaFinal || '', ordre: s.ordre ?? 0, blocs: s.blocs.filter(b => !b.tret).map(netBloc) })); render(); scrollTo(0, 0); };
+window.editaSessio = c => { const s = byCode(c); sesEd = JSON.parse(JSON.stringify({ codi: c, titol: s.titol, min: s.min || durada(s), nota: s.nota || '', notaFinal: s.notaFinal || '', ordre: s.ordre ?? 0, blocs: s.blocs.filter(b => !b.tret).map(netBloc) })); sesEd.orig = Object.fromEntries(sesEd.blocs.map(b => [b.n, b.com])); render(); scrollTo(0, 0); };
 function viewSesEdit() {
   const e = sesEd, sum = e.blocs.reduce((t, b) => t + (+b.min || 0), 0), dif = sum - (+e.min || 0);
   return `<div class="sesed"><h2>Edita ${esc(e.codi)}</h2>
@@ -1394,7 +1394,7 @@ function viewSesEdit() {
   <p class="meta" style="margin:4px 0 0">«Fes-ne una còpia» crea una sessió nova igual que aquesta, just darrere, per fer-ne una variant.</p></div>`;
 }
 // avisos del constructor (normes de l'entrenador): exercicis repetits fa poc, retirats, format que no creix, no acabar amb joc
-const codisBloc = c => (c || '').match(/\b(BL|[DBSRCJG])\d+\b/g) || [];
+const codisBloc = c => (c || '').match(/\b(E[A-Z]{1,2}|BL|[DBSRCJG])\d+\b/g) || [];
 const formatDe = b => { const m = [...`${b.titol} ${b.muntatge}`.matchAll(/\b([1-6])\s?[x×]\s?[1-6]\b/g)].map(x => +x[1]); return m.length ? Math.max(...m) : 0; };
 function avisosSessio(e) {
   const av = [], ss = D.sessions, i = ss.findIndex(x => x.codi === e.codi), ex = Object.fromEntries(totsExs().map(x => [x.codi, x]));
@@ -1462,6 +1462,8 @@ window.aBiblioteca = async (i, fam) => {
 };
 window.desaSessio = async () => {
   const e = sesEd; if (!e.titol.trim()) return desat('Posa-li un títol');
+  await Promise.all(e.blocs.filter(b => !b.bibViu && e.orig && b.n in e.orig && b.com.trim() !== (e.orig[b.n] || '').trim() && codisBloc(b.codi).length === 1)
+    .map(b => fs.setDoc(bibRef(codisBloc(b.codi)[0]), { com: b.com.trim(), t: Date.now() }, { merge: true })));
   await Promise.all(e.blocs.filter(b => b.bibViu && b.codi).map(b => fs.setDoc(bibRef(b.codi), { nom: b.titol.trim(), com: (b.com || '').trim(), dosi: (b.dosi || '').trim(), muntatge: (b.muntatge || '').trim(), t: Date.now() }, { merge: true })));
   if (byCode(e.codi)?.model && USR) fs.setDoc(fs.doc(db, 'models', modelId(e.codi)), modelDe({ ...e, titol: e.titol.trim(), blocs: e.blocs })).catch(er => registraError(er, 'model'));
   await fs.setDoc(ref('sessions', e.codi), { titol: e.titol.trim(), min: +e.min || 0, nota: e.nota.trim(), notaFinal: e.notaFinal || '', ordre: e.ordre, blocs: e.blocs.map(netBloc), t: Date.now() });
@@ -1819,7 +1821,7 @@ window.passaLlista = c => {
 function assWrite() {
   const a = editAss;
   fs.setDoc(ref('assistencia', a.id), { data: a.data, sessio: a.sessio || '', estat: a.estat });
-  if (a.sessio && a.data <= avui() && !isFet(a.sessio)) setFets([a.sessio], true);   // només si l'entreno ja ha passat
+  if (a.sessio && a.data < avui() && !isFet(a.sessio)) setFets([a.sessio], true);   // només si l'entreno ja ha passat (el mateix dia es marca amb ✓ Feta)
 }
 window.newAss = c => {
   const d = avui(), ja = ASS.find(x => x.id === d);
