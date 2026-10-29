@@ -947,7 +947,7 @@ function setFets(codes, fet) {
 
 // ------------------------------------------------------------------ sessions
 function next(f) {
-  if (esFS()) return D.sessions.find(s => !isFet(s.codi));   // una sola llista en ordre
+  if (esFS()) return D.sessions.find(s => !isFet(s.codi) && (!f || deDia(s, f)));   // una sola llista en ordre
   return D.sessions.filter(s => fam(s) === f && !isFet(s.codi)).sort((a, b) => num(a.codi) - num(b.codi))[0];
 }
 
@@ -1191,12 +1191,15 @@ const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil
 
 // pròxim dia d'entreno d'una família (avui inclòs)
 // constructor: les pròximes n sessions pendents, cadascuna amb el pròxim dia d'entreno (avui inclòs si encara no s'ha fet)
+const deDia = (s, f) => !['DT', 'DJ'].includes(fam(s)) || fam(s) === f;
 function proximes(n) {
-  const ds = Object.keys(tcfg().dies || {}).map(Number), pend = D.sessions.filter(s => !isFet(s.codi)), out = [];
+  const dies = tcfg().dies || {}, ds = Object.keys(dies).map(Number), pend = D.sessions.filter(s => !isFet(s.codi)), out = [];
   const fetaAvui = Object.values(FETS).some(f => f?.fet && f.t && new Date(f.t).toDateString() === new Date().toDateString());
   for (let i = fetaAvui ? 1 : 0; i < 60 && out.length < Math.min(n, pend.length); i++) {
     const d = new Date(Date.now() + i * 864e5);
-    if (!ds.length || ds.includes(d.getDay())) out.push({ s: pend[out.length], i, iso: d.toISOString().slice(0, 10) });
+    if (ds.length && !ds.includes(d.getDay())) continue;
+    const s = pend.find(x => !out.some(o => o.s === x) && deDia(x, dies[d.getDay()])); if (!s) continue;
+    out.push({ s, i, iso: d.toISOString().slice(0, 10) });
   }
   return out;
 }
