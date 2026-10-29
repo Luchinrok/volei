@@ -783,7 +783,7 @@ let D;                                               // sessions de la temporada
 // constructor (28-10-2026): si la temporada té sessions a Firebase (temporades/{T}/sessions/{codi}), són aquestes
 // les que valen (D.fs = true) i data/sessions.json ja no compta. BIB: biblioteca del club editada a l'app.
 let BIB = {}, sesEd = null, exEd = null;
-const esFS = () => !!D?.fs;
+const esFS = () => !!D?.fs || D?.__file === '';   // '' = equip nou o sense fitxer: les sessions es fan a l'app
 let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}, PAR = [], CAL = null, FOTOS = []; // dades de Firebase (NOF: exercicis no fets)
 let UNSUB = [];
 let fs = null, db = null;
@@ -1161,7 +1161,32 @@ function viewEntra() {
     <button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button>
     ${USR === undefined ? '<p class="meta">Connectant…</p>' : ''}</div>`;
 }
-const sensePermis = () => `<div class="card warn"><b>Encara no tens accés a aquest equip.</b><div class="meta">Demana a l'administrador que et convidi o que et doni permís. Has entrat com a ${esc(USR?.email || '')}.</div><div class="actions"><button class="btn" onclick="surt()">Canvia de compte</button></div></div>`;
+const sensePermis = () => `${CLAU ? `<div class="card warn"><b>Encara no tens accés a aquest equip.</b><div class="meta">Demana a l'administrador que et convidi o que et doni permís.</div></div>` : ''}
+  <div class="entra card"><h2>${CLAU ? 'O crea el teu club' : 'Benvingut!'}</h2>
+    <p class="meta">Si t'han convidat a un equip, obre l'enllaç que t'han enviat. Si no, crea el teu club: en seràs l'administrador i hi podràs convidar altres entrenadors i les famílies.</p>
+    <button class="btn primary" style="width:100%;padding:12px" onclick="creaClub()">🏐 Crea el teu club</button>
+    <p class="meta" style="margin-top:10px">Has entrat com a ${esc(USR?.email || '')}. <a href="#" onclick="surt();return false">Canvia de compte</a></p></div>`;
+// temporada actual: a partir d'agost ja és la següent (26-27)
+const tempAra = () => { const d = new Date(), y = d.getFullYear() % 100 - (d.getMonth() < 7 ? 1 : 0); return `${String(y).padStart(2, '0')}-${String(y + 1).padStart(2, '0')}`; };
+window.creaClub = async (prev = {}) => {
+  const ok = await dialeg(`<b>Crea el teu club</b><br><small>En seràs l'administrador. Després hi podràs afegir més equips i convidar gent.</small>
+    <div class="form"><label class="lbl">Club</label><input type="text" id="cc_club" placeholder="Per exemple CV Figueres" value="${esc(prev.club || '')}">
+    <label class="lbl">Equip</label><input type="text" id="cc_eq" placeholder="Per exemple Sènior femení" value="${esc(prev.eq || '')}">
+    <label class="lbl">Temporada</label><input type="text" id="cc_t" value="${esc(prev.t || tempAra())}">
+    <label class="lbl">Dies d'entreno</label><div class="seg" id="cc_dies" style="margin:0">${[1, 2, 3, 4, 5].map(d => `<button type="button" class="${(prev.dies || []).includes(d) ? 'on' : ''}" data-d="${d}" onclick="this.classList.toggle('on')">${CURT[d]}</button>`).join('')}</div></div>`, { ok: 'Crea el club', ico: '🏐' });
+  if (!ok) return;
+  const club = $('#cc_club').value.trim(), eq = $('#cc_eq').value.trim() || 'Equip', t = $('#cc_t').value.trim(), dies = [...document.querySelectorAll('#cc_dies button.on')].map(b => +b.dataset.d);
+  if (club.length < 2 || !t || /[\/\\'"`·]/.test(club + eq + t)) { await dialeg('Posa el nom del club i la temporada, sense barres ni cometes.', { sol: true }); return creaClub({ club, eq, t, dies }); }
+  try {
+    const clau = [...crypto.getRandomValues(new Uint8Array(32))].map(b => 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 56]).join('');
+    await fs.setDoc(fs.doc(db, 'equips', clau, 'membres', USR.uid), { email: USR.email || '', nom: USR.displayName || '', foto: USR.photoURL || '', rols: { principal: 'admin' }, alta: Date.now() });
+    await fs.setDoc(fs.doc(db, 'equips', clau, 'config', 'app'), { actual: t, club, grups: { principal: { nom: eq, club, nEq: 1 } },
+      temporades: { [t]: { nom: t, dies: Object.fromEntries(dies.map(d => [d, 'DT'])), sessions: '' } } });
+    await fs.setDoc(fs.doc(db, 'usuaris', USR.uid), { espais: fs.arrayUnion(clau), email: USR.email || '' }, { merge: true });
+    CLAU = clau; store.set('volei.clau', clau); TEMP = t; store.set('volei.temp', t); connectat = null;
+    location.hash = '#/'; desat('✓ Club creat'); quiSoc();
+  } catch (e) { registraError(e, 'creaClub'); dialeg('No s\u2019ha pogut crear el club. Torna-ho a provar.', { sol: true }); }
+};
 const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil.</b><div class="meta">Per ${what} obre una vegada l'enllaç amb la clau que et va passar Claude.</div></div>`;
 
 // pròxim dia d'entreno d'una família (avui inclòs)
@@ -3024,7 +3049,7 @@ function pintaPantalla() {
   else if (r === 'pissarra') { html = viewPissarra(arg); tab = 'partits'; title = 'Pissarra'; }
   else if (r === 'directe') { html = viewDirecte(arg); tab = 'partits'; title = 'En directe'; }
   else html = viewHome();
-  $('#tabs').hidden = $('#tbtn').hidden = USR && esFam();
+  $('#tabs').hidden = $('#tbtn').hidden = USR && (esFam() || !CLAU);
   $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">${ICO.inici}</span>Inici</a>
     <a href="#/entrenos" data-t="entrenos"><span class="ico">${ICO.pista}</span>Sessions</a>
     <a href="#/assistencia" data-t="assistencia"><span class="ico">${ICO.ass}</span>Assistència</a>
