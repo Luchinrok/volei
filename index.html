@@ -1502,32 +1502,49 @@ window.novaSessio = () => {
 // ---- importar sessions d'un Excel o CSV: una fila per bloc (Sessió, Exercici, Minuts, Com es fa, Dosi, Muntatge, Codi)
 const XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
 const carregaXlsx = () => window.XLSX ? Promise.resolve(window.XLSX) : new Promise((ok, ko) => { const sc = document.createElement('script'); sc.src = XLSX_URL; sc.onload = () => ok(window.XLSX); sc.onerror = ko; document.head.appendChild(sc); });
-const COLS = { sessio: ['sessio', 'sessio titol', 'titol sessio', 'entrenament', 'dia'], titol: ['exercici', 'bloc', 'titol', 'nom'], min: ['minuts', 'min', 'temps', 'durada'],
+const COLS = { sessio: ['sessio', 'codi sessio', 'entrenament', 'dia'], tsessio: ['titol de la sessio', 'titol sessio', 'sessio titol'], titol: ['exercici', 'bloc', 'titol', 'nom'], min: ['minuts', 'min', 'temps', 'durada'],
   com: ['com es fa', 'com', 'descripcio', 'explicacio'], dosi: ['dosi', 'repeticions'], muntatge: ['muntatge', 'organitzacio'], codi: ['codi'], lloc: ['lloc'], tipus: ['tipus', 'familia', 'tipus dexercici'] };
 // tipus escrit a la plantilla (nom o lletra) -> família de la biblioteca
 const tipusFam = t => { const q = normq(t).trim(); if (!q) return ''; const k = Object.keys(FAM).find(f => normq(f) === q || normq(FAMC[f]) === q || normq(FAM[f]) === q || normq(FAMC[f]).startsWith(q) || q.startsWith(normq(FAMC[f]).split(' ')[0])); return k || ''; };
 let IMP = null;   // sessions llegides del fitxer, a punt per importar
 window.importaObre = () => obreFitxa(`<b>Importa sessions</b>
-  <p class="meta" style="margin:6px 0">Un Excel o CSV amb <b>una fila per exercici</b> i totes les sessions que vulguis. Columnes: <b>Sessió</b> (el nom de la sessió: les files amb el mateix nom van juntes), <b>Tipus</b> (${Object.values(FAMC).join(', ')}), <b>Exercici</b>, <b>Minuts</b>, <b>Com es fa</b>, <b>Dosi</b>, <b>Muntatge</b> i, si ja és a la biblioteca, <b>Codi</b>. La plantilla porta un full amb les instruccions.</p>
+  <p class="meta" style="margin:6px 0">Un Excel o CSV amb <b>una fila per exercici</b> i totes les sessions que vulguis. Columnes: <b>Sessió</b> (el teu codi o nom, per exemple DT01: les files amb la mateixa sessió van juntes), <b>Títol de la sessió</b>, <b>Tipus</b> (${Object.values(FAMC).join(', ')}), <b>Exercici</b>, <b>Minuts</b>, <b>Com es fa</b>, <b>Dosi</b>, <b>Muntatge</b> i, si ja és a la biblioteca, <b>Codi</b>. La plantilla porta un full amb les instruccions.</p>
   <div class="actions" style="margin:0 0 8px"><button class="btn" style="flex:1" onclick="plantillaImp()">⬇️ Descarrega la plantilla</button></div>
   <input type="file" id="impf" accept=".xlsx,.xls,.csv,.ods" onchange="importaLlegeix(this.files[0])" style="width:100%">
   <div id="impv" style="margin-top:10px"></div>`, `<button class="btn" style="flex:1" onclick="tancaFitxa()">Cancel·la</button>`);
+const EXCELJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+const carregaExcelJS = () => window.ExcelJS ? Promise.resolve(window.ExcelJS) : new Promise((ok, ko) => { const sc = document.createElement('script'); sc.src = EXCELJS_URL; sc.onload = () => ok(window.ExcelJS); sc.onerror = ko; document.head.appendChild(sc); });
 window.plantillaImp = async () => {
-  const X = await carregaXlsx();
-  const files = [['Sessió', 'Tipus', 'Exercici', 'Minuts', 'Com es fa', 'Dosi', 'Muntatge', 'Codi'],
-    ['Sessió 1 - Recepció', 'Dits', 'Parelles de dits', 10, 'Per parelles, tocs de dits...', '3 sèries de 20', 'Parelles escampades', ''],
-    ['Sessió 1 - Recepció', 'Braços i defensa', 'Papallona de recepció', 15, 'Saque, recepció i objectiu...', '10 recepcions per jugador', 'Tres files a cada camp', 'EB3'],
-    ['Sessió 1 - Recepció', 'Jocs', 'Partit 4x4', 20, 'Partit a mitja pista...', 'Sets a 15', 'Dos 4x4', ''],
-    ['Sessió 2 - Defensa', 'Braços i defensa', 'Pepper', 10, 'Defensa, col·locació i remat per parelles', '10 minuts', 'Parelles', 'EB1'],
-    ['Sessió 2 - Defensa', 'Remat', 'Remat i defensa', 15, 'Un remata, l\u2019altre defensa...', '10 per jugador', 'Grups de tres', '']];
-  const ajuda = [['Com omplir la plantilla'], [''],
-    ['Una fila per exercici. Les files amb el mateix nom a la columna Sessió formen una sessió, en l\u2019ordre en què surten.'],
-    ['En un mateix fitxer hi pots posar totes les sessions que vulguis: només canvia el nom de la columna Sessió.'],
-    ['Si deixes la casella Sessió buida, l\u2019exercici va a la mateixa sessió que la fila d\u2019abans.'], [''],
-    ['Tipus: ' + Object.values(FAMC).join(', ') + '. Els exercicis nous (sense Codi) es guarden a la biblioteca amb aquest tipus.'],
-    ['Codi (opcional): si l\u2019exercici ja és a la biblioteca de l\u2019app (per exemple EB3), posa\u2019l i no cal el Tipus.'],
-    ['Minuts: la durada de la sessió és la suma dels minuts dels seus exercicis.']];
-  const wb = X.utils.book_new(); X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(files), 'Sessions'); X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(ajuda), 'Instruccions'); X.writeFile(wb, 'plantilla-sessions.xlsx');
+  const EJ = await carregaExcelJS(), wb = new EJ.Workbook(), ws = wb.addWorksheet('Sessions', { views: [{ state: 'frozen', ySplit: 1 }] });
+  const tipus = Object.values(FAMC);
+  ws.columns = [
+    { header: 'Sessió', key: 'sessio', width: 12 }, { header: 'Títol de la sessió', key: 'titol', width: 26 }, { header: 'Tipus', key: 'tipus', width: 18 },
+    { header: 'Exercici', key: 'exercici', width: 28 }, { header: 'Minuts', key: 'min', width: 9 }, { header: 'Com es fa', key: 'com', width: 60 },
+    { header: 'Dosi', key: 'dosi', width: 28 }, { header: 'Muntatge', key: 'muntatge', width: 34 }, { header: 'Codi', key: 'codi', width: 9 }];
+  [['DT01', 'Recepció', 'Dits', 'Parelles de dits', 10, 'Per parelles, tocs de dits...', '3 sèries de 20', 'Parelles escampades', ''],
+   ['DT01', 'Recepció', 'Braços i defensa', 'Papallona de recepció', 15, 'Saque, recepció i objectiu...', '10 recepcions per jugador', 'Tres files a cada camp', 'EB3'],
+   ['DT01', 'Recepció', 'Jocs', 'Partit 4x4', 20, 'Partit a mitja pista...', 'Sets a 15', 'Dos 4x4', ''],
+   ['DT02', 'Defensa', 'Braços i defensa', 'Pepper', 10, 'Defensa, col·locació i remat per parelles', '10 minuts', 'Parelles', 'EB1'],
+   ['DT02', 'Defensa', 'Remat', 'Remat i defensa', 15, 'Un remata, l’altre defensa...', '10 per jugador', 'Grups de tres', '']].forEach(r => ws.addRow(r));
+  const cap = ws.getRow(1); cap.height = 22;
+  cap.eachCell(c => { c.font = { bold: true, color: { argb: 'FFFFFFFF' } }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1B2F55' } }; c.alignment = { vertical: 'middle' }; });
+  for (let r = 2; r <= 300; r++) {
+    ws.getCell(`C${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`"${tipus.join(',')}"`], showErrorMessage: true, errorTitle: 'Tipus', error: 'Tria un tipus de la llista.' };
+    ws.getCell(`E${r}`).dataValidation = { type: 'whole', operator: 'between', allowBlank: true, formulae: [0, 180], showErrorMessage: true, error: 'Minuts: un número.' };
+    ['F', 'G', 'H'].forEach(c => { ws.getCell(`${c}${r}`).alignment = { wrapText: true, vertical: 'top' }; });
+  }
+  ws.autoFilter = 'A1:I1';
+  const aj = wb.addWorksheet('Instruccions'); aj.getColumn(1).width = 110;
+  [['Com omplir la plantilla', true], [''],
+   ['Una fila per exercici. Totes les files amb la mateixa Sessió formen una sessió, en l’ordre en què surten.'],
+   ['Sessió: el codi o nom que vulguis (DT01, DM03, Dimarts 1...). Si és un codi curt (lletres i números), l’app el fa servir com a codi de la sessió.'],
+   ['Títol de la sessió: opcional; n’hi ha prou d’omplir-lo a la primera fila de cada sessió.'],
+   ['Tipus: tria’l de la llista desplegable. Els exercicis nous (sense Codi) es guarden a la biblioteca de l’app amb aquest tipus.'],
+   ['Codi: només si l’exercici ja és a la biblioteca de l’app (per exemple EB3). Llavors no cal el Tipus.'],
+   ['Minuts: la durada de la sessió és la suma dels minuts dels seus exercicis.'],
+   ['En un mateix fitxer hi pots posar totes les sessions que vulguis.']].forEach(([t, b]) => { const r = aj.addRow([t]); r.getCell(1).alignment = { wrapText: true }; if (b) r.getCell(1).font = { bold: true, size: 14 }; });
+  const blob = new Blob([await wb.xlsx.writeBuffer()], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'plantilla-sessions.xlsx'; document.body.appendChild(a); a.click(); a.remove();
 };
 window.importaLlegeix = async f => {
   if (!f) return;
@@ -1548,14 +1565,15 @@ window.importaLlegeix = async f => {
     rows.slice(1).forEach(r => {
       const g = k => col[k] == null ? '' : String(r[col[k]] ?? '').trim(), nom = g('sessio') || ant, tit = g('titol');
       if (!nom || !(tit || g('com'))) return; ant = nom;
-      let x = ses.find(q => q.titol === nom); if (!x) ses.push(x = { titol: nom, blocs: [] });
+      let x = ses.find(q => q.nom === nom); if (!x) ses.push(x = { nom, titol: nom, blocs: [] });
+      if (g('tsessio')) x.titol = g('tsessio');
       x.blocs.push({ n: x.blocs.length + 1, titol: tit, codi: g('codi').toUpperCase(), fam: tipusFam(g('tipus')), min: parseInt(g('min')) || 0, com: g('com'), dosi: g('dosi'), muntatge: g('muntatge'), lloc: g('lloc') });
     });
     if (!ses.length) { v.innerHTML = '<p class="red">El fitxer no té cap exercici.</p>'; return; }
     IMP = ses;
     v.innerHTML = `<p><b>${ses.length} sessions</b>, ${ses.reduce((t, x) => t + x.blocs.length, 0)} exercicis:</p>
       ${ses.some(x => x.blocs.some(b => !b.codi && b.fam)) ? `<p class="meta">Els exercicis nous amb Tipus es guardaran també a la biblioteca.</p>` : ''}
-      <div style="max-height:30vh;overflow:auto">${ses.map(x => `<div class="card" style="padding:8px 10px;margin:4px 0"><b>${esc(x.titol)}</b> <span class="meta">${x.blocs.length} ${x.blocs.length === 1 ? 'exercici' : 'exercicis'} · ${x.blocs.reduce((t, b) => t + b.min, 0)} min</span></div>`).join('')}</div>
+      <div style="max-height:30vh;overflow:auto">${ses.map(x => `<div class="card" style="padding:8px 10px;margin:4px 0"><b>${esc(x.nom)}${x.titol !== x.nom ? ' · ' + esc(x.titol) : ''}</b> <span class="meta">${x.blocs.length} ${x.blocs.length === 1 ? 'exercici' : 'exercicis'} · ${x.blocs.reduce((t, b) => t + b.min, 0)} min</span></div>`).join('')}</div>
       <div class="actions"><button class="btn primary" style="flex:1" onclick="importaFes()">Importa-les</button></div>`;
   } catch (e) { registraError(e, 'importa'); v.innerHTML = '<p class="red">No he pogut llegir el fitxer. Ha de ser un Excel (.xlsx) o un CSV.</p>'; }
 };
@@ -1568,7 +1586,9 @@ window.importaFes = async () => {
     await fs.setDoc(bibRef(b.codi), { nom: b.titol, fam: b.fam, com: b.com, dosi: b.dosi, muntatge: b.muntatge, nou: true, t: Date.now() });
   }
   let n = Math.max(0, ...D.sessions.map(s => /^SE(\d+)$/.exec(s.codi)).filter(Boolean).map(m => +m[1])), ordre = Math.max(0, ...D.sessions.map(s => s.ordre || 0));
-  await Promise.all(IMP.map(x => { n++; ordre += 10; const codi = 'SE' + String(n).padStart(2, '0');
+  const usats = new Set(D.sessions.map(s => s.codi));
+  await Promise.all(IMP.map(x => { ordre += 10; const propi = /^[A-Za-z]{1,4}\d{1,3}$/.test(x.nom) && !usats.has(x.nom.toUpperCase()) ? x.nom.toUpperCase() : null;
+    const codi = propi || 'SE' + String(++n).padStart(2, '0'); usats.add(codi);
     return fs.setDoc(ref('sessions', codi), { titol: x.titol, min: x.blocs.reduce((t, b) => t + b.min, 0), nota: '', notaFinal: '', ordre, blocs: x.blocs.map(netBloc), t: Date.now() }); }));
   desat(`✓ ${IMP.length} sessions importades`); IMP = null; tancaFitxa(); location.hash = '#/entrenos';
 };
