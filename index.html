@@ -18,7 +18,7 @@
   --shadow: 0 1px 2px rgba(20,32,46,.06), 0 4px 14px rgba(20,32,46,.06);
   --head: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   /* un color per família d'exercicis */
-  --f-D: #2f7de1; --f-B: #12a07c; --f-S: #8b5cf6; --f-R: #e8590c; --f-BL: #d6336c; --f-C: #0b9fbd; --f-J: #4c5fd5; --f-G: #e09a00;
+  --f-D: #2f7de1; --f-B: #12a07c; --f-S: #8b5cf6; --f-R: #e8590c; --f-BL: #d6336c; --f-C: #0b9fbd; --f-J: #4c5fd5; --f-G: #e09a00; --f-A: #6b7280;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -26,7 +26,7 @@
     --brand: #8cbcf0; --brand-soft: #1a2c42; --accent: #f5c518; --accent-ink: #14202e;
     --si: #6cd39a; --si-soft: #14301f; --avisa: #9aa7b6; --avisa-soft: #1f2731; --no: #ff7b72; --no-soft: #3a1a18;
     --shadow: none;
-    --f-D: #6aa8f5; --f-B: #3fd1a8; --f-S: #b197fc; --f-R: #ff8c4a; --f-BL: #f06595; --f-C: #3bc9db; --f-J: #8c9bff; --f-G: #ffc14d;
+    --f-D: #6aa8f5; --f-B: #3fd1a8; --f-S: #b197fc; --f-R: #ff8c4a; --f-BL: #f06595; --f-C: #3bc9db; --f-J: #8c9bff; --f-G: #ffc14d; --f-A: #9ca3af;
   }
 }
 :root[data-theme="dark"] {
@@ -34,7 +34,7 @@
     --brand: #8cbcf0; --brand-soft: #1a2c42; --accent: #f5c518; --accent-ink: #14202e;
     --si: #6cd39a; --si-soft: #14301f; --avisa: #9aa7b6; --avisa-soft: #1f2731; --no: #ff7b72; --no-soft: #3a1a18;
     --shadow: none;
-    --f-D: #6aa8f5; --f-B: #3fd1a8; --f-S: #b197fc; --f-R: #ff8c4a; --f-BL: #f06595; --f-C: #3bc9db; --f-J: #8c9bff; --f-G: #ffc14d;
+    --f-D: #6aa8f5; --f-B: #3fd1a8; --f-S: #b197fc; --f-R: #ff8c4a; --f-BL: #f06595; --f-C: #3bc9db; --f-J: #8c9bff; --f-G: #ffc14d; --f-A: #9ca3af;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-feature-settings: 'locl' 0 !important; }   /* sense 'locl', la l·l de la Barlow es veu bé */
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -344,7 +344,7 @@ details.card > summary::after { content: '▾'; color: var(--muted); }
 details.card[open] > summary::after { content: '▴'; }
 details.card[open] > summary { margin-bottom: 10px; }
 /* Famílies d'exercicis */
-.f-D { --fc: var(--f-D); } .f-B { --fc: var(--f-B); } .f-S { --fc: var(--f-S); } .f-R { --fc: var(--f-R); } .f-BL { --fc: var(--f-BL); } .f-C { --fc: var(--f-C); } .f-J { --fc: var(--f-J); } .f-G { --fc: var(--f-G); }
+.f-D { --fc: var(--f-D); } .f-B { --fc: var(--f-B); } .f-S { --fc: var(--f-S); } .f-R { --fc: var(--f-R); } .f-BL { --fc: var(--f-BL); } .f-C { --fc: var(--f-C); } .f-J { --fc: var(--f-J); } .f-G { --fc: var(--f-G); } .f-A { --fc: var(--f-A); }
 .code.fam { color: var(--fc); background: color-mix(in srgb, var(--fc) 13%, transparent); border-radius: 6px; padding: 1px 7px; }
 .legend .code.fam { text-align: center; }
 /* Avatars */
@@ -719,8 +719,8 @@ const FB = {
   messagingSenderId: '447113557075',
   appId: '1:447113557075:web:8b34eb13e92ce04a8ec2a6'
 };
-const FAM = { D: 'Dits i col·locació', B: 'Braços, recepció i defensa', S: 'Saque', R: 'Remat', BL: 'Bloqueig', C: 'Col·locadors', J: 'Jugada', G: 'Jocs' };
-const FAMC = { D: 'Dits', B: 'Braços i defensa', S: 'Saque', R: 'Remat', BL: 'Bloqueig', C: 'Col·locadors', J: 'Jugades', G: 'Jocs' };   // noms curts per als filtres
+const FAM = { D: 'Dits i col·locació', B: 'Braços, recepció i defensa', S: 'Saque', R: 'Remat', BL: 'Bloqueig', C: 'Col·locadors', J: 'Jugada', G: 'Jocs', A: 'Altres' };
+const FAMC = { D: 'Dits', B: 'Braços i defensa', S: 'Saque', R: 'Remat', BL: 'Bloqueig', C: 'Col·locadors', J: 'Jugades', G: 'Jocs', A: 'Altres' };   // noms curts per als filtres
 const LABEL = { dosi: 'Dosi', muntatge: 'Muntatge' };
 const EST = { si: 'Ve', avisa: 'Avisa', no: 'No avisa' };
 const ESTI = { si: '✅', avisa: '❌', no: '💀' };
@@ -733,7 +733,7 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
 const num = c => +c.slice(2);
-const famC = c => (/^(BL|[DBSRCJG])\d/.exec(c || '') || [])[1] || '';   // família d'un codi d'exercici (D5 -> D, BL1 -> BL)
+const famC = c => (/^(BL|[DBSRCJGA])\d/.exec(c || '') || [])[1] || '';   // família d'un codi d'exercici (D5 -> D, BL1 -> BL)
 const hue = t => [...t].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
 const inicials = n => (n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 const av = (j, lg) => `<span class="av ${lg ? 'lg' : ''}" style="--h:${hue(j.nom || '')}" aria-hidden="true">${esc(inicials(j.nom))}</span>`;
@@ -974,7 +974,7 @@ function clarHtml(k) {
     ${(c.passos || []).length ? `<ol>${c.passos.map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : ''}
     ${c.rotacio ? `<p><b>Rotació.</b> ${esc(c.rotacio)}</p>` : ''}${(c.claus || []).length ? `<p><b>Claus.</b> ${c.claus.map(esc).join(' ')}</p>` : ''}</div>`;
 }
-const clarBloc = b => (b.codi.match(/\b(BL|[DBSRCJG])\d+\b/g) || []).filter(k => CLAR[k]).map(k => `<details class="clard"><summary>Explicació pas a pas${/[ +,]/.test(b.codi) ? ' (' + k + ')' : ''}</summary>${clarHtml(k)}</details>`).join('');
+const clarBloc = b => (b.codi.match(/\b(BL|[DBSRCJGA])\d+\b/g) || []).filter(k => CLAR[k]).map(k => `<details class="clard"><summary>Explicació pas a pas${/[ +,]/.test(b.codi) ? ' (' + k + ')' : ''}</summary>${clarHtml(k)}</details>`).join('');
 function fields(b) {
   return ['com', 'dosi', 'muntatge'].filter(k => b[k]).map(k =>
     `<div class="field">${k === 'com' ? '' : `<b>${LABEL[k]}</b>`}${esc(b[k])}</div>`).join('');
@@ -1007,7 +1007,7 @@ function usosExs() {
   const u = {};
   [...(D?.sessions || [])].sort((a, b) => (ord[a.codi] ?? 999) - (ord[b.codi] ?? 999)).forEach(s => s.blocs.forEach(b => {
     if (b.tret) return;
-    (b.codi.match(/\b(BL|[DBSRCJG])\d+\b/g) || []).forEach(k => { (u[k] = u[k] || []).includes(s.codi) || u[k].push(s.codi); });
+    (b.codi.match(/\b(BL|[DBSRCJGA])\d+\b/g) || []).forEach(k => { (u[k] = u[k] || []).includes(s.codi) || u[k].push(s.codi); });
   }));
   return u;
 }
@@ -1081,7 +1081,7 @@ function viewExercici(c) {
   ${CLAR[e.codi] ? `<div class="card"><h4 class="clart">Explicació pas a pas</h4>${clarHtml(e.codi)}<p class="meta" style="margin:6px 0 0">Escrita per Claude a partir del text original, per a qui no ha vist mai l'exercici.</p></div><h3>Text original</h3>` : ''}
   <div class="card block f-${e.fam}">${fields(e)}</div>
   ${e.font ? `<p class="meta">D'on surt: ${esc(e.font)} Explicació escrita per Claude amb paraules pròpies.</p>` : ''}
-  ${(() => { const k = us.find(x => !isFet(x)) || us[us.length - 1], b = k && byCode(k)?.blocs.find(x => !x.tret && (x.codi.match(/\b(BL|[DBSRCJG])\d+\b/g) || []).includes(c));
+  ${(() => { const k = us.find(x => !isFet(x)) || us[us.length - 1], b = k && byCode(k)?.blocs.find(x => !x.tret && (x.codi.match(/\b(BL|[DBSRCJGA])\d+\b/g) || []).includes(c));
     return b && b.com !== e.com ? `<details class="card"><summary><b>Com es fa a ${k}</b> <span class="meta">${esc(b.titol)}</span></summary><div class="block" style="margin-top:8px">${fields(b)}</div></details>` : ''; })()}
   <h3>On surt</h3>
   <div class="card">${us.length ? us.map(k => { const s = byCode(k); return `<a class="hist nomlink" href="#/s/${k}"><span class="grow"><span class="code">${k}</span> ${esc(s?.titol || '')}</span>${isFet(k) ? '<b class="ok">✓ Feta</b>' : '<span class="meta">Per fer</span>'}</a>`; }).join('') : '<p class="meta" style="margin:0">Encara no és a cap sessió.</p>'}</div>`;
@@ -1101,7 +1101,7 @@ function blockCard(b, s, ord) {
     <div class="bhead"><span class="bnum">${b.nd ?? b.n ?? ''}</span><span class="btitle">${esc(b.titol)}</span>
       <span class="bmin">${b.min ?? ''} min<small>${esc(b.franja)}</small></span>
       ${ord ? `<span class="ord"><button ${ord.first ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, -1)">▲</button><button ${ord.last ? 'disabled' : ''} onclick="moveBlock('${s.codi}', ${b.n}, 1)">▼</button></span>` : ''}</div>
-    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi).replace(/\b(BL|[DBSRCJG])\d+\b/g, k => `<a href="#/e/${k}">${k}</a>`)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}</div>` : ''}
+    ${ord ? '' : `${b.codi ? `<div class="tags"><span class="code fam">${esc(b.codi).replace(/\b(BL|[DBSRCJGA])\d+\b/g, k => `<a href="#/e/${k}">${k}</a>`)}</span>${fc ? ` <span class="meta">${FAM[fc]}</span>` : ''}</div>` : ''}
     ${fields(b)}
     ${ord ? '' : clarBloc(b)}
     ${b.lloc ? `<div class="field"><b>Lloc</b>${esc(b.lloc)}</div>` : ''}
@@ -1403,7 +1403,7 @@ function viewSesEdit() {
   <p class="meta" style="margin:4px 0 0">«Fes-ne una còpia» crea una sessió nova igual que aquesta, just darrere, per fer-ne una variant.</p></div>`;
 }
 // avisos del constructor (normes de l'entrenador): exercicis repetits fa poc, retirats, format que no creix, no acabar amb joc
-const codisBloc = c => (c || '').match(/\b(E[A-Z]{1,2}|BL|[DBSRCJG])\d+\b/g) || [];
+const codisBloc = c => (c || '').match(/\b(E[A-Z]{1,2}|BL|[DBSRCJGA])\d+\b/g) || [];
 const formatDe = b => { const m = [...`${b.titol} ${b.muntatge}`.matchAll(/\b([1-6])\s?[x×]\s?[1-6]\b/g)].map(x => +x[1]); return m.length ? Math.max(...m) : 0; };
 function avisosSessio(e) {
   const av = [], ss = D.sessions, i = ss.findIndex(x => x.codi === e.codi), ex = Object.fromEntries(totsExs().map(x => [x.codi, x]));
@@ -1503,7 +1503,7 @@ window.novaSessio = () => {
 const XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
 const carregaXlsx = () => window.XLSX ? Promise.resolve(window.XLSX) : new Promise((ok, ko) => { const sc = document.createElement('script'); sc.src = XLSX_URL; sc.onload = () => ok(window.XLSX); sc.onerror = ko; document.head.appendChild(sc); });
 const COLS = { sessio: ['sessio', 'codi sessio', 'entrenament', 'dia'], tsessio: ['titol de la sessio', 'titol sessio', 'sessio titol'], titol: ['exercici', 'bloc', 'titol', 'nom'], min: ['minuts', 'min', 'temps', 'durada'],
-  com: ['com es fa', 'com', 'descripcio', 'explicacio'], dosi: ['dosi', 'repeticions'], muntatge: ['muntatge', 'organitzacio'], codi: ['codi'], lloc: ['lloc'], tipus: ['tipus', 'familia', 'tipus dexercici'] };
+  com: ['com es fa', 'com', 'descripcio', 'explicacio'], dosi: ['dosi', 'repeticions'], muntatge: ['muntatge', 'organitzacio'], codi: ['codi', 'codi a la biblioteca', 'codi a la biblioteca opcional'], lloc: ['lloc'], tipus: ['tipus', 'familia', 'tipus dexercici'] };
 // tipus escrit a la plantilla (nom o lletra) -> família de la biblioteca
 const tipusFam = t => { const q = normq(t).trim(); if (!q) return ''; const k = Object.keys(FAM).find(f => normq(f) === q || normq(FAMC[f]) === q || normq(FAM[f]) === q || normq(FAMC[f]).startsWith(q) || q.startsWith(normq(FAMC[f]).split(' ')[0])); return k || ''; };
 let IMP = null;   // sessions llegides del fitxer, a punt per importar
@@ -1520,7 +1520,7 @@ window.plantillaImp = async () => {
   ws.columns = [
     { header: 'Sessió', key: 'sessio', width: 12 }, { header: 'Títol de la sessió', key: 'titol', width: 26 }, { header: 'Tipus', key: 'tipus', width: 18 },
     { header: 'Exercici', key: 'exercici', width: 28 }, { header: 'Minuts', key: 'min', width: 9 }, { header: 'Com es fa', key: 'com', width: 60 },
-    { header: 'Dosi', key: 'dosi', width: 28 }, { header: 'Muntatge', key: 'muntatge', width: 34 }, { header: 'Codi', key: 'codi', width: 9 }];
+    { header: 'Dosi', key: 'dosi', width: 28 }, { header: 'Muntatge', key: 'muntatge', width: 34 }, { header: 'Codi a la biblioteca (opcional)', key: 'codi', width: 16 }];
   [['DT01', 'Recepció', 'Dits', 'Parelles de dits', 10, 'Per parelles, tocs de dits...', '3 sèries de 20', 'Parelles escampades', ''],
    ['DT01', 'Recepció', 'Braços i defensa', 'Papallona de recepció', 15, 'Saque, recepció i objectiu...', '10 recepcions per jugador', 'Tres files a cada camp', 'EB3'],
    ['DT01', 'Recepció', 'Jocs', 'Partit 4x4', 20, 'Partit a mitja pista...', 'Sets a 15', 'Dos 4x4', ''],
@@ -1539,8 +1539,8 @@ window.plantillaImp = async () => {
    ['Una fila per exercici. Totes les files amb la mateixa Sessió formen una sessió, en l’ordre en què surten.'],
    ['Sessió: el codi o nom que vulguis (DT01, DM03, Dimarts 1...). Si és un codi curt (lletres i números), l’app el fa servir com a codi de la sessió.'],
    ['Títol de la sessió: opcional; n’hi ha prou d’omplir-lo a la primera fila de cada sessió.'],
-   ['Tipus: tria’l de la llista desplegable. Els exercicis nous (sense Codi) es guarden a la biblioteca de l’app amb aquest tipus.'],
-   ['Codi: només si l’exercici ja és a la biblioteca de l’app (per exemple EB3). Llavors no cal el Tipus.'],
+   ['Tipus: tria’l de la llista desplegable («Altres» si no encaixa en cap). Els exercicis nous es guarden a la biblioteca de l’app amb aquest tipus.'],
+   ['Codi a la biblioteca (opcional): només si l’exercici ja és a la biblioteca de l’app (per exemple EB3). Si el poses, l’exercici queda lligat a la seva fitxa i no cal el Tipus. Si no el saps, deixa-la buida.'],
    ['Minuts: la durada de la sessió és la suma dels minuts dels seus exercicis.'],
    ['En un mateix fitxer hi pots posar totes les sessions que vulguis.']].forEach(([t, b]) => { const r = aj.addRow([t]); r.getCell(1).alignment = { wrapText: true }; if (b) r.getCell(1).font = { bold: true, size: 14 }; });
   const blob = new Blob([await wb.xlsx.writeBuffer()], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
