@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Vòlei 26-27</title>
+<title>Tres Tocs</title>
 <meta name="theme-color" content="#14325a">
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +42,7 @@ body { font: 16px/1.5 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans
 header { position: sticky; top: 0; z-index: 5; background: linear-gradient(120deg, #14325a 0%, #0c2340 70%); color: #fff; padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 8px; box-shadow: inset 0 -4px 0 var(--accent); overflow: hidden; }
 header::after { content: ''; position: absolute; right: -26px; top: -30px; width: 110px; height: 110px; border-radius: 50%; border: 10px solid rgba(255,255,255,.06); box-shadow: inset 18px 0 0 -8px rgba(255,255,255,.05); pointer-events: none; }
 header h1 { font: 800 22px/1.1 var(--head); text-transform: uppercase; letter-spacing: .03em; margin: 0; flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-header h1 .ball { flex: none; width: 28px; height: 28px; }
+header h1 .ball { flex: none; width: 30px; height: 30px; }
 header button { background: rgba(255,255,255,.1); border: 0; color: #fff; font-size: 20px; width: 40px; height: 40px; border-radius: 12px; padding: 0; cursor: pointer; display: grid; place-items: center; position: relative; z-index: 1; }
 header button:active { background: rgba(255,255,255,.22); }
 header button[hidden] { display: none; }
@@ -620,6 +620,9 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 /* comptes */
 .entra { text-align: center; padding: 28px 18px; margin-top: 20px; }
 .entra .ball { width: 64px; height: 64px; margin-bottom: 6px; }
+.entralogo { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 8px 24px rgba(20,50,90,.25); margin: 4px auto 10px; display: block; }
+.entra .marca { font: 800 34px/1 var(--head); letter-spacing: .5px; color: var(--ink); text-transform: uppercase; }
+.entra .lema { margin: 4px 0 14px; color: var(--muted); font-size: 15px; }
 .entra h2 { margin: 4px 0; }
 .gbtn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px !important; font-size: 16px; }
 .gbtn b { background: #fff; color: #4285f4; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 800 15px/1 Arial, sans-serif; }
@@ -692,7 +695,7 @@ iframe.fotos { width: 100%; height: 70vh; border: 0; border-radius: 12px; backgr
 <body>
 <header>
   <button id="back" aria-label="Enrere" hidden>‹</button>
-  <h1><svg class="ball" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="#f5c518"/><path d="M11.1 7.1a16.55 16.55 0 0 1 10.9 4"/><path d="M12 12a12.6 12.6 0 0 1-8.7 5"/><path d="M16.8 13.6a16.55 16.55 0 0 1-9 7.5"/><path d="M20.7 17a12.8 12.8 0 0 0-8.7-5 13.3 13.3 0 0 1 0-10"/><path d="M6.3 3.8a16.55 16.55 0 0 0 1.9 11.5"/></svg><span id="title">Vòlei 26-27</span></h1>
+  <h1><img class="ball logo" src="marca.svg" alt=""><span id="title">Tres Tocs</span></h1>
   <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()">⏱</button>
   <button aria-label="Configuració" onclick="location.hash='#/config'">⚙</button>
 </header>
@@ -1173,7 +1176,8 @@ const ORIT = { teu: 'Teu', modificat: 'Modificat', claude: 'De Claude', estandar
 function viewEntra() {
   const inv = store.get('volei.invitacio', null);
   return `<div class="entra card">
-    <svg class="ball" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="#f5c518"/>${BALLP.map(d => `<path d="${d}"/>`).join('')}</svg>
+    <img class="entralogo" src="icon.svg" alt="">
+    <div class="marca">Tres Tocs</div><p class="lema">Entrena, juga i creix en equip.</p>
     <h2>${inv ? 'T\'han convidat a un equip' : 'Benvingut!'}</h2>
     <p class="meta">${inv ? 'Entra amb el teu compte de Google per acceptar la invitació.' : 'Entra amb el teu compte de Google per veure els teus equips.'}</p>
     <button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button>
@@ -1320,7 +1324,7 @@ async function dibuixaPartits() {
   pilota(x, 120, 130, 62);
   x.textBaseline = 'alphabetic'; x.textAlign = 'left';
   x.fillStyle = '#fff'; x.font = `800 112px ${F}`; x.fillText('PROPERS PARTITS', 205, 168);
-  x.fillStyle = '#f5c518'; x.font = `700 40px ${F}`; x.fillText(((club() || 'Vòlei') + ' temporada ' + tempNom(TEMP)).toUpperCase(), 210, 222);
+  x.fillStyle = '#f5c518'; x.font = `700 40px ${F}`; x.fillText(((club() || 'Tres Tocs') + ' temporada ' + tempNom(TEMP)).toUpperCase(), 210, 222);
   x.fillStyle = '#f5c518'; x.fillRect(60, HEAD - 34, 140, 8);
   // un partit per fila
   // equips (el local primer); la mateixa mida de lletra a totes les files
@@ -3223,9 +3227,9 @@ function pintaPantalla() {
   if (!D) return;
   let [r, arg] = location.hash.replace(/^#\/?/, '').split('/');
   if (r === 'dimarts' || r === 'dijous' || r === 'f') r = 'entrenos';   // enllaços antics (abans hi havia una pestanya per a dimarts i una per a dijous)
-  let html, tab = 'inici', title = (Object.keys(grups()).length > 1 ? gcfg().nom : 'Vòlei') + ' ' + tempNom(TEMP);
+  let html, tab = 'inici', title = (Object.keys(grups()).length > 1 ? gcfg().nom : club() || 'Tres Tocs') + ' ' + tempNom(TEMP);
   // sense equip, o amb una invitació per acceptar i sense compte: pantalla d'entrada
-  if (!USR && (NOMES_COMPTES || (r !== 'config' && (!CLAU || store.get('volei.invitacio', null))))) { html = viewEntra(); title = 'Vòlei'; }
+  if (!USR && (NOMES_COMPTES || (r !== 'config' && (!CLAU || store.get('volei.invitacio', null))))) { html = viewEntra(); title = 'Tres Tocs'; }
   else if (USR && (!CLAU || (MEM && !rolActual() && (r !== 'config' || !Object.values(MEM.rols || {}).some(Boolean))))) { html = sensePermis(); }
   else if (esFam()) { html = r === 'fotos' ? viewFotos(arg) : r === 'config' ? viewConfigFam() : viewFamilia(); tab = ''; if (r === 'fotos') title = 'Fotos'; }
   else if (r === 'fotos') { html = viewFotos(arg); tab = 'partits'; title = 'Fotos'; }
