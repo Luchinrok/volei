@@ -1206,7 +1206,7 @@ window.creaClub = async (prev = {}) => {
       temporades: { [t]: { nom: t, dies: Object.fromEntries(dies.map(d => [d, 'DT'])), sessions: '' } } });
     await fs.setDoc(fs.doc(db, 'usuaris', USR.uid), { espais: fs.arrayUnion(clau), email: USR.email || '' }, { merge: true });
     CLAU = clau; store.set('volei.clau', clau); TEMP = t; store.set('volei.temp', t); connectat = null;
-    location.hash = '#/'; desat('✓ Club creat'); quiSoc();
+    location.hash = '#/'; location.reload();   // es torna a carregar per connectar-se només al club nou
   } catch (e) { registraError(e, 'creaClub'); dialeg('No s\u2019ha pogut crear el club. Torna-ho a provar.', { sol: true }); }
 };
 const needKey = what => `<div class="card warn"><b>Falta la clau d'aquest mòbil.</b><div class="meta">Per ${what} obre una vegada l'enllaç amb la clau que et va passar Claude.</div></div>`;
