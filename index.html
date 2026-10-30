@@ -2966,8 +2966,9 @@ function viewConfig() {
   const anys = [...new Set(Object.keys(CFG.temporades).filter(x => rolDe(grupDe(x))).map(anyDe))].sort();
   const eqs = Object.entries(G).filter(([k]) => rolDe(k) && tempDe(k, any));
   return `<h2>Configuració</h2>
-  ${CLUBS.length > 1 ? `<h3>Club</h3><div class="card"><div class="seg" style="margin:0">${CLUBS.map(c => `<button class="${c.clau === CLAU ? 'on' : ''}" onclick="canviaClub('${c.clau}')">${esc(c.nom)}</button>`).join('')}</div>
-    <p class="meta" style="margin:8px 0 0">Tens accés a més d'un club. Cada un té les seves dades.</p></div>` : ''}
+  ${USR ? `<h3>Club</h3><div class="card">${CLUBS.length > 1 ? `<div class="seg" style="margin:0">${CLUBS.map(c => `<button class="${c.clau === CLAU ? 'on' : ''}" onclick="canviaClub('${c.clau}')">${esc(c.nom)}</button>`).join('')}</div>
+    <p class="meta" style="margin:8px 0 0">Tens accés a més d'un club. Cada un té les seves dades.</p>` : ''}
+    <div class="actions"><button class="btn" style="flex:1" onclick="creaClub()">＋ Crea un club nou</button></div></div>` : ''}
   <h3>Temporada</h3>
   <div class="card">
     <div class="seg" style="margin:0">${anys.map(a => `<button class="${a === any ? 'on' : ''}" onclick="triaAny('${esc(a)}')">${esc(a)}</button>`).join('')}</div>
