@@ -623,6 +623,7 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .entralogo { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 8px 24px rgba(20,50,90,.25); margin: 4px auto 10px; display: block; }
 .entra .marca { font: 800 34px/1 var(--head); letter-spacing: .5px; color: var(--ink); text-transform: uppercase; }
 .entra .lema { margin: 4px 0 14px; color: var(--muted); font-size: 15px; }
+.entra .queés { margin: 18px 4px 2px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; line-height: 1.5; }
 .entra h2 { margin: 4px 0; }
 .gbtn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px !important; font-size: 16px; }
 .gbtn b { background: #fff; color: #4285f4; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 800 15px/1 Arial, sans-serif; }
@@ -1181,7 +1182,8 @@ function viewEntra() {
     <h2>${inv ? 'T\'han convidat a un equip' : 'Benvingut!'}</h2>
     <p class="meta">${inv ? 'Entra amb el teu compte de Google per acceptar la invitació.' : 'Entra amb el teu compte de Google per veure els teus equips.'}</p>
     <button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button>
-    ${USR === undefined ? '<p class="meta">Connectant…</p>' : ''}</div>`;
+    ${USR === undefined ? '<p class="meta">Connectant…</p>' : ''}
+    ${inv ? '' : `<p class="queés">Tens les sessions de la temporada i saps quina toca cada dia. Passes llista des de la pista i, als partits, apuntes el marcador i qui fa cada punt. Serveix per a un equip o per a tot el club, i és gratuïta.</p>`}</div>`;
 }
 const sensePermis = () => `${CLAU ? `<div class="card warn"><b>Encara no tens accés a aquest equip.</b><div class="meta">Demana a l'administrador que et convidi o que et doni permís.</div></div>` : ''}
   <div class="entra card"><h2>${CLAU ? 'O crea el teu club' : 'Benvingut!'}</h2>
@@ -3251,7 +3253,7 @@ function pintaPantalla() {
   else if (r === 'pissarra') { html = viewPissarra(arg); tab = 'partits'; title = 'Pissarra'; }
   else if (r === 'directe') { html = viewDirecte(arg); tab = 'partits'; title = 'En directe'; }
   else html = viewHome();
-  $('#tabs').hidden = $('#tbtn').hidden = USR && (esFam() || !CLAU);
+  $('#tabs').hidden = $('#tbtn').hidden = !USR || esFam() || !CLAU;   // sense compte o sense club no hi ha res a navegar
   $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">${ICO.inici}</span>Inici</a>
     <a href="#/entrenos" data-t="entrenos"><span class="ico">${ICO.pista}</span>Sessions</a>
     <a href="#/assistencia" data-t="assistencia"><span class="ico">${ICO.ass}</span>Assistència</a>
