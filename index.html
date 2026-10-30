@@ -1277,8 +1277,7 @@ function viewHome() {
   <div class="card pxlist">${prox.map(linia).join('') || '<p class="meta" style="margin:0">Cap partit planificat. Afegeix-los a Partits.</p>'}
     ${prox.length ? `<div class="actions" style="margin:6px 0 8px"><button class="btn primary" style="flex:1" onclick="copiaPartits()">Copia el text per al WhatsApp</button></div><div class="actions" style="margin:0 0 10px"><button class="btn" style="flex:1" onclick="copiaImatge()">Copia imatge</button><button class="btn" style="flex:1" onclick="desaImatge()">⬇️ Desa imatge</button></div>` : ''}</div>`
   : needKey('marcar sessions, escriure comentaris i portar l\'assistència,')}
-  <details class="card"><summary>Què volen dir els codis</summary>
-  <div class="legend">${Object.entries(FAM).map(([k, v]) => `<span class="code fam f-${k}">${k}</span><span>${v}</span>`).join('')}</div></details>`;
+`;
 }
 // quant falta per a un partit: «Avui», «Demà», «Queden 3 dies», «Queden 2 setmanes»
 function queden(data) {
