@@ -2049,7 +2049,6 @@ function calendari(ps, card) {
   CALMESOS = window.Swiper ? mesosTemporada(ps) : [calMes];
   return `<div class="calnav"><button class="btn" onclick="calMou(-1)" aria-label="Mes anterior">‹</button><b id="calnom">${nomMes(calMes)}</b><button class="btn" onclick="calMou(1)" aria-label="Mes següent">›</button></div>
   ${window.Swiper ? `<div class="swiper calsw" id="calsw"><div class="swiper-wrapper">${CALMESOS.map(ym => `<div class="swiper-slide">${mesHtml(ym, ps)}</div>`).join('')}</div></div>` : mesHtml(calMes, ps)}
-  <div class="callegend"><span style="flex-basis:100%;justify-content:center">${window.Swiper ? '👈 Llisca per canviar de mes 👉 ' : ''}Toca un partit per veure'l toca un dia buit per crear-ne un</span><span><i class="n"></i>Negre</span><span><i class="g"></i>Groc</span><span><i class="w"></i>Guanyat</span><span><i class="l"></i>Perdut</span><span>🏠 A casa</span><span>🚌 A fora</span></div>
   ${calDia && ps.some(p => p.data === calDia) ? `<div class="daypanel"><h3>${dataCa(calDia)}</h3>${ps.filter(p => p.data === calDia).map(card).join('')}
     <button class="btn" style="width:100%" onclick="newPartit('${calDia}')">+ Un altre partit aquest dia</button></div>` : ''}`;
 }
