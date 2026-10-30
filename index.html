@@ -1966,11 +1966,13 @@ function statsPartits(id, eq) {
   const ps = partitsDe(id).filter(p => !eq || p.equip === eq);
   let sets = 0, jugats = 0;
   // el lliure compta com a set jugat; els centrals per qui entra el lliure, mig set
-  ps.forEach(p => Object.values(p.sets || {}).forEach(pos => {
+  // qui entra amb un canvi durant el set també l'ha jugat (sencer)
+  ps.forEach(p => Object.entries(p.sets || {}).forEach(([n, pos]) => {
     const dins = ['1', '2', '3', '4', '5', '6', 'L'].map(k => pos?.[k]).filter(Boolean);
     if (!dins.length) return;
     sets++;
-    if (dins.includes(id)) jugats += pos.L && esCentral(pos, id) ? .5 : 1;
+    const entra = (p.accions || []).some(a => a.a === 'canvi' && a.s === +n && a.j === id);
+    if (entra) jugats++; else if (dins.includes(id)) jugats += pos.L && esCentral(pos, id) ? .5 : 1;
   }));
   return { j: JUG.find(x => x.id === id), tot: ps.length, N: ps.filter(p => p.equip === 'N').length, G: ps.filter(p => p.equip === 'G').length, sets, jugats, pct: sets ? Math.round(100 * jugats / sets) : null };
 }
@@ -2116,7 +2118,7 @@ function viewPartits() {
   <h3>Convocatòries per jugador${parFiltre ? ' (' + EQN[parFiltre] + ')' : ''}</h3>
   <div class="card"><div class="ptab phead ${dosEq() ? '' : 'one'}"><span></span><span>Total</span>${dosEq() ? '<span>Negre</span><span>Groc</span>' : ''}<span>% sets</span></div>
     ${comptes.map(c => `<div class="ptab ${dosEq() ? '' : 'one'}"><a class="nomlink" href="#/j/${c.j.id}">${esc(c.j.nom)}</a><b>${c.tot}</b>${dosEq() ? `<span>${c.N}</span><span>${c.G}</span>` : ''}<span>${c.pct ?? '–'}${c.pct != null ? '%' : ''}</span></div>`).join('')}</div>
-  <p class="meta">% sets: dels sets amb alineació posada als partits on estava convocat, en quants ha sortit al camp. El lliure compta com que juga el set; els centrals per qui entra el lliure compten mig set.</p>`;
+  <p class="meta">% sets: dels sets amb alineació posada als partits on estava convocat, en quants ha sortit al camp. El lliure compta com que juga el set; els centrals per qui entra el lliure compten mig set; qui entra amb un canvi també compta que l'ha jugat.</p>`;
 }
 window.newPartit = async (data = avui()) => {
   const d = await fs.addDoc(col('partits'), { data, hora: '20:00', equip: parFiltre || 'N', rival: '', lloc: 'casa', convocats: [], sets: {}, resultat: '' });
@@ -2518,6 +2520,7 @@ function viewPartit(id) {
   ${pos.L ? `<details class="meta" style="margin:4px 0 8px"><summary style="cursor:pointer">El lliure entra pels centrals (${ZK.map(z => pos[z]).filter(j => esCentral(pos, j)).map(j => esc((JUG.find(q => q.id === j)?.nom || '').split(' ')[0])).join(' i ') || 'cap: posa el rol de central'}). Canvia-ho si no és així.</summary><div class="posgrid">${true ? ['C1', 'C2'].map((c, i) => `<div><label>Central ${i + 1}</label><select onchange="posSet('${id}', '${c}', this.value)"><option value="">—</option>
     ${ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean).filter(j => pos[c] === j.id || !esCentral(pos, j.id)).map(j => `<option value="${j.id}" ${pos[c] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('') : ''}</div></details>` : ''}
   ${rolsHtml(id, pos)}
+  ${canvisHtml(p)}
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
     ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? `<button class="btn" onclick="triaCopia('${id}')">Copia un set</button>` : ''}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
@@ -2826,6 +2829,14 @@ function rolsHtml(id, pos, alDirecte) {
     <div class="rolgrid">${js.map(jid => { const j = JUG.find(q => q.id === jid), hab = posJ(jid), v = (pos.rols || {})[jid] || '';
       return `<label>${esc((j?.nom || '').split(' ')[0])}</label><select onchange="rolPosa('${id}','${jid}',this.value,${alDirecte ? 1 : 0})">${hab ? '' : `<option value="" ${v ? '' : 'selected'}>—</option>`}${Object.entries(POS).map(([k, x]) => `<option value="${k}" ${(v || hab) === k ? 'selected' : ''}>${x.t}</option>`).join('')}</select>`; }).join('')}</div>
     <p class="meta" style="margin:4px 0 0">Surt el rol de cada jugador. Si el canvies, només val per a aquest set; el de l'equip no canvia.</p></details>`;
+}
+// canvis de jugadors dins del set (els mateixos que s'apunten al directe)
+function canvisHtml(p) {
+  const cv = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.a === 'canvi' && a.s === setActiu), nomJ = jid => esc(JUG.find(q => q.id === jid)?.nom || '');
+  return `<details class="rols" ${cv.length ? 'open' : ''}><summary>Canvis en aquest set${cv.length ? ` (${cv.length})` : ''}</summary>
+    ${cv.map(a => `<div class="row" style="gap:6px;padding:4px 0"><span>🔁</span><span class="grow">Entra <b>${nomJ(a.j)}</b> per ${nomJ(a.surt)}</span><button class="mini" title="Esborra" onclick="dirEsborra('${p.id}', ${a.i})">✕</button></div>`).join('')}
+    <div class="actions" style="margin:4px 0 0"><button class="btn" onclick="dirCanvi('${p.id}')">＋ Apunta un canvi</button></div>
+    <p class="meta" style="margin:4px 0 0">Qui entra amb un canvi compta que ha jugat el set. L'alineació de dalt és la de l'inici del set.</p></details>`;
 }
 window.rolPosa = (id, jid, v, alDirecte) => {
   const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) }, r = { ...(pos.rols || {}) };
