@@ -289,6 +289,12 @@ a.nomlink { color: inherit; text-decoration: none; }
 .ptab > :not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
 .ptab.phead { font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); font-weight: 600; padding-top: 0; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.partbar { display: flex; gap: 6px; margin-bottom: 4px; }
+.partbar .btn { padding: 9px 9px; min-width: 0; text-align: center; text-decoration: none; white-space: nowrap; }
+.partbar .btn.primary { flex: 1; }
+.partbar .tog { min-width: 44px; border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
+.partbar .tog.eqN { background: #1d232b; border-color: #1d232b; color: #fff; }
+.partbar .tog.eqG { background: #f5c518; border-color: #e0b20f; color: #14202e; }
 /* Camp */
 .court { position: relative; width: calc(100% - 28px); max-width: 400px; margin: 22px auto 14px; aspect-ratio: 1 / 1; background: radial-gradient(120% 90% at 50% 0%, #f0975a 0%, #e07434 70%); border: 3px solid #fff; outline: 12px solid #2f6db3; border-radius: 2px; touch-action: none; user-select: none; box-shadow: 0 10px 30px 12px rgba(0,0,0,.2); }
 .court::before { content: ''; position: absolute; left: 0; right: 0; top: 33.3%; border-top: 2px solid #fff; }
@@ -2161,9 +2167,9 @@ function viewPartits() {
   };
   const comptes = JUG.filter(j => j.actiu !== false).map(j => statsPartits(j.id, parFiltre)).sort((a, b) => b.tot - a.tot || (b.pct ?? -1) - (a.pct ?? -1) || a.j.nom.localeCompare(b.j.nom, 'ca'));
   return `<h2>Partits</h2>
-  ${dosEq() ? `<div class="seg">${[['', 'Tots'], ['N', 'Negre'], ['G', 'Groc']].map(([v, t]) => `<button class="${parFiltre === v ? 'on' : ''}" onclick="parFilt('${v}')">${t}</button>`).join('')}</div>` : ''}
-  <div class="grid2"><button class="btn primary" style="padding:12px" onclick="newPartit()">+ Partit nou</button><a class="btn" style="padding:12px;text-align:center;text-decoration:none" href="#/pissarra">Pissarra</a></div>
-  <div class="seg" style="margin-top:12px">${[['llista', 'Llista'], ['calendari', 'Calendari']].map(([v, t]) => `<button class="${parVista === v ? 'on' : ''}" onclick="parVeure('${v}')">${t}</button>`).join('')}</div>
+  <div class="partbar"><button class="btn primary" onclick="newPartit()">+ Partit nou</button><a class="btn" href="#/pissarra">Pissarra</a>
+    <button class="btn tog" onclick="parVeure('${parVista === 'calendari' ? 'llista' : 'calendari'}')" title="Canvia entre llista i calendari" aria-label="${parVista === 'calendari' ? 'Calendari' : 'Llista'}">${parVista === 'calendari' ? '📅' : '☰'}</button>
+    ${dosEq() ? `<button class="btn tog eq${parFiltre}" onclick="parFilt('${{ '': 'N', N: 'G', G: '' }[parFiltre]}')" title="Tots, Negre o Groc">${{ '': 'Tots', N: 'Negre', G: 'Groc' }[parFiltre]}</button>` : ''}</div>
   ${parVista === 'calendari' ? calendari(ps, card) : `<h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Cap partit previst.</p>'}
   <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}`}
   ${(() => { const ps2 = PAR.filter(p => !parFiltre || p.equip === parFiltre), acc = ps2.flatMap(p => (p.accions || []).filter(a => a.s)), n = k => acc.filter(a => a.a === k).length;
@@ -2485,12 +2491,13 @@ function recPos(p, m, sis, lli) {
   ZK.forEach(z => { if (m[z]) xy[z] = g[z] ? [...g[z]] : def[z]; });
   return { r, xy };
 }
+const llegPos = () => Object.keys(POS).map(k => `<span class="rlleg ps-${k}">${POS[k].t}</span>`).join(' ');
 function recCourt(m, xy, edit, idp) {
   const fl = faltes(xy), mal = new Set(fl.flatMap(([a, b]) => [a, b]));
   return `<div class="court rcourt" ${edit ? `data-edit="${idp}"` : ''}><div class="net"></div><div class="l3"></div>
     ${ZK.filter(z => m[z] && xy[z]).map(z => { const j = m[z], nom = (JUG.find(q => q.id === j.jid)?.nom || '').split(' ')[0];
       return `<div class="tok rtok ${j.rol ? 'ps-' + j.rol : ''} ${mal.has(z) ? 'malrot' : ''}" data-z="${z}" style="left:${xy[z][0]}%;top:${xy[z][1]}%"><small>Z${z}${j.rol ? ' ' + POS[j.rol].l : ''}</small><span class="tn">${dors(j.jid) ? esc(dors(j.jid)) + ' ' : ''}${esc(nom)}</span></div>`; }).join('')}
-  </div><div class="irow">${info(`<p>${Object.keys(POS).map(k => `<span class="rlleg ps-${k}">${POS[k].t}</span>`).join(' ')}</p>`, `Colors de les posicions`)}</div>${fl.length ? `<p class="red" style="text-align:center;margin:4px 0">⚠️ Falta de rotació: ${fl.map(x => x[2]).join('; ')}</p>` : ''}`;
+  </div>${edit ? '' : `<div class="irow">${info(`<p>${llegPos()}</p>`, `Colors de les posicions`)}</div>`}${fl.length ? `<p class="red" style="text-align:center;margin:4px 0">⚠️ Falta de rotació: ${fl.map(x => x[2]).join('; ')}</p>` : ''}`;
 }
 // pantalla del partit: triar el sistema i retocar les posicions de cada rotació abans del partit
 let recRot = null;
@@ -2508,7 +2515,7 @@ function recepcioHtml(p) {
     <p class="meta" style="text-align:center;margin:0">Rotació ${vol}: col·locador a Z${vol}${sis === '6-2' ? ' (el de darrere)' : sis === '4-2' ? ' (el de davant)' : ''}</p>`}
     ${recCourt(m, xy, !sense, id)}
     ${sense ? '' : `<div class="actions" style="margin-top:0"><button class="btn" onclick="recReset('${id}',${vol})">Torna a la posició per defecte</button></div>`}
-    <div class="irow">${info(`<ul><li>Arrossega els jugadors per fixar com recepcioneu en cada rotació.</li><li>Es guarda per a aquest partit, i l'equip la recorda per als següents.</li><li>Si una posició fa falta de rotació, surt <span class="red">en vermell</span>.</li></ul>`, `Recepció`)}</div>`;
+    <div class="irow">${info(`<ul><li>Arrossega els jugadors per fixar com recepcioneu en cada rotació.</li><li>Es guarda per a aquest partit, i l'equip la recorda per als següents.</li><li>Si una posició fa falta de rotació, surt <span class="red">en vermell</span>.</li></ul><p>Colors de cada posició:</p><p>${llegPos()}</p>`, `Recepció`)}</div>`;
 }
 const desaRec = (p, sis, lli, r, xy) => {
   const k = recKey(sis, lli), pos = { ...(p.recepcio?.pos || {}) }; pos[k] = { ...(pos[k] || {}), [r]: xy };
