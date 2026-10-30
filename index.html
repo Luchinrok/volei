@@ -3268,7 +3268,8 @@ window.creaInvitacio = async () => {
   const codi = [...crypto.getRandomValues(new Uint8Array(15))].map(b => 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 56]).join('');
   await fs.setDoc(fs.doc(db, 'equips', CLAU, 'invitacions', codi), { rols, ...(js.length ? { jugadors: { [g]: js } } : {}), creat: Date.now(), per: USR.uid, perNom: USR.displayName || '', usada: null });
   const url = `${CASA}#/uneix/${CLAU}/${codi}`;
-  const text = `T'he convidat a l'app de vòlei. Obre aquest enllaç i entra amb el teu compte de Google:\n${url}`;
+  const noms = js.map(j => nomCurt(JUG.find(x => x.id === j)?.nom || '')).filter(Boolean).join(' i ');
+  const text = `T'he convidat a Tres Tocs, l'app de vòlei${club() ? ' del ' + club() : ''}.${noms ? ` Hi veuràs els partits i els avisos, i podràs dir si ${noms} ${js.length > 1 ? 'vénen' : 've'} o no.` : ''} Obre aquest enllaç i entra amb el teu compte de Google:\n${url}`;
   obreFitxa(`<b>Enllaç d'invitació</b><div class="form"><p class="meta" style="margin:0 0 6px">Serveix per a <b>una sola persona</b>. Envia-l'hi per WhatsApp o com vulguis.</p>
     <textarea readonly style="min-height:90px;font-size:13px" onfocus="this.select()">${esc(url)}</textarea></div>`,
     `<button class="btn" onclick="copiaText(${JSON.stringify(url).replace(/"/g, '&quot;')})">Copia</button><a class="btn primary" style="flex:1;text-decoration:none;text-align:center" href="https://wa.me/?text=${encodeURIComponent(text)}" target="_blank">WhatsApp</a>`);
