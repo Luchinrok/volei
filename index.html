@@ -467,6 +467,7 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .etd summary { list-style: none; cursor: pointer; } .etd summary::-webkit-details-marker { display: none; }
 .ptab.one { grid-template-columns: minmax(0, 1fr) 54px 60px; }
 .etab { grid-template-columns: minmax(0, 1fr) 26px 26px 26px 26px 46px 36px !important; }
+.etab.ambsets { grid-template-columns: minmax(0, 1fr) 28px 24px 24px 24px 24px 44px 32px !important; gap: 3px; }
 .accs.np { grid-template-columns: 1fr 1fr; }
 .acc.lleu { border-width: 1px; min-height: 40px; font-size: 13px; }
 .stps { display: grid; gap: 4px; padding: 4px 0 10px; }
@@ -654,6 +655,10 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .mrols label { font-size: 13px; font-weight: 600; color: var(--muted); }
 .mrols select { padding: 5px 6px; font-size: 14px; }
 .saqrow { margin: 0 0 8px; }
+.enjoc { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; padding: 10px 12px; border-radius: 14px; background: var(--brand-soft); border: 2px solid var(--brand); color: var(--ink); animation: fade .2s ease-out; }
+.enjoc b { display: block; font: 800 17px/1.2 var(--head); color: var(--brand); text-transform: uppercase; letter-spacing: .04em; }
+.enjoc small { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+.enjoc .btn { flex: none; }
 .saqrow > small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 4px; }
 .accs.quatre { grid-template-columns: repeat(4, 1fr); gap: 5px; }
 .accs.quatre .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
@@ -2272,7 +2277,8 @@ function viewDirecte(id) {
   ${(() => { const graella = `<div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
   <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>`;
     return saca === 'nos' && pos[1] && !enJoc ? `<div class="actions" style="margin:6px 0"><button class="btn" style="flex:1" onclick="dirCanvi('${id}')">Canvi</button></div>`
-      : `${enJoc ? `<div class="saqrow"><small>Pilota en joc: toca qui ha fet el punt o l'error</small></div>` : ''}${graella}`; })()}
+      : `${enJoc ? (() => { const sq = acc.slice(darrerPunt + 1).filter(a => ['bs', 'ms'].includes(a.a)).pop();
+      return `<div class="enjoc"><span class="grow"><b>🏐 Pilota en joc</b><small>${ACC[sq.a].t} de ${esc(nomJ(sq.j).split(' ')[0])}. Toca qui fa el punt o l'error, o «Error del rival» / «Punt del rival».</small></span><button class="btn" onclick="dirDesfes('${id}', ${sq.i})">↶ Desfés</button></div>`; })() : ''}${graella}`; })()}
   ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu}.</p>` : ''}
   ${conv.some(j => !dins.has(j.id)) ? `<details class="banq"><summary>Banqueta (${conv.filter(j => !dins.has(j.id)).length})</summary><div class="djgrid">${conv.filter(j => !dins.has(j.id)).map(j => tile(j.id, 'Banqueta')).join('')}</div></details>` : ''}
   <div class="accs tres">${['erv', 'prv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div>
@@ -2339,6 +2345,8 @@ window.dirCanvi = async id => {
 // efecte d'una acció al marcador: només les dels sets (no les correccions manuals, s = 0) i les que són punt
 const efecte = (p, a, d) => { if (!a.s || ACC[a.a].np) return; Object.assign(p, sumaPunt(p, a.s, !!ACC[a.a].bo, d)); };
 const desaAccions = p => { fs.updateDoc(parRef(p.id), { accions: p.accions, punts: p.punts || {}, resultat: p.resultat || '' }); render(); };
+// treure el saque apuntat (bo o fluix) sense preguntar: torna el saque
+window.dirDesfes = (id, i) => { const p = PAR.find(x => x.id === id); p.accions = p.accions.filter((_, k) => k !== i); desaAccions(p); };
 window.dirEsborra = async (id, i) => {
   const p = PAR.find(x => x.id === id), a = p.accions[i];
   if (!await dialeg(`Esborrar <b>${ACC[a.a].i} ${ACC[a.a].t}</b>${a.j ? ' de ' + esc(JUG.find(q => q.id === a.j)?.nom || '') : ''}?${ACC[a.a].np ? '' : '<br><small>El marcador es corregeix sol.</small>'}`, { ok: 'Esborra', perill: true })) return;
@@ -2376,15 +2384,20 @@ function taulaEstad(p) {
       <div class="irow">${info(`<p>Els canvis que facis aquí corregeixen les estadístiques, però <b>no el marcador</b>.</p>`, `Corregir estadístiques`)}</div>
       <div class="actions"><button class="btn primary" onclick="estEdit=null;render()">✓ Fet</button></div></div>`;
   }
-  const ids = Object.keys(m).sort((a, b) => (m[b].bo - m[b].mal) - (m[a].bo - m[a].mal));
+  // sets jugats al partit (amb els canvis); a la taula de la temporada no hi són
+  const sj = {}; if (p.sets) Object.keys(p.sets).forEach(n => Object.entries(partSet(p, n) || {}).forEach(([j, x]) => sj[j] = (sj[j] || 0) + x));
+  const amb = !!p.sets, buit = { bo: 0, mal: 0, n: {}, rec: null };
+  Object.keys(sj).forEach(j => { if (!m[j]) m[j] = buit; });
+  const nSets = x => x == null ? ' ' : (Math.round(x * 10) / 10).toString().replace('.', ',');
+  const ids = Object.keys(m).sort((a, b) => (m[b].bo - m[b].mal) - (m[a].bo - m[a].mal) || (sj[b] || 0) - (sj[a] || 0));
   const edita = p.id === '_temporada' ? '' : `<div class="actions" style="margin-top:8px"><button class="btn" onclick="estEdit='${p.id}';render()">✎ Edita les estadístiques</button></div>`;
   if (!ids.length) return '<p class="meta">Encara no hi ha accions apuntades. Obre el marcador en directe durant el partit.</p>' + edita;
   const n = (e, k) => e.n[k] || ' ';
-  return `<div class="card"><div class="etab phead"><span></span><span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="% de recepcions bones o perfectes">Recep.</span><span>+/-</span></div>
+  return `<div class="card"><div class="etab phead ${amb ? 'ambsets' : ''}"><span></span>${amb ? '<span title="Sets jugats">Sets</span>' : ''}<span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="% de recepcions bones o perfectes">Recep.</span><span>+/-</span></div>
     ${ids.map(jid => { const e = m[jid], j = JUG.find(q => q.id === jid), b = e.bo - e.mal;
-      return `<details class="etd"><summary class="etab"><span>${esc(j?.nom || '?')}</span><span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || ' '}</span><span>${e.rec != null ? e.rec + '%' : ' '}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
-        <div class="meta" style="padding:0 0 8px">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' ')}</div></details>`; }).join('')}
-    <div class="meta irow2" style="margin-top:6px"><span class="grow">Errors del rival: ${accions.filter(a => a.a === 'erv').length}. Punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</span>${info(`<ul><li>🎯 Aces</li><li>💥 Remats punt</li><li>🧱 Bloquejos punt</li><li>✗ Errors</li><li><b>Recep.</b>: de cada 100 recepcions, quantes han estat bones o perfectes (també compten les dolentes i els errors de recepció).</li><li><b>+/-</b>: punts guanyats menys punts perduts.</li></ul>`, `Què vol dir cada columna`)}</div>${edita}</div>`;
+      return `<details class="etd"><summary class="etab ${amb ? 'ambsets' : ''}"><span>${esc(j?.nom || '?')}</span>${amb ? `<span class="meta">${nSets(sj[jid])}</span>` : ''}<span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || ' '}</span><span>${e.rec != null ? e.rec + '%' : ' '}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
+        <div class="meta" style="padding:0 0 8px">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' ') || 'Cap acció apuntada.'}</div></details>`; }).join('')}
+    <div class="meta irow2" style="margin-top:6px"><span class="grow">Errors del rival: ${accions.filter(a => a.a === 'erv').length}. Punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</span>${info(`<ul>${amb ? '<li><b>Sets</b>: sets jugats en aquest partit. Amb canvis, la part del set que ha estat a la pista.</li>' : ''}<li>🎯 Aces</li><li>💥 Remats punt</li><li>🧱 Bloquejos punt</li><li>✗ Errors</li><li><b>Recep.</b>: de cada 100 recepcions, quantes han estat bones o perfectes (també compten les dolentes i els errors de recepció).</li><li><b>+/-</b>: punts guanyats menys punts perduts.</li></ul>`, `Què vol dir cada columna`)}</div>${edita}</div>`;
 }
 window.estMou = (id, jid, k, d) => {
   const p = PAR.find(x => x.id === id), accions = [...(p.accions || [])];
