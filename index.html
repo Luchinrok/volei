@@ -2547,7 +2547,6 @@ function viewPartit(id) {
   <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px;margin:16px 0 10px" href="#/directe/${id}">Marcador en directe</a>
   <details class="card plega" ${(PLEG['est' + id] ?? true) ? 'open' : ''} ontoggle="obertPart('est', '${id}', this.open)"><summary><b>Estadístiques per jugador</b><span class="meta">${(() => { const m = estadJug(p.accions || []), n = Object.keys(m).length; return n ? n + ' jugadors amb accions apuntades' : 'Encara no hi ha accions apuntades'; })()}</span></summary>
   ${taulaEstad(p)}</details>
-  <p class="meta">✓ Tot el partit es desa sol a cada canvi; no cal cap botó.</p>
 </div>`;
 }
 // ------------------------------------------------------------------ famílies
