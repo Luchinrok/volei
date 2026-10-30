@@ -986,6 +986,15 @@ async function quiSoc() {
   unsubMem.push(fs.onSnapshot(fs.collection(db, 'equips', CLAU, 'membres'), q => { MEMBRES = q.docs.map(d => ({ uid: d.id, ...d.data() })); render(); }, () => {}));
 }
 // enllaç de l'equip (30-10-2026): un de sol per a tothom (grup de WhatsApp); invitacions/{codi} = {tipus: 'equip', grup, llista: {id: nom}}
+async function uneixStaff(clau, codi, inv) {
+  store.set('volei.invitacio', null);
+  const mref = fs.doc(db, 'equips', clau, 'membres', USR.uid), ja = await fs.getDoc(mref);
+  if (Object.keys(ja.data()?.rols || {}).length) { CLAU = clau; store.set('volei.clau', clau); location.hash = '#/'; await dialeg('Ja formes part del club. Si et cal un altre rol, demana-ho a un administrador.', { sol: true }); connectat = null; return quiSoc(); }
+  try {
+    await fs.setDoc(mref, { email: USR.email || '', nom: USR.displayName || '', foto: USR.photoURL || '', rols: inv.rols, invitacio: codi, alta: Date.now(), pendent: false });
+    CLAU = clau; store.set('volei.clau', clau); location.hash = '#/'; desat('✓ Benvingut a l\'equip!'); connectat = null; quiSoc();
+  } catch (e) { registraError(e, 'uneix-staff'); dialeg('No s\'ha pogut entrar. Torna-ho a provar.', { sol: true }); }
+}
 async function uneixEquip(clau, codi, inv) {
   store.set('volei.invitacio', null);
   const mref = fs.doc(db, 'equips', clau, 'membres', USR.uid), ja = await fs.getDoc(mref);
@@ -1006,7 +1015,11 @@ async function uneixEquip(clau, codi, inv) {
 async function acceptaInvitacio({ clau, codi }) {
   try {
     const iref = fs.doc(db, 'equips', clau, 'invitacions', codi), inv = await fs.getDoc(iref);
-    if (inv.exists() && inv.data().tipus === 'equip') return uneixEquip(clau, codi, inv.data());
+    if (inv.exists() && ['equip', 'staff'].includes(inv.data().tipus)) {
+      if (inv.data().obert === false) { store.set('volei.invitacio', null); await dialeg('Aquest enllaç està tancat. Demana a l\'entrenador que el torni a obrir.', { sol: true }); location.hash = '#/'; return quiSoc(); }
+      if (inv.data().tipus === 'staff') return uneixStaff(clau, codi, inv.data());
+      return uneixEquip(clau, codi, inv.data());
+    }
     if (!inv.exists() || (inv.data().usada && inv.data().usada !== USR.uid)) { store.set('volei.invitacio', null); await dialeg('Aquesta invitació ja s\'ha fet servir o no existeix. Demana\'n una de nova.', { sol: true }); location.hash = '#/'; return quiSoc(); }
     CLAU = clau; store.set('volei.clau', clau); store.set('volei.invitacio', null);
     const mref = memRef(USR.uid), ja = await fs.getDoc(mref), rols = { ...(ja.data()?.rols || {}), ...inv.data().rols };
@@ -3256,10 +3269,9 @@ function viewPersones() {
       <span class="grow"><b>${esc(m.nom || m.email || 'Sense nom')}</b>${m.uid === USR.uid ? ' <small class="meta">(tu)</small>' : ''}${['jugador', 'familia'].includes((m.rols || {})[grupDe(TEMP)]) ? ` <button class="mini lliga" onclick="lligaJugador('${m.uid}')" title="Per qui respon">🔗 ${esc(((m.jugadors || {})[grupDe(TEMP)] || []).map(j => nomCurt(JUG.find(x => x.id === j)?.nom || '?')).join(', ') || 'Tria el jugador')}</button>` : ''}<div class="meta">${esc(m.email || '')}${m.pendent && !Object.keys(m.rols || {}).length ? ' <b class="red">pendent de permís</b>' : ''}</div></span>
       ${m.uid !== USR.uid ? `<button class="mini" title="Treu-lo" onclick="treuMembre('${m.uid}')">✕</button>` : `<button class="btn" onclick="surt()">Surt</button>`}</div>
       ${m.uid === USR.uid ? '' : `<div class="mrols">${Object.entries(G).map(([g, x]) => `<label>${esc(x.nom)}</label><select ${m.uid === USR.uid ? 'disabled' : ''} onchange="posaRol('${m.uid}','${g}',this.value)"><option value="">Cap accés</option>${Object.entries(ROLS).map(([k, t]) => `<option value="${k}" ${(m.rols || {})[g] === k ? 'selected' : ''}>${t}</option>`).join('')}</select>`).join('')}</div>`}</div>`).join('')}
-    <div class="actions"><button class="btn primary" style="flex:1" onclick="convida()">＋ Convida algú</button></div>
     <div class="irow">${info(`<ul><li><b>Administrador</b>: ho pot fer tot, també convidar.</li><li><b>Entrenador</b>: ho pot editar tot de l'equip.</li><li><b>Només mirar</b>: ho veu però no pot canviar res.</li><li><b>Jugador</b> i <b>Família</b>: veuen els partits de tot el club, les fotos i els avisos, i responen per «el seu» jugador (vinc o no vinc als partits, no vindré als entrenos). Només un vot per jugador.</li></ul>`, `Rols`)}</div>
   </div>
-  <h3>Enllaç per a jugadors i famílies</h3><div class="card">${enllacEquipHtml()}
+  <h3>Convidar</h3><div class="card">${enllacEquipHtml()}
   </div>`;
 }
 const triaJugadorsHtml = sel => `<label class="lbl" style="margin-top:10px">Jugador</label><div class="meta" style="margin:0 0 4px">Per qui respon (el pare i la mare poden estar lligats al mateix jugador).</div>
@@ -3269,31 +3281,48 @@ window.lligaJugador = async uid => {
   if (!await dialeg(`<b>${esc(m?.nom || m?.email || '')}</b><div id="lligjug">${triaJugadorsHtml((m?.jugadors || {})[g] || [])}</div>`, { ok: 'Desa', ico: '🔗' })) return;
   fs.updateDoc(memRef(uid), { ['jugadors.' + g]: [...document.querySelectorAll('#lligjug input:checked')].map(c => c.value) });
 };
-let INVEQ;   // undefined: no carregat; null: no n'hi ha; {codi, ...}
+// enllaços per convidar (30-10-2026): un per a cada tipus, per enviar per WhatsApp; es poden tancar i tornar a obrir.
+// invitacions/{codi} = {tipus: 'equip' (jugadors i famílies, amb llista: {id: nom}) | 'staff' (rols: {grup: rol}), clas: fam | entrenador | admin, grup, obert}
+let INVEQ, INVCLAS = 'fam';   // INVEQ: undefined = no carregat; {fam, entrenador, admin: doc o null}
+const CLASSES = { fam: 'Jugadors i famílies', entrenador: 'Entrenadors' };   // els administradors no: entren com a entrenadors i se'ls canvia el rol a Persones
 function carregaInvEquip() {
   if (INVEQ !== undefined || !CLAU || !esAdmin()) return; INVEQ = 'carregant';
-  fs.getDocs(fs.query(fs.collection(db, 'equips', CLAU, 'invitacions'), fs.where('tipus', '==', 'equip'), fs.where('grup', '==', grupDe(TEMP))))
-    .then(q => { const d = q.docs[0]; INVEQ = d ? { codi: d.id, ...d.data() } : null; sincInvEquip(); render(); }).catch(e => { INVEQ = null; registraError(e, 'enllac-equip'); });
+  fs.getDocs(fs.query(fs.collection(db, 'equips', CLAU, 'invitacions'), fs.where('grup', '==', grupDe(TEMP))))
+    .then(q => { INVEQ = { fam: null, entrenador: null };
+      q.docs.forEach(d => { const x = { codi: d.id, ...d.data() }, c = x.clas || (x.tipus === 'equip' ? 'fam' : null); if (c in CLASSES && x.tipus && !INVEQ[c]) INVEQ[c] = x; });
+      sincInvEquip(); render(); })
+    .catch(e => { INVEQ = { fam: null, entrenador: null }; registraError(e, 'enllacos'); render(); });
 }
 const llistaEquip = () => Object.fromEntries(JUG.filter(j => j.actiu !== false).map(j => [j.id, j.nom]));
-// la llista de noms de l'enllaç es manté al dia amb els jugadors de l'equip
-function sincInvEquip() { if (INVEQ?.codi && JUG.length && JSON.stringify(INVEQ.llista) !== JSON.stringify(llistaEquip())) { INVEQ.llista = llistaEquip(); fs.updateDoc(fs.doc(db, 'equips', CLAU, 'invitacions', INVEQ.codi), { llista: INVEQ.llista, equip: gcfg().nom || club() || '' }).catch(() => {}); } }
-const urlEquip = () => `${CASA}#/uneix/${CLAU}/${INVEQ.codi}`;
+// la llista de noms de l'enllaç de jugadors i famílies es manté al dia amb els jugadors de l'equip
+function sincInvEquip() { const x = INVEQ?.fam; if (x?.codi && JUG.length && JSON.stringify(x.llista) !== JSON.stringify(llistaEquip())) { x.llista = llistaEquip(); fs.updateDoc(fs.doc(db, 'equips', CLAU, 'invitacions', x.codi), { llista: x.llista, equip: gcfg().nom || club() || '' }).catch(() => {}); } }
+const urlInv = x => `${CASA}#/uneix/${CLAU}/${x.codi}`;
+const textInv = (c, x) => c === 'fam'
+  ? `Ja podeu fer servir Tres Tocs, l'app de l'equip: hi veureu els partits i els avisos, i podreu dir si veniu o no. Obriu aquest enllaç, entreu amb el compte de Google i trieu qui sou:\n${urlInv(x)}`
+  : `T'he convidat a Tres Tocs, l'app de vòlei${club() ? ' del ' + club() : ''}, com a entrenador/a. Obre aquest enllaç i entra amb el teu compte de Google:\n${urlInv(x)}`;
 function enllacEquipHtml() {
   carregaInvEquip(); sincInvEquip();
   if (INVEQ === undefined || INVEQ === 'carregant') return '<p class="meta" style="margin:0">Carregant…</p>';
-  const text = INVEQ ? `Ja podeu fer servir Tres Tocs, l'app de l'equip: hi veureu els partits i els avisos, i podreu dir si veniu o no. Obriu aquest enllaç, entreu amb el compte de Google i trieu qui sou:\n${urlEquip()}` : '';
-  return INVEQ ? `<p class="meta" style="margin:0 0 8px">Un sol enllaç per a tothom: envia'l al grup de WhatsApp de l'equip. Cadascú diu si és jugador o familiar i tria per qui respon.</p>
-    <div class="actions" style="margin:0"><a class="btn primary" style="flex:1;text-decoration:none;text-align:center" href="https://wa.me/?text=${encodeURIComponent(text)}" target="_blank">WhatsApp</a><button class="btn" onclick="copiaText(${JSON.stringify(urlEquip()).replace(/"/g, '&quot;')})">Copia</button><button class="btn danger" onclick="nouEnllacEquip(true)" title="L'enllaç d'ara deixa de funcionar">Canvia'l</button></div>
-    <div class="irow">${info(`<ul><li>Qui l'obre entra com a <b>Jugador</b> o <b>Família</b> i només pot respondre pels jugadors que triï.</li><li>El pare i la mare poden triar el mateix jugador: el vot és un de sol.</li><li>Si l'enllaç arriba a qui no toca, toca «Canvia'l»: el d'ara deixarà de funcionar. Qui ja hagi entrat es queda; el pots treure a Persones.</li><li>Si algú tria un jugador que no és el seu, canvia-ho amb 🔗 al costat del seu nom.</li></ul>`, `Enllaç de l'equip`)}</div>`
-    : `<p class="meta" style="margin:0 0 8px">Crea un enllaç per enviar al grup de WhatsApp de l'equip. Cadascú tria qui és en entrar.</p><div class="actions" style="margin:0"><button class="btn primary" style="flex:1" onclick="nouEnllacEquip()">Crea l'enllaç de l'equip</button></div>`;
+  const c = INVCLAS, x = INVEQ[c], dins = x ? MEMBRES.filter(m => m.invitacio === x.codi).length : 0;
+  const desc = { fam: 'Envia\'l al grup de WhatsApp de l\'equip. Cadascú diu si és jugador o familiar i tria per qui respon.', entrenador: 'Qui hi entri podrà portar aquest equip: sessions, llistes, partits i estadístiques.' }[c];
+  return `<div class="seg" style="margin:0 0 10px">${Object.entries(CLASSES).map(([k, t]) => `<button class="${c === k ? 'on' : ''}" onclick="INVCLAS='${k}';render()">${t}</button>`).join('')}</div>
+    <p class="meta" style="margin:0 0 8px">${desc}</p>
+    ${x ? `<div class="row" style="margin:0 0 8px"><span class="grow">${x.obert === false ? '<b class="red">🔒 Tancat</b>: ningú més s\'hi pot apuntar.' : '<b class="ok">🔓 Obert</b>'}</span><span class="meta">${dins} ${dins === 1 ? 'persona hi ha entrat' : 'persones hi han entrat'}</span></div>
+      <div class="actions" style="margin:0">${x.obert === false ? `<button class="btn primary" style="flex:1" onclick="obreEnllac('${c}', true)">🔓 Torna'l a obrir</button>`
+        : `<a class="btn primary" style="flex:1;text-decoration:none;text-align:center" href="https://wa.me/?text=${encodeURIComponent(textInv(c, x))}" target="_blank">WhatsApp</a><button class="btn" onclick="copiaText(${JSON.stringify(urlInv(x)).replace(/"/g, '&quot;')})">Copia</button><button class="btn" onclick="obreEnllac('${c}', false)">🔒 Tanca'l</button>`}</div>
+      <div class="actions" style="margin:6px 0 0"><button class="btn danger" style="flex:1" onclick="nouEnllac('${c}', true)">Fes-ne un de nou</button></div>`
+    : `<div class="actions" style="margin:0"><button class="btn primary" style="flex:1" onclick="nouEnllac('${c}')">Crea l'enllaç</button></div>`}
+    <div class="irow">${info(`<ul><li>Un sol enllaç per a tothom del mateix tipus: no cal fer-ne un per persona.</li><li><b>Tanca'l</b> quan ja hi hagi entrat tothom: ningú més s'hi podrà apuntar. El pots tornar a obrir quan vulguis.</li><li><b>Fes-ne un de nou</b> si l'enllaç ha arribat a qui no toca: el d'ara deixa de funcionar.</li><li>Qui ja ha entrat es queda. El pots treure o canviar-li el rol a Persones.</li><li>Jugadors i famílies: el pare i la mare poden triar el mateix jugador i el vot és un de sol. Si algú tria malament, canvia-ho amb 🔗.</li><li><b>Administradors del club</b>: per seguretat no hi ha enllaç. Que entrin amb el d'entrenadors i canvia'ls el rol a Persones.</li></ul>`, `Enllaços per convidar`)}</div>`;
 }
-window.nouEnllacEquip = async canvia => {
+window.obreEnllac = async (c, obert) => { const x = INVEQ[c]; await fs.updateDoc(fs.doc(db, 'equips', CLAU, 'invitacions', x.codi), { obert }); x.obert = obert; render(); desat(obert ? '✓ Enllaç obert' : '✓ Enllaç tancat'); };
+window.nouEnllac = async (c, canvia) => {
   if (canvia && !await dialeg('Fer un enllaç nou?<br><small>El d\'ara deixarà de funcionar. Qui ja ha entrat es queda.</small>', { ok: 'Fes-ne un de nou', perill: true })) return;
-  if (INVEQ?.codi) await fs.deleteDoc(fs.doc(db, 'equips', CLAU, 'invitacions', INVEQ.codi));
-  const codi = [...crypto.getRandomValues(new Uint8Array(15))].map(b => 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 56]).join('');
-  const d = { tipus: 'equip', grup: grupDe(TEMP), llista: llistaEquip(), equip: gcfg().nom || club() || '', creat: Date.now(), per: USR.uid };
-  await fs.setDoc(fs.doc(db, 'equips', CLAU, 'invitacions', codi), d); INVEQ = { codi, ...d }; render(); desat('✓ Enllaç creat');
+  if (INVEQ[c]?.codi) await fs.deleteDoc(fs.doc(db, 'equips', CLAU, 'invitacions', INVEQ[c].codi));
+  const codi = [...crypto.getRandomValues(new Uint8Array(15))].map(b => 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 56]).join(''), g = grupDe(TEMP);
+  const base = { clas: c, grup: g, obert: true, equip: gcfg().nom || club() || '', creat: Date.now(), per: USR.uid };
+  const d = c === 'fam' ? { ...base, tipus: 'equip', llista: llistaEquip() }
+    : { ...base, tipus: 'staff', rols: { [g]: 'entrenador' } };
+  await fs.setDoc(fs.doc(db, 'equips', CLAU, 'invitacions', codi), d); INVEQ[c] = { codi, ...d }; render(); desat('✓ Enllaç creat');
 };
 window.posaRol = (uid, g, v) => fs.updateDoc(memRef(uid), { ['rols.' + g]: v || fs.deleteField(), pendent: false });
 window.treuMembre = async uid => { const m = MEMBRES.find(x => x.uid === uid); if (await dialeg(`Treure <b>${esc(m?.nom || m?.email || '')}</b>?<br><small>Deixarà de veure els equips.</small>`, { ok: 'Treu-lo', perill: true })) fs.deleteDoc(memRef(uid)); };
