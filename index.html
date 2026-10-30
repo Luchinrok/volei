@@ -96,6 +96,10 @@ button.btn.danger { color: var(--no); }
 textarea, input[type=text], input[type=search], input[type=url], input[type=date], input[type=number], select { width: 100%; font: 16px/1.45 Barlow, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 9px 10px; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
 textarea { min-height: 110px; }
+.rcourt { max-width: 340px; margin: 14px auto 10px; } .rcourt .l3 { position: absolute; left: 0; right: 0; top: 33.3%; border-top: 2px solid rgba(255,255,255,.7); }
+.rcourt .rtok { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; min-width: 54px; padding: 3px 6px; border-radius: 10px; background: #fff; color: #111; box-shadow: 0 2px 6px rgba(0,0,0,.3); font-size: 12px; line-height: 1.1; touch-action: none; }
+.rcourt[data-edit] .rtok { cursor: grab; } .rcourt .rtok small { font-size: 10px; color: #666; } .rcourt .rtok.malrot { outline: 3px solid #e03131; }
+.recdir summary { cursor: pointer; } .recdir .rcourt { max-width: 300px; }
 .btn.compartida { color: var(--si); border-color: var(--si); background: var(--si-soft); }
 .modchk { display: flex; align-items: center; gap: 8px; margin: 2px 2px 10px; font-weight: 600; } .modchk input { width: 18px; height: 18px; } .modchk .meta { font-weight: 400; }
 .avisos { border-left: 4px solid #e8a33d; } .avisos ul { margin: 6px 0 0; padding-left: 18px; } .avisos li { margin: 3px 0; }
@@ -782,7 +786,7 @@ const famDia = data => tcfg().dies[new Date(data + 'T12:00').getDay()] || null;
 let D;                                               // sessions de la temporada
 // constructor (28-10-2026): si la temporada té sessions a Firebase (temporades/{T}/sessions/{codi}), són aquestes
 // les que valen (D.fs = true) i data/sessions.json ja no compta. BIB: biblioteca del club editada a l'app.
-let BIB = {}, sesEd = null, exEd = null;
+let BIB = {}, sesEd = null, exEd = null, REC = {};   // REC: posicions de recepció de l'equip (estat/recepcio)
 const esFS = () => !!D?.fs || D?.__file === '';   // '' = equip nou o sense fitxer: les sessions es fan a l'app
 let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}, PAR = [], CAL = null, FOTOS = []; // dades de Firebase (NOF: exercicis no fets)
 let UNSUB = [];
@@ -911,6 +915,7 @@ async function openSeason() {
   UNSUB.push(fs.onSnapshot(col('calendari'), q => { CAL = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || ''))); sincCal(); render(); }, () => { CAL = []; render(); }));
   if (esFam()) return render();
   UNSUB.push(fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); }));
+  UNSUB.push(fs.onSnapshot(ref('estat', 'recepcio'), d => { REC = d.data() || {}; render(); }, () => {}));
   UNSUB.push(fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); }));
   UNSUB.push(fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); render(); }));
   UNSUB.push(fs.onSnapshot(col('sessions'), q => {
@@ -2167,6 +2172,8 @@ function viewDirecte(id) {
     <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival')}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
   ${saca === 'nos' && pos[1] ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs tres">${['bs', 'ace', 'es'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${saca === 'ells' && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs quatre">${['rp', 'rb', 'rd', 'er'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirRep('${id}','${k}')">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error' }[k]}<small>${ACC[k].np ? 'sense punt' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
+  ${saca === 'ells' && ZK.some(z => pos[z]) ? (() => { const sis = sistemaDe(p), lli = lliureDe(p, setActiu), m = campRec(pos, L, s0, lli), { r, xy } = recPos(p, m, sis, lli);
+    return `<details class="card recdir" open><summary><b>📐 Recepció${r ? ' · R' + r : ''}</b><span class="meta">${sis}${r ? ' · col·locador a Z' + r : ''}</span></summary>${recCourt(m, xy, false)}</details>`; })() : ''}
   <div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
   <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>
   ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu}.</p>` : ''}
@@ -2328,6 +2335,119 @@ function court(pos, lineup, eq) {
     ${lineup && pos.L ? `<div class="tok lib" style="left:88%;top:93%">L ${esc(curt(JUG.find(q => q.id === pos.L)?.nom))}</div>` : ''}
   </div>`;
 }
+// ---------------------------------------------------------------- recepció (30-10-2026)
+// Posicions de cada jugador quan saquen ells, per a cada rotació, segons el sistema (4-2, 5-1, 6-2) i si hi ha lliure.
+// Coordenades del nostre mig camp: x 0-100 d'esquerra (Z4/Z5) a dreta (Z2/Z1), y 0-100 de la xarxa al fons.
+// La rotació es diu pel col·locador de referència: 5-1 l'únic; 6-2 el de darrere; 4-2 el de davant. «R1» = col·locador a Z1.
+// L'equip en recorda les posicions (estat/recepcio: {[sistema + L]: {rotació: {zona: [x, y]}}}) i cada partit en guarda el sistema.
+const SISTEMES = ['4-2', '5-1', '6-2'], DAVANT = ['4', '3', '2'], DARRERE = ['5', '6', '1'];
+const PARELLA = { 4: '5', 3: '6', 2: '1' }, XZ = { 4: 18, 5: 18, 3: 50, 6: 50, 2: 82, 1: 82 };
+const sistemaDe = p => p.recepcio?.sistema || REC._sistema || '6-2';
+const lliureDe = (p, n) => p.recepcio?.lliure ?? !!((p.sets || {})[n] || {}).L;
+const recKey = (sis, lli) => sis + (lli ? 'L' : '');
+// qui hi ha a cada zona i amb quin rol; el lliure entra pel central que és a la línia de darrere
+function campRec(pos, L, s0, lli) {
+  const m = {};
+  ZK.forEach(z => { if (pos[z]) m[z] = { jid: pos[z], rol: rolSet(s0, pos[z]) || (esCentral(s0, pos[z]) ? 'cen' : '') }; });
+  if (lli && L) { const z = DARRERE.find(z => m[z] && (m[z].rol === 'cen' || esCentral(s0, m[z].jid))); if (z) m[z] = { jid: L, rol: 'lli' }; }
+  return m;
+}
+function rotRef(m, sis) {
+  const cs = ZK.filter(z => m[z]?.rol === 'col');
+  if (!cs.length) return 0;
+  if (cs.length === 1) return +cs[0];
+  const z = sis === '4-2' ? cs.find(z => DAVANT.includes(z)) : cs.find(z => DARRERE.includes(z));
+  return +(z || cs[0]);
+}
+const rotsDe = sis => sis === '6-2' ? [1, 6, 5] : sis === '4-2' ? [2, 3, 4] : [1, 6, 5, 4, 3, 2];
+// posicions per defecte: tres receptors a 2/3 del camp; col·locador, centrals i oposat de davant a la xarxa; el col·locador de darrere amagat
+function recDefecte(m, sis) {
+  const xy = {}, ref = String(rotRef(m, sis));
+  const recep = ZK.filter(z => m[z] && (m[z].rol === 'lli' || m[z].rol === 'rec' || (!m[z].rol && DARRERE.includes(z))) && z !== ref);
+  if (recep.length < 3) ZK.filter(z => m[z] && DARRERE.includes(z) && !recep.includes(z) && z !== ref && m[z].rol !== 'col').forEach(z => recep.length < 3 && recep.push(z));
+  const r3 = recep.sort((a, b) => XZ[a] - XZ[b] || (DARRERE.includes(a) ? 1 : -1)).slice(0, 3), slots = r3.length === 3 ? [20, 50, 80] : r3.length === 2 ? [30, 70] : [50];
+  r3.forEach((z, i) => { xy[z] = [slots[i], 62]; });
+  ZK.forEach(z => { if (!m[z] || xy[z]) return;
+    if (DAVANT.includes(z)) xy[z] = [XZ[z] + (z === ref ? (z === '4' ? 10 : z === '3' ? 8 : 0) : 0), 10];
+    else if (z === ref || m[z].rol === 'col') xy[z] = [Math.min(92, XZ[z] + 8), 30];   // col·locador de darrere: a prop de la xarxa, per sortir
+    else xy[z] = [XZ[z], 86]; });
+  return arregla(xy);
+}
+// normes de rotació: cada un de davant per davant del seu de darrere; a cada línia, d'esquerra a dreta en l'ordre de les zones
+function faltes(xy) {
+  const f = [];
+  Object.entries(PARELLA).forEach(([d, r]) => { if (xy[d] && xy[r] && xy[d][1] >= xy[r][1] - 2) f.push([d, r, `Z${d} ha d'estar per davant de Z${r}`]); });
+  [DAVANT, DARRERE].forEach(l => { for (let i = 0; i < 2; i++) { const a = l[i], b = l[i + 1]; if (xy[a] && xy[b] && xy[a][0] >= xy[b][0] - 2) f.push([a, b, `Z${a} ha d'estar a l'esquerra de Z${b}`]); } });
+  return f;
+}
+function arregla(xy) {
+  for (let k = 0; k < 6; k++) faltes(xy).forEach(([a, b]) => {
+    if (PARELLA[a] === b) { if (xy[b][1] < 70) xy[b][1] = Math.min(95, xy[a][1] + 8); else xy[a][1] = Math.max(5, xy[b][1] - 8); }
+    else { xy[a][0] = Math.max(4, xy[b][0] - 10); }
+  });
+  return xy;
+}
+// posicions d'una rotació: les guardades del partit, si no les de l'equip, si no les per defecte
+function recPos(p, m, sis, lli) {
+  const r = rotRef(m, sis), g = (p.recepcio?.pos || {})[recKey(sis, lli)]?.[r] || (REC[recKey(sis, lli)] || {})[r] || {}, def = recDefecte(m, sis), xy = {};
+  ZK.forEach(z => { if (m[z]) xy[z] = g[z] ? [...g[z]] : def[z]; });
+  return { r, xy };
+}
+function recCourt(m, xy, edit, idp) {
+  const fl = faltes(xy), mal = new Set(fl.flatMap(([a, b]) => [a, b]));
+  return `<div class="court rcourt" ${edit ? `data-edit="${idp}"` : ''}><div class="net"></div><div class="l3"></div>
+    ${ZK.filter(z => m[z] && xy[z]).map(z => { const j = m[z], nom = (JUG.find(q => q.id === j.jid)?.nom || '').split(' ')[0];
+      return `<div class="tok rtok ${j.rol ? 'ps-' + j.rol : ''} ${mal.has(z) ? 'malrot' : ''}" data-z="${z}" style="left:${xy[z][0]}%;top:${xy[z][1]}%"><small>Z${z}${j.rol ? ' ' + POS[j.rol].l : ''}</small><span class="tn">${dors(j.jid) ? esc(dors(j.jid)) + ' ' : ''}${esc(nom)}</span></div>`; }).join('')}
+  </div>${fl.length ? `<p class="red" style="text-align:center;margin:4px 0">⚠️ Falta de rotació: ${fl.map(x => x[2]).join('; ')}</p>` : ''}`;
+}
+// pantalla del partit: triar el sistema i retocar les posicions de cada rotació abans del partit
+let recRot = null;
+function recepcioHtml(p) {
+  const id = p.id, sis = sistemaDe(p), s0 = (p.sets || {})[setActiu] || {}, lli = lliureDe(p, setActiu);
+  if (!ZK.some(z => s0[z])) return '<p class="meta">Primer posa l\u2019alineació del set.</p>';
+  let pos = {}; ZK.forEach(z => { if (s0[z]) pos[z] = s0[z]; });
+  const rots = rotsDe(sis), vol = recRot && rots.includes(recRot) ? recRot : rots[0];
+  let m = campRec(pos, s0.L, s0, lli);
+  for (let k = 0; k < 6 && rotRef(m, sis) !== vol; k++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
+  const sense = !rotRef(m, sis), { xy } = recPos(p, m, sis, lli);
+  return `<div class="seg" style="margin:0 0 8px">${SISTEMES.map(x => `<button class="${sis === x ? 'on' : ''}" onclick="recSis('${id}','${x}')">${x}</button>`).join('')}</div>
+    <div class="seg" style="margin:0 0 8px">${[[true, 'Amb lliure'], [false, 'Sense lliure']].map(([v, l]) => `<button class="${lli === v ? 'on' : ''}" onclick="recLli('${id}',${v})">${l}</button>`).join('')}</div>
+    ${sense ? '<p class="meta">Per saber la rotació, posa el rol de col·locador (C) a qui col·loca, a l\u2019alineació.</p>' : `<div class="seg" style="margin:0 0 4px">${rots.map(r => `<button class="${vol === r ? 'on' : ''}" onclick="recRot=${r};render()">R${r}</button>`).join('')}</div>
+    <p class="meta" style="text-align:center;margin:0">Rotació ${vol}: col·locador a Z${vol}${sis === '6-2' ? ' (el de darrere)' : sis === '4-2' ? ' (el de davant)' : ''}</p>`}
+    ${recCourt(m, xy, !sense, id)}
+    ${sense ? '' : `<div class="actions" style="margin-top:0"><button class="btn" onclick="recReset('${id}',${vol})">Torna a la posició per defecte</button></div>`}
+    <p class="meta">Arrossega els jugadors per fixar com recepcioneu en cada rotació. Es guarda per a aquest partit i l\u2019equip la recorda per als següents. Si una posició fa falta de rotació, surt en vermell.</p>`;
+}
+const desaRec = (p, sis, lli, r, xy) => {
+  const k = recKey(sis, lli), pos = { ...(p.recepcio?.pos || {}) }; pos[k] = { ...(pos[k] || {}), [r]: xy };
+  p.recepcio = { ...(p.recepcio || {}), sistema: sis, lliure: lli, pos };
+  fs.updateDoc(parRef(p.id), { recepcio: p.recepcio });
+  fs.setDoc(ref('estat', 'recepcio'), { _sistema: sis, [k]: { [r]: xy } }, { merge: true });
+};
+window.recSis = (id, sis) => { const p = PAR.find(x => x.id === id); p.recepcio = { ...(p.recepcio || {}), sistema: sis }; fs.updateDoc(parRef(id), { 'recepcio.sistema': sis }); fs.setDoc(ref('estat', 'recepcio'), { _sistema: sis }, { merge: true }); recRot = null; render(); };
+window.recLli = (id, v) => { const p = PAR.find(x => x.id === id); p.recepcio = { ...(p.recepcio || {}), lliure: v }; fs.updateDoc(parRef(id), { 'recepcio.lliure': v }); render(); };
+window.recReset = (id, r) => {
+  const p = PAR.find(x => x.id === id), sis = sistemaDe(p), lli = lliureDe(p, setActiu), k = recKey(sis, lli);
+  if (p.recepcio?.pos?.[k]) { delete p.recepcio.pos[k][r]; fs.updateDoc(parRef(id), { recepcio: p.recepcio }); }
+  fs.setDoc(ref('estat', 'recepcio'), { [k]: { [r]: fs.deleteField() } }, { merge: true }); render();
+};
+// arrossegar a la pista de recepció
+let recDrag = null;
+addEventListener('pointerdown', e => { const t = e.target.closest?.('.rcourt[data-edit] .rtok'); if (!t) return; e.preventDefault(); recDrag = { t, c: t.closest('.rcourt') }; t.setPointerCapture?.(e.pointerId); });
+addEventListener('pointermove', e => { if (!recDrag) return; const r = recDrag.c.getBoundingClientRect();
+  recDrag.x = Math.max(3, Math.min(97, 100 * (e.clientX - r.left) / r.width)); recDrag.y = Math.max(3, Math.min(97, 100 * (e.clientY - r.top) / r.height));
+  recDrag.t.style.left = recDrag.x + '%'; recDrag.t.style.top = recDrag.y + '%'; });
+addEventListener('pointerup', () => {
+  if (!recDrag) return; const d = recDrag; recDrag = null; if (d.x == null) return;
+  const p = PAR.find(x => x.id === d.c.dataset.edit), sis = sistemaDe(p), lli = lliureDe(p, setActiu), s0 = (p.sets || {})[setActiu] || {};
+  let pos = {}; ZK.forEach(z => { if (s0[z]) pos[z] = s0[z]; });
+  const vol = recRot && rotsDe(sis).includes(recRot) ? recRot : rotsDe(sis)[0];
+  let m = campRec(pos, s0.L, s0, lli); for (let k = 0; k < 6 && rotRef(m, sis) !== vol; k++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
+  const { xy } = recPos(p, m, sis, lli); xy[d.t.dataset.z] = [Math.round(d.x), Math.round(d.y)];
+  desaRec(p, sis, lli, vol, xy); render();
+});
+Object.defineProperty(window, 'recRot', { get: () => recRot, set: v => { recRot = v; } });
+
 function viewPartit(id) {
   const p = PAR.find(x => x.id === id); if (!p) return '<p class="empty">Carregant…</p>';
   const sets = p.sets || {}, pos = sets[setActiu] || {};
@@ -2368,6 +2488,8 @@ function viewPartit(id) {
     ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? `<button class="btn" onclick="triaCopia('${id}')">📋 Copia un set</button>` : ''}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
   <p class="meta">Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables (només surten els convocats que encara no tenen posició en aquest set). La lletra de cada fitxa és el rol del jugador en aquest set (el de l'equip, si no l'has canviat a «Rols en aquest set»).</p></details>
+  <details class="card plega" ${(PLEG['rec' + id] ?? false) ? 'open' : ''} ontoggle="obertPart('rec', '${id}', this.open)"><summary><b>📐 Recepció</b><span class="meta">${sistemaDe(p)}${lliureDe(p, setActiu) ? ' amb lliure' : ' sense lliure'}</span></summary>
+  ${recepcioHtml(p)}</details>
   <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px;margin:16px 0 10px" href="#/directe/${id}">📊 Marcador en directe</a>
   <details class="card plega" ${(PLEG['est' + id] ?? true) ? 'open' : ''} ontoggle="obertPart('est', '${id}', this.open)"><summary><b>📊 Estadístiques per jugador</b><span class="meta">${(() => { const m = estadJug(p.accions || []), n = Object.keys(m).length; return n ? n + ' jugadors amb accions apuntades' : 'Encara no hi ha accions apuntades'; })()}</span></summary>
   ${taulaEstad(p)}</details>
