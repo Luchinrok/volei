@@ -2167,7 +2167,7 @@ function viewPartits() {
   };
   const comptes = JUG.filter(j => j.actiu !== false).map(j => statsPartits(j.id, parFiltre)).sort((a, b) => b.tot - a.tot || (b.pct ?? -1) - (a.pct ?? -1) || a.j.nom.localeCompare(b.j.nom, 'ca'));
   return `<h2>Partits</h2>
-  <div class="partbar"><button class="btn primary" onclick="newPartit()">+ Partit nou</button><a class="btn" href="#/pissarra">Pissarra</a>
+  <div class="partbar"><button class="btn primary" onclick="newPartit()">+ Partit</button><a class="btn" href="#/pissarra">Pissarra</a>
     <button class="btn tog" onclick="parVeure('${parVista === 'calendari' ? 'llista' : 'calendari'}')" title="Canvia entre llista i calendari" aria-label="${parVista === 'calendari' ? 'Calendari' : 'Llista'}">${parVista === 'calendari' ? '📅' : '☰'}</button>
     ${dosEq() ? `<button class="btn tog eq${parFiltre}" onclick="parFilt('${{ '': 'N', N: 'G', G: '' }[parFiltre]}')" title="Tots, Negre o Groc">${{ '': 'Tots', N: 'Negre', G: 'Groc' }[parFiltre]}</button>` : ''}</div>
   ${parVista === 'calendari' ? calendari(ps, card) : `<h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Cap partit previst.</p>'}
