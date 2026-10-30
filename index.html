@@ -1963,7 +1963,7 @@ function statsPartits(id, eq) {
     const dins = ['1', '2', '3', '4', '5', '6', 'L'].map(k => pos?.[k]).filter(Boolean);
     if (!dins.length) return;
     sets++;
-    if (dins.includes(id)) jugats += pos.L && (pos.C1 === id || pos.C2 === id) ? .5 : 1;
+    if (dins.includes(id)) jugats += pos.L && esCentral(pos, id) ? .5 : 1;
   }));
   return { j: JUG.find(x => x.id === id), tot: ps.length, N: ps.filter(p => p.equip === 'N').length, G: ps.filter(p => p.equip === 'G').length, sets, jugats, pct: sets ? Math.round(100 * jugats / sets) : null };
 }
@@ -2101,6 +2101,11 @@ function viewPartits() {
   <div class="seg" style="margin-top:12px">${[['llista', 'Llista'], ['calendari', 'Calendari']].map(([v, t]) => `<button class="${parVista === v ? 'on' : ''}" onclick="parVeure('${v}')">${t}</button>`).join('')}</div>
   ${parVista === 'calendari' ? calendari(ps, card) : `<h3>Pròxims</h3>${fut.map(card).join('') || '<p class="meta">Cap partit previst.</p>'}
   <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}`}
+  ${(() => { const ps2 = PAR.filter(p => !parFiltre || p.equip === parFiltre), acc = ps2.flatMap(p => (p.accions || []).filter(a => a.s)), n = k => acc.filter(a => a.a === k).length;
+    const rec = ['rp', 'rb'].reduce((t, k) => t + n(k), 0), recT = rec + n('rd') + n('er');
+    return `<details class="card plega" ${(PLEG.esttemp ?? false) ? 'open' : ''} ontoggle="obertPart('esttemp', '', this.open)"><summary><b>Estadístiques de la temporada${parFiltre ? ' (' + EQN[parFiltre] + ')' : ''}</b><span class="meta">${ps2.filter(p => (p.accions || []).length).length} partits amb estadístiques</span></summary>
+      ${acc.length ? `<p class="meta" style="margin:0 0 8px">Equip: ${n('ace')} aces, ${n('rem')} remats punt, ${n('blq')} bloquejos punt, ${n('es')} errors de saque, ${n('erv')} errors del rival${recT ? `, recepció bona o perfecta ${Math.round(100 * rec / recT)}%` : ''}.</p>` : ''}
+      ${taulaEstad({ id: '_temporada', accions: acc })}</details>`; })()}
   <h3>Convocatòries per jugador${parFiltre ? ' (' + EQN[parFiltre] + ')' : ''}</h3>
   <div class="card"><div class="ptab phead ${dosEq() ? '' : 'one'}"><span></span><span>Total</span>${dosEq() ? '<span>Negre</span><span>Groc</span>' : ''}<span>% sets</span></div>
     ${comptes.map(c => `<div class="ptab ${dosEq() ? '' : 'one'}"><a class="nomlink" href="#/j/${c.j.id}">${esc(c.j.nom)}</a><b>${c.tot}</b>${dosEq() ? `<span>${c.N}</span><span>${c.G}</span>` : ''}<span>${c.pct ?? '–'}${c.pct != null ? '%' : ''}</span></div>`).join('')}</div>
@@ -2301,7 +2306,7 @@ function taulaEstad(p) {
       <div class="actions"><button class="btn primary" onclick="estEdit=null;render()">✓ Fet</button></div></div>`;
   }
   const ids = Object.keys(m).sort((a, b) => (m[b].bo - m[b].mal) - (m[a].bo - m[a].mal));
-  const edita = `<div class="actions" style="margin-top:8px"><button class="btn" onclick="estEdit='${p.id}';render()">✎ Edita les estadístiques</button></div>`;
+  const edita = p.id === '_temporada' ? '' : `<div class="actions" style="margin-top:8px"><button class="btn" onclick="estEdit='${p.id}';render()">✎ Edita les estadístiques</button></div>`;
   if (!ids.length) return '<p class="meta">Encara no hi ha accions apuntades. Obre el marcador en directe durant el partit.</p>' + edita;
   const n = (e, k) => e.n[k] || ' ';
   return `<div class="card"><div class="etab phead"><span></span><span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="% de recepcions bones o perfectes">Recep.</span><span>+/-</span></div>
@@ -2346,7 +2351,7 @@ const fitxaNom = (jid, cen, rol) => fitxaNomV(jid) + posBadge(jid, cen, rol);
 const rolSet = (pos, jid) => posOk((pos?.rols || {})[jid]) || posJ(jid);
 const fitxaNomOld = jid => { const j = JUG.find(q => q.id === jid); if (!j) return ''; const d = dors(jid); return d ? `<b class="tdn">${esc(d)}</b><span class="tn">${esc(curt(j.nom))}</span>` : `<span class="tn">${esc(curt(j.nom))}</span>`; };
 const ZONES = { 4: [17, 22], 3: [50, 22], 2: [83, 22], 5: [17, 72], 6: [50, 72], 1: [83, 72] };
-const esCentral = (pos, jid) => jid && (pos.C1 === jid || pos.C2 === jid);
+const esCentral = (pos, jid) => !!jid && (pos.C1 || pos.C2 ? (pos.C1 === jid || pos.C2 === jid) : ZK.some(z => pos[z] === jid) && rolSet(pos, jid) === 'cen');   // per qui entra el lliure
 function court(pos, lineup, eq) {
   // pos: {1..6: jugador, L: lliure, C1/C2: centrals}. lineup = true: arrossegar un jugador a una altra zona els intercanvia
   return `<div class="court ${eq ? 'eq' + eq : ''}" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
@@ -2502,9 +2507,9 @@ function viewPartit(id) {
     ${convs.filter(j => pos[z] === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('')}
     <div><label>Lliure</label><select onchange="posSet('${id}', 'L', this.value)"><option value="">—</option>
     ${convs.filter(j => pos.L === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos.L === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>
-    ${pos.L ? ['C1', 'C2'].map((c, i) => `<div><label>Central ${i + 1}</label><select onchange="posSet('${id}', '${c}', this.value)"><option value="">—</option>
-    ${ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean).filter(j => pos[c] === j.id || !esCentral(pos, j.id)).map(j => `<option value="${j.id}" ${pos[c] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('') : ''}</div>
-  ${pos.L ? '<p class="meta">Centrals: per qui entra el lliure a la línia de darrere. Compten mig set al % de sets.</p>' : ''}
+</div>
+  ${pos.L ? `<details class="meta" style="margin:4px 0 8px"><summary style="cursor:pointer">El lliure entra pels centrals (${ZK.map(z => pos[z]).filter(j => esCentral(pos, j)).map(j => esc((JUG.find(q => q.id === j)?.nom || '').split(' ')[0])).join(' i ') || 'cap: posa el rol de central'}). Canvia-ho si no és així.</summary><div class="posgrid">${true ? ['C1', 'C2'].map((c, i) => `<div><label>Central ${i + 1}</label><select onchange="posSet('${id}', '${c}', this.value)"><option value="">—</option>
+    ${ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean).filter(j => pos[c] === j.id || !esCentral(pos, j.id)).map(j => `<option value="${j.id}" ${pos[c] === j.id ? 'selected' : ''}>${esc(j.nom)}</option>`).join('')}</select></div>`).join('') : ''}</div></details>` : ''}
   ${rolsHtml(id, pos)}
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
     ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? `<button class="btn" onclick="triaCopia('${id}')">Copia un set</button>` : ''}
