@@ -100,6 +100,8 @@ textarea { min-height: 110px; }
 .rcourt .rtok { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; min-width: 54px; padding: 3px 6px; border-radius: 10px; background: #fff; color: #111; box-shadow: 0 2px 6px rgba(0,0,0,.3); font-size: 12px; line-height: 1.1; touch-action: none; }
 .rcourt[data-edit] .rtok { cursor: grab; } .rcourt .rtok small { font-size: 10px; color: #666; } .rcourt .rtok.malrot { outline: 3px solid #e03131; }
 .recdir summary { cursor: pointer; } .recdir .rcourt { max-width: 300px; }
+.rcourt .rtok { border: 3px solid var(--pc, #fff); } .rlleg { display: inline-block; padding: 1px 6px; border-radius: 6px; border: 2px solid var(--pc); font-size: 11px; margin: 2px; } .rlleg.ps-col { --pc: #8b5cf6; } .rlleg.ps-op { --pc: #e8590c; } .rlleg.ps-rec { --pc: #12a07c; } .rlleg.ps-cen { --pc: #2f7de1; } .rlleg.ps-lli { --pc: #d9a90f; } .rcourt .rtok.ps-col { --pc: #8b5cf6; background: #efe7ff; } .rcourt .rtok.ps-op { --pc: #e8590c; background: #ffeadd; }
+.rcourt .rtok.ps-rec { --pc: #12a07c; background: #dcf5ec; } .rcourt .rtok.ps-cen { --pc: #2f7de1; background: #e1edfc; } .rcourt .rtok.ps-lli { --pc: #d9a90f; background: #fff3c4; }
 .btn.compartida { color: var(--si); border-color: var(--si); background: var(--si-soft); }
 .modchk { display: flex; align-items: center; gap: 8px; margin: 2px 2px 10px; font-weight: 600; } .modchk input { width: 18px; height: 18px; } .modchk .meta { font-weight: 400; }
 .avisos { border-left: 4px solid #e8a33d; } .avisos ul { margin: 6px 0 0; padding-left: 18px; } .avisos li { margin: 3px 0; }
@@ -2174,8 +2176,10 @@ function viewDirecte(id) {
   ${saca === 'ells' && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs quatre">${['rp', 'rb', 'rd', 'er'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirRep('${id}','${k}')">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error' }[k]}<small>${ACC[k].np ? 'sense punt' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${saca === 'ells' && ZK.some(z => pos[z]) ? (() => { const sis = sistemaDe(p), lli = lliureDe(p, setActiu), m = campRec(pos, L, s0, lli), { r, xy } = recPos(p, m, sis, lli);
     return `<details class="card recdir" open><summary><b>📐 Recepció${r ? ' · R' + r : ''}</b><span class="meta">${sis}${r ? ' · col·locador a Z' + r : ''}</span></summary>${recCourt(m, xy, false)}</details>`; })() : ''}
-  <div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
-  <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>
+  ${(() => { const graella = `<div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
+  <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>`;
+    return saca === 'nos' && pos[1] ? `<div class="actions" style="margin:6px 0"><button class="btn" style="flex:1" onclick="dirCanvi('${id}')">🔁 Canvi</button></div>
+  <details class="banq"><summary>Tots els jugadors (per apuntar un remat, un bloqueig o un error)</summary>${graella}</details>` : graella; })()}
   ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu}.</p>` : ''}
   ${conv.some(j => !dins.has(j.id)) ? `<details class="banq"><summary>Banqueta (${conv.filter(j => !dins.has(j.id)).length})</summary><div class="djgrid">${conv.filter(j => !dins.has(j.id)).map(j => tile(j.id, 'Banqueta')).join('')}</div></details>` : ''}
   <div class="accs tres">${['erv', 'prv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div>
@@ -2356,6 +2360,7 @@ function rotRef(m, sis) {
   const cs = ZK.filter(z => m[z]?.rol === 'col');
   if (!cs.length) return 0;
   if (cs.length === 1) return +cs[0];
+  if (sis === '5-1') return +cs.sort((a, b) => m[a].jid.localeCompare(m[b].jid))[0];
   const z = sis === '4-2' ? cs.find(z => DAVANT.includes(z)) : cs.find(z => DARRERE.includes(z));
   return +(z || cs[0]);
 }
@@ -2364,12 +2369,12 @@ const rotsDe = sis => sis === '6-2' ? [1, 6, 5] : sis === '4-2' ? [2, 3, 4] : [1
 function recDefecte(m, sis) {
   const xy = {}, ref = String(rotRef(m, sis));
   const recep = ZK.filter(z => m[z] && (m[z].rol === 'lli' || m[z].rol === 'rec' || (!m[z].rol && DARRERE.includes(z))) && z !== ref);
-  if (recep.length < 3) ZK.filter(z => m[z] && DARRERE.includes(z) && !recep.includes(z) && z !== ref && m[z].rol !== 'col').forEach(z => recep.length < 3 && recep.push(z));
+  if (recep.length < 3) ZK.filter(z => m[z] && DARRERE.includes(z) && !recep.includes(z) && z !== ref && !['col', 'op'].includes(m[z].rol)).forEach(z => recep.length < 3 && recep.push(z));
   const r3 = recep.sort((a, b) => XZ[a] - XZ[b] || (DARRERE.includes(a) ? 1 : -1)).slice(0, 3), slots = r3.length === 3 ? [20, 50, 80] : r3.length === 2 ? [30, 70] : [50];
   r3.forEach((z, i) => { xy[z] = [slots[i], 62]; });
   ZK.forEach(z => { if (!m[z] || xy[z]) return;
     if (DAVANT.includes(z)) xy[z] = [XZ[z] + (z === ref ? (z === '4' ? 10 : z === '3' ? 8 : 0) : 0), 10];
-    else if (z === ref || m[z].rol === 'col') xy[z] = [Math.min(92, XZ[z] + 8), 30];   // col·locador de darrere: a prop de la xarxa, per sortir
+    else if (z === ref) xy[z] = [Math.min(92, XZ[z] + 8), 30];   // col·locador de darrere: a prop de la xarxa, per sortir
     else xy[z] = [XZ[z], 86]; });
   return arregla(xy);
 }
@@ -2398,7 +2403,7 @@ function recCourt(m, xy, edit, idp) {
   return `<div class="court rcourt" ${edit ? `data-edit="${idp}"` : ''}><div class="net"></div><div class="l3"></div>
     ${ZK.filter(z => m[z] && xy[z]).map(z => { const j = m[z], nom = (JUG.find(q => q.id === j.jid)?.nom || '').split(' ')[0];
       return `<div class="tok rtok ${j.rol ? 'ps-' + j.rol : ''} ${mal.has(z) ? 'malrot' : ''}" data-z="${z}" style="left:${xy[z][0]}%;top:${xy[z][1]}%"><small>Z${z}${j.rol ? ' ' + POS[j.rol].l : ''}</small><span class="tn">${dors(j.jid) ? esc(dors(j.jid)) + ' ' : ''}${esc(nom)}</span></div>`; }).join('')}
-  </div>${fl.length ? `<p class="red" style="text-align:center;margin:4px 0">⚠️ Falta de rotació: ${fl.map(x => x[2]).join('; ')}</p>` : ''}`;
+  </div><p class="meta" style="text-align:center;margin:0">${Object.keys(POS).map(k => `<span class="rlleg ps-${k}">${POS[k].t}</span>`).join(' ')}</p>${fl.length ? `<p class="red" style="text-align:center;margin:4px 0">⚠️ Falta de rotació: ${fl.map(x => x[2]).join('; ')}</p>` : ''}`;
 }
 // pantalla del partit: triar el sistema i retocar les posicions de cada rotació abans del partit
 let recRot = null;
