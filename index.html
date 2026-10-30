@@ -851,6 +851,16 @@ function triaTemporadaPermesa() {
     if (t) { TEMP = t; store.set('volei.temp', t); }
   }
 }
+let CLUBS = [];   // [{clau, nom}] dels clubs del compte, per triar-ne un a Configuració
+async function carregaClubs() {
+  try {
+    const e = (await fs.getDoc(fs.doc(db, 'usuaris', USR.uid))).data()?.espais || [];
+    CLUBS = await Promise.all(e.map(async k => { try { const c = (await fs.getDoc(fs.doc(db, 'equips', k, 'config', 'app'))).data() || {};
+      return { clau: k, nom: c.club || c.grups?.principal?.club || c.grups?.principal?.nom || 'Club' }; } catch { return { clau: k, nom: 'Club' }; } }));
+    render();
+  } catch {}
+}
+window.canviaClub = k => { if (k === CLAU) return; store.set('volei.clau', k); store.set('volei.temp', null); location.hash = '#/'; location.reload(); };
 async function quiSoc() {
   unsubMem.forEach(u => u()); unsubMem = []; MEM = null; MEMBRES = [];
   if (!USR) { render(); return; }
@@ -859,6 +869,7 @@ async function quiSoc() {
   // espai: el del mòbil o, si no n'hi ha, el del compte
   if (!CLAU) { try { const u = await fs.getDoc(fs.doc(db, 'usuaris', USR.uid)); const e = u.data()?.espais || []; if (e.length) { CLAU = e[0]; store.set('volei.clau', CLAU); } } catch {} }
   if (!CLAU) { render(); return; }
+  carregaClubs();
   if (!NOMES_COMPTES) connecta();
   try {
     let d = await fs.getDoc(memRef(USR.uid));
@@ -2947,6 +2958,8 @@ function viewConfig() {
   const anys = [...new Set(Object.keys(CFG.temporades).filter(x => rolDe(grupDe(x))).map(anyDe))].sort();
   const eqs = Object.entries(G).filter(([k]) => rolDe(k) && tempDe(k, any));
   return `<h2>Configuració</h2>
+  ${CLUBS.length > 1 ? `<h3>Club</h3><div class="card"><div class="seg" style="margin:0">${CLUBS.map(c => `<button class="${c.clau === CLAU ? 'on' : ''}" onclick="canviaClub('${c.clau}')">${esc(c.nom)}</button>`).join('')}</div>
+    <p class="meta" style="margin:8px 0 0">Tens accés a més d'un club. Cada un té les seves dades.</p></div>` : ''}
   <h3>Temporada</h3>
   <div class="card">
     <div class="seg" style="margin:0">${anys.map(a => `<button class="${a === any ? 'on' : ''}" onclick="triaAny('${esc(a)}')">${esc(a)}</button>`).join('')}</div>
