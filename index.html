@@ -767,6 +767,57 @@ const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
+
+// Idioma de la interfície (català per defecte; el primer cop es tria). Les sessions i els exercicis no es tradueixen.
+// Els textos són a data/i18n/{es,en}.json (eines/extreu_textos.js els treu d'aquest fitxer); es tradueixen
+// els nodes de text sencers que coincideixen (exactes) o que segueixen un patró amb valors ({0}, {1}...).
+let LANG = store.get('volei.lang', null);
+const LOC = { ca: 'ca', es: 'es', en: 'en-GB' }[LANG || 'ca'];
+document.documentElement.lang = LANG || 'ca';
+let TR = null, TRP = [];
+const trSalta = el => el && el.closest?.('textarea, script, style, .notr, [contenteditable]');
+function trText(t) {
+  const k = t.replace(/\s+/g, ' ').trim(); if (!k || !TR) return null;
+  let r = TR[k];
+  if (r == null && k.length <= 160) for (const [re, out] of TRP) { const m = k.match(re); if (m && m.slice(1).every(x => x.length <= 50)) { r = out.replace(/\{(\d+)\}/g, (_, n) => m[+n + 1]); break; } }
+  if (r == null || r === k) return null;
+  const pre = t.match(/^\s*/)[0], post = t.match(/\s*$/)[0];
+  return pre + r + post;
+}
+function tradueix(root) {
+  if (!TR || !root) return;
+  if (root.nodeType === 3) { if (!trSalta(root.parentElement)) { const r = trText(root.nodeValue); if (r != null) root.nodeValue = r; } return; }
+  if (root.nodeType !== 1 || trSalta(root)) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), ns = [];
+  while (w.nextNode()) ns.push(w.currentNode);
+  ns.forEach(n => { if (trSalta(n.parentElement)) return; const r = trText(n.nodeValue); if (r != null) n.nodeValue = r; });
+  [root, ...root.querySelectorAll('[title], [placeholder], [aria-label]')].forEach(el => ['title', 'placeholder', 'aria-label'].forEach(a => {
+    const v = el.getAttribute?.(a); if (v) { const r = trText(v); if (r != null) el.setAttribute(a, r); } }));
+}
+if (LANG && LANG !== 'ca') {
+  fetch(`data/i18n/${LANG}.json`, { cache: 'no-cache' }).then(r => r.json()).then(d => {
+    TR = d.exactes || {};
+    const esc_ = x => x.replace(/[.*+?^$()|[\]\\]/g, '\\$&');
+    TRP = Object.entries(d.patrons || {}).map(([k, v]) => ({ k, v, fix: k.replace(/\{\d+\}/g, '').length }))
+      .filter(x => x.fix >= 4).sort((a, b) => b.fix - a.fix)
+      .map(({ k, v }) => [new RegExp('^' + k.split(/\{\d+\}/).map(esc_).join('(.*?)') + '$'), v]);
+    tradueix(document.body); document.title = trText(document.title) || document.title;
+    new MutationObserver(ms => ms.forEach(m => m.type === 'characterData' ? tradueix(m.target) : m.addedNodes.forEach(tradueix)))
+      .observe(document.body, { childList: true, subtree: true, characterData: true });
+  }).catch(() => {});
+}
+window.triaIdioma = l => { store.set('volei.lang', l); location.reload(); };
+const IDIOMES = [['ca', 'Català'], ['es', 'Español'], ['en', 'English']];
+const idiomaHtml = () => `<h3>Idioma</h3><div class="card notr"><div class="seg" style="margin:0">${IDIOMES.map(([v, l]) => `<button class="${(LANG || 'ca') === v ? 'on' : ''}" onclick="triaIdioma('${v}')">${l}</button>`).join('')}</div></div>`;
+// el primer cop que s'obre l'app: triar l'idioma
+const mostraTriaIdioma = () => {
+  const d = document.createElement('div'); d.className = 'modal notr'; d.id = 'langdlg';
+  d.innerHTML = `<div class="mbox" role="dialog" aria-modal="true" style="text-align:center;width:100%;max-width:340px;box-sizing:border-box"><img src="icon-192.png" alt="" style="width:64px;height:64px;border-radius:14px"><h2 style="margin:10px 0 4px">Tres Tocs</h2>
+    <p class="meta" style="margin:0 0 14px">Tria l'idioma · Elige el idioma · Choose your language</p>
+    <div style="display:grid;gap:8px">${IDIOMES.map(([v, l]) => `<button class="btn ${v === 'ca' ? 'primary' : ''}" onclick="triaIdioma('${v}')">${l}</button>`).join('')}</div></div>`;
+  document.body.appendChild(d);
+};
+if (!LANG) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mostraTriaIdioma); else mostraTriaIdioma(); }
 const num = c => +c.slice(2);
 const famC = c => (/^(BL|[DBSRCJGA])\d/.exec(c || '') || [])[1] || '';   // família d'un codi d'exercici (D5 -> D, BL1 -> BL)
 const hue = t => [...t].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
@@ -774,7 +825,7 @@ const inicials = n => (n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w 
 const av = (j, lg) => `<span class="av ${lg ? 'lg' : ''}" style="--h:${hue(j.nom || '')}" aria-hidden="true">${esc(inicials(j.nom))}</span>`;
 const ICO = {"inici": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/></svg>", "pista": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 12h18\"/><path d=\"M3 8.5h18\" stroke-dasharray=\"2 2\" opacity=\".6\"/></svg>", "pistes": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"9\" height=\"14\" rx=\"1.5\"/><rect x=\"13\" y=\"5\" width=\"9\" height=\"14\" rx=\"1.5\"/><path d=\"M2 12h9M13 12h9\"/></svg>", "ass": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"9\" cy=\"8\" r=\"3.5\"/><path d=\"M2.5 20c.8-3.6 3.3-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4\"/><path d=\"M15 18l2.2 2.2L22 15.4\"/></svg>", "partits": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7 4h10v5a5 5 0 0 1-10 0z\"/><path d=\"M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5\"/><path d=\"M12 14v3M8.5 20h7l-1-3h-5z\"/></svg>"};
 const avui = () => new Date().toISOString().slice(0, 10);
-const dataCa = d => new Date(d + 'T12:00').toLocaleDateString('ca', { weekday: 'short', day: 'numeric', month: 'short' });
+const dataCa = d => new Date(d + 'T12:00').toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short' });
 
 // clau des de l'enllaç
 // Entrar amb Google només funciona des del mateix domini que la pàgina de Google (Firefox i Safari separen la memòria de cada web)
@@ -1321,10 +1372,10 @@ function viewHome() {
   // pròxims partits: «Dijous 5/11 20:00 Sant Pere Groc vs Aloges» (sempre el local primer)
   const prox = PAR.filter(p => !jugat(p));
   const nos = p => `<span class="nosn ${p.equip === 'G' ? 'g' : 'n'}">${esc(nomNostre(p))}</span>`;
-  const linia = p => { const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString('ca', { weekday: 'long' }), riv = `<span>${esc(p.rival || 'Rival?')}</span>`;
+  const linia = p => { const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString(LOC, { weekday: 'long' }), riv = `<span>${esc(p.rival || 'Rival?')}</span>`;
     return `<a class="pxl" href="#/p/${p.id}"><span class="pxd">${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + esc(p.hora) : ''} <span class="qd">${queden(p.data)}</span></span>
       <span class="pxt">${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}</span></a>`; };
-  return `<div class="hello"><h2>${salutacio()}! 👋</h2><span>${new Date().toLocaleDateString('ca', { weekday: 'long', day: 'numeric', month: 'long' })}</span></div>
+  return `<div class="hello"><h2>${salutacio()}! 👋</h2><span>${new Date().toLocaleDateString(LOC, { weekday: 'long', day: 'numeric', month: 'long' })}</span></div>
   ${D.sessions.length ? '' : `<div class="card warn"><b>Aquest equip encara no té sessions.</b><div class="meta">Les prepararem amb Claude. L'assistència, els partits i la resta ja funcionen.</div></div>`}
   <div class="heros">${esFS() ? proximes(2).map(x => heroFS(x)).join('') : ['DT', 'DJ'].map(f => [f, properDia(f)]).filter(([, d]) => d).sort((a, b) => a[1].i - b[1].i).map(([f]) => hero(f)).join('')}</div>
   ${CLAU ? `<div class="quick">
@@ -1348,7 +1399,7 @@ function queden(data) {
 function textPartits() {
   const nos = p => nomNostre(p);
   return '*Propers Partits* 🏐💪🏼💛🖤\n' + PAR.filter(p => !jugat(p)).map(p => {
-    const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString('ca', { weekday: 'long' }), riv = p.rival || 'Rival?';
+    const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString(LOC, { weekday: 'long' }), riv = p.rival || 'Rival?';
     return `${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}`;
   }).join('\n');
 }
@@ -1397,13 +1448,13 @@ async function dibuixaPartits() {
     // data en groc
     x.fillStyle = '#f5c518'; rr(60, Y, 150, H, 28); x.fill(); x.fillRect(180, Y, 30, H);
     x.textAlign = 'center'; x.fillStyle = '#14181f';
-    x.font = `700 28px ${F}`; x.fillText(d.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '').toUpperCase(), 135, Y + 44);
+    x.font = `700 28px ${F}`; x.fillText(d.toLocaleDateString(LOC, { weekday: 'short' }).replace('.', '').toUpperCase(), 135, Y + 44);
     x.font = `800 72px ${F}`; x.fillText(String(d.getDate()), 135, Y + 112);
-    x.font = `700 26px ${F}`; x.fillText(d.toLocaleDateString('ca', { month: 'short' }).replace('.', '').toUpperCase(), 135, Y + 144);
+    x.font = `700 26px ${F}`; x.fillText(d.toLocaleDateString(LOC, { month: 'short' }).replace('.', '').toUpperCase(), 135, Y + 144);
     x.textAlign = 'left';
     // hora i lloc
     x.fillStyle = 'rgba(255,255,255,.7)'; x.font = `600 32px ${F}`;
-    const dia = d.toLocaleDateString('ca', { weekday: 'long' });
+    const dia = d.toLocaleDateString(LOC, { weekday: 'long' });
     x.fillText(`${dia.toUpperCase()}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? 'A FORA' : 'A CASA'}`, 250, Y + 56);
     // equips (el local primer); el nostre en una etiqueta del color de l'equip
     const parts = parelles(p), size = MIDA;
@@ -1731,7 +1782,7 @@ function viewEntrenos() {
   ${perFer.length ? `<h3>Després</h3><div class="list">${perFer.map(s => sessRow(s)).join('')}</div>` : ''}
   ${fetes.length ? `<details ${sel ? 'open' : ''} style="margin-top:14px"><summary class="meta" style="cursor:pointer">Fetes (${fetes.length})</summary><div class="list" style="margin-top:8px">${fetes.map(s => sessRow(s)).join('')}</div></details>` : ''}
   ${potEditar() ? (esFS() ? `${D.paperera?.length ? `<details style="margin-top:14px"><summary class="meta" style="cursor:pointer">Paperera (${D.paperera.length})</summary><div class="list" style="margin-top:8px">${D.paperera.map(x => `<div class="card row">
-      <span class="sbadge">${badge(x.codi)}</span><span class="grow"><b>${esc(x.titol)}</b><span class="meta" style="display:block">esborrada el ${new Date(x.esborrada).toLocaleDateString('ca')}</span></span>
+      <span class="sbadge">${badge(x.codi)}</span><span class="grow"><b>${esc(x.titol)}</b><span class="meta" style="display:block">esborrada el ${new Date(x.esborrada).toLocaleDateString(LOC)}</span></span>
       <button class="btn" onclick="recuperaSessio('${x.codi}')">Recupera-la</button><button class="mini" title="Esborra-la per sempre" onclick="esborraDelTot('${x.codi}')">✕</button></div>`).join('')}</div></details>` : ''}`
     : D.sessions.length ? `<div class="card" style="margin-top:14px"><b>Constructor de sessions</b><div class="meta">Passa les sessions a l'app per poder-les editar, afegir-ne i treure'n. Es fa un sol cop.</div><div class="actions"><button class="btn primary" style="flex:1" onclick="migraSessions()">Passa les sessions a l'app</button></div></div>` : '') : ''}`;
 }
@@ -1774,7 +1825,7 @@ window.toggleOrdering = () => { ordering = !ordering; render(); };
 function viewSession(c) {
   const s = byCode(c); if (!s) return `<p class="empty">No trobo ${esc(c)}</p>`;
   const bs = blocsOrdenats(s);
-  const coms = comments(c).map(x => `<div class="card comment"><div class="meta">${new Date(x.t).toLocaleDateString('ca')}${x.aplicat ? ' aplicat per Claude' : ''}</div>${esc(x.text).replace(/\n/g, '<br>')}</div>`).join('');
+  const coms = comments(c).map(x => `<div class="card comment"><div class="meta">${new Date(x.t).toLocaleDateString(LOC)}${x.aplicat ? ' aplicat per Claude' : ''}</div>${esc(x.text).replace(/\n/g, '<br>')}</div>`).join('');
   const totMin = bs.reduce((t, b) => t + (b.min || 0), 0) || 1;
   if (sesEd && sesEd.codi === c) return viewSesEdit();
   return `<div class="shead"><span class="sbadge lg">${badge(s.codi)}</span><h2>${esc(s.titol)}</h2></div>
@@ -1792,7 +1843,7 @@ function viewSession(c) {
       <textarea id="com" rows="2" placeholder="Com ha anat? (opcional)" oninput="saveDraft('${c}', this.value)">${esc(store.get('volei.draft.' + c, ''))}</textarea>
       <div class="actions">${isFet(c)
         ? `<button class="btn primary" style="flex:1" onclick="sendComment('${c}')">Desa el comentari</button></div>
-      <div class="row" style="margin-top:8px"><span class="grow ok"><b>✓ Sessió feta</b>${FETS[c]?.t ? ` el ${new Date(FETS[c].t).toLocaleDateString('ca')}` : ''}</span><button class="mini" style="width:auto;padding:0 10px" onclick="desmarcaFet('${c}')">Desmarca-la</button>`
+      <div class="row" style="margin-top:8px"><span class="grow ok"><b>✓ Sessió feta</b>${FETS[c]?.t ? ` el ${new Date(FETS[c].t).toLocaleDateString(LOC)}` : ''}</span><button class="mini" style="width:auto;padding:0 10px" onclick="desmarcaFet('${c}')">Desmarca-la</button>`
         : `<button class="btn primary" style="flex:1" onclick="acabaSessio('${c}')">✓ Feta</button>`}</div>
     </div>` : needKey('escriure comentaris')}`;
 }
@@ -2083,7 +2134,7 @@ window.parVeure = v => { parVista = v; store.set('volei.parvista', v); render();
 // Calendari: un mes per pàgina; es llisca a esquerra i dreta (Swiper, efecte cub, com al Buyte).
 // Swiper es carrega només quan s'obre el calendari; sense connexió queden les fletxes.
 let CALSW = null, CALMESOS = [], swiperCarregant = false;
-const nomMes = ym => { const [y, m] = ym.split('-').map(Number), t = new Date(y, m - 1, 1).toLocaleDateString('ca', { month: 'long' }); return t[0].toUpperCase() + t.slice(1) + ' ' + y; };
+const nomMes = ym => { const [y, m] = ym.split('-').map(Number), t = new Date(y, m - 1, 1).toLocaleDateString(LOC, { month: 'long' }); return t[0].toUpperCase() + t.slice(1) + ' ' + y; };
 const sumaMes = (ym, d) => { const [y, m] = ym.split('-').map(Number), t = new Date(y, m - 1 + d, 1); return `${t.getFullYear()}-${two(t.getMonth() + 1)}`; };
 function carregaSwiper() {
   if (window.Swiper || swiperCarregant) return; swiperCarregant = true;
@@ -2164,7 +2215,7 @@ function viewPartits() {
     const falta = dies === 0 ? 'Avui!' : dies === 1 ? 'Demà' : `D'aquí ${dies} dies`;
     const parc = Object.keys(p.punts || {}).sort().map(k => { const [a, b] = p.punts[k]; if (a === '' || b === '') return ''; const w = (+a > +b) !== (p.lloc === 'fora'); return `<i class="${w ? 'w' : 'l'}">${a}-${b}</i>`; }).join('');
     return `<a class="card mc ${p.equip === 'G' ? 'mG' : 'mN'}" href="#/p/${p.id}">
-      <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
+      <span class="mdate"><small>${dt.toLocaleDateString(LOC, { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString(LOC, { month: 'short' }).replace('.', '')}</small></span>
       <span class="mbody"><span class="mteams">${p.lloc === 'fora' ? riv + '<i>vs</i>' + nos : nos + '<i>vs</i>' + riv}</span>
         <span class="meta">${p.hora ? `<span class="nw">🕗 ${esc(p.hora)}</span> ` : ''}<span class="nw">${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span> <span class="nw">👥 ${(p.convocats || []).length}</span></span>
         ${parc ? `<span class="parc">${parc}</span>` : ''}</span>
@@ -2573,7 +2624,7 @@ function viewPartit(id) {
   return `<div class="pview">
   <div class="card">
     <button class="phead2" onclick="editaPartit('${id}')">
-      <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
+      <span class="mdate"><small>${dt.toLocaleDateString(LOC, { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString(LOC, { month: 'short' }).replace('.', '')}</small></span>
       <span class="grow"><span class="pxt">${p.lloc === 'fora' ? rivH + ' vs ' + nosH : nosH + ' vs ' + rivH}</span>
         <span class="meta">${p.hora ? '🕗 ' + esc(p.hora) + ' ' : ''}${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}${p.resultat ? ` <b class="res ${guany(p)}">${esc(p.resultat)}</b>` : ''}</span></span>
       <span class="chev">✎</span></button>
@@ -2618,7 +2669,7 @@ function viewFamilia() {
     const dt = new Date(p.data + 'T12:00'), g = guany(p), riv = `<span>${esc(p.rival || 'Rival per saber')}</span>`;
     const dies = Math.round((dt - new Date(avui() + 'T12:00')) / 864e5);
     return `<div class="card mc ${p.equip === 'G' ? 'mG' : 'mN'}">
-      <span class="mdate"><small>${dt.toLocaleDateString('ca', { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ca', { month: 'short' }).replace('.', '')}</small></span>
+      <span class="mdate"><small>${dt.toLocaleDateString(LOC, { weekday: 'short' }).replace('.', '')}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString(LOC, { month: 'short' }).replace('.', '')}</small></span>
       <span class="mbody"><span class="mteams">${p.lloc === 'fora' ? riv + '<i>vs</i>' + nos(p) : nos(p) + '<i>vs</i>' + riv}</span>
         <span class="meta">${p.hora ? `<span class="nw">🕗 ${esc(p.hora)}</span> ` : ''}<span class="nw">${p.lloc === 'fora' ? '🚌 A fora' : '🏠 A casa'}</span></span>
         ${p.adreca ? `<a class="meta" target="_blank" rel="noopener" href="${mapa(p.adreca)}">📍 ${esc(p.adreca)}</a>` : ''}
@@ -2853,6 +2904,7 @@ function viewConfigFam() {
   return `<h2>Configuració</h2>
   ${meus.length > 1 ? `<h3>Equip</h3><div class="card"><div class="seg" style="margin:0">${meus.map(k => `<button class="${k === g ? 'on' : ''}" onclick="triaGrup('${k}')">${esc(G[k].nom)}</button>`).join('')}</div></div>` : ''}
   <h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>
+  ${idiomaHtml()}
   <h3>El teu compte</h3><div class="card row">${USR.photoURL ? `<img class="foto" src="${esc(USR.photoURL)}" alt="">` : ''}<span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')} (${ROLS.familia})</div></span><button class="btn" onclick="surt()">Surt</button></div>`;
 }
 
@@ -3054,7 +3106,7 @@ document.addEventListener('pointerup', () => {
 // ------------------------------------------------------------- configuració
 function viewConfig() {
   const t = store.get('volei.tema', 'auto');
-  const temaHtml = `<h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>`;
+  const temaHtml = `<h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>${idiomaHtml()}`;
   if (!CLAU) return `<h2>Configuració</h2>${temaHtml}<h3>El teu compte</h3>${USR ? `<div class="card row"><span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')}</div></span><button class="btn" onclick="surt()">Surt</button></div>` : `<div class="card"><button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button></div>`}`;
   const g = grupDe(TEMP), G = grups(), any = anyDe(TEMP);
   const anys = [...new Set(Object.keys(CFG.temporades).filter(x => rolDe(grupDe(x))).map(anyDe))].sort();
