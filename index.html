@@ -877,6 +877,11 @@ async function quiSoc() {
   if (!NOMES_COMPTES) connecta();
   try {
     let d = await fs.getDoc(memRef(USR.uid));
+    // ja no és d'aquest club (l'han tret o n'ha sortit): si en té un altre, hi va
+    if (!d.exists() && NOMES_COMPTES) {
+      const e = ((await fs.getDoc(fs.doc(db, 'usuaris', USR.uid))).data()?.espais || []).filter(k => k !== CLAU);
+      if (e.length) { store.set('volei.clau', e[0]); store.set('volei.temp', null); location.reload(); return; }
+    }
     if (!d.exists() && !NOMES_COMPTES) {
       // el primer compte que entra amb la clau és l'administrador de tots els equips; els altres queden pendents
       const algu = await fs.getDocs(fs.query(fs.collection(db, 'equips', CLAU, 'membres'), fs.limit(1)));
