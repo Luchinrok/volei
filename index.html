@@ -1961,18 +1961,36 @@ const jugat = p => !!p.resultat || p.data < avui();   // un partit amb resultat 
 const eqNom = e => dosEq() ? EQN[e] || '' : '';
 const nomNostre = p => (club() + ' ' + eqNom(p.equip)).trim() || 'Nosaltres';
 const partitsDe = id => PAR.filter(p => (p.convocats || []).includes(id));
+// quina part del set ha jugat cadascú: amb els punts del directe, els punts que era a la pista;
+// si el set no té punts apuntats o els canvis s'han posat després, qui surt i qui entra es reparteixen el set (mig i mig)
+// el lliure compta com a jugador; els centrals per qui entra el lliure, la meitat
+function partSet(p, n) {
+  const pos = (p.sets || {})[n] || {}, dins = [...ZK, 'L'].map(k => pos[k]).filter(Boolean);
+  if (!dins.length) return null;
+  const acc = (p.accions || []).filter(a => a.s === +n), cvs = acc.filter(a => a.a === 'canvi'), fr = {};
+  const base = jid => pos.L && esCentral(pos, jid) ? .5 : 1;
+  const punts = acc.filter(a => ACC[a.a] && !ACC[a.a].np).length;
+  if (!punts || cvs.some(a => a.m)) {
+    dins.forEach(j => fr[j] = base(j));
+    cvs.forEach(a => { const f = fr[a.surt] ?? 1; fr[a.surt] = f / 2; fr[a.j] = (fr[a.j] || 0) + f / 2; });
+    return fr;
+  }
+  let camp = [...dins]; const cnt = {};
+  acc.forEach(a => {
+    if (a.a === 'canvi') camp = camp.map(j => j === a.surt ? a.j : j);
+    else if (ACC[a.a] && !ACC[a.a].np) camp.forEach(j => cnt[j] = (cnt[j] || 0) + 1);
+  });
+  Object.entries(cnt).forEach(([j, c]) => fr[j] = c / punts * (dins.includes(j) ? base(j) : 1));
+  return fr;
+}
 function statsPartits(id, eq) {
   // partits convocat (total i per equip) i % de sets jugats segons les alineacions
   const ps = partitsDe(id).filter(p => !eq || p.equip === eq);
   let sets = 0, jugats = 0;
   // el lliure compta com a set jugat; els centrals per qui entra el lliure, mig set
-  // qui entra amb un canvi durant el set també l'ha jugat (sencer)
   ps.forEach(p => Object.entries(p.sets || {}).forEach(([n, pos]) => {
-    const dins = ['1', '2', '3', '4', '5', '6', 'L'].map(k => pos?.[k]).filter(Boolean);
-    if (!dins.length) return;
-    sets++;
-    const entra = (p.accions || []).some(a => a.a === 'canvi' && a.s === +n && a.j === id);
-    if (entra) jugats++; else if (dins.includes(id)) jugats += pos.L && esCentral(pos, id) ? .5 : 1;
+    const fr = partSet(p, n); if (!fr) return;
+    sets++; jugats += fr[id] || 0;
   }));
   return { j: JUG.find(x => x.id === id), tot: ps.length, N: ps.filter(p => p.equip === 'N').length, G: ps.filter(p => p.equip === 'G').length, sets, jugats, pct: sets ? Math.round(100 * jugats / sets) : null };
 }
@@ -2117,7 +2135,7 @@ function viewPartits() {
   <h3>Convocatòries per jugador${parFiltre ? ' (' + EQN[parFiltre] + ')' : ''}</h3>
   <div class="card"><div class="ptab phead ${dosEq() ? '' : 'one'}"><span></span><span>Total</span>${dosEq() ? '<span>Negre</span><span>Groc</span>' : ''}<span>% sets</span></div>
     ${comptes.map(c => `<div class="ptab ${dosEq() ? '' : 'one'}"><a class="nomlink" href="#/j/${c.j.id}">${esc(c.j.nom)}</a><b>${c.tot}</b>${dosEq() ? `<span>${c.N}</span><span>${c.G}</span>` : ''}<span>${c.pct ?? '–'}${c.pct != null ? '%' : ''}</span></div>`).join('')}</div>
-  <p class="meta">% sets: dels sets amb alineació posada als partits on estava convocat, en quants ha sortit al camp. El lliure compta com que juga el set; els centrals per qui entra el lliure compten mig set; qui entra amb un canvi també compta que l'ha jugat.</p>`;
+  <p class="meta">% sets: dels sets amb alineació posada als partits on estava convocat, en quants ha sortit al camp. El lliure compta com que juga el set; els centrals per qui entra el lliure compten mig set; amb canvis, cadascú compta la part del set que ha jugat (els punts que era a la pista, si s'han apuntat al directe; si no, mig set).</p>`;
 }
 window.newPartit = async (data = avui()) => {
   const d = await fs.addDoc(col('partits'), { data, hora: '20:00', equip: parFiltre || 'N', rival: '', lloc: 'casa', convocats: [], sets: {}, resultat: '' });
@@ -2270,7 +2288,7 @@ window.dirCanvi = async id => {
     <label class="lbl">Surt</label><select id="cvs">${camp.map(jid => `<option value="${jid}">${esc(JUG.find(q => q.id === jid)?.nom || '')}</option>`).join('')}</select>
     <label class="lbl">Entra</label><select id="cve">${banq.map(j => `<option value="${j.id}">${esc(j.nom)}</option>`).join('')}</select></div>`, { ok: 'Fes el canvi', ico: '🔁' });
   if (!ok) return;
-  p.accions = [...(p.accions || []), { s: setActiu, a: 'canvi', j: $('#cve').value, surt: $('#cvs').value, t: Date.now() }];
+  p.accions = [...(p.accions || []), { s: setActiu, a: 'canvi', j: $('#cve').value, surt: $('#cvs').value, t: Date.now(), ...(location.hash.startsWith('#/directe') ? {} : { m: 1 }) }];
   fs.updateDoc(parRef(id), { accions: p.accions }); render();
 };
 // efecte d'una acció al marcador: només les dels sets (no les correccions manuals, s = 0) i les que són punt
@@ -2835,7 +2853,7 @@ function canvisHtml(p) {
   return `<details class="rols" ${cv.length ? 'open' : ''}><summary>Canvis en aquest set${cv.length ? ` (${cv.length})` : ''}</summary>
     ${cv.map(a => `<div class="row" style="gap:6px;padding:4px 0"><span>🔁</span><span class="grow">Entra <b>${nomJ(a.j)}</b> per ${nomJ(a.surt)}</span><button class="mini" title="Esborra" onclick="dirEsborra('${p.id}', ${a.i})">✕</button></div>`).join('')}
     <div class="actions" style="margin:4px 0 0"><button class="btn" onclick="dirCanvi('${p.id}')">＋ Apunta un canvi</button></div>
-    <p class="meta" style="margin:4px 0 0">Qui entra amb un canvi compta que ha jugat el set. L'alineació de dalt és la de l'inici del set.</p></details>`;
+    <p class="meta" style="margin:4px 0 0">L'alineació de dalt és la de l'inici del set. Per al % de sets jugats, els canvis apuntats aquí compten mig set per a qui surt i mig per a qui entra; els del directe, els punts que cadascú ha estat a la pista.</p></details>`;
 }
 window.rolPosa = (id, jid, v, alDirecte) => {
   const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) }, r = { ...(pos.rols || {}) };
