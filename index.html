@@ -294,6 +294,12 @@ a.nomlink { color: inherit; text-decoration: none; }
 .vot button.on.si { background: var(--si-soft); border-color: var(--si); color: var(--si); }
 .vot button.on.no { background: var(--no-soft); border-color: var(--no); color: var(--no); }
 .card.mc.altre { opacity: .8; }
+.avcal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
+.avcal i { font-style: normal; font-size: 12px; font-weight: 700; color: var(--muted); }
+.avcal span, .avcal button { min-height: 36px; display: grid; place-items: center; border-radius: 10px; font: inherit; font-size: 15px; }
+.avcal span.off { color: var(--muted); opacity: .45; }
+.avcal button { border: 1px solid var(--brand); background: var(--brand-soft); color: var(--brand); font-weight: 700; cursor: pointer; }
+.avcal button.on { background: var(--no); border-color: var(--no); color: #fff; }
 .avnv { display: block; font-size: 12px; } .mini.nvb { flex: none; width: auto; padding: 2px 6px; margin-right: 4px; opacity: .7; }
 .novenen { font-size: 14px; } .novenen > div + div { margin-top: 4px; }
 .avis { padding: 12px 14px; } .avis small { display: block; margin-top: 6px; }
@@ -1130,20 +1136,38 @@ const entrenosJug = (j, n = 28) => { const out = [], dies = tcfg().dies || {}, d
   for (let i = 0; i < n; i++) { const d = new Date(); d.setDate(d.getDate() + i); const w = d.getDay(); if (dies[w] && (!dj || dj.includes(w))) out.push(isoLocal(d)); }
   return out; };
 const finsDiumenge = () => { const d = new Date(); d.setDate(d.getDate() + (7 - (d.getDay() || 7))); return isoLocal(d); };
+// calendari per triar els dies que no vindrà (es pot moure de mes)
+let AVNV = null;   // {jid, sel: Set de dates, mes: 'AAAA-MM'}
+const esDiaJug = (j, iso) => { const w = new Date(iso + 'T12:00').getDay(), dj = diesJug(j); return !!(tcfg().dies || {})[w] && (!dj || dj.includes(w)); };
+function avnvCal() {
+  const j = JUG.find(x => x.id === AVNV.jid), [y, m] = AVNV.mes.split('-').map(Number), ini = new Date(y, m - 1, 1), n = new Date(y, m, 0).getDate(), buits = (ini.getDay() + 6) % 7;
+  const cel = Array.from({ length: buits }, () => '<span></span>');
+  for (let d = 1; d <= n; d++) { const iso = `${AVNV.mes}-${String(d).padStart(2, '0')}`, ok = iso >= avui() && esDiaJug(j, iso);
+    cel.push(ok ? `<button type="button" class="${AVNV.sel.has(iso) ? 'on' : ''}" onclick="avnvTria('${iso}')">${d}</button>` : `<span class="off">${d}</span>`); }
+  const ara = avui().slice(0, 7);
+  $('#avnvcal').innerHTML = `<div class="calnav" style="margin:0 0 6px"><button type="button" class="btn" ${AVNV.mes <= ara ? 'disabled' : ''} onclick="avnvMes(-1)" aria-label="Mes anterior">‹</button><b>${nomMes(AVNV.mes)}</b><button type="button" class="btn" onclick="avnvMes(1)" aria-label="Mes següent">›</button></div>
+    <div class="avcal">${['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map(x => `<i>${x}</i>`).join('')}${cel.join('')}</div>
+    <p class="meta" style="margin:6px 0 0">${AVNV.sel.size ? `${AVNV.sel.size} ${AVNV.sel.size === 1 ? 'entreno triat' : 'entrenos triats'}` : 'Toca els dies d’entreno que no vindrà.'}</p>`;
+}
+window.avnvCap = () => { AVNV.sel.clear(); avnvCal(); };
+window.avnvTria = iso => { AVNV.sel.has(iso) ? AVNV.sel.delete(iso) : AVNV.sel.add(iso); avnvCal(); };
+window.avnvMes = d => { const [y, m] = AVNV.mes.split('-').map(Number), t = new Date(y, m - 1 + d, 1); AVNV.mes = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; avnvCal(); };
+window.avnvSetmana = () => { const j = JUG.find(x => x.id === AVNV.jid), dg = finsDiumenge(); entrenosJug(j, 8).filter(d => d <= dg).forEach(d => AVNV.sel.add(d)); AVNV.mes = avui().slice(0, 7); avnvCal(); };
 window.avisaNoVe = async jid => {
   const j = JUG.find(x => x.id === jid); if (!j) return;
-  const ds = entrenosJug(j), dg = finsDiumenge(), ja = RESP.filter(r => r.tipus === 'e' && r.jugador === jid && r.id >= avui());
-  const motiu0 = ja.find(r => r.motiu)?.motiu || '';
-  const ok = await dialeg(`<b>${esc(j.nom)} no vindrà</b><div class="form" id="avnv">
-    <div class="actions" style="margin:4px 0 8px"><button type="button" class="btn" onclick="document.querySelectorAll('#avnv input[type=checkbox]').forEach(c => c.checked = c.value <= '${dg}')">Aquesta setmana</button><button type="button" class="btn" onclick="document.querySelectorAll('#avnv input[type=checkbox]').forEach(c => c.checked = false)">Cap</button></div>
-    <div class="tjug">${ds.map(d => `<label class="conv"><input type="checkbox" value="${d}" ${ja.some(r => r.id === d) ? 'checked' : ''}><span class="grow">${dataCa(d)}</span></label>`).join('') || '<p class="meta">No té cap entreno les properes setmanes.</p>'}</div>
+  const ja = RESP.filter(r => r.tipus === 'e' && r.jugador === jid && r.id >= avui()), motiu0 = ja.find(r => r.motiu)?.motiu || '';
+  AVNV = { jid, sel: new Set(ja.map(r => r.id)), mes: avui().slice(0, 7) };
+  const p = dialeg(`<b>${esc(j.nom)} no vindrà</b><div class="form">
+    <div class="actions" style="margin:4px 0 8px"><button type="button" class="btn" onclick="avnvSetmana()">Aquesta setmana</button><button type="button" class="btn" onclick="avnvCap()">Cap</button></div>
+    <div id="avnvcal"></div>
     <label class="lbl" style="margin-top:8px">Motiu (opcional)</label><input type="text" id="avmotiu" value="${esc(motiu0)}" placeholder="Per exemple: de viatge"></div>`, { ok: 'Desa', ico: '📅' });
-  if (!ok) return;
-  const tria = new Set([...document.querySelectorAll('#avnv input[type=checkbox]:checked')].map(c => c.value)), motiu = ($('#avmotiu')?.value || '').trim();
+  avnvCal();
+  if (!await p) return;
+  const tria = AVNV.sel, motiu = ($('#avmotiu')?.value || '').trim();
   try {
     await Promise.all([
       ...[...tria].map(d => fs.setDoc(ref('respostes', respId('e', d, jid)), { tipus: 'e', id: d, jugador: jid, estat: 'no', per: USR?.uid || '', nom: USR?.displayName || '', t: Date.now(), ...(motiu ? { motiu } : {}) })),
-      ...ja.filter(r => !tria.has(r.id) && ds.includes(r.id)).map(r => fs.deleteDoc(ref('respostes', r.id)))]);
+      ...ja.filter(r => !tria.has(r.id)).map(r => fs.deleteDoc(ref('respostes', r.id)))]);
     // si avui ja hi ha llista, s'hi marca
     const a = ASS.find(x => x.id === avui());
     if (a && tria.has(avui()) && a.estat?.[jid] === 'si') fs.updateDoc(ref('assistencia', a.id), { ['estat.' + jid]: 'avisa' });
