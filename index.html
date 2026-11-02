@@ -294,6 +294,7 @@ a.nomlink { color: inherit; text-decoration: none; }
 .vot button.on.si { background: var(--si-soft); border-color: var(--si); color: var(--si); }
 .vot button.on.no { background: var(--no-soft); border-color: var(--no); color: var(--no); }
 .card.mc.altre { opacity: .8; }
+.avnv { display: block; font-size: 12px; } .mini.nvb { flex: none; width: auto; padding: 2px 6px; margin-right: 4px; opacity: .7; }
 .novenen { font-size: 14px; } .novenen > div + div { margin-top: 4px; }
 .avis { padding: 12px 14px; } .avis small { display: block; margin-top: 6px; }
 .mini.lliga { font-size: 12px; padding: 2px 8px; width: auto; }
@@ -1124,10 +1125,36 @@ window.nouAvis = async () => {
 };
 window.esborraAvis = async id => { if (await dialeg('Esborrar aquest avís?', { ok: 'Esborra', perill: true })) fs.deleteDoc(ref('avisos', id)); };
 // entrenadors: qui ha dit que no ve als propers entrenos
+// entrenos d'un jugador de les properes setmanes (segons els dies de l'equip i els seus)
+const entrenosJug = (j, n = 28) => { const out = [], dies = tcfg().dies || {}, dj = diesJug(j);
+  for (let i = 0; i < n; i++) { const d = new Date(); d.setDate(d.getDate() + i); const w = d.getDay(); if (dies[w] && (!dj || dj.includes(w))) out.push(isoLocal(d)); }
+  return out; };
+const finsDiumenge = () => { const d = new Date(); d.setDate(d.getDate() + (7 - (d.getDay() || 7))); return isoLocal(d); };
+window.avisaNoVe = async jid => {
+  const j = JUG.find(x => x.id === jid); if (!j) return;
+  const ds = entrenosJug(j), dg = finsDiumenge(), ja = RESP.filter(r => r.tipus === 'e' && r.jugador === jid && r.id >= avui());
+  const motiu0 = ja.find(r => r.motiu)?.motiu || '';
+  const ok = await dialeg(`<b>${esc(j.nom)} no vindrà</b><div class="form" id="avnv">
+    <div class="actions" style="margin:4px 0 8px"><button type="button" class="btn" onclick="document.querySelectorAll('#avnv input[type=checkbox]').forEach(c => c.checked = c.value <= '${dg}')">Aquesta setmana</button><button type="button" class="btn" onclick="document.querySelectorAll('#avnv input[type=checkbox]').forEach(c => c.checked = false)">Cap</button></div>
+    <div class="tjug">${ds.map(d => `<label class="conv"><input type="checkbox" value="${d}" ${ja.some(r => r.id === d) ? 'checked' : ''}><span class="grow">${dataCa(d)}</span></label>`).join('') || '<p class="meta">No té cap entreno les properes setmanes.</p>'}</div>
+    <label class="lbl" style="margin-top:8px">Motiu (opcional)</label><input type="text" id="avmotiu" value="${esc(motiu0)}" placeholder="Per exemple: de viatge"></div>`, { ok: 'Desa', ico: '📅' });
+  if (!ok) return;
+  const tria = new Set([...document.querySelectorAll('#avnv input[type=checkbox]:checked')].map(c => c.value)), motiu = ($('#avmotiu')?.value || '').trim();
+  try {
+    await Promise.all([
+      ...[...tria].map(d => fs.setDoc(ref('respostes', respId('e', d, jid)), { tipus: 'e', id: d, jugador: jid, estat: 'no', per: USR?.uid || '', nom: USR?.displayName || '', t: Date.now(), ...(motiu ? { motiu } : {}) })),
+      ...ja.filter(r => !tria.has(r.id) && ds.includes(r.id)).map(r => fs.deleteDoc(ref('respostes', r.id)))]);
+    // si avui ja hi ha llista, s'hi marca
+    const a = ASS.find(x => x.id === avui());
+    if (a && tria.has(avui()) && a.estat?.[jid] === 'si') fs.updateDoc(ref('assistencia', a.id), { ['estat.' + jid]: 'avisa' });
+    desat('✓ Desat');
+  } catch (e) { registraError(e, 'avisa-no-ve'); dialeg('No s\'ha pogut desar. Torna-ho a provar.', { sol: true }); }
+};
+const avisNoVe = (jid, d) => { const r = respDe('e', d, jid); return r ? `<small class="meta avnv">Ha avisat que no vindrà${r.motiu ? ': ' + esc(r.motiu) : ''}</small>` : ''; };
 function noVenenHtml() {
   const dates = [...new Set(RESP.filter(r => r.tipus === 'e' && r.id >= avui()).map(r => r.id))].sort().slice(0, 3);
   if (!dates.length) return '';
-  return `<div class="card novenen">${dates.map(d => `<div><b>${dataCa(d)}</b>: no vindran ${RESP.filter(r => r.tipus === 'e' && r.id === d).map(r => esc(nomCurt(JUG.find(j => j.id === r.jugador)?.nom || '?'))).join(', ')}</div>`).join('')}</div>`;
+  return `<div class="card novenen">${dates.map(d => `<div><b>${dataCa(d)}</b>: no vindran ${RESP.filter(r => r.tipus === 'e' && r.id === d).map(r => `<a class="nomlink" href="#/j/${r.jugador}">${esc(nomCurt(JUG.find(j => j.id === r.jugador)?.nom || '?'))}</a>${r.motiu ? ` (${esc(r.motiu)})` : ''}`).join(', ')}</div>`).join('')}</div>`;
 }
 function sincCal() {
   if (!PAR.__ok || !CAL || !['admin', 'entrenador'].includes(rolActual())) return;
@@ -2050,7 +2077,7 @@ function llistaRows(a, actius) {
   return `<div class="counts"><span class="est si">✅ ${Object.values(a.estat).filter(e => e === 'si').length} venen</span><span class="est avisa">❌ ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen</span><span class="est no">💀 ${Object.values(a.estat).filter(e => e === 'no').length} no avisen</span></div>
     ${(() => { const v = Object.keys(a.estat).filter(id => a.estat[id] === 'si'), n = k => v.filter(id => posJ(id) === k).length, sense = v.filter(id => !posJ(id)).length;
       return v.length ? `<div class="perpos">${Object.keys(POS).map(k => `<span title="${POS[k].t}"><i class="pb pb-${k} inl">${POS[k].l}</i> ${n(k)}</span>`).join('')}${sense ? `<span class="meta">${sense} sense posició</span>` : ''}</div>` : ''; })()}
-    ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}<span class="nm">${esc(j.nom)}</span></span><span class="tri">
+    ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}<span class="nm">${esc(j.nom)}${avisNoVe(j.id, a.data)}</span></span><button class="mini nvb" title="No vindrà uns dies" onclick="avisaNoVe('${j.id}')">📅</button><span class="tri">
       ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" title="${EST[e]}" aria-label="${EST[e]}" onclick="setEst('${j.id}','${e}')">${ESTI[e]}</button>`).join('')}
     </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}`;
 }
@@ -2207,6 +2234,9 @@ function viewJugador(id) {
       ${j.actiu === false ? '<span class="pill">Ja no és a l\'equip</span>' : ''}</div></div></div>
   <div class="rings">${anell(st.pct, 'temporada')}${anell(st.pctM, 'últim mes')}${anell(sp.pct, 'sets jugats')}</div>
   <div class="counts" style="justify-content:center"><span class="est si">✅ ${st.si || 0} ve</span><span class="est avisa">❌ ${st.av || 0} avisa</span><span class="est no">💀 ${st.no || 0} no avisa</span><span class="est">🏆 ${ps.length} partits</span></div>
+  ${(() => { const fut = RESP.filter(r => r.tipus === 'e' && r.jugador === id && r.id >= avui()).sort((x, y) => x.id.localeCompare(y.id));
+    return `<h3>No vindrà</h3><div class="card">${fut.length ? fut.map(r => `<div class="row" style="padding:3px 0"><span class="grow"><b>${dataCa(r.id)}</b>${r.motiu ? ` <span class="meta">${esc(r.motiu)}</span>` : ''}</span><small class="meta">${r.per && r.per !== USR?.uid ? 'Ho ha dit ' + esc((r.nom || '').split(' ')[0]) : ''}</small></div>`).join('') : '<p class="meta" style="margin:0">No ha avisat de cap entreno.</p>'}
+      ${['admin', 'entrenador'].includes(rolActual()) ? `<div class="actions" style="margin:8px 0 0"><button class="btn" style="flex:1" onclick="avisaNoVe('${id}')">📅 Apunta dies que no vindrà</button></div>` : ''}</div>`; })()}
   <h3>Entrenos</h3>
   ${llistes.length ? `<div class="card"><div class="streak">${llistes.slice().reverse().map(a => `<i class="${a.estat[id]}" title="${dataCa(a.data)} ${EST[a.estat[id]]}"></i>`).join('')}</div>
     <div class="irow">${info(`<p>Cada quadre és un entreno, del més antic al més nou.</p>`, `Entrenos`)}</div></div>
