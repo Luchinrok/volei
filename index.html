@@ -731,14 +731,51 @@ iframe.fotos { width: 100%; height: 70vh; border: 0; border-radius: 12px; backgr
 .mc .mbody a.meta { text-decoration: none; }
 .tag.ori-estandard { color: #8a6d1f; } .exrow .meta .ori-estandard { color: #8a6d1f; }
 .tag.ori-teu { color: #12a07c; } .tag.ori-modificat { color: #d9822b; } .tag.ori-claude { color: #6b7cff; }
+
+/* ---- Tres Tocs, revisió de disseny (03-11-2026): colors plans, sense ombres en repòs ni ornaments, etiquetes en minúscula ---- */
+header { background: #14325a; }
+header::after, .hero::after { display: none; }
+header .hico, .quick .qi { display: inline-grid; place-items: center; }
+header .hico svg { width: 22px; height: 22px; }
+.quick .qi svg { width: 26px; height: 26px; color: var(--brand); }
+:root { --shadow: none; }
+.hero { background: #14325a; box-shadow: none; border-radius: 18px; }
+.hero.dj { background: #0d5a54; box-shadow: none; }
+.hero .when { background: none; color: var(--accent); padding: 0; border-radius: 0; font: 700 16px/1.1 var(--head); letter-spacing: 0; text-transform: none; }
+.hero .when.later { background: none; color: rgba(255,255,255,.8); }
+.hero .kick { font-size: 14px; opacity: .85; margin-top: 4px; }
+.hero .t { font-size: 28px; line-height: 1.05; letter-spacing: -.01em; }
+.hero .dots i { border-bottom: 0; box-shadow: inset 3px 0 0 var(--fc); padding: 4px 7px 4px 9px; font-size: 13px; }
+h3 { font: 700 19px/1.2 var(--head); text-transform: none; letter-spacing: 0; color: var(--ink); margin: 26px 0 10px; }
+h3::before { display: none; }
+.kicker, .fgrup > small, .saqrow > small, .pischg .pcrow { text-transform: none; letter-spacing: 0; font-size: 13px; }
+.field b { text-transform: none; letter-spacing: 0; font-size: 14px; }
+.phead, .ptab.phead { text-transform: none; letter-spacing: 0; font-size: 12px; }
+.code { font-family: var(--head); font-weight: 800; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+.quick button, .quick a { box-shadow: none; }
+.enjoc b { text-transform: none; letter-spacing: 0; font-size: 18px; }
+.mdate small { letter-spacing: .02em; }
+.dj small { font-size: 11px; }
+.hero.dj { color: #fff; border: 0; min-height: 0; display: block; text-align: left; font: inherit; padding: 16px; gap: 0; }   /* la classe dj també és la dels botons del directe */
+.dj[class*="ps-"] small { color: color-mix(in srgb, var(--pc) 60%, var(--ink)); }
+.marc { background: #14325a; box-shadow: 0 4px 12px rgba(8,20,40,.18); }   /* el marcador és fix i flota sobre el contingut */
+.court { background: #e47a3a; box-shadow: none; }
+.tok .tn { font-size: 11px; }
+/* només la sessió d'avui (o la propera) va en color ple; les altres, en blanc */
+.hero:has(.when.later) { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+.hero:has(.when.later) .when.later { color: var(--muted); }
+.hero:has(.when.later) .t b { color: var(--brand); }
+.hero:has(.when.later) .dots i { background: var(--bg); }
+.hero:has(.when.later) .prog .pb { background: var(--line); }
+.hero:has(.when.later) .prog .pb i { background: var(--brand); }
 </style>
 </head>
 <body>
 <header>
   <button id="back" aria-label="Enrere" hidden>‹</button>
   <h1><img class="ball logo" src="marca.svg" alt=""><span id="title">Tres Tocs</span></h1>
-  <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()">⏱</button>
-  <button aria-label="Configuració" onclick="location.hash='#/config'">⚙</button>
+  <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()"><span class="hico" data-ico="rellotge"></span></button>
+  <button aria-label="Configuració" onclick="location.hash='#/config'"><span class="hico" data-ico="engranatge"></span></button>
 </header>
 <main id="app"><p class="empty">Carregant…</p></main>
 <div id="toast" role="status"></div>
@@ -839,7 +876,8 @@ const famC = c => (/^(BL|[DBSRCJGA])\d/.exec(c || '') || [])[1] || '';   // fam�
 const hue = t => [...t].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
 const inicials = n => (n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 const av = (j, lg) => `<span class="av ${lg ? 'lg' : ''}" style="--h:${hue(j.nom || '')}" aria-hidden="true">${esc(inicials(j.nom))}</span>`;
-const ICO = {"inici": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/></svg>", "pista": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 12h18\"/><path d=\"M3 8.5h18\" stroke-dasharray=\"2 2\" opacity=\".6\"/></svg>", "pistes": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"9\" height=\"14\" rx=\"1.5\"/><rect x=\"13\" y=\"5\" width=\"9\" height=\"14\" rx=\"1.5\"/><path d=\"M2 12h9M13 12h9\"/></svg>", "ass": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"9\" cy=\"8\" r=\"3.5\"/><path d=\"M2.5 20c.8-3.6 3.3-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4\"/><path d=\"M15 18l2.2 2.2L22 15.4\"/></svg>", "partits": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7 4h10v5a5 5 0 0 1-10 0z\"/><path d=\"M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5\"/><path d=\"M12 14v3M8.5 20h7l-1-3h-5z\"/></svg>"};
+const ICO = {"inici": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/></svg>", "pista": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 12h18\"/><path d=\"M3 8.5h18\" stroke-dasharray=\"2 2\" opacity=\".6\"/></svg>", "pistes": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"9\" height=\"14\" rx=\"1.5\"/><rect x=\"13\" y=\"5\" width=\"9\" height=\"14\" rx=\"1.5\"/><path d=\"M2 12h9M13 12h9\"/></svg>", "ass": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"9\" cy=\"8\" r=\"3.5\"/><path d=\"M2.5 20c.8-3.6 3.3-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4\"/><path d=\"M15 18l2.2 2.2L22 15.4\"/></svg>", "partits": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7 4h10v5a5 5 0 0 1-10 0z\"/><path d=\"M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5\"/><path d=\"M12 14v3M8.5 20h7l-1-3h-5z\"/></svg>", "rellotge": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"13\" r=\"8\"/><path d=\"M12 9v4l2.5 2\"/><path d=\"M10 2h4\"/><path d=\"M12 2v3\"/></svg>", "engranatge": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z\"/></svg>", "llista": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"5\" y=\"4\" width=\"14\" height=\"17\" rx=\"2\"/><path d=\"M9 4V3h6v1\"/><path d=\"M9 10l1.5 1.5L13 9\"/><path d=\"M9 16h6\"/></svg>", "pissarra": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M12 5v14\"/><circle cx=\"7.5\" cy=\"10\" r=\"1.2\"/><circle cx=\"16.5\" cy=\"14\" r=\"1.2\"/><path d=\"M8.5 11l7 2.2\"/></svg>"};
+document.querySelectorAll('.hico[data-ico]').forEach(x => { x.innerHTML = ICO[x.dataset.ico] || ''; });
 const avui = () => new Date().toISOString().slice(0, 10);
 const dataCa = d => new Date(d + 'T12:00').toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short' });
 
@@ -1522,13 +1560,13 @@ function viewHome() {
   const linia = p => { const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString(LOC, { weekday: 'long' }), riv = `<span>${esc(p.rival || 'Rival?')}</span>`;
     return `<a class="pxl" href="#/p/${p.id}"><span class="pxd">${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + esc(p.hora) : ''} <span class="qd">${queden(p.data)}</span></span>
       <span class="pxt">${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}</span></a>`; };
-  return `<div class="hello"><h2>${salutacio()}! 👋</h2><span>${new Date().toLocaleDateString(LOC, { weekday: 'long', day: 'numeric', month: 'long' })}</span></div>
+  return `<div class="hello"><h2>${salutacio()}!</h2><span>${new Date().toLocaleDateString(LOC, { weekday: 'long', day: 'numeric', month: 'long' })}</span></div>
   ${D.sessions.length ? '' : `<div class="card warn"><b>Aquest equip encara no té sessions.</b><div class="meta">Les prepararem amb Claude. L'assistència, els partits i la resta ja funcionen.</div></div>`}
   <div class="heros">${esFS() ? proximes(2).map(x => heroFS(x)).join('') : ['DT', 'DJ'].map(f => [f, properDia(f)]).filter(([, d]) => d).sort((a, b) => a[1].i - b[1].i).map(([f]) => hero(f)).join('')}</div>
   ${CLAU ? `<div class="quick">
-    <button onclick="goLlista()"><span class="qi">📋</span>Passar llista</button>
-    <button onclick="timerToggle(true)"><span class="qi">⏱️</span>Cronòmetre</button>
-    <a href="#/pissarra"><span class="qi">🏐</span>Pissarra</a></div>
+    <button onclick="goLlista()"><span class="qi">${ICO.llista}</span>Passar llista</button>
+    <button onclick="timerToggle(true)"><span class="qi">${ICO.rellotge}</span>Cronòmetre</button>
+    <a href="#/pissarra"><span class="qi">${ICO.pissarra}</span>Pissarra</a></div>
   ${noVenenHtml()}
   ${avisosHtml(3)}${['admin', 'entrenador'].includes(rolActual()) ? `<div class="actions" style="margin:6px 0 0"><button class="btn" style="flex:1" onclick="nouAvis()">📣 Avís a l'equip</button></div>` : ''}
   <h3>Pròxims partits</h3>
