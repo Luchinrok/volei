@@ -783,6 +783,9 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+#nova { position: fixed; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 60; font: inherit; font-weight: 700; font-size: 15px; padding: 12px 14px; border-radius: 14px; border: 0; background: var(--accent); color: var(--accent-ink); cursor: pointer; box-shadow: 0 6px 18px rgba(8,20,40,.25); }
+#nova[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -794,6 +797,7 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 </header>
 <main id="app"><p class="empty">Carregant…</p></main>
 <div id="toast" role="status"></div>
+<button id="nova" hidden onclick="location.reload()">Hi ha una versió nova de l'app. Toca per actualitzar-la</button>
 <div id="infodlg" class="modal" hidden onclick="this.hidden=true"><div class="mbox infobox" role="dialog" aria-modal="true"><div id="infotxt"></div><div class="dbtns"><button class="btn primary">D'acord</button></div></div></div>
 <div id="dlg" class="modal" hidden><div class="mbox" role="dialog" aria-modal="true"><div class="dico" id="dico"></div><div class="dtxt" id="dtxt"></div><div class="dbtns" id="dbtns"></div></div></div>
 <div id="timer" class="modal" hidden onclick="if(event.target===this)timerToggle(false)"><div class="mbox tbox"><div class="thead"><span>⏱ Cronòmetre</span><button class="tx" aria-label="Amaga" onclick="timerToggle(false)">✕</button></div>
@@ -1444,6 +1448,14 @@ const INFO = [];
 const info = (t, tit = '') => { t = (tit ? `<h4 class="infotit"><span class="ibtn on">i</span>${tit}</h4>` : '') + `<div class="infocos">${t}</div>`; let i = INFO.indexOf(t); if (i < 0) i = INFO.push(t) - 1; return `<button type="button" class="ibtn" onclick="event.stopPropagation();event.preventDefault();mostraInfo(${i})" aria-label="Més informació">i</button>`; };
 // la «i» va al costat del títol més proper (resum d'un desplegable, h2-h4 o el primer <b> d'una targeta)
 // normes d'interfície (03-11-2026): elements clicables que no són botons → role=button i tabulables; botons només amb icona → aria-label
+// l'app oberta en segon pla no es torna a carregar: en tornar-hi, es mira si s'ha publicat una versió nova
+let VERSIO = null;
+const llegeixVersio = async () => { try { const t = await (await fetch('index.html', { cache: 'no-store' })).text(); let h = 0; for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return h; } catch { return null; } };
+llegeixVersio().then(v => { VERSIO = v; });
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'visible' || VERSIO == null) return;
+  const v = await llegeixVersio(); if (v != null && v !== VERSIO) $('#nova').hidden = false;
+});
 function accessible(root) {
   root.querySelectorAll('[onclick]:not(button):not(a):not(input):not(select):not(textarea):not(label):not(summary):not(.modal)').forEach(el => {
     if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
@@ -2203,17 +2215,26 @@ function capSessio(c) {
     : `<button class="btn" onclick="posaModel('${c}', true)" title="Que la puguin copiar altres equips">↗ Comparteix</button>`) : '';
   return `${boto || ed || mod ? `<div class="selbar tres">${boto ? ll : ''}${ed}${mod}</div>` : ''}${boto ? '' : ll}`;
 }
+// avisos de «no vindrà» (respostes) que arriben amb la llista ja feta: qui encara surt com a «ve» passa a «avisa».
+// Cada avís s'aplica un sol cop (aplicats), així si l'entrenador el torna a posar a «ve» perquè ha vingut, es respecta.
+function aplicaAvisos(a) {
+  const ap = a.aplicats || {}, canvis = {};
+  RESP.filter(r => r.tipus === 'e' && r.id === a.data && r.estat === 'no' && !ap[r.jugador] && a.estat?.[r.jugador] === 'si').forEach(r => {
+    a.estat[r.jugador] = 'avisa'; ap[r.jugador] = true; canvis['estat.' + r.jugador] = 'avisa'; canvis['aplicats.' + r.jugador] = true; });
+  if (Object.keys(canvis).length) { a.aplicats = ap; fs.updateDoc(ref('assistencia', a.id), canvis); }
+  return a;
+}
 window.passaLlista = c => {
   const ja = ASS.find(x => x.id === avui());
   if (!ja) return newAss(c);
-  editAss = JSON.parse(JSON.stringify(ja));
+  editAss = aplicaAvisos(JSON.parse(JSON.stringify(ja)));
   if (editAss.sessio !== c) { editAss.sessio = c; assWrite(); }
   render();
 };
 
 function assWrite() {
   const a = editAss;
-  fs.setDoc(ref('assistencia', a.id), { data: a.data, sessio: a.sessio || '', estat: a.estat });
+  fs.setDoc(ref('assistencia', a.id), { data: a.data, sessio: a.sessio || '', estat: a.estat, ...(a.aplicats ? { aplicats: a.aplicats } : {}) });
   if (a.sessio && a.data < avui() && !isFet(a.sessio)) setFets([a.sessio], true);   // només si l'entreno ja ha passat (el mateix dia es marca amb ✓ Feta)
 }
 window.newAss = c => {
@@ -2221,9 +2242,10 @@ window.newAss = c => {
   if (ja) return openAss(d);                                   // ja hi ha llista d'avui: s'obre
   const f = esFS() ? (tcfg().dies?.[new Date(d + 'T12:00').getDay()] ? new Date(d + 'T12:00').getDay() : null) : famDia(d);
   const estat = {}; JUG.filter(j => j.actiu !== false && ve(j, d) && (!j.alta || j.alta <= d)).forEach(j => estat[j.id] = respDe('e', d, j.id) ? 'avisa' : 'si');
-  editAss = { id: d, data: d, sessio: c || (f ? next(f)?.codi || '' : ''), estat }; assWrite(); render(); scrollTo(0, 0);
+  const aplicats = Object.fromEntries(Object.keys(estat).filter(id => estat[id] === 'avisa').map(id => [id, true]));
+  editAss = { id: d, data: d, sessio: c || (f ? next(f)?.codi || '' : ''), estat, aplicats }; assWrite(); render(); scrollTo(0, 0);
 };
-window.openAss = id => { const a = ASS.find(x => x.id === id); editAss = JSON.parse(JSON.stringify(a)); render(); scrollTo(0, 0); };
+window.openAss = id => { const a = ASS.find(x => x.id === id); editAss = aplicaAvisos(JSON.parse(JSON.stringify(a))); render(); scrollTo(0, 0); };
 window.setEst = (jid, e) => {
   editAss.estat[jid] = e; fs.updateDoc(ref('assistencia', editAss.id), { ['estat.' + jid]: e });
   const y = scrollY; render(); scrollTo(0, y);
