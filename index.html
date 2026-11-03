@@ -2863,9 +2863,10 @@ Object.defineProperty(window, 'recRot', { get: () => recRot, set: v => { recRot 
 function recompteHtml(js) {
   if (!js.length) return '';
   const n = k => js.filter(j => posOk(j.posicio) === k).length, sense = js.filter(j => !posOk(j.posicio)).length;
+  const mixt = JUG.some(j => j.actiu !== false && j.sexe === 'd') && JUG.some(j => j.actiu !== false && j.sexe === 'h');   // noies i nois només si a l'equip n'hi ha de tots dos
   const d = js.filter(j => j.sexe === 'd').length, h = js.filter(j => j.sexe === 'h').length, x = js.length - d - h;
   return `<div class="recompte"><div class="perpos">${Object.keys(POS).map(k => `<span title="${POS[k].t}"><i class="pb pb-${k} inl">${POS[k].l}</i> ${n(k)}</span>`).join('')}${sense ? `<span class="meta">${sense} sense posició</span>` : ''}</div>
-    <div class="meta"><b>${d}</b> ${d === 1 ? 'noia' : 'noies'} · <b>${h}</b> ${h === 1 ? 'noi' : 'nois'}${x ? ` · ${x} sense marcar` : ''}</div></div>`;
+    ${mixt ? `<div class="meta"><b>${d}</b> ${d === 1 ? 'noia' : 'noies'} · <b>${h}</b> ${h === 1 ? 'noi' : 'nois'}${x ? ` · ${x} sense marcar` : ''}</div>` : ''}</div>`;
 }
 function viewPartit(id) {
   const p = PAR.find(x => x.id === id); if (!p) return '<p class="empty">Carregant…</p>';
