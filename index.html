@@ -786,6 +786,7 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 
 #nova { position: fixed; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 60; font: inherit; font-weight: 700; font-size: 15px; padding: 12px 14px; border-radius: 14px; border: 0; background: var(--accent); color: var(--accent-ink); cursor: pointer; box-shadow: 0 6px 18px rgba(8,20,40,.25); }
 #nova[hidden] { display: none; }
+.recompte { margin: 0 0 8px; padding: 8px 10px; border-radius: 12px; background: var(--bg); } .recompte .perpos { margin: 0 0 4px; } .recompte .meta b { color: var(--ink); }
 </style>
 </head>
 <body>
@@ -2269,6 +2270,7 @@ window.editaJug = id => {
     <div class="grid2" style="grid-template-columns:70px 1fr"><div><label class="lbl">Dorsal</label><input type="text" id="ejd" inputmode="numeric" maxlength="3" placeholder="#" value="${esc(j.dorsal ?? '')}" style="text-align:center;font-weight:700"></div>
       <div><label class="lbl">Nom</label><input type="text" id="ejn" data-cap="w" value="${esc(j.nom)}" placeholder="Nom i inicial"></div></div>
     <label class="lbl">Posició</label><div class="seg pos5" id="ejp" style="margin:0">${[...Object.entries(POS).map(([k, x]) => [k, x.t]), ['', '–']].map(([v, t]) => `<button class="${posOk(j.posicio) === v ? 'on' : ''}" data-v="${v}" onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))">${t}</button>`).join('')}</div>
+    <label class="lbl">Noi o noia</label><div class="seg" id="ejs" style="margin:0">${[['h', 'Noi'], ['d', 'Noia'], ['', '–']].map(([v, t]) => `<button class="${(j.sexe || '') === v ? 'on' : ''}" data-v="${v}" onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))">${t}</button>`).join('')}</div>
     ${dies.length > 1 ? `<label class="lbl">Dies que ve</label><div class="seg" id="ejdies" style="margin:0">${dies.map(d => `<button class="${!dj || dj.includes(d) ? 'on' : ''}" data-d="${d}" onclick="this.classList.toggle('on')">${DIES[d]}</button>`).join('')}</div>` : ''}
     ${dosEq() ? `<label class="lbl">Equip</label><div class="seg" id="ejeq" style="margin:0">${[['N', 'Negre'], ['G', 'Groc'], ['NG', 'Tots dos'], ['', '–']].map(([v, t]) => `<button class="${(j.equip || '') === v ? 'on' : ''}" data-v="${v}" onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))">${t}</button>`).join('')}</div>` : ''}
     ${id ? `<label class="lbl">A l'equip des del</label><input type="date" id="eja" value="${j.alta || ''}">` : ''}
@@ -2284,6 +2286,7 @@ window.desaJug = id => {
   const dades = { nom, dorsal: $('#ejd').value.trim(), diesEntreno: sel.length === totsD.length ? null : sel, dies: null, nomesDijous: null };
   if ($('#ejeq')) dades.equip = $('#ejeq').querySelector('button.on')?.dataset.v || '';
   dades.posicio = $('#ejp').querySelector('button.on')?.dataset.v || '';
+  if ($('#ejs')) dades.sexe = $('#ejs').querySelector('button.on')?.dataset.v || '';
   if (id) { if ($('#eja')) dades.alta = $('#eja').value || null; jugSet(id, dades); }
   else fs.addDoc(col('jugadors'), { ...dades, actiu: true, alta: avui() });
   tancaFitxa();
@@ -2852,6 +2855,14 @@ addEventListener('pointerup', () => {
 });
 Object.defineProperty(window, 'recRot', { get: () => recRot, set: v => { recRot = v; } });
 
+// recompte d'un grup de jugadors: per posició i nois / noies
+function recompteHtml(js) {
+  if (!js.length) return '';
+  const n = k => js.filter(j => posOk(j.posicio) === k).length, sense = js.filter(j => !posOk(j.posicio)).length;
+  const d = js.filter(j => j.sexe === 'd').length, h = js.filter(j => j.sexe === 'h').length, x = js.length - d - h;
+  return `<div class="recompte"><div class="perpos">${Object.keys(POS).map(k => `<span title="${POS[k].t}"><i class="pb pb-${k} inl">${POS[k].l}</i> ${n(k)}</span>`).join('')}${sense ? `<span class="meta">${sense} sense posició</span>` : ''}</div>
+    <div class="meta"><b>${d}</b> ${d === 1 ? 'noia' : 'noies'} · <b>${h}</b> ${h === 1 ? 'noi' : 'nois'}${x ? ` · ${x} sense marcar` : ''}</div></div>`;
+}
 function viewPartit(id) {
   const p = PAR.find(x => x.id === id); if (!p) return '<p class="empty">Carregant…</p>';
   const sets = p.sets || {}, pos = sets[setActiu] || {};
@@ -2874,6 +2885,7 @@ function viewPartit(id) {
       return `<button class="setbtn ${g}" onclick="roda('${id}', ${n})"><small>Set ${n}</small><b>${v.length ? `${v[0] === '' ? '–' : v[0]}-${v[1] === '' ? '–' : v[1]}` : '–'}</b></button>`; }).join('')}</div>
   </div>
   <details class="card plega" ${obert ? 'open' : ''} ontoggle="obertPart('conv', '${id}', this.open)"><summary><b>Convocats (${conv.size})</b>${(() => { const r = convs.map(j => respDe('p', id, j.id)?.estat); const si = r.filter(x => x === 'si').length, no = r.filter(x => x === 'no').length; return si + no ? `<span class="meta">✅ ${si} vénen · ❌ ${no} no · ${r.length - si - no} sense resposta</span>` : ''; })()}<span class="meta">${convs.map(j => (dors(j.id) ? dors(j.id) + ' ' : '') + esc((j.nom || '').split(' ')[0])).join(', ')}</span></summary>
+    ${recompteHtml(convs)}
     ${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
     <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}${posOk(j.posicio) ? `<i class="pb pb-${j.posicio} inl">${POS[j.posicio].l}</i>` : ''}${(() => { const r = respDe('p', id, j.id); return r ? ` <span title="Ho ha dit ${esc(r.nom || '')}">${r.estat === 'si' ? '✅' : '❌'}</span>` : ''; })()}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
     <div class="actions">${conv.size ? `<button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></details>
