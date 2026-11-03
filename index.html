@@ -1122,7 +1122,7 @@ async function openSeason() {
   if (esFam()) {
     const mj = meusJug().slice(0, 30);
     if (mj.length) {
-      UNSUB.push(fs.onSnapshot(fs.query(col('respostes'), fs.where('jugador', 'in', mj)), q => { RESP = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => registraError(e, 'respostes')));
+      UNSUB.push(fs.onSnapshot(fs.query(col('respostes'), fs.where('jugador', 'in', mj)), q => { RESP = q.docs.map(d => ({ id: d.id, ...d.data(), _doc: d.id })); render(); }, e => registraError(e, 'respostes')));
       mj.forEach(j => UNSUB.push(fs.onSnapshot(ref('fitxes', j), d => { FITX[j] = d.data() || null; render(); }, () => { FITX[j] = null; render(); })));
     }
     // calendari de tots els equips del club, d'aquesta temporada
@@ -1130,7 +1130,7 @@ async function openSeason() {
       UNSUB.push(fs.onSnapshot(fs.collection(db, 'equips', CLAU, 'temporades', x, 'calendari'), q => { CALCLUB = CALCLUB.filter(c => c.__t !== x).concat(q.docs.map(d => ({ id: d.id, ...d.data(), __t: x }))); render(); }, () => {})));
     return render();
   }
-  UNSUB.push(fs.onSnapshot(col('respostes'), q => { RESP = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, () => {}));
+  UNSUB.push(fs.onSnapshot(col('respostes'), q => { RESP = q.docs.map(d => ({ id: d.id, ...d.data(), _doc: d.id })); render(); }, () => {}));
   UNSUB.push(fs.onSnapshot(col('fitxes'), q => { FITX = Object.fromEntries(q.docs.map(d => [d.id, d.data()])); FITX.__ok = true; sincFitxes(); }, () => {}));
   UNSUB.push(fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); }));
   UNSUB.push(fs.onSnapshot(ref('estat', 'recepcio'), d => { REC = d.data() || {}; render(); }, () => {}));
@@ -1156,7 +1156,7 @@ const calDe = p => Object.fromEntries(CALK.map(k => [k, p[k] ?? '']));
 // ---------- jugadors i famílies: respostes, avisos i fitxes
 const meusJug = () => (MEM?.jugadors || {})[grupDe(TEMP)] || [];
 const respId = (tipus, id, jid) => `${tipus}_${id}_${jid}`;          // un sol vot per jugador, el respongui qui el respongui
-const respDe = (tipus, id, jid) => RESP.find(r => r.id === respId(tipus, id, jid));
+const respDe = (tipus, id, jid) => RESP.find(r => r._doc === respId(tipus, id, jid));   // r.id és la data o el partit; r._doc, l'id del document
 const isoLocal = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 // fitxa mínima de cada jugador (nom, equip, dies) perquè la vegin els seus: la manté l'app dels entrenadors
 function sincFitxes() {
@@ -1170,7 +1170,7 @@ const entrenosDe = f => { const out = [], dies = tcfg().dies || {};
   return out; };
 const partitDelJug = (p, f) => !p.resultat && p.data >= avui() && (!f?.equip || f.equip === 'NG' || !p.equip || p.equip === f.equip);
 window.respon = async (tipus, id, jid, estat) => {
-  const rid = respId(tipus, id, jid), ja = RESP.find(r => r.id === rid);
+  const rid = respId(tipus, id, jid), ja = RESP.find(r => r._doc === rid);
   try {
     if (tipus === 'e' && ja) { await fs.deleteDoc(ref('respostes', rid)); return desat('✓ Desat'); }   // entrenos: treure el «no vindrà»
     if (ja?.estat === estat) return;
@@ -1224,7 +1224,7 @@ window.avisaNoVe = async jid => {
   try {
     await Promise.all([
       ...[...tria].map(d => fs.setDoc(ref('respostes', respId('e', d, jid)), { tipus: 'e', id: d, jugador: jid, estat: 'no', per: USR?.uid || '', nom: USR?.displayName || '', t: Date.now(), ...(motiu ? { motiu } : {}) })),
-      ...ja.filter(r => !tria.has(r.id)).map(r => fs.deleteDoc(ref('respostes', r.id)))]);
+      ...ja.filter(r => !tria.has(r.id)).map(r => fs.deleteDoc(ref('respostes', r._doc)))]);
     // si avui ja hi ha llista, s'hi marca
     const a = ASS.find(x => x.id === avui());
     if (a && tria.has(avui()) && a.estat?.[jid] === 'si') fs.updateDoc(ref('assistencia', a.id), { ['estat.' + jid]: 'avisa' });
