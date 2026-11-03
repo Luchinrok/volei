@@ -2266,8 +2266,8 @@ window.jugSet = (id, patch) => { if (patch.nom === '') return render(); fs.setDo
 // finestra per editar (o afegir, sense id) un jugador
 window.editaJug = id => {
   const j = id ? JUG.find(x => x.id === id) : { nom: '', dorsal: '' }, dies = Object.keys(tcfg().dies).map(Number).sort();
-  const dj = id ? diesJug(j) : null;
-  obreFitxa(`<b>${id ? esc(j.nom) : 'Jugador nou'}</b><div class="form">
+  const dj = id ? diesJug(j) : null, ordre = ordreJug(), pos = id ? ordre.findIndex(x => x.id === id) : -1;
+  obreFitxa(`<b>${id ? esc(j.nom) : 'Jugador nou'}</b>${pos >= 0 ? ` <small class="meta">${pos + 1}/${ordre.length}</small>` : ''}<div class="form">
     <div class="grid2" style="grid-template-columns:70px 1fr"><div><label class="lbl">Dorsal</label><input type="text" id="ejd" inputmode="numeric" maxlength="3" placeholder="#" value="${esc(j.dorsal ?? '')}" style="text-align:center;font-weight:700"></div>
       <div><label class="lbl">Nom</label><input type="text" id="ejn" data-cap="w" value="${esc(j.nom)}" placeholder="Nom i inicial"></div></div>
     <label class="lbl">Posició</label><div class="seg pos5" id="ejp" style="margin:0">${[...Object.entries(POS).map(([k, x]) => [k, x.t]), ['', '–']].map(([v, t]) => `<button class="${posOk(j.posicio) === v ? 'on' : ''}" data-v="${v}" onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))">${t}</button>`).join('')}</div>
@@ -2277,10 +2277,12 @@ window.editaJug = id => {
     ${id ? `<label class="lbl">A l'equip des del</label><input type="date" id="eja" value="${j.alta || ''}">` : ''}
     ${id ? (j.actiu === false ? `<button class="btn" style="width:100%;margin-top:12px" onclick="jugSet('${id}', {actiu: true});tancaFitxa()">↺ Torna'l a l'equip</button>`
       : `<button class="btn danger" style="width:100%;margin-top:12px" onclick="tancaFitxa();treuJug('${id}')">Treu-lo de l'equip</button>`) : ''}
-    </div>`, `<button class="btn" onclick="tancaFitxa()">Cancel·la</button><button class="btn primary" style="flex:1" onclick="desaJug(${id ? `'${id}'` : ''})">Desa</button>`);
+    </div>`, `<button class="btn" onclick="tancaFitxa()">Cancel·la</button>${id && pos > 0 ? `<button class="btn" onclick="desaJug('${id}', -1)" aria-label="Desa i ves a l'anterior" title="Desa i ves a l'anterior">‹</button>` : ''}<button class="btn primary" style="flex:1" onclick="desaJug(${id ? `'${id}'` : ''})">Desa</button>${id && pos >= 0 && pos < ordre.length - 1 ? `<button class="btn" onclick="desaJug('${id}', 1)" aria-label="Desa i ves al següent" title="Desa i ves al següent">›</button>` : ''}`);
   setTimeout(() => !id && $('#ejn')?.focus(), 50);
 };
-window.desaJug = id => {
+// ordre per passar d'un jugador a l'altre dins la fitxa: el de la llista (actius primer, per nom)
+const ordreJug = () => JUG.slice().sort((a, b) => (a.actiu === false) - (b.actiu === false) || a.nom.localeCompare(b.nom, 'ca'));
+window.desaJug = (id, mou) => {
   const nom = $('#ejn').value.trim(); if (!nom) return $('#ejn').focus();
   const totsD = Object.keys(tcfg().dies).map(Number).sort(), sel = $('#ejdies') ? [...$('#ejdies').querySelectorAll('button.on')].map(b => +b.dataset.d) : totsD;
   if (!sel.length) return desat('Tria com a mínim un dia');
@@ -2290,6 +2292,7 @@ window.desaJug = id => {
   if ($('#ejs')) dades.sexe = $('#ejs').querySelector('button.on')?.dataset.v || '';
   if (id) { if ($('#eja')) dades.alta = $('#eja').value || null; jugSet(id, dades); }
   else fs.addDoc(col('jugadors'), { ...dades, actiu: true, alta: avui() });
+  if (id && mou) { const o = ordreJug(), i = o.findIndex(x => x.id === id), seg = o[i + mou]; if (seg) return editaJug(seg.id); }
   tancaFitxa();
 };
 window.addJug = () => {
