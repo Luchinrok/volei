@@ -787,6 +787,7 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 #nova { position: fixed; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 60; font: inherit; font-weight: 700; font-size: 15px; padding: 12px 14px; border-radius: 14px; border: 0; background: var(--accent); color: var(--accent-ink); cursor: pointer; box-shadow: 0 6px 18px rgba(8,20,40,.25); }
 #nova[hidden] { display: none; }
 .recompte { margin: 0 0 8px; padding: 8px 10px; border-radius: 12px; background: var(--bg); } .recompte .perpos { margin: 0 0 4px; } .recompte .meta b { color: var(--ink); }
+.cpct { font-size: 13px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 2px; } .cpct.baix { color: var(--no); }
 </style>
 </head>
 <body>
@@ -2870,6 +2871,7 @@ function viewPartit(id) {
   const delEquip = j => !dosEq() || j.equip === p.equip || j.equip === 'NG';
   const actius = JUG.filter(j => j.actiu !== false || conv.has(j.id));
   const llista = [...actius.filter(delEquip), ...actius.filter(j => !delEquip(j))];
+  const assPct = Object.fromEntries([...statsJug(false), ...statsJug(true)].map(x => [x.id, x]));   // % d'assistència al costat de cada nom
   const convs = llista.filter(j => conv.has(j.id)), obert = (PLEG['conv' + id] ?? !conv.size), alin = PLEG['alin' + id] ?? true;
   const dt = new Date(p.data + 'T12:00'), nosH = `<span class="nosn ${p.equip === 'G' ? 'g' : 'n'}">${esc(nomNostre(p))}</span>`, rivH = `<span>${esc(p.rival || 'Rival?')}</span>`;
   const fs_ = fotosDe(id);
@@ -2887,7 +2889,7 @@ function viewPartit(id) {
   <details class="card plega" ${obert ? 'open' : ''} ontoggle="obertPart('conv', '${id}', this.open)"><summary><b>Convocats (${conv.size})</b>${(() => { const r = convs.map(j => respDe('p', id, j.id)?.estat); const si = r.filter(x => x === 'si').length, no = r.filter(x => x === 'no').length; return si + no ? `<span class="meta">✅ ${si} vénen · ❌ ${no} no · ${r.length - si - no} sense resposta</span>` : ''; })()}<span class="meta">${convs.map(j => (dors(j.id) ? dors(j.id) + ' ' : '') + esc((j.nom || '').split(' ')[0])).join(', ')}</span></summary>
     ${recompteHtml(convs)}
     ${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
-    <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}${posOk(j.posicio) ? `<i class="pb pb-${j.posicio} inl">${POS[j.posicio].l}</i>` : ''}${(() => { const r = respDe('p', id, j.id); return r ? ` <span title="Ho ha dit ${esc(r.nom || '')}">${r.estat === 'si' ? '✅' : '❌'}</span>` : ''; })()}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
+    <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}${(() => { const a = assPct[j.id]; return a?.pct != null ? ` <span class="cpct ${a.pct < 50 ? 'baix' : ''}" title="Assistència als entrenos (últim mes: ${a.pctM ?? '–'}%)">${a.pct}%</span>` : ''; })()}${posOk(j.posicio) ? `<i class="pb pb-${j.posicio} inl">${POS[j.posicio].l}</i>` : ''}${(() => { const r = respDe('p', id, j.id); return r ? ` <span title="Ho ha dit ${esc(r.nom || '')}">${r.estat === 'si' ? '✅' : '❌'}</span>` : ''; })()}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
     <div class="actions">${conv.size ? `<button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></details>
   <details class="card plega" ${alin ? 'open' : ''} ontoggle="obertPart('alin', '${id}', this.open)"><summary><b>Alineació</b><span class="meta">${[4, 3, 2, 5, 6, 1].map(z => pos[z] ? (dors(pos[z]) || esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])) : '').filter(Boolean).join(' ') || 'Set ' + setActiu + ' sense alineació'}</span></summary>
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
