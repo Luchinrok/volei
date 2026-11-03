@@ -1633,6 +1633,21 @@ function textPartits() {
     return `${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}`;
   }).join('\n');
 }
+// convocats d'un partit en text per al WhatsApp: capçalera en negreta i jugadors agrupats per posició
+const PLURAL = { col: 'Col·locadors', op: 'Oposats', rec: 'Puntes', cen: 'Centrals', lli: 'Lliures' };
+function textConvocats(p) {
+  const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString(LOC, { weekday: 'long' }), riv = p.rival || 'Rival?';
+  const cap = `*Convocats ${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? riv + ' vs ' + nomNostre(p) : nomNostre(p) + ' vs ' + riv}*`;
+  const js = JUG.filter(j => (p.convocats || []).includes(j.id)).sort((a, b) => a.nom.localeCompare(b.nom, 'ca'));
+  const linia = j => `- ${dors(j.id) ? dors(j.id) + ' ' : ''}${j.nom}`;
+  const grups = Object.keys(POS).map(k => [PLURAL[k], js.filter(j => posOk(j.posicio) === k)]).concat([['Sense posició', js.filter(j => !posOk(j.posicio))]]).filter(([, l]) => l.length);
+  return cap + '\n\n' + grups.map(([t, l]) => `${t} (${l.length})\n${l.map(linia).join('\n')}`).join('\n\n');
+}
+window.copiaConvocats = async id => {
+  const t = textConvocats(PAR.find(x => x.id === id));
+  try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
+  catch { dialeg(`<textarea readonly style="min-height:200px;font-size:14px" onfocus="this.select()">${esc(t)}</textarea><small>Mantén premut el text per copiar-lo.</small>`, { sol: true, ico: '📋' }); }
+};
 window.copiaPartits = async () => {
   const t = textPartits();
   try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
@@ -2894,7 +2909,7 @@ function viewPartit(id) {
     ${recompteHtml(convs)}
     ${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
     <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}${(() => { const a = assPct[j.id]; return a?.pct != null ? ` <span class="cpct ${a.pct < 50 ? 'baix' : ''}" title="Assistència als entrenos (últim mes: ${a.pctM ?? '–'}%)">${a.pct}%</span>` : ''; })()}${posOk(j.posicio) ? `<i class="pb pb-${j.posicio} inl">${POS[j.posicio].l}</i>` : ''}${(() => { const r = respDe('p', id, j.id); return r ? ` <span title="Ho ha dit ${esc(r.nom || '')}">${r.estat === 'si' ? '✅' : '❌'}</span>` : ''; })()}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
-    <div class="actions">${conv.size ? `<button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></details>
+    <div class="actions">${conv.size ? `<button class="btn" onclick="copiaConvocats('${id}')">Copia per al WhatsApp</button><button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></details>
   <details class="card plega" ${alin ? 'open' : ''} ontoggle="obertPart('alin', '${id}', this.open)"><summary><b>Alineació</b><span class="meta">${[4, 3, 2, 5, 6, 1].map(z => pos[z] ? (dors(pos[z]) || esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])) : '').filter(Boolean).join(' ') || 'Set ' + setActiu + ' sense alineació'}</span></summary>
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
   ${court(pos, true, p.equip)}
