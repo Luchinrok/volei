@@ -882,6 +882,19 @@ if (LANG && LANG !== 'ca') {
 }
 window.triaIdioma = l => { store.set('volei.lang', l); location.reload(); };
 const IDIOMES = [['ca', 'Català'], ['es', 'Español'], ['en', 'English']];
+// recomanar l'app a un altre entrenador (04-11-2026): menú de compartir del mòbil o, si no n'hi ha, WhatsApp
+const PRESENTACIO = 'https://3tocs.web.app/';
+const MSG_RECOMANA = {
+  ca: "Mira 3Tocs, l'app que faig servir per portar l'equip de vòlei: les sessions, la llista i els partits. És gratuïta i només cal un compte de Google.",
+  es: 'Mira 3Tocs, la app que uso para llevar el equipo de vóley: las sesiones, la lista y los partidos. Es gratis y solo necesitas una cuenta de Google.',
+  en: "Check out 3Tocs, the app I use to run my volleyball team: sessions, attendance and matches. It's free and you only need a Google account."
+};
+window.recomana = async () => {
+  const l = LANG || 'ca', url = PRESENTACIO + (l === 'ca' ? '' : '?lang=' + l), text = MSG_RECOMANA[l] || MSG_RECOMANA.ca;
+  if (navigator.share) { try { await navigator.share({ title: '3Tocs', text, url }); return; } catch (e) { if (e?.name === 'AbortError') return; } }
+  window.open('https://wa.me/?text=' + encodeURIComponent(text + '\n' + url), '_blank');
+};
+const recomanaHtml = () => `<h3>Recomana 3Tocs</h3><div class="card"><p class="meta" style="margin:0 0 10px">Si coneixes algun entrenador a qui li pot anar bé, envia-li l'enllaç.</p><div class="actions" style="margin:0"><button class="btn primary" style="flex:1" onclick="recomana()">Comparteix</button></div></div>`;
 const idiomaHtml = () => `<h3>Idioma</h3><div class="card notr"><div class="seg" style="margin:0">${IDIOMES.map(([v, l]) => `<button class="${(LANG || 'ca') === v ? 'on' : ''}" onclick="triaIdioma('${v}')">${l}</button>`).join('')}</div></div>`;
 // el primer cop que s'obre l'app: triar l'idioma
 const mostraTriaIdioma = () => {
@@ -3196,7 +3209,7 @@ function viewConfigFam() {
   return `<h2>Configuració</h2>
   ${meus.length > 1 ? `<h3>Equip</h3><div class="card"><div class="seg" style="margin:0">${meus.map(k => `<button class="${k === g ? 'on' : ''}" onclick="triaGrup('${k}')">${esc(G[k].nom)}</button>`).join('')}</div></div>` : ''}
   <h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>
-  ${idiomaHtml()}
+  ${idiomaHtml()}${recomanaHtml()}
   <h3>El teu compte</h3><div class="card row">${USR.photoURL ? `<img class="foto" src="${esc(USR.photoURL)}" alt="">` : ''}<span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')} (${ROLS.familia})</div></span><button class="btn" onclick="surt()">Surt</button></div>`;
 }
 
@@ -3398,7 +3411,7 @@ document.addEventListener('pointerup', () => {
 // ------------------------------------------------------------- configuració
 function viewConfig() {
   const t = store.get('volei.tema', 'auto');
-  const temaHtml = `<h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>${idiomaHtml()}`;
+  const temaHtml = `<h3>Aspecte</h3><div class="card"><div class="seg" style="margin:0">${[['auto', '📱 Com el mòbil'], ['clar', '☀️ Clar'], ['fosc', '🌙 Fosc']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" onclick="setTema('${v}')">${l}</button>`).join('')}</div></div>${idiomaHtml()}${recomanaHtml()}`;
   if (!CLAU) return `<h2>Configuració</h2>${temaHtml}<h3>El teu compte</h3>${USR ? `<div class="card row"><span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')}</div></span><button class="btn" onclick="surt()">Surt</button></div>` : `<div class="card"><button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button></div>`}`;
   const g = grupDe(TEMP), G = grups(), any = anyDe(TEMP);
   const anys = [...new Set(Object.keys(CFG.temporades).filter(x => rolDe(grupDe(x))).map(anyDe))].sort();
