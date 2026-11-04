@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tres Tocs</title>
+<title>3Tocs</title>
 <meta name="theme-color" content="#14325a">
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -732,7 +732,7 @@ iframe.fotos { width: 100%; height: 70vh; border: 0; border-radius: 12px; backgr
 .tag.ori-estandard { color: #8a6d1f; } .exrow .meta .ori-estandard { color: #8a6d1f; }
 .tag.ori-teu { color: #12a07c; } .tag.ori-modificat { color: #d9822b; } .tag.ori-claude { color: #6b7cff; }
 
-/* ---- Tres Tocs, revisió de disseny (03-11-2026): colors plans, sense ombres en repòs ni ornaments, etiquetes en minúscula ---- */
+/* ---- 3Tocs, revisió de disseny (03-11-2026): colors plans, sense ombres en repòs ni ornaments, etiquetes en minúscula ---- */
 header { background: #14325a; }
 header::after, .hero::after { display: none; }
 header .hico, .quick .qi { display: inline-grid; place-items: center; }
@@ -793,7 +793,7 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 <body>
 <header>
   <button id="back" aria-label="Enrere" hidden>‹</button>
-  <h1><img class="ball logo" src="marca.svg" alt="" width="30" height="30"><span id="title">Tres Tocs</span></h1>
+  <h1><img class="ball logo" src="marca.svg" alt="" width="30" height="30"><span id="title">3Tocs</span></h1>
   <button id="tbtn" aria-label="Cronòmetre" onclick="timerToggle()"><span class="hico" data-ico="rellotge"></span></button>
   <button aria-label="Configuració" onclick="location.hash='#/config'"><span class="hico" data-ico="engranatge"></span></button>
 </header>
@@ -886,7 +886,7 @@ const idiomaHtml = () => `<h3>Idioma</h3><div class="card notr"><div class="seg"
 // el primer cop que s'obre l'app: triar l'idioma
 const mostraTriaIdioma = () => {
   const d = document.createElement('div'); d.className = 'modal notr'; d.id = 'langdlg';
-  d.innerHTML = `<div class="mbox" role="dialog" aria-modal="true" style="text-align:center;width:100%;max-width:340px;box-sizing:border-box"><img src="icon-192.png" alt="" style="width:64px;height:64px;border-radius:14px"><h2 style="margin:10px 0 4px">Tres Tocs</h2>
+  d.innerHTML = `<div class="mbox" role="dialog" aria-modal="true" style="text-align:center;width:100%;max-width:340px;box-sizing:border-box"><img src="icon-192.png" alt="" style="width:64px;height:64px;border-radius:14px"><h2 style="margin:10px 0 4px">3Tocs</h2>
     <p class="meta" style="margin:0 0 14px">Tria l'idioma · Elige el idioma · Choose your language</p>
     <div style="display:grid;gap:8px">${IDIOMES.map(([v, l]) => `<button class="btn ${v === 'ca' ? 'primary' : ''}" onclick="triaIdioma('${v}')">${l}</button>`).join('')}</div></div>`;
   document.body.appendChild(d);
@@ -1513,7 +1513,7 @@ function viewEntra() {
   const inv = store.get('volei.invitacio', null);
   return `<div class="entra card">
     <img class="entralogo" src="icon.svg" alt="">
-    <div class="marca">Tres Tocs</div><p class="lema">Entrena, juga i creix en equip.</p>
+    <div class="marca">3Tocs</div><p class="lema">Entrena, juga i creix en equip.</p>
     <h2>${inv ? 'T\'han convidat a un equip' : 'Benvingut!'}</h2>
     <p class="meta">${inv ? 'Entra amb el teu compte de Google per acceptar la invitació.' : 'Entra amb el teu compte de Google per veure els teus equips.'}</p>
     <button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button>
@@ -1677,7 +1677,7 @@ async function dibuixaPartits() {
   pilota(x, 120, 130, 62);
   x.textBaseline = 'alphabetic'; x.textAlign = 'left';
   x.fillStyle = '#fff'; x.font = `800 112px ${F}`; x.fillText('PROPERS PARTITS', 205, 168);
-  x.fillStyle = '#f5c518'; x.font = `700 40px ${F}`; x.fillText(((club() || 'Tres Tocs') + ' temporada ' + tempNom(TEMP)).toUpperCase(), 210, 222);
+  x.fillStyle = '#f5c518'; x.font = `700 40px ${F}`; x.fillText(((club() || '3Tocs') + ' temporada ' + tempNom(TEMP)).toUpperCase(), 210, 222);
   x.fillStyle = '#f5c518'; x.fillRect(60, HEAD - 34, 140, 8);
   // un partit per fila
   // equips (el local primer); la mateixa mida de lletra a totes les files
@@ -3474,8 +3474,8 @@ const llistaEquip = () => Object.fromEntries(JUG.filter(j => j.actiu !== false).
 function sincInvEquip() { const x = INVEQ?.fam; if (x?.codi && JUG.length && JSON.stringify(x.llista) !== JSON.stringify(llistaEquip())) { x.llista = llistaEquip(); fs.updateDoc(fs.doc(db, 'equips', CLAU, 'invitacions', x.codi), { llista: x.llista, equip: gcfg().nom || club() || '' }).catch(() => {}); } }
 const urlInv = x => `${CASA}#/uneix/${CLAU}/${x.codi}`;
 const textInv = (c, x) => c === 'fam'
-  ? `Ja podeu fer servir Tres Tocs, l'app de l'equip: hi veureu els partits i els avisos, i podreu dir si veniu o no. Obriu aquest enllaç, entreu amb el compte de Google i trieu qui sou:\n${urlInv(x)}`
-  : `T'he convidat a Tres Tocs, l'app de vòlei${club() ? ' del ' + club() : ''}, com a entrenador/a. Obre aquest enllaç i entra amb el teu compte de Google:\n${urlInv(x)}`;
+  ? `Ja podeu fer servir 3Tocs, l'app de l'equip: hi veureu els partits i els avisos, i podreu dir si veniu o no. Obriu aquest enllaç, entreu amb el compte de Google i trieu qui sou:\n${urlInv(x)}`
+  : `T'he convidat a 3Tocs, l'app de vòlei${club() ? ' del ' + club() : ''}, com a entrenador/a. Obre aquest enllaç i entra amb el teu compte de Google:\n${urlInv(x)}`;
 function enllacEquipHtml() {
   carregaInvEquip(); sincInvEquip();
   if (INVEQ === undefined || INVEQ === 'carregant') return '<p class="meta" style="margin:0">Carregant…</p>';
@@ -3521,7 +3521,7 @@ window.creaInvitacio = async () => {
   await fs.setDoc(fs.doc(db, 'equips', CLAU, 'invitacions', codi), { rols, ...(js.length ? { jugadors: { [g]: js } } : {}), creat: Date.now(), per: USR.uid, perNom: USR.displayName || '', usada: null });
   const url = `${CASA}#/uneix/${CLAU}/${codi}`;
   const noms = js.map(j => nomCurt(JUG.find(x => x.id === j)?.nom || '')).filter(Boolean).join(' i ');
-  const text = `T'he convidat a Tres Tocs, l'app de vòlei${club() ? ' del ' + club() : ''}.${noms ? ` Hi veuràs els partits i els avisos, i podràs dir si ${noms} ${js.length > 1 ? 'vénen' : 've'} o no.` : ''} Obre aquest enllaç i entra amb el teu compte de Google:\n${url}`;
+  const text = `T'he convidat a 3Tocs, l'app de vòlei${club() ? ' del ' + club() : ''}.${noms ? ` Hi veuràs els partits i els avisos, i podràs dir si ${noms} ${js.length > 1 ? 'vénen' : 've'} o no.` : ''} Obre aquest enllaç i entra amb el teu compte de Google:\n${url}`;
   obreFitxa(`<b>Enllaç d'invitació</b><div class="form"><p class="meta" style="margin:0 0 6px">Serveix per a <b>una sola persona</b>. Envia-l'hi per WhatsApp o com vulguis.</p>
     <textarea readonly style="min-height:90px;font-size:13px" onfocus="this.select()">${esc(url)}</textarea></div>`,
     `<button class="btn" onclick="copiaText(${JSON.stringify(url).replace(/"/g, '&quot;')})">Copia</button><a class="btn primary" style="flex:1;text-decoration:none;text-align:center" href="https://wa.me/?text=${encodeURIComponent(text)}" target="_blank">WhatsApp</a>`);
@@ -3727,9 +3727,9 @@ function pintaPantalla() {
   if (!D) return;
   let [r, arg] = location.hash.replace(/^#\/?/, '').split('/');
   if (r === 'dimarts' || r === 'dijous' || r === 'f') r = 'entrenos';   // enllaços antics (abans hi havia una pestanya per a dimarts i una per a dijous)
-  let html, tab = 'inici', title = (Object.keys(grups()).length > 1 ? gcfg().nom : club() || 'Tres Tocs') + ' ' + tempNom(TEMP);
+  let html, tab = 'inici', title = (Object.keys(grups()).length > 1 ? gcfg().nom : club() || '3Tocs') + ' ' + tempNom(TEMP);
   // sense equip, o amb una invitació per acceptar i sense compte: pantalla d'entrada
-  if (!USR && (NOMES_COMPTES || (r !== 'config' && (!CLAU || store.get('volei.invitacio', null))))) { html = viewEntra(); title = 'Tres Tocs'; }
+  if (!USR && (NOMES_COMPTES || (r !== 'config' && (!CLAU || store.get('volei.invitacio', null))))) { html = viewEntra(); title = '3Tocs'; }
   else if (USR && (!CLAU || (MEM && !rolActual() && (r !== 'config' || !Object.values(MEM.rols || {}).some(Boolean))))) { html = sensePermis(); }
   else if (esFam()) { html = r === 'fotos' ? viewFotos(arg) : r === 'config' ? viewConfigFam() : viewFamilia(); tab = ''; if (r === 'fotos') title = 'Fotos'; }
   else if (r === 'fotos') { html = viewFotos(arg); tab = 'partits'; title = 'Fotos'; }
