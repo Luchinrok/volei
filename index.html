@@ -859,7 +859,6 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 .arbxip.lli.on { background: #0ca678; border-color: #0ca678; } .arbxip.lli.on i { color: #fff; }
 .arbtg { position: absolute; top: -4px; right: -2px; width: 10px; height: 14px; border-radius: 2px; box-shadow: 0 0 0 1.5px #fff; } .arbtg.t1 { background: #f5c518; } .arbtg.t2, .arbtg.t3, .arbtg.t4 { background: #e03131; }
 .arbfila { flex-wrap: wrap; } .arbxip { padding: 7px 10px; } .arbxip.on i { color: #f5c518; }
-.arblli { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; } .arblli select { padding: 8px 6px; font-weight: 700; }
 .arbresum { display: flex; align-items: baseline; gap: 12px; } .arbresum b { font: 800 30px/1 var(--head); }
 .arbset summary { display: flex; align-items: center; gap: 8px; } .arbsetm { font: 800 20px/1 var(--head); font-variant-numeric: tabular-nums; }
 .arbfor { margin: 8px 0 6px; font-size: 13px; }
@@ -887,6 +886,18 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbpista .arbavis.mal { background: #fff0f0; color: var(--no); }
 .arbfiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .arbfiles .arbfila { margin: 0; flex-wrap: wrap; gap: 5px; align-content: flex-start; } .arbfiles .arbfila:last-child { justify-content: flex-end; }
 .arbfiles .arbxip { padding: 6px 9px; font-size: 13px; }
+
+/* formacions de l'àrbitre compactes */
+.arbformtop { display: flex; align-items: center; gap: 8px; } .arbformtop h2 { margin: 0; }
+.arbqui { margin: 4px 0 0; font-size: 13px; }
+#as0 .arbform { padding: 10px 12px; margin-top: 8px; }
+.arbformcap { flex-wrap: wrap; margin: 0 0 6px; } .arbformcap b { flex: 1 1 auto; }
+.arbcopia { display: flex; gap: 4px; } .arbcopia .arbxip { padding: 5px 8px; font-size: 12px; }
+#as0 .arbformcap > .arbxip[data-v] { padding: 5px 10px; font-size: 13px; }
+.arbform .rgrid { gap: 5px 6px; } .arbform .rgrid .rxarxa { height: 0; padding: 0; margin: 0 0 2px; }
+.arbform .rform .rinp { flex-direction: row; gap: 4px; } .arbform .rform .rinp small { width: 18px; flex: 0 0 18px; font-size: 11px; }
+.arbform .rform select { padding: 6px 4px; font-size: 16px; min-width: 0; width: 100%; }
+.arbform .rform .rinp:nth-last-child(-n+2) small { color: #0ca678; }
 </style>
 </head>
 <body>
@@ -2783,7 +2794,7 @@ function viewArbitre() {
   const M = arbM();
   if (!M) return arbPrepara();
   const i = M.sets.length - 1, S = M.sets[i];
-  if (S.editant || !S.f || !ZK.every(z => S.f[0][z]) || !ZK.every(z => S.f[1][z])) return arbFormacio(M, i);
+  if (S.preparant || S.editant || !S.f || !ZK.every(z => S.f[0][z]) || !ZK.every(z => S.f[1][z])) return arbFormacio(M, i);
   const st = arbSet(M, i), g = arbSetsGuanyats(M);
   if (g.some(x => x >= guanyarSets(M))) return arbActa(M);
   const rep = 1 - st.saca, ev = S.ev || [], darrer = ev.at(-1);
@@ -2827,7 +2838,7 @@ window.arbGira = () => { const S = arbM().sets.at(-1); S.esq = 1 - (S.esq ?? 0);
 window.arbReset = k => { delete ARBXY[k]; render(); };
 window.arbEv = ev => { const M = arbM(); M.sets[M.sets.length - 1].ev = [...(M.sets[M.sets.length - 1].ev || []), { ...ev, t: Date.now() }]; desaArb(); render(); };
 window.arbDesfes = () => { const S = arbM().sets.at(-1); S.ev = (S.ev || []).slice(0, -1); desaArb(); render(); };
-window.arbSegSet = () => { const M = arbM(), ant = M.sets.at(-1); M.sets.push({ f: [{ ...ant.f[0] }, { ...ant.f[1] }], L: (ant.L || [[], []]).map(x => [...x]), s0: 1 - ant.s0, esq: 1 - (ant.esq ?? 0), ev: [], nova: true }); desaArb(); render(); };
+window.arbSegSet = () => { const M = arbM(), ant = M.sets.at(-1); M.sets.push({ f: [{}, {}], L: [[], []], s0: 1 - ant.s0, esq: 1 - (ant.esq ?? 0), ev: [], preparant: true }); desaArb(); render(); };
 window.arbFormacioEdita = () => { arbM().sets.at(-1).editant = true; desaArb(); render(); };
 window.arbCanvi = async e => {
   const M = arbM(), st = arbSet(M, M.sets.length - 1), camp = ZK.map(z => st.pos[e][z]).filter(d => d && !st.L[e].includes(d));
@@ -2877,12 +2888,24 @@ function arbFormacio(M, i) {
   const opts = (e, v) => M.eq[e].d.map(d => `<option value="${esc(d)}" ${v === d ? 'selected' : ''} ${v !== d && usats(e).includes(d) ? 'disabled' : ''}>${esc(arbDors(M, e, d))}</option>`).join('');
   // un jugador només pot ser a una zona: els que ja són en una altra surten desactivats
   const sel = (e, z) => `<label class="rinp"><small>Z${z}</small><select id="af${e}${z}" data-eq="${e}" onchange="arbFormSel(${e})"><option value="">–</option>${opts(e, f[e][z])}</select></label>`;
-  const selL = (e, n) => `<select id="al${e}${n}" data-eq="${e}" onchange="arbFormSel(${e})" aria-label="Lliure ${n + 1}"><option value="">${n ? 'Lliure 2' : 'Lliure'}</option>${opts(e, L[e][n])}</select>`;
-  return `<h2>Set ${i + 1}</h2><div class="irow">${info(`<p>El dorsal de cada zona a l'inici del set, com a la fitxa de l'àrbitre. Z1 és qui saca. Marca quin equip saca primer.</p><p>Els lliures (fins a dos) no compten com a canvi.</p>`, `Formacions`)}</div>
-    <div id="as0">${[0, 1].map(e => `<div class="card arbform"><div class="arbformcap"><b>${esc(arbNom(M, e))}</b><button type="button" class="arbxip ${(S.s0 ?? 0) === e ? 'on' : ''}" data-v="${e}" onclick="document.querySelectorAll('#as0 .arbxip').forEach(b => b.classList.toggle('on', b === this))">🏐 Saca</button></div><div class="rgrid rform"><i class="rxarxa">Xarxa</i>${[4, 3, 2, 5, 6, 1].map(z => sel(e, z)).join('')}</div><div class="arblli">${selL(e, 0)}${selL(e, 1)}</div></div>`).join('')}</div>
+  const selL = (e, n) => `<label class="rinp"><small>L${n + 1}</small><select id="al${e}${n}" data-eq="${e}" onchange="arbFormSel(${e})" aria-label="Lliure ${n + 1}"><option value="">–</option>${opts(e, L[e][n])}</select></label>`;
+  const ants = M.sets.slice(0, i).map((x, j) => x.f && ZK.every(z => x.f[0]?.[z]) ? j : -1).filter(j => j >= 0);
+  const copia = e => ants.length ? `<span class="arbcopia">${ants.map(j => `<button type="button" class="arbxip" onclick="arbCopiaForm(${e},${j})" title="Copia la formació del set ${j + 1}">⧉ Set ${j + 1}</button>`).join('')}</span>` : '';
+  const qui = M.sets.slice(0, i).map((x, j) => x.f ? `Al set ${j + 1} va sacar primer ${arbNom(M, x.s0 ?? 0)}.` : '').filter(Boolean);
+  return `<div class="arbformtop"><h2>Set ${i + 1}</h2>${info(`<p>El dorsal de cada zona a l'inici del set, com a la fitxa de l'àrbitre. Z1 és qui saca. L1 i L2 són els lliures (no compten com a canvi).</p><p>Marca quin equip saca primer. Amb ⧉ copies la formació d'un set anterior.</p>`, `Formacions`)}</div>
+    ${qui.length ? `<p class="meta arbqui">${qui.map(esc).join('<br>')}</p>` : ''}
+    <div id="as0">${[0, 1].map(e => `<div class="card arbform"><div class="arbformcap"><b>${esc(arbNom(M, e))}</b>${copia(e)}<button type="button" class="arbxip ${(S.s0 ?? 0) === e ? 'on' : ''}" data-v="${e}" onclick="document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', b === this))">🏐 Saca</button></div><div class="rgrid rform"><i class="rxarxa"></i>${[4, 3, 2, 5, 6, 1].map(z => sel(e, z)).join('')}${selL(e, 0)}${selL(e, 1)}</div></div>`).join('')}</div>
     <div class="actions"><button class="btn primary" style="flex:1" onclick="arbDesaFormacio()">${S.editant ? 'Desa' : 'Comença el set'}</button>${S.editant ? `<button class="btn" onclick="arbFormTorna()">Torna</button>` : ''}</div>
-    ${i === 0 && !S.editant ? `<div class="actions"><button class="btn danger" onclick="arbAcaba(true)">Esborra aquest partit</button></div>` : ''}`;
+    ${i > 0 ? `<div class="actions"><button class="btn danger" onclick="arbEsborraSet()">Esborra el set ${i + 1}</button></div>` : !S.editant ? `<div class="actions"><button class="btn danger" onclick="arbAcaba(true)">Esborra aquest partit</button></div>` : ''}`;
 }
+// guarda el que hi ha a la pantalla (sense validar) i copia la formació d'un set anterior a un equip
+const arbFormDom = S => { S.f = [0, 1].map(e => Object.fromEntries(ZK.map(z => [z, $(`#af${e}${z}`)?.value]).filter(([, v]) => v))); S.L = [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`)?.value).filter(Boolean)); S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); };
+window.arbCopiaForm = (e, j) => { const M = arbM(), S = M.sets.at(-1), A = M.sets[j]; arbFormDom(S); S.f[e] = { ...A.f[e] }; S.L[e] = [...(A.L?.[e] || [])]; desaArb(); render(); };
+window.arbEsborraSet = async () => {
+  const M = arbM(), S = M.sets.at(-1);
+  if ((S.ev || []).length && !await dialeg(`Esborrar el set ${M.sets.length}?<br><small>Se'n perdran els punts i els moviments.</small>`, { ok: 'Esborra', perill: true })) return;
+  M.sets.pop(); desaArb(); render();
+};
 window.arbFormTorna = () => { delete arbM().sets.at(-1).editant; desaArb(); render(); };
 window.arbFormSel = e => {
   const sels = [...document.querySelectorAll(`select[data-eq="${e}"]`)], usats = sels.map(x => x.value).filter(Boolean);
@@ -2892,7 +2915,7 @@ window.arbDesaFormacio = () => {
   const M = arbM(), S = M.sets.at(-1), f = [0, 1].map(e => Object.fromEntries(ZK.map(z => [z, $(`#af${e}${z}`).value]).filter(([, v]) => v)));
   const L = [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`).value).filter(Boolean));
   for (const e of [0, 1]) { const v = Object.values(f[e]); if (v.length < 6) return dialeg(`Falten jugadors a ${esc(arbNom(M, e))}.`, { sol: true }); if (new Set([...v, ...L[e]]).size < 6 + L[e].length) return dialeg(`Hi ha un dorsal repetit a ${esc(arbNom(M, e))}.`, { sol: true }); }
-  S.f = f; S.L = L; S.s0 = +($('#as0 .arbxip.on')?.dataset.v || 0); delete S.editant; delete S.nova; desaArb(); render();
+  S.f = f; S.L = L; S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); delete S.editant; delete S.preparant; delete S.nova; desaArb(); render();
 };
 // preparar un partit nou: noms i dorsals dels dos equips (o els del meu equip)
 function arbPrepara() {
@@ -2918,7 +2941,7 @@ window.arbComenca = () => {
     return { nom: q.nom.trim(), d: [...new Set(q.txt.split(/[^0-9A-Za-z]+/).filter(Boolean))] };
   });
   for (const [e, q] of eq.entries()) { if (!q.nom) return dialeg(`Posa el nom de l'equip ${e ? 'B' : 'A'}.`, { sol: true }); if (q.d.length < 6) return dialeg(`${esc(q.nom)} necessita com a mínim 6 dorsals.`, { sol: true }); }
-  ARB.actual = { id: 'a' + Date.now(), t: Date.now(), eq, reg: N.reg, sets: [{ f: [{}, {}], L: [[], []], s0: 0, ev: [] }] }; ARBNOU = null; desaArb(); render();
+  ARB.actual = { id: 'a' + Date.now(), t: Date.now(), eq, reg: N.reg, sets: [{ f: [{}, {}], L: [[], []], s0: 0, ev: [], preparant: true }] }; ARBNOU = null; desaArb(); render();
 };
 window.arbAcaba = async esborra => {
   if (!await dialeg(esborra ? 'Esborrar aquest partit?' : 'Acabar el partit?<br><small>Es guardarà amb el resultat que hi ha ara. Després el pots obrir, corregir i reobrir.</small>', { ok: esborra ? 'Esborra' : 'Acaba', perill: !!esborra })) return;
@@ -2929,6 +2952,7 @@ window.arbAcaba = async esborra => {
 function textActa(M) {
   const g = arbSetsGuanyats(M), l = [`Acta: ${arbNom(M, 0)} - ${arbNom(M, 1)} (${g[0]}-${g[1]})`, new Date(M.t).toLocaleDateString(LOC)];
   M.sets.forEach((S, i) => { if (!S.f) return; const st = arbSet(M, i); l.push('', `Set ${i + 1}: ${st.pts[0]}-${st.pts[1]}`);
+    l.push(`  Saca primer: ${arbNom(M, S.s0 ?? 0)}`);
     [0, 1].forEach(e => { const cv = (S.ev || []).filter(ev => ev.k === 'cv' && ev.e === e).map(ev => `${ev.entra} per ${ev.surt}`);
       l.push(`  ${arbNom(M, e)}: formació ${[1, 2, 3, 4, 5, 6].map(z => S.f[e][z]).join('-')}${st.L[e].length ? `; lliures ${st.L[e].join(', ')}` : ''}; temps morts ${st.tm[e]}; canvis ${cv.length ? cv.join(', ') : 'cap'}`); });
     st.log.filter(x => x.ev.k === 'tg').forEach(x => l.push(`  ${arbTxtEv(M, x.ev)} (${x.m[0]}-${x.m[1]})`)); });
@@ -2939,7 +2963,7 @@ function arbActa(M, k = -1) {
   const g = arbSetsGuanyats(M), viu = k < 0, decidit = g.some(x => x >= guanyarSets(M));
   const sets = M.sets.map((S, i) => { if (!S.f) return ''; const st = arbSet(M, i);
     return `<details class="card arbset" ${i === M.sets.length - 1 ? 'open' : ''}><summary><b>Set ${i + 1}</b><span class="grow"></span><b class="arbsetm">${st.pts[0]}-${st.pts[1]}</b></summary>
-      <p class="meta arbfor">${[0, 1].map(e => `${esc(arbNom(M, e))}: ${[1, 2, 3, 4, 5, 6].map(z => esc(S.f[e][z])).join('-')}${st.L[e].length ? ` (L ${st.L[e].map(esc).join(', ')})` : ''}`).join('<br>')}</p>
+      <p class="meta arbfor">Saca primer: ${esc(arbNom(M, S.s0 ?? 0))}<br>${[0, 1].map(e => `${esc(arbNom(M, e))}: ${[1, 2, 3, 4, 5, 6].map(z => esc(S.f[e][z])).join('-')}${st.L[e].length ? ` (L ${st.L[e].map(esc).join(', ')})` : ''}`).join('<br>')}</p>
       ${st.log.length ? st.log.map(x => `<div class="arbev"><span class="arbevm">${x.m[0]}-${x.m[1]}</span><span class="grow">${esc(arbTxtEv(M, x.ev))}</span><button class="mini" onclick="arbEsbEv(${k},${i},${x.j})" title="Esborra" aria-label="Esborra aquest moviment">✕</button></div>`).join('') : '<p class="meta">Encara res en aquest set.</p>'}</details>`; }).join('');
   return `<h2>${esc(arbNom(M, 0))} - ${esc(arbNom(M, 1))}</h2><div class="irow">${info(`<p>Toca un set per veure'n els moviments. Si n'hi ha un d'equivocat, esborra'l amb ✕ i el marcador es recalcula sol.</p><p>Per continuar o corregir-lo des del marcador, reobre el partit.</p>`, `Acta`)}</div>
     <div class="card arbresum"><b>${g[0]}-${g[1]}</b><span class="meta">${new Date(M.t).toLocaleDateString(LOC)}</span></div>
