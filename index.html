@@ -899,11 +899,39 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbform .rform select { padding: 6px 4px; font-size: 16px; min-width: 0; width: 100%; }
 .arbform .rform .rinp:nth-last-child(-n+2) small { color: #0ca678; }
 
-.arbdors { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; } .arbdors:empty { display: none; }
-.arbdx { display: inline-flex; align-items: center; gap: 2px; background: var(--brand-soft); color: var(--brand); border-radius: 999px; padding: 3px 4px 3px 10px; }
-.arbdx b { font: 800 16px/1 var(--head); font-variant-numeric: tabular-nums; }
-.arbdx button { border: 0; background: none; color: var(--muted); font-size: 13px; width: 24px; height: 24px; cursor: pointer; }
-.arbdin { display: flex; gap: 6px; margin-top: 8px; } .arbdin input { flex: 1; min-width: 0; font-weight: 700; } .arbdin input::placeholder { font-weight: 400; } .arbdin .btn { width: 48px; padding: 0; font-size: 22px; }
+
+/* partit nou de l'àrbitre: targeta de cada equip */
+.arbteam { padding: 0; overflow: hidden; }
+.arbthead { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #14325a; color: #fff; }
+.arbteam.t1 .arbthead { background: #f5c518; color: #14202e; }
+.arbbadge { flex: 0 0 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font: 800 20px/1 var(--head); background: rgba(255,255,255,.14); }
+.arbteam.t1 .arbbadge { background: rgba(20,32,46,.12); }
+.arbtnom { flex: 1; min-width: 0; border: 0 !important; background: transparent !important; color: inherit; font: 800 20px/1.1 var(--head) !important; padding: 4px 0 !important; box-shadow: none !important; }
+.arbtnom::placeholder { color: inherit; opacity: .55; }
+.arbmeu { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 999px; border: 1.5px solid currentColor; cursor: pointer; white-space: nowrap; opacity: .8; }
+.arbmeu.on { opacity: 1; background: rgba(255,255,255,.18); } .arbmeu input { width: 16px; height: 16px; margin: 0; accent-color: currentColor; }
+.arbteam .tjug { padding: 6px 12px 0; }
+.arbdors { display: flex; flex-wrap: wrap; gap: 10px 8px; padding: 14px 12px 0; } .arbdors:empty { display: none; }
+.arbdx { position: relative; width: 46px; height: 46px; border-radius: 12px 12px 14px 14px; display: grid; place-items: center; background: #14325a; color: #fff; box-shadow: 0 2px 0 rgba(0,0,0,.18); }
+.arbteam.t1 .arbdx { background: #f5c518; color: #14202e; }
+.arbdx b { font: 800 20px/1 var(--head); font-variant-numeric: tabular-nums; }
+.arbdx button { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: var(--card); color: var(--ink); font-size: 11px; line-height: 22px; padding: 0; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; }
+.arbdin { display: flex; margin: 12px 12px 0; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--card); }
+.arbdin:focus-within { border-color: #14325a; }
+.arbdin input { flex: 1; min-width: 0; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; font-weight: 800; font-size: 18px; }
+.arbdin input::placeholder { font-weight: 400; font-size: 16px; }
+.arbdin button { flex: 0 0 52px; border: 0; background: #14325a; color: #fff; font-size: 24px; font-weight: 700; cursor: pointer; }
+.arbcompte { padding: 8px 12px 12px; font-size: 13px; color: var(--muted); } .arbcompte .ok { color: #0ca678; font-weight: 700; }
+
+/* partit nou compacte */
+.arbtnom { color: #fff !important; -webkit-text-fill-color: currentColor; } .arbteam.t1 .arbtnom { color: #14202e !important; }
+.arbteam { margin-top: 8px; } .arbthead { padding: 7px 10px; gap: 8px; } .arbbadge { flex-basis: 28px; height: 28px; font-size: 17px; border-radius: 8px; }
+.arbtnom { font-size: 18px !important; } .arbmeu { padding: 4px 9px; font-size: 12px; }
+.arbdors { gap: 9px 7px; padding: 12px 10px 0; } .arbdx { width: 40px; height: 40px; } .arbdx b { font-size: 18px; } .arbdx button { width: 20px; height: 20px; line-height: 20px; top: -6px; right: -6px; }
+.arbdin { margin: 10px 10px 0; } .arbdin input { padding: 9px 12px !important; } .arbdin button { flex-basis: 46px; }
+.arbcompte { padding: 5px 10px 8px; font-size: 12px; }
+.arbpre { display: flex; align-items: center; gap: 6px; } .arbpre h2 { margin: 0; }
+.arbnormes { margin-top: 8px; padding: 10px 12px; } .arbnormes + .actions { margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -2930,12 +2958,14 @@ function arbPrepara() {
   const N = ARBNOU || (ARBNOU = { eq: [{ nom: '', ds: [], meu: false, sel: [] }, { nom: '', ds: [], meu: false, sel: [] }], reg: { ...REG_DEF } });
   const meus = USR && JUG.length ? JUG.filter(j => j.actiu !== false && dors(j.id)) : [];
   const eq = e => { const q = N.eq[e];
-    return `<div class="card arbform"><div class="arbformcap"><b>${e ? 'Equip B' : 'Equip A'}</b></div><input type="text" value="${esc(q.nom)}" placeholder="Nom de l'equip" aria-label="Nom de l'equip ${e ? 'B' : 'A'}" enterkeyhint="next" oninput="ARBNOU.eq[${e}].nom=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();$('#ad${e}')?.focus()}">
-      ${meus.length ? `<label class="conv" style="margin-top:8px"><input type="checkbox" ${q.meu ? 'checked' : ''} onchange="ARBNOU.eq[${e}].meu=this.checked;if(this.checked){ARBNOU.eq[${e}].nom=ARBNOU.eq[${e}].nom||'${esc(club() || '').replace(/'/g, '')}';ARBNOU.eq[${1 - e}].meu=false}render()"><span class="grow">És el meu equip</span></label>` : ''}
+    return `<div class="card arbteam t${e}"><div class="arbthead"><span class="arbbadge">${e ? 'B' : 'A'}</span>
+      <input type="text" class="arbtnom" value="${esc(q.nom)}" placeholder="Nom de l'equip ${e ? 'B' : 'A'}" aria-label="Nom de l'equip ${e ? 'B' : 'A'}" enterkeyhint="next" oninput="ARBNOU.eq[${e}].nom=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();$('#ad${e}')?.focus()}">
+      ${meus.length ? `<label class="arbmeu ${q.meu ? 'on' : ''}"><input type="checkbox" ${q.meu ? 'checked' : ''} onchange="ARBNOU.eq[${e}].meu=this.checked;if(this.checked){ARBNOU.eq[${e}].nom=ARBNOU.eq[${e}].nom||'${esc(club() || '').replace(/'/g, '')}';ARBNOU.eq[${1 - e}].meu=false}render()"><span>El meu equip</span></label>` : ''}</div>
       ${q.meu ? `<div class="tjug">${meus.map(j => `<label class="conv"><input type="checkbox" ${q.sel.includes(j.id) ? 'checked' : ''} onchange="arbSelJug(${e},'${j.id}',this.checked)"><span class="grow"><b class="dnum">${esc(dors(j.id))}</b> ${esc(j.nom)}</span></label>`).join('')}</div>`
-        : `<div class="arbdors" id="adc${e}">${arbXips(e)}</div><div class="arbdin"><input id="ad${e}" type="text" inputmode="numeric" enterkeyhint="next" autocomplete="off" placeholder="Jugador ${(q.ds || []).length + 1}: dorsal" aria-label="Dorsal" onkeydown="if(event.key==='Enter'){event.preventDefault();arbAfegeixDors(${e})}"><button type="button" class="btn" onclick="arbAfegeixDors(${e})" aria-label="Afegeix el dorsal">+</button></div>`}</div>`; };
+        : `<div class="arbdors" id="adc${e}">${arbXips(e)}</div><div class="arbdin"><input id="ad${e}" type="text" inputmode="numeric" enterkeyhint="next" autocomplete="off" placeholder="Jugador ${(q.ds || []).length + 1}: dorsal" aria-label="Dorsal" onkeydown="if(event.key==='Enter'){event.preventDefault();arbAfegeixDors(${e})}"><button type="button" onclick="arbAfegeixDors(${e})" aria-label="Afegeix el dorsal">+</button></div>`}
+      <div class="arbcompte" id="adn${e}">${arbCompte(e)}</div></div>`; };
   const hist = ARB.hist || [];
-  return `<h2>Partit nou</h2><div class="irow">${info(`<p>Per portar un partit com l'àrbitre: formacions, rotacions dels dos equips, lliures, canvis, temps morts, targetes i l'acta.</p><p>Funciona sense compte i es guarda en aquest mòbil. Els partits acabats es poden obrir, corregir i reobrir.</p>`, `Àrbitre`)}</div>
+  return `<div class="arbpre"><h2>Partit nou</h2>${info(`<p>Per portar un partit com l'àrbitre: formacions, rotacions dels dos equips, lliures, canvis, temps morts, targetes i l'acta.</p><p>Escriu el dorsal de cada jugador i prem Enter. Si un equip és el teu, marca «El meu equip» i tria'ls de la llista.</p><p>Funciona sense compte i es guarda en aquest mòbil. Els partits acabats es poden obrir, corregir i reobrir.</p>`, `Àrbitre`)}</div>
     ${eq(0)}${eq(1)}
     <details class="card arbnormes"><summary><b>Normes</b><span class="meta">Sets a ${N.reg.p}, decisiu a ${N.reg.u}, ${N.reg.tm} TM, ${N.reg.cv} canvis</span></summary><div class="arbreg">
       ${[['sets', 'Sets'], ['p', 'Punts'], ['u', 'Decisiu'], ['tm', 'TM'], ['cv', 'Canvis']].map(([k, t]) => `<label><small>${t}</small><input type="number" inputmode="numeric" min="1" value="${N.reg[k]}" oninput="ARBNOU.reg.${k}=+this.value||ARBNOU.reg.${k}"></label>`).join('')}</div></details>
@@ -2945,13 +2975,14 @@ function arbPrepara() {
 // dorsals d'un en un: s'escriu el número, Enter, i el camp queda buit per al següent (sense tornar a pintar la pantalla, perquè no es tanqui el teclat)
 const arbParteix = t => (t || '').split(/[^0-9A-Za-z]+/).filter(Boolean);
 const arbXips = e => (ARBNOU.eq[e].ds || []).map(d => `<span class="arbdx"><b>${esc(d)}</b><button type="button" onclick="arbTreuDors(${e},'${esc(d)}')" aria-label="Treu el ${esc(d)}">✕</button></span>`).join('');
-const arbPintaDors = e => { const q = ARBNOU.eq[e]; $(`#adc${e}`).innerHTML = arbXips(e); $(`#ad${e}`).placeholder = `Jugador ${q.ds.length + 1}: dorsal`; };
+const arbCompte = e => { const q = ARBNOU.eq[e], n = (q.meu ? q.sel : q.ds || []).length; return n >= 6 ? `<span class="ok">✓ ${n} jugadors</span>` : `${n} ${n === 1 ? 'jugador' : 'jugadors'} - en falten ${6 - n}`; };
+const arbPintaDors = e => { const q = ARBNOU.eq[e]; $(`#adc${e}`).innerHTML = arbXips(e); $(`#ad${e}`).placeholder = `Jugador ${q.ds.length + 1}: dorsal`; $(`#adn${e}`).innerHTML = arbCompte(e); };
 window.arbAfegeixDors = e => {
   const q = ARBNOU.eq[e], inp = $(`#ad${e}`), nous = arbParteix(inp.value);
   q.ds = [...new Set([...(q.ds || []), ...nous])]; inp.value = ''; arbPintaDors(e); inp.focus();
 };
 window.arbTreuDors = (e, d) => { const q = ARBNOU.eq[e]; q.ds = q.ds.filter(x => x !== d); arbPintaDors(e); };
-window.arbSelJug = (e, id, on) => { const s = ARBNOU.eq[e].sel; ARBNOU.eq[e].sel = on ? [...s, id] : s.filter(x => x !== id); };
+window.arbSelJug = (e, id, on) => { const s = ARBNOU.eq[e].sel; ARBNOU.eq[e].sel = on ? [...s, id] : s.filter(x => x !== id); const n = $(`#adn${e}`); if (n) n.innerHTML = arbCompte(e); };
 window.arbComenca = () => {
   const N = ARBNOU, eq = N.eq.map(q => {
     if (q.meu) { const js = JUG.filter(j => q.sel.includes(j.id)); return { nom: q.nom.trim(), d: js.map(j => String(dors(j.id))), noms: Object.fromEntries(js.map(j => [String(dors(j.id)), j.nom])) }; }
