@@ -953,6 +953,13 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbev button { flex: 0 0 26px; height: 26px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 12px; cursor: pointer; } .arbev button:active { background: var(--brand-soft); }
 .arbset[open] { padding-bottom: 6px; }
 .arbactabtn { display: flex; gap: 6px; margin-top: 10px; } .arbactabtn .primary { flex: 1; } .arbactabtn .btn { padding-left: 14px; padding-right: 14px; }
+
+.arbtim { position: fixed; left: 12px; right: 12px; top: calc(env(safe-area-inset-top) + 8px); z-index: 30; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 16px; padding: 10px 14px; background: #f5c518; color: #14202e; box-shadow: 0 8px 24px rgba(0,0,0,.25); font: inherit; cursor: pointer; }
+.arbtim span { flex: 1; text-align: left; font-weight: 700; font-size: 15px; } .arbtim b { font: 800 34px/1 var(--head); font-variant-numeric: tabular-nums; } .arbtim small { opacity: .6; }
+.arbtim.fi { background: #e03131; color: #fff; animation: arbpols .5s ease-in-out infinite alternate; } @keyframes arbpols { to { transform: scale(1.03); } }
+.arbant { margin: 10px 10px 0; width: calc(100% - 20px); font-size: 14px; padding: 8px 10px; }
+.arbsort { margin-top: 6px; }
+.arbobs { margin-top: 8px; padding: 10px 12px; } .arbobs textarea { margin-top: 8px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -2879,7 +2886,7 @@ function viewArbitre() {
   const avisos = [
     st.canviCamp && Math.max(...st.pts) === Math.ceil(M.reg.u / 2) && !st.fi ? `Canvi de camp: un equip ha arribat a ${Math.ceil(M.reg.u / 2)} punts.` : '',
     st.avis, fl.length ? `Falta de rotació: ${fl.map(x => x[2]).join('; ')}` : ''].filter(Boolean);
-  return `<div class="arbviu">
+  return `<div class="arbviu">${arbTimHtml()}
     <div class="arbtop"><span>Set ${i + 1}</span><span>Sets ${g[esq]}-${g[dre]}</span><span class="arbmenu"><button class="mini" onclick="arbGira()" title="Canvia els equips de costat" aria-label="Canvia els equips de costat">⇄</button><button class="mini" onclick="arbVeuActa(-1)" title="Acta" aria-label="Acta">☰</button><button class="mini" onclick="arbFormacioEdita()" title="Formacions" aria-label="Formacions">✎</button><button class="mini" onclick="arbAcaba()" title="Acaba el partit" aria-label="Acaba el partit">✕</button></span></div>
     <div class="arbmarcador">${equip(esq)}<span class="arbguio">-</span>${equip(dre)}</div>
     ${st.fi ? `<div class="enjoc"><span class="grow"><b>Set per a ${esc(arbNom(M, st.guanya))}</b><small>${st.pts[esq]}-${st.pts[dre]}</small></span><button class="btn primary" onclick="arbSegSet()">Següent set</button></div>` : ''}
@@ -2891,7 +2898,27 @@ function viewArbitre() {
 }
 window.arbGira = () => { const S = arbM().sets.at(-1); S.esq = 1 - (S.esq ?? 0); desaArb(); render(); };
 window.arbReset = k => { delete ARBXY[k]; render(); };
-window.arbEv = ev => { const M = arbM(); M.sets[M.sets.length - 1].ev = [...(M.sets[M.sets.length - 1].ev || []), { ...ev, t: Date.now() }]; desaArb(); render(); };
+window.arbEv = ev => {
+  const M = arbM(), i = M.sets.length - 1, abans = arbSet(M, i).fi;
+  M.sets[i].ev = [...(M.sets[i].ev || []), { ...ev, t: Date.now() }]; desaArb();
+  if (ev.k === 'tm') arbCrono(30, `Temps mort ${arbNom(M, ev.e)}`);
+  else if (!abans && arbSet(M, i).fi && !arbSetsGuanyats(M).some(x => x >= guanyarSets(M))) arbCrono(180, 'Descans entre sets');
+  render();
+};
+// compte enrere a dalt de la pantalla del partit; en acabar vibra i fa un xiulet curt
+let ARBTIM = null, ARBTIMI = null;
+const arbTimHtml = () => { if (!ARBTIM) return ''; const r = Math.max(0, Math.ceil((ARBTIM.fi - Date.now()) / 1000));
+  return `<button class="arbtim ${r ? '' : 'fi'}" id="arbtim" onclick="arbCronoAtura()" aria-label="Atura el compte enrere"><span>${esc(ARBTIM.txt)}</span><b>${Math.floor(r / 60)}:${String(r % 60).padStart(2, '0')}</b><small>✕</small></button>`; };
+const arbXiulet = () => { try { const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain(); o.frequency.value = 2800; g.gain.value = .25; o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .7); } catch {} navigator.vibrate?.([300, 120, 300]); };
+window.arbCrono = (seg, txt) => {
+  ARBTIM = { fi: Date.now() + seg * 1000, txt }; clearInterval(ARBTIMI);
+  ARBTIMI = setInterval(() => {
+    const el = $('#arbtim'), r = ARBTIM ? ARBTIM.fi - Date.now() : 0;
+    if (el) el.outerHTML = arbTimHtml();
+    if (r <= 0) { clearInterval(ARBTIMI); arbXiulet(); setTimeout(() => { ARBTIM = null; $('#arbtim')?.remove(); }, 4000); }
+  }, 250);
+};
+window.arbCronoAtura = () => { clearInterval(ARBTIMI); ARBTIM = null; $('#arbtim')?.remove(); };
 window.arbDesfes = () => { const S = arbM().sets.at(-1); S.ev = (S.ev || []).slice(0, -1); desaArb(); render(); };
 window.arbSegSet = () => { const M = arbM(), ant = M.sets.at(-1); M.sets.push({ f: [{}, {}], L: [[], []], s0: 1 - ant.s0, esq: 1 - (ant.esq ?? 0), ev: [], preparant: true }); desaArb(); render(); };
 window.arbFormacioEdita = () => { arbM().sets.at(-1).editant = true; desaArb(); render(); };
@@ -2948,6 +2975,7 @@ function arbFormacio(M, i) {
   const copia = e => ants.length ? `<span class="arbcopia">${ants.map(j => `<button type="button" class="arbxip" onclick="arbCopiaForm(${e},${j})" title="Copia la formació del set ${j + 1}">⧉ Set ${j + 1}</button>`).join('')}</span>` : '';
   const qui = M.sets.slice(0, i).map((x, j) => x.f ? `Al set ${j + 1} va sacar primer ${arbNom(M, x.s0 ?? 0)}.` : '').filter(Boolean);
   return `<div class="arbformtop"><h2>Set ${i + 1}</h2>${info(`<p>El dorsal de cada zona a l'inici del set, com a la fitxa de l'àrbitre. Z1 és qui saca. L1 i L2 són els lliures (no compten com a canvi).</p><p>Marca quin equip saca primer. Amb ⧉ copies la formació d'un set anterior.</p>`, `Formacions`)}</div>
+    ${i === 0 || i + 1 === (M.reg.sets || 5) ? `<button type="button" class="arbxip arbsort" onclick="arbSorteig()">🪙 Sorteig</button>` : ''}
     ${qui.length ? `<p class="meta arbqui">${qui.map(esc).join('<br>')}</p>` : ''}
     <div id="as0">${[0, 1].map(e => `<div class="card arbform"><div class="arbformcap"><b>${esc(arbNom(M, e))}</b>${copia(e)}<button type="button" class="arbxip ${(S.s0 ?? 0) === e ? 'on' : ''}" data-v="${e}" onclick="document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', b === this))">🏐 Saca</button></div><div class="rgrid rform"><i class="rxarxa"></i>${[4, 3, 2, 5, 6, 1].map(z => sel(e, z)).join('')}${selL(e, 0)}${selL(e, 1)}</div></div>`).join('')}</div>
     <div class="actions"><button class="btn primary" style="flex:1" onclick="arbDesaFormacio()">${S.editant ? 'Desa' : 'Comença el set'}</button>${S.editant ? `<button class="btn" onclick="arbFormTorna()">Torna</button>` : ''}</div>
@@ -2963,6 +2991,11 @@ window.arbEsborraSet = async () => {
   if (M.sets.length === 1) { S.ev = []; S.preparant = true; delete S.editant; } else M.sets.pop();
   desaArb(); render();
 };
+window.arbSorteig = () => {
+  const M = arbM(), e = Math.random() < .5 ? 0 : 1;
+  document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', +b.dataset.v === e));
+  dialeg(`🪙 Guanya el sorteig <b>${esc(arbNom(M, e))}</b>.<br><small>Tria si saca o rep, i el camp. Si tria rebre, marca «Saca» a l'altre equip.</small>`, { sol: true });
+};
 window.arbFormTorna = () => { delete arbM().sets.at(-1).editant; desaArb(); render(); };
 window.arbFormSel = e => {
   const sels = [...document.querySelectorAll(`select[data-eq="${e}"]`)], usats = sels.map(x => x.value).filter(Boolean);
@@ -2975,13 +3008,18 @@ window.arbDesaFormacio = () => {
   S.f = f; S.L = L; S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); delete S.editant; delete S.preparant; delete S.nova; desaArb(); render();
 };
 // preparar un partit nou: noms i dorsals dels dos equips (o els del meu equip)
+// equips dels partits arbitrats (l'últim de cada nom), per no haver de tornar a escriure els dorsals
+const arbDesats = () => { const m = new Map(); [...(ARB.hist || []), ARB.actual].filter(Boolean).forEach(M => M.eq.forEach(q => { if (q.nom && !q.noms) m.set(q.nom.toLowerCase(), { nom: q.nom, d: q.d }); })); return [...m.values()].sort((a, b) => a.nom.localeCompare(b.nom)); };
+window.arbUsaEquip = (e, n) => { const x = arbDesats()[+n]; if (!x) return; Object.assign(ARBNOU.eq[e], { nom: x.nom, ds: [...x.d], meu: false }); render(); };
 function arbPrepara() {
+  const desats = arbDesats();
   const N = ARBNOU || (ARBNOU = { eq: [{ nom: '', ds: [], meu: false, sel: [] }, { nom: '', ds: [], meu: false, sel: [] }], reg: { ...REG_DEF } });
   const meus = USR && JUG.length ? JUG.filter(j => j.actiu !== false && dors(j.id)) : [];
   const eq = e => { const q = N.eq[e];
     return `<div class="card arbteam t${e}"><div class="arbthead"><span class="arbbadge">${e ? 'B' : 'A'}</span>
       <input type="text" class="arbtnom" value="${esc(q.nom)}" placeholder="Nom de l'equip ${e ? 'B' : 'A'}" aria-label="Nom de l'equip ${e ? 'B' : 'A'}" enterkeyhint="next" oninput="ARBNOU.eq[${e}].nom=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();$('#ad${e}')?.focus()}">
       ${meus.length ? `<label class="arbmeu ${q.meu ? 'on' : ''}"><input type="checkbox" ${q.meu ? 'checked' : ''} onchange="ARBNOU.eq[${e}].meu=this.checked;if(this.checked){ARBNOU.eq[${e}].nom=ARBNOU.eq[${e}].nom||'${esc(club() || '').replace(/'/g, '')}';ARBNOU.eq[${1 - e}].meu=false}render()"><span>El meu equip</span></label>` : ''}</div>
+      ${!q.meu && desats.length ? `<select class="arbant" onchange="arbUsaEquip(${e}, this.value)" aria-label="Equip d'un partit anterior"><option value="">↺ Equip d'un partit anterior</option>${desats.map((x, n) => `<option value="${n}">${esc(x.nom)} (${x.d.length})</option>`).join('')}</select>` : ''}
       ${q.meu ? `<div class="tjug">${meus.map(j => `<label class="conv"><input type="checkbox" ${q.sel.includes(j.id) ? 'checked' : ''} onchange="arbSelJug(${e},'${j.id}',this.checked)"><span class="grow"><b class="dnum">${esc(dors(j.id))}</b> ${esc(j.nom)}</span></label>`).join('')}</div>`
         : `<div class="arbdors" id="adc${e}">${arbXips(e)}</div><div class="arbdin"><input id="ad${e}" type="text" inputmode="numeric" enterkeyhint="next" autocomplete="off" placeholder="Jugador ${(q.ds || []).length + 1}: dorsal" aria-label="Dorsal" onkeydown="if(event.key==='Enter'){event.preventDefault();arbAfegeixDors(${e})}"><button type="button" onclick="arbAfegeixDors(${e})" aria-label="Afegeix el dorsal">+</button></div>`}
       <div class="arbcompte" id="adn${e}">${arbCompte(e)}</div></div>`; };
@@ -3025,6 +3063,7 @@ function textActa(M) {
     [0, 1].forEach(e => { const cv = (S.ev || []).filter(ev => ev.k === 'cv' && ev.e === e).map(ev => `${ev.entra} per ${ev.surt}`);
       l.push(`  ${arbNom(M, e)}: formació ${[1, 2, 3, 4, 5, 6].map(z => S.f[e][z]).join('-')}${st.L[e].length ? `; lliures ${st.L[e].join(', ')}` : ''}; temps morts ${st.tm[e]}; canvis ${cv.length ? cv.join(', ') : 'cap'}`); });
     st.log.filter(x => x.ev.k === 'tg').forEach(x => l.push(`  ${arbTxtEv(M, x.ev)} (${x.m[0]}-${x.m[1]})`)); });
+  if (M.obs) l.push('', `Observacions: ${M.obs}`);
   return l.join('\n');
 }
 // acta a la pantalla: k = posició a l'historial, o -1 si és el partit en marxa. Cada moviment es pot esborrar i el marcador es recalcula
@@ -3039,10 +3078,12 @@ function arbActa(M, k = -1) {
       <div class="arbactaparc">${fets.map(({ st }) => `<span class="${st.fi ? '' : 'obert'}">${st.pts[0]}-${st.pts[1]}</span>`).join('')}</div>
       <div class="arbactapeu"><span>${new Date(M.t).toLocaleDateString(LOC)}</span>${info(`<p>Toca un set per veure'n els moviments. Si n'hi ha un d'equivocat, esborra'l amb ✕ i el marcador es recalcula sol.</p><p>Per continuar o corregir-lo des del marcador, reobre el partit.</p>`, `Acta`)}<button class="mini" onclick="arbNomsEq(${k})" title="Canvia els noms" aria-label="Canvia els noms dels equips">✎</button></div></div>
     <div class="card arbsets">${sets}</div>
+    <details class="card arbobs" ${M.obs ? 'open' : ''}><summary><b>Observacions</b></summary><textarea rows="3" placeholder="Protestes, lesions, retards, incidències…" aria-label="Observacions" onchange="arbObs(${k}, this.value)">${esc(M.obs || '')}</textarea></details>
     <div class="arbactabtn">${viu && !decidit ? `<button class="btn" onclick="arbTornaLlista()" aria-label="Torna">‹</button>` : !viu ? `<button class="btn" onclick="arbTornaLlista()" aria-label="Torna">‹</button>` : ''}
       <button class="btn primary" onclick="arbCopiaActa(${k})">Copia l'acta</button>
       ${viu ? (decidit ? `<button class="btn" onclick="arbAcaba()">Desa i acaba</button>` : '') : `<button class="btn" onclick="arbReobre(${k})">Reobre</button><button class="btn danger" onclick="arbEsborraHist(${k})" title="Esborra el partit" aria-label="Esborra el partit">🗑</button>`}</div>`;
 }
+window.arbObs = (k, v) => { arbDe(k).obs = v.trim(); desaArb(); };
 window.arbNomsEq = async k => {
   const M = arbDe(k);
   if (!await dialeg(`<b>Noms dels equips</b><div class="form">${[0, 1].map(e => `<input type="text" id="anq${e}" style="margin-top:8px" value="${esc(arbNom(M, e))}" aria-label="Nom de l'equip ${e ? 'B' : 'A'}">`).join('')}</div>`, { ok: 'Desa', ico: '✎' })) return;
@@ -4274,7 +4315,10 @@ function pintaPantalla() {
   const a = document.activeElement;
   if (a && ((a.matches?.('input, textarea, select') && a.closest('.sesed, .exed')) || a.id === 'triaq' || a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
-  { const v = $('.arbviu'); document.body.classList.toggle('arbfull', !!v); if (v) v.style.setProperty('--arbt', Math.round(v.getBoundingClientRect().top + scrollY) + 'px'); }
+  { const v = $('.arbviu'); document.body.classList.toggle('arbfull', !!v); if (v) v.style.setProperty('--arbt', Math.round(v.getBoundingClientRect().top + scrollY) + 'px');
+    // àrbitre: que la pantalla no s'apagui mentre es porta el partit
+    if (v && !window.ARBWL && navigator.wakeLock) navigator.wakeLock.request('screen').then(l => { window.ARBWL = l; l.addEventListener('release', () => { window.ARBWL = null; }); }).catch(() => {});
+    if (!v && window.ARBWL) { window.ARBWL.release().catch(() => {}); window.ARBWL = null; } }
   const ruta = r + '/' + arg;
   muntaCalendari(); capitalitza(); colocaInfos($('#app')); accessible($('#app'));
   document.documentElement.style.setProperty('--hh', $('header').offsetHeight + 'px');   // per al marcador fix del directe
