@@ -932,6 +932,27 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbcompte { padding: 5px 10px 8px; font-size: 12px; }
 .arbpre { display: flex; align-items: center; gap: 6px; } .arbpre h2 { margin: 0; }
 .arbnormes { margin-top: 8px; padding: 10px 12px; } .arbnormes + .actions { margin-top: 10px; }
+
+/* acta compacta */
+.arbactacap { background: #14325a; color: #fff; border-radius: 16px; padding: 12px 14px 10px; }
+.arbactaeq { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+.arbactaeq span { font: 700 16px/1.15 var(--head); overflow: hidden; text-overflow: ellipsis; } .arbactaeq span:last-child { text-align: right; }
+.arbactaeq b { font: 800 34px/1 var(--head); color: #f5c518; font-variant-numeric: tabular-nums; }
+.arbactaparc { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+.arbactaparc span { font: 700 14px/1 var(--head); font-variant-numeric: tabular-nums; background: rgba(255,255,255,.12); border-radius: 999px; padding: 5px 9px; } .arbactaparc .obert { background: none; border: 1px dashed rgba(255,255,255,.5); }
+.arbactapeu { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; opacity: .85; } .arbactapeu > span:first-child { flex: 1; }
+.arbactapeu .mini { width: 30px; height: 30px; background: rgba(255,255,255,.12); color: #fff; border: 0; } .arbactapeu .ibtn, .arbactapeu .info { color: #fff; }
+.arbsets { padding: 2px 12px; margin-top: 8px; }
+.arbset { border-top: 1px solid var(--line); } .arbset:first-child { border-top: 0; }
+.arbset summary { display: flex; align-items: center; gap: 8px; padding: 10px 0; cursor: pointer; list-style: none; } .arbset summary::-webkit-details-marker { display: none; }
+.arbsetsq { flex: 1; min-width: 0; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arbsetm { font: 800 18px/1 var(--head); font-variant-numeric: tabular-nums; } .arbsetm.obert { color: var(--muted); }
+.arbset .arbfor { margin: 0 0 4px; font-size: 12px; color: var(--muted); line-height: 1.45; } .arbset .arbfor b { color: var(--ink); } .arbfor .lli { color: #0ca678; font-weight: 700; }
+.arbev { gap: 8px; padding: 3px 0; font-size: 13px; border-top: 1px solid var(--line); }
+.arbevm { min-width: 38px; font-size: 13px; }
+.arbev button { flex: 0 0 26px; height: 26px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 12px; cursor: pointer; } .arbev button:active { background: var(--brand-soft); }
+.arbset[open] { padding-bottom: 6px; }
+.arbactabtn { display: flex; gap: 6px; margin-top: 10px; } .arbactabtn .primary { flex: 1; } .arbactabtn .btn { padding-left: 14px; padding-right: 14px; }
 </style>
 </head>
 <body>
@@ -3009,17 +3030,24 @@ function textActa(M) {
 // acta a la pantalla: k = posició a l'historial, o -1 si és el partit en marxa. Cada moviment es pot esborrar i el marcador es recalcula
 function arbActa(M, k = -1) {
   const g = arbSetsGuanyats(M), viu = k < 0, decidit = g.some(x => x >= guanyarSets(M));
-  const sets = M.sets.map((S, i) => { if (!S.f) return ''; const st = arbSet(M, i);
-    return `<details class="card arbset" ${i === M.sets.length - 1 ? 'open' : ''}><summary><b>Set ${i + 1}</b><span class="grow"></span><b class="arbsetm">${st.pts[0]}-${st.pts[1]}</b></summary>
-      <p class="meta arbfor">Saca primer: ${esc(arbNom(M, S.s0 ?? 0))}<br>${[0, 1].map(e => `${esc(arbNom(M, e))}: ${[1, 2, 3, 4, 5, 6].map(z => esc(S.f[e][z])).join('-')}${st.L[e].length ? ` (L ${st.L[e].map(esc).join(', ')})` : ''}`).join('<br>')}</p>
-      ${st.log.length ? st.log.map(x => `<div class="arbev"><span class="arbevm">${x.m[0]}-${x.m[1]}</span><span class="grow">${esc(arbTxtEv(M, x.ev))}</span><button class="mini" onclick="arbEsbEv(${k},${i},${x.j})" title="Esborra" aria-label="Esborra aquest moviment">✕</button></div>`).join('') : '<p class="meta">Encara res en aquest set.</p>'}</details>`; }).join('');
-  return `<h2>${esc(arbNom(M, 0))} - ${esc(arbNom(M, 1))}</h2><div class="irow">${info(`<p>Toca un set per veure'n els moviments. Si n'hi ha un d'equivocat, esborra'l amb ✕ i el marcador es recalcula sol.</p><p>Per continuar o corregir-lo des del marcador, reobre el partit.</p>`, `Acta`)}</div>
-    <div class="card arbresum"><b>${g[0]}-${g[1]}</b><span class="meta">${new Date(M.t).toLocaleDateString(LOC)}</span></div>
-    ${sets}
-    <details class="card"><summary><b>Noms dels equips</b></summary><div class="form">${[0, 1].map(e => `<input type="text" style="margin-top:8px" value="${esc(arbNom(M, e))}" aria-label="Nom de l'equip ${e ? 'B' : 'A'}" onchange="arbNomEq(${k},${e},this.value)">`).join('')}</div></details>
-    <div class="actions"><button class="btn primary" style="flex:1" onclick="arbCopiaActa(${k})">Copia l'acta</button>${viu ? (decidit ? `<button class="btn" onclick="arbAcaba()">Desa i acaba</button>` : `<button class="btn" onclick="arbTornaLlista()">Torna</button>`) : `<button class="btn" onclick="arbReobre(${k})">Reobre</button>`}</div>
-    ${viu ? '' : `<div class="actions"><button class="btn" style="flex:1" onclick="arbTornaLlista()">Torna</button><button class="btn danger" onclick="arbEsborraHist(${k})">Esborra</button></div>`}`;
+  const fets = M.sets.map((S, i) => S.f ? { S, i, st: arbSet(M, i) } : null).filter(Boolean);
+  const sets = fets.map(({ S, i, st }) => `<details class="arbset" ${i === M.sets.length - 1 && !decidit ? 'open' : ''}><summary><b>Set ${i + 1}</b><span class="arbsetsq">🏐 ${esc(arbNom(M, S.s0 ?? 0))}</span><b class="arbsetm ${st.fi ? '' : 'obert'}">${st.pts[0]}-${st.pts[1]}</b></summary>
+      <p class="arbfor">${[0, 1].map(e => `<b>${esc(arbNom(M, e))}</b> ${[1, 2, 3, 4, 5, 6].map(z => esc(S.f[e][z])).join('-')}${st.L[e].length ? ` <span class="lli">L ${st.L[e].map(esc).join(', ')}</span>` : ''}`).join('<br>')}</p>
+      ${st.log.length ? st.log.map(x => `<div class="arbev"><span class="arbevm">${x.m[0]}-${x.m[1]}</span><span class="grow">${esc(arbTxtEv(M, x.ev))}</span><button onclick="arbEsbEv(${k},${i},${x.j})" title="Esborra" aria-label="Esborra aquest moviment">✕</button></div>`).join('') : '<p class="meta" style="margin:4px 0">Encara res en aquest set.</p>'}</details>`).join('');
+  return `<div class="arbactacap">
+      <div class="arbactaeq"><span>${esc(arbNom(M, 0))}</span><b>${g[0]}-${g[1]}</b><span>${esc(arbNom(M, 1))}</span></div>
+      <div class="arbactaparc">${fets.map(({ st }) => `<span class="${st.fi ? '' : 'obert'}">${st.pts[0]}-${st.pts[1]}</span>`).join('')}</div>
+      <div class="arbactapeu"><span>${new Date(M.t).toLocaleDateString(LOC)}</span>${info(`<p>Toca un set per veure'n els moviments. Si n'hi ha un d'equivocat, esborra'l amb ✕ i el marcador es recalcula sol.</p><p>Per continuar o corregir-lo des del marcador, reobre el partit.</p>`, `Acta`)}<button class="mini" onclick="arbNomsEq(${k})" title="Canvia els noms" aria-label="Canvia els noms dels equips">✎</button></div></div>
+    <div class="card arbsets">${sets}</div>
+    <div class="arbactabtn">${viu && !decidit ? `<button class="btn" onclick="arbTornaLlista()" aria-label="Torna">‹</button>` : !viu ? `<button class="btn" onclick="arbTornaLlista()" aria-label="Torna">‹</button>` : ''}
+      <button class="btn primary" onclick="arbCopiaActa(${k})">Copia l'acta</button>
+      ${viu ? (decidit ? `<button class="btn" onclick="arbAcaba()">Desa i acaba</button>` : '') : `<button class="btn" onclick="arbReobre(${k})">Reobre</button><button class="btn danger" onclick="arbEsborraHist(${k})" title="Esborra el partit" aria-label="Esborra el partit">🗑</button>`}</div>`;
 }
+window.arbNomsEq = async k => {
+  const M = arbDe(k);
+  if (!await dialeg(`<b>Noms dels equips</b><div class="form">${[0, 1].map(e => `<input type="text" id="anq${e}" style="margin-top:8px" value="${esc(arbNom(M, e))}" aria-label="Nom de l'equip ${e ? 'B' : 'A'}">`).join('')}</div>`, { ok: 'Desa', ico: '✎' })) return;
+  [0, 1].forEach(e => { const v = $(`#anq${e}`)?.value.trim(); if (v) M.eq[e].nom = v; }); desaArb(); render();
+};
 const arbDe = k => k >= 0 ? ARB.hist[k] : arbM();
 window.arbCopiaActa = async k => { const t = textActa(arbDe(k));
   if (navigator.share) { try { await navigator.share({ title: 'Acta', text: t }); return; } catch (e) { if (e?.name === 'AbortError') return; } }
@@ -3030,7 +3058,6 @@ window.arbEsbEv = async (k, i, j) => {
   if (!await dialeg('Esborrar aquest moviment?<br><small>El marcador es recalcula sol.</small>', { ok: 'Esborra', perill: true })) return;
   arbDe(k).sets[i].ev.splice(j, 1); desaArb(); render();
 };
-window.arbNomEq = (k, e, v) => { if (!v.trim()) return; arbDe(k).eq[e].nom = v.trim(); desaArb(); render(); };
 window.arbReobre = k => {
   if (ARB.actual) return dialeg('Ja tens un partit en marxa. Acaba\'l abans de reobrir-ne un altre.', { sol: true });
   ARB.actual = ARB.hist.splice(k, 1)[0]; delete ARB.actual.fi; ARBVEU = null; desaArb(); render();
