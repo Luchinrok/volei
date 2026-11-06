@@ -960,6 +960,20 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbant { margin: 10px 10px 0; width: calc(100% - 20px); font-size: 14px; padding: 8px 10px; }
 .arbsort { margin-top: 6px; }
 .arbobs { margin-top: 8px; padding: 10px 12px; } .arbobs textarea { margin-top: 8px; font-size: 14px; }
+
+/* marcador en directe (qui el segueix) */
+.arbtop .mini.arbon { background: #e03131; color: #fff; border-color: #e03131; }
+.marcviu { max-width: 480px; margin: 0 auto; }
+.marcestat { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; color: #e03131; text-transform: uppercase; letter-spacing: .06em; font-size: 13px; margin: 4px 0 10px; }
+.marcestat i { width: 10px; height: 10px; border-radius: 50%; background: #e03131; animation: arbpols .8s ease-in-out infinite alternate; } .marcestat.fi { color: var(--muted); }
+.marcgran { display: grid; grid-template-columns: 1fr 16px 1fr; align-items: stretch; gap: 6px; }
+.marceq { background: #14325a; color: #fff; border-radius: 18px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; } .marceq.sq { box-shadow: inset 0 0 0 3px #f5c518; }
+.marceq span { font: 700 17px/1.15 var(--head); text-align: center; } .marceq b { font: 800 72px/1 var(--head); font-variant-numeric: tabular-nums; } .marceq small { color: #f5c518; font-weight: 700; font-size: 13px; }
+.marcguio { align-self: center; text-align: center; font: 800 26px/1 var(--head); color: var(--muted); }
+.marctm { text-align: center; font-weight: 800; background: #f5c518; color: #14202e; border-radius: 12px; padding: 8px; margin: 10px 0 0; }
+.marcsets { margin-top: 10px; padding: 6px 14px; }
+.marcset { display: grid; grid-template-columns: 1fr 48px 48px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); } .marcset:first-child { border-top: 0; }
+.marcset span { font-weight: 700; color: var(--muted); } .marcset b { font: 800 22px/1 var(--head); text-align: center; font-variant-numeric: tabular-nums; color: var(--muted); } .marcset b.gu { color: var(--ink); } .marcset.obert b { color: #e03131; }
 </style>
 </head>
 <body>
@@ -1133,7 +1147,7 @@ const esFS = () => !!D?.fs || D?.__file === '';   // '' = equip nou o sense fitx
 let RESP = [], AVISOS = [], FITX = {}, CALCLUB = [];   // respostes (vinc / no vinc), avisos de l'equip, fitxes dels jugadors, partits dels altres equips
 let FETS = {}, COMS = [], JUG = [], ASS = [], NOF = {}, ORD = {}, PAR = [], CAL = null, FOTOS = []; // dades de Firebase (NOF: exercicis no fets)
 let UNSUB = [];
-let fs = null, db = null;
+let fs = null, db = null, fsCru = null;   // fsCru: sense l'avís «✓ Desat» (marcador en directe)
 let sel = null;                                      // selecció múltiple de sessions
 let editAss = null;                                  // entreno d'assistència en edició
 
@@ -1164,6 +1178,7 @@ async function initFirebase() {
       if (['lector', 'familia', 'jugador'].includes(rolActual()) && /\/(temporades|config)\b/.test(r?.path || '') && !/\/fotos\b/.test(r?.path || '')) { desat('👀 Només pots mirar'); return Promise.resolve(); }
       desat(); return f(r, ...a);
     };
+    fsCru = mod;
     fs = { ...mod, setDoc: avisa(mod.setDoc), updateDoc: avisa(mod.updateDoc), addDoc: avisa(mod.addDoc), deleteDoc: avisa(mod.deleteDoc) };
     const app = initializeApp(FB);
     db = fs.initializeFirestore(app, { localCache: fs.persistentLocalCache() });
@@ -2787,7 +2802,7 @@ window.rivalActiu = (id, v) => { const p = PAR.find(x => x.id === id); p.rivalRo
 // M = {id, t, eq: [{nom, d: [dorsals], noms: {dorsal: nom}}, …], reg: {p, u, sets, tm, cv}, sets: [{f: [{1..6}, {1..6}], s0: 0|1, ev: [...]}], fi}
 // ev: {k: 'p', e} punt - {k: 'tm', e} temps mort - {k: 'cv', e, surt, entra} canvi - {k: 'li', e, surt, entra} lliure - {k: 'tg', e, d, tipus: av|pen|exp|des} targeta. Cada set: L = [[lliures A], [lliures B]]
 let ARB = store.get('volei.arbitre', { actual: null, hist: [] }), ARBNOU = null, ARBXY = {}, ARBVEU = null, DIR_ESB = null;
-const desaArb = () => store.set('volei.arbitre', ARB);
+const desaArb = () => { store.set('volei.arbitre', ARB); if (ARB.actual?.directe) arbPublica(ARB.actual); };
 const arbM = () => ARB.actual;
 const REG_DEF = { p: 25, u: 15, sets: 5, tm: 2, cv: 6 };
 const arbNom = (M, e) => M.eq[e].nom || (e ? 'Equip B' : 'Equip A');
@@ -2887,7 +2902,7 @@ function viewArbitre() {
     st.canviCamp && Math.max(...st.pts) === Math.ceil(M.reg.u / 2) && !st.fi ? `Canvi de camp: un equip ha arribat a ${Math.ceil(M.reg.u / 2)} punts.` : '',
     st.avis, fl.length ? `Falta de rotació: ${fl.map(x => x[2]).join('; ')}` : ''].filter(Boolean);
   return `<div class="arbviu">${arbTimHtml()}
-    <div class="arbtop"><span>Set ${i + 1}</span><span>Sets ${g[esq]}-${g[dre]}</span><span class="arbmenu"><button class="mini" onclick="arbGira()" title="Canvia els equips de costat" aria-label="Canvia els equips de costat">⇄</button><button class="mini" onclick="arbVeuActa(-1)" title="Acta" aria-label="Acta">☰</button><button class="mini" onclick="arbFormacioEdita()" title="Formacions" aria-label="Formacions">✎</button><button class="mini" onclick="arbAcaba()" title="Acaba el partit" aria-label="Acaba el partit">✕</button></span></div>
+    <div class="arbtop"><span>Set ${i + 1}</span><span>Sets ${g[esq]}-${g[dre]}</span><span class="arbmenu"><button class="mini ${M.directe ? 'arbon' : ''}" onclick="arbDirecte()" title="Marcador en directe" aria-label="Marcador en directe">📡</button><button class="mini" onclick="arbGira()" title="Canvia els equips de costat" aria-label="Canvia els equips de costat">⇄</button><button class="mini" onclick="arbVeuActa(-1)" title="Acta" aria-label="Acta">☰</button><button class="mini" onclick="arbFormacioEdita()" title="Formacions" aria-label="Formacions">✎</button><button class="mini" onclick="arbAcaba()" title="Acaba el partit" aria-label="Acaba el partit">✕</button></span></div>
     <div class="arbmarcador">${equip(esq)}<span class="arbguio">-</span>${equip(dre)}</div>
     ${st.fi ? `<div class="enjoc"><span class="grow"><b>Set per a ${esc(arbNom(M, st.guanya))}</b><small>${st.pts[esq]}-${st.pts[dre]}</small></span><button class="btn primary" onclick="arbSegSet()">Següent set</button></div>` : ''}
     <div class="arbpista">${E.html}<div class="arbxarxa"></div>${Dr.html}
@@ -2911,14 +2926,14 @@ const arbTimHtml = () => { if (!ARBTIM) return ''; const r = Math.max(0, Math.ce
   return `<button class="arbtim ${r ? '' : 'fi'}" id="arbtim" onclick="arbCronoAtura()" aria-label="Atura el compte enrere"><span>${esc(ARBTIM.txt)}</span><b>${Math.floor(r / 60)}:${String(r % 60).padStart(2, '0')}</b><small>✕</small></button>`; };
 const arbXiulet = () => { try { const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain(); o.frequency.value = 2800; g.gain.value = .25; o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .7); } catch {} navigator.vibrate?.([300, 120, 300]); };
 window.arbCrono = (seg, txt) => {
-  ARBTIM = { fi: Date.now() + seg * 1000, txt }; clearInterval(ARBTIMI);
+  ARBTIM = { fi: Date.now() + seg * 1000, txt }; clearInterval(ARBTIMI); if (arbM()?.directe) arbPublica(arbM());
   ARBTIMI = setInterval(() => {
     const el = $('#arbtim'), r = ARBTIM ? ARBTIM.fi - Date.now() : 0;
     if (el) el.outerHTML = arbTimHtml();
-    if (r <= 0) { clearInterval(ARBTIMI); arbXiulet(); setTimeout(() => { ARBTIM = null; $('#arbtim')?.remove(); }, 4000); }
+    if (r <= 0) { clearInterval(ARBTIMI); arbXiulet(); setTimeout(() => { ARBTIM = null; $('#arbtim')?.remove(); if (arbM()?.directe) arbPublica(arbM()); }, 4000); }
   }, 250);
 };
-window.arbCronoAtura = () => { clearInterval(ARBTIMI); ARBTIM = null; $('#arbtim')?.remove(); };
+window.arbCronoAtura = () => { clearInterval(ARBTIMI); ARBTIM = null; $('#arbtim')?.remove(); if (arbM()?.directe) arbPublica(arbM()); };
 window.arbDesfes = () => { const S = arbM().sets.at(-1); S.ev = (S.ev || []).slice(0, -1); desaArb(); render(); };
 window.arbSegSet = () => { const M = arbM(), ant = M.sets.at(-1); M.sets.push({ f: [{}, {}], L: [[], []], s0: 1 - ant.s0, esq: 1 - (ant.esq ?? 0), ev: [], preparant: true }); desaArb(); render(); };
 window.arbFormacioEdita = () => { arbM().sets.at(-1).editant = true; desaArb(); render(); };
@@ -3052,7 +3067,8 @@ window.arbComenca = () => {
 };
 window.arbAcaba = async esborra => {
   if (!await dialeg(esborra ? 'Esborrar aquest partit?' : 'Acabar el partit?<br><small>Es guardarà amb el resultat que hi ha ara. Després el pots obrir, corregir i reobrir.</small>', { ok: esborra ? 'Esborra' : 'Acaba', perill: !!esborra })) return;
-  if (!esborra) { ARB.hist = [...(ARB.hist || []), { ...ARB.actual, fi: true }].slice(-30); }
+  if (!esborra) { ARB.hist = [...(ARB.hist || []), { ...ARB.actual, fi: true }].slice(-30); if (ARB.actual.directe) arbPublica({ ...ARB.actual, fi: true }); }
+  else if (ARB.actual?.directe && db) fsCru.deleteDoc(fsCru.doc(db, 'directes', ARB.actual.directe)).catch(() => {});
   ARB.actual = null; ARBVEU = null; desaArb(); render();
 };
 // acta del partit (text per copiar)
@@ -3107,6 +3123,58 @@ window.arbEsborraHist = async k => {
   if (!await dialeg('Esborrar aquest partit?', { ok: 'Esborra', perill: true })) return;
   ARB.hist.splice(k, 1); ARBVEU = null; desaArb(); render();
 };
+// ---------- Marcador en directe (06-11-2026): l'àrbitre publica el resultat a /directes/{id} i qualsevol amb l'enllaç el segueix.
+// Només hi va el nom dels equips i el marcador (cap nom de jugador). Cal haver entrat amb Google per publicar-lo.
+const arbResum = M => {
+  const g = arbSetsGuanyats(M), i = M.sets.length - 1, st = M.sets[i]?.f && ZK.every(z => M.sets[i].f[0]?.[z]) ? arbSet(M, i) : null;
+  const sets = M.sets.map((S, j) => S.f && ZK.every(z => S.f[0]?.[z]) ? arbSet(M, j) : null).filter(Boolean).map(x => ({ a: x.pts[0], b: x.pts[1], fi: x.fi }));
+  return { per: USR.uid, t: Date.now(), eq: [arbNom(M, 0), arbNom(M, 1)], g, sets, saca: st && !st.fi ? st.saca : null, tm: ARBTIM?.txt?.startsWith('Temps mort') ? ARBTIM.txt : '', fi: !!M.fi || g.some(x => x >= guanyarSets(M)) };
+};
+let ARBPUB = null;
+const arbPublica = M => {
+  if (!M?.directe || !USR || !db) return;
+  clearTimeout(ARBPUB); ARBPUB = setTimeout(() => fsCru.setDoc(fsCru.doc(db, 'directes', M.directe), arbResum(M)).catch(e => registraError(e, 'directe')), 400);
+};
+const enllacDirecte = id => CASA + '#/marcador/' + id;
+window.arbDirecte = async () => {
+  const M = arbM();
+  if (!USR) {
+    if (await dialeg(`<b>📡 Marcador en directe</b><br>Comparteix un enllaç i qui el tingui veurà el resultat al moment, sense compte.<br><small>Per publicar-lo has d'entrar amb Google (no cal ser de cap equip).</small>`, { ok: 'Entra amb Google' })) entra();
+    return;
+  }
+  if (M.directe) {
+    const r = await dialeg(`<b>📡 En directe</b><br><small>${esc(enllacDirecte(M.directe))}</small>`, { ok: 'Comparteix l\'enllaç', cancel: 'Deixa de compartir', ico: '📡' });
+    if (!r && await dialeg('Deixar de compartir el marcador?<br><small>L\'enllaç deixarà de funcionar.</small>', { ok: 'Deixa-ho', perill: true })) {
+      fsCru.deleteDoc(fsCru.doc(db, 'directes', M.directe)).catch(() => {}); delete M.directe; desaArb(); render(); return;
+    }
+    if (!r) return;
+  } else { M.directe = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => 'abcdefghijkmnpqrstuvwxyz23456789'[b % 32]).join(''); desaArb(); render(); }
+  const url = enllacDirecte(M.directe), txt = `🏐 ${arbNom(M, 0)} - ${arbNom(M, 1)}: segueix el marcador en directe`;
+  if (navigator.share) { try { await navigator.share({ title: 'Marcador en directe', text: txt, url }); return; } catch (e) { if (e?.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(txt + '\n' + url); desat('✓ Enllaç copiat'); } catch { dialeg(`<textarea readonly style="min-height:90px;font-size:13px">${esc(url)}</textarea>`, { sol: true }); }
+};
+// la pantalla de qui segueix el partit
+let MARC = { id: null, d: null, unsub: null, err: false };
+function viewMarcador(id) {
+  if (MARC.id !== id) {
+    MARC.unsub?.(); MARC = { id, d: null, unsub: null, err: false };
+  }
+  if (!MARC.unsub) {
+    if (!db) { setTimeout(render, 400); return '<p class="meta" style="text-align:center;margin-top:40px">Connectant…</p>'; }
+    MARC.unsub = fsCru.onSnapshot(fsCru.doc(db, 'directes', id), s => { MARC.d = s.exists() ? s.data() : false; render(); }, () => { MARC.err = true; render(); });
+  }
+  const d = MARC.d;
+  if (MARC.err || d === false) return `<div class="card" style="text-align:center;margin-top:30px"><b>Aquest marcador ja no està en directe.</b><p class="meta">Potser l'àrbitre ha deixat de compartir-lo.</p></div>`;
+  if (!d) return '<p class="meta" style="text-align:center;margin-top:40px">Carregant el marcador…</p>';
+  const ara = d.sets.at(-1), viu = !d.fi && ara && !ara.fi, fa = Math.round((Date.now() - d.t) / 60000);
+  return `<div class="marcviu">
+    <div class="marcestat ${d.fi ? 'fi' : ''}">${d.fi ? 'Partit acabat' : '<i></i> En directe'}</div>
+    <div class="marcgran">${[0, 1].map(e => `<div class="marceq ${d.saca === e ? 'sq' : ''}"><span>${esc(d.eq[e])}</span><b>${viu ? (e ? ara.b : ara.a) : d.g[e]}</b><small>${viu ? `Sets ${d.g[e]}` : 'sets'}${d.saca === e ? ' 🏐' : ''}</small></div>`).join('<span class="marcguio">-</span>')}</div>
+    ${d.tm ? `<p class="marctm">⏱ ${esc(d.tm)}</p>` : ''}
+    <div class="card marcsets">${d.sets.map((x, n) => `<div class="marcset ${x.fi ? '' : 'obert'}"><span>Set ${n + 1}</span><b class="${x.a > x.b ? 'gu' : ''}">${x.a}</b><b class="${x.b > x.a ? 'gu' : ''}">${x.b}</b></div>`).join('') || '<p class="meta" style="margin:0">Encara no ha començat.</p>'}</div>
+    <p class="meta" style="text-align:center">${fa < 1 ? 'Actualitzat ara mateix' : `Actualitzat fa ${fa} min`}</p>
+    <div class="actions"><a class="btn" style="flex:1;text-align:center;text-decoration:none" href="https://3tocs.web.app/">Fet amb 3Tocs</a></div></div>`;
+}
 Object.defineProperty(window, 'ARBNOU', { get: () => ARBNOU, set: v => { ARBNOU = v; } });
 
 function viewDirecte(id) {
@@ -4288,6 +4356,7 @@ function pintaPantalla() {
   let html, tab = 'inici', title = (Object.keys(grups()).length > 1 ? gcfg().nom : club() || '3Tocs') + ' ' + tempNom(TEMP);
   // àrbitre: funciona sense compte ni club (es guarda al mòbil)
   if (r === 'arbitre') { html = viewArbitre(); tab = ''; title = 'Àrbitre'; }
+  else if (r === 'marcador') { html = viewMarcador(arg); tab = ''; title = 'Marcador'; }
   // sense equip, o amb una invitació per acceptar i sense compte: pantalla d'entrada
   else if (!USR && (NOMES_COMPTES || (r !== 'config' && (!CLAU || store.get('volei.invitacio', null))))) { html = viewEntra(); title = '3Tocs'; }
   else if (USR && (!CLAU || (MEM && !rolActual() && (r !== 'config' || !Object.values(MEM.rols || {}).some(Boolean))))) { html = sensePermis(); }
@@ -4315,7 +4384,7 @@ function pintaPantalla() {
   const a = document.activeElement;
   if (a && ((a.matches?.('input, textarea, select') && a.closest('.sesed, .exed')) || a.id === 'triaq' || a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
-  { const v = $('.arbviu'); document.body.classList.toggle('arbfull', !!v); if (v) v.style.setProperty('--arbt', Math.round(v.getBoundingClientRect().top + scrollY) + 'px');
+  { const v = $('.arbviu'); document.body.classList.toggle('arbfull', !!v || !!$('.marcviu')); if (v) v.style.setProperty('--arbt', Math.round(v.getBoundingClientRect().top + scrollY) + 'px');
     // àrbitre: que la pantalla no s'apagui mentre es porta el partit
     if (v && !window.ARBWL && navigator.wakeLock) navigator.wakeLock.request('screen').then(l => { window.ARBWL = l; l.addEventListener('release', () => { window.ARBWL = null; }); }).catch(() => {});
     if (!v && window.ARBWL) { window.ARBWL.release().catch(() => {}); window.ARBWL = null; } }
