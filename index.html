@@ -1028,6 +1028,10 @@ body.arbfull #app { padding-bottom: 8px; }
 .rvcv { width: 28px; height: 28px; margin-left: 4px; vertical-align: middle; } .rvcvl { padding: 4px 0; border-top: 1px solid var(--line); }
 
 .arbpista.platja { background: #e9c98b; } .arbpista.platja .arbetq { color: #14325a; } .arbpista.platja .arbmeitat::before { display: none; }
+
+.sanctaula { width: 100%; border-collapse: collapse; font-size: 13px; margin: 4px 0 10px; } .sanctaula th, .sanctaula td { border-bottom: 1px solid var(--line); padding: 5px 4px; text-align: left; vertical-align: top; } .sanctaula th { font-size: 12px; color: var(--muted); }
+.sanctaula td:nth-child(3) { text-align: center; font-weight: 700; }
+.solimp { font-size: 5pt !important; } .solimp i { font-style: normal; display: inline-block; width: 3.2mm; } .solimp i.on { border: .25mm solid #000; border-radius: 50%; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -2887,7 +2891,10 @@ const zLbl = (M, z) => (M?.reg?.n || 6) === 2 ? (+z === 1 ? '1r' : '2n') : 'Z' +
 const arbNom = (M, e) => M.eq[e].nom || (e ? 'Equip B' : 'Equip A');
 const arbDors = (M, e, d) => d + (M.eq[e].noms?.[d] ? ' ' + M.eq[e].noms[d].split(' ')[0] : '');
 const guanyarSets = M => Math.ceil((M.reg.sets || 5) / 2);
-const TG = { av: ['🟨', 'Avís'], pen: ['🟥', 'Penalització'], exp: ['🟨🟥', 'Expulsió'], des: ['🟨 🟥', 'Desqualificació'] }, TGN = { av: 1, pen: 2, exp: 3, des: 4 };
+const TG = { av: ['🟨', 'Amonestació'], pen: ['🟥', 'Penalització'], exp: ['🟨🟥', 'Expulsió'], des: ['🟨 🟥', 'Desqualificació'] }, TGN = { av: 1, pen: 2, exp: 3, des: 4 };
+const RET = { ra: ['🟨⌚', 'Amonestació per retard'], rp: ['🟥⌚', 'Penalització per retard'] };
+// quantes vegades ha passat una cosa a un equip en tot el partit (fins al set i, sense comptar l'esdeveniment j)
+const arbCompta = (M, e, k) => M.sets.reduce((a, S) => a + (S.ev || []).filter(x => x.k === k && x.e === e).length, 0);
 // estat d'un set a partir de la formació i dels esdeveniments
 function arbSet(M, i) {
   const S = M.sets[i], L = S.L || [[], []];
@@ -2928,7 +2935,8 @@ function arbSet(M, i) {
     } else if (ev.k === 'tg') {
       if (ev.d) st.targ[ev.e][ev.d] = Math.max(st.targ[ev.e][ev.d] || 0, TGN[ev.tipus]);
       if (ev.tipus === 'pen') punt(1 - ev.e);   // la penalització és punt (i saque) per al rival
-    }
+    } else if (ev.k === 're') { if (ev.tipus === 'rp') punt(1 - ev.e); }   // retard: el primer del partit és amonestació, els altres penalització
+
     st.log.push({ j, ev, m: [...st.pts] });
   });
   return st;
@@ -2950,6 +2958,8 @@ function arbTxtEv(M, e) {
   if (e.k === 'cv') return `Canvi ${nom}: entra el ${e.entra} per el ${e.surt}`;
   if (e.k === 'li') return `Lliure ${nom}: entra el ${e.entra} per el ${e.surt}`;
   if (e.k === 'tg') return `${TG[e.tipus][0]} ${TG[e.tipus][1]} ${nom}: ${e.d ? `el ${e.d}` : 'banqueta'}${e.tipus === 'pen' ? ' (punt per al rival)' : ''}`;
+  if (e.k === 're') return `${RET[e.tipus][0]} ${RET[e.tipus][1]} ${nom}${e.tipus === 'rp' ? ' (punt per al rival)' : ''}`;
+  if (e.k === 'si') return `✋ Sol·licitud improcedent ${nom}`;
   return '';
 }
 function viewArbitre() {
@@ -3061,14 +3071,38 @@ window.arbLliure = async e => {
   arbEv({ k: 'li', e, surt: $('#arlp').value, entra: $('#arll')?.value || L[0] });
 };
 // targetes: a un jugador o a la banqueta; la penalització dona el punt al rival
+const SANC_INFO = `<table class="sanctaula"><tr><th>Sanció</th><th>Targeta</th><th>Acta</th><th>Efecte</th></tr>
+  <tr><td>Avís de paraula</td><td>cap</td><td>-</td><td>Cap, no s'apunta</td></tr>
+  <tr><td>Amonestació</td><td>🟨</td><td>A</td><td>Cap, s'apunta</td></tr>
+  <tr><td>Penalització</td><td>🟥</td><td>C</td><td>Punt i saque per al rival</td></tr>
+  <tr><td>Expulsió</td><td>🟨🟥 juntes</td><td>E</td><td>Fora la resta del set</td></tr>
+  <tr><td>Desqualificació</td><td>🟨 🟥 separades</td><td>D</td><td>Fora la resta del partit</td></tr>
+  <tr><td>Retard (1r del partit)</td><td>🟨 al canell</td><td>A</td><td>Cap, s'apunta (a l'equip)</td></tr>
+  <tr><td>Retard (els altres)</td><td>🟥 al canell</td><td>C</td><td>Punt i saque per al rival</td></tr>
+  <tr><td>Sol·licitud improcedent</td><td>cap</td><td>A / B</td><td>La 1a s'apunta; si es repeteix, és retard</td></tr></table>
+  <p>Les de conducta són per a una persona i s'acumulen en tot el partit: la segona falta de la mateixa persona rep la sanció següent. Les de retard i la sol·licitud improcedent són per a l'equip.</p>
+  <p>L'expulsat o desqualificat s'ha de substituir amb un canvi reglamentari; si no es pot, l'equip queda incomplet.</p>`;
+// targetes: a un jugador o a la banqueta (conducta), o a l'equip (retard, sol·licitud improcedent)
 window.arbTargeta = async e => {
   const M = arbM();
-  const pr = dialeg(`<b>Targeta - ${esc(arbNom(M, e))}</b><div class="form"><label class="lbl">A qui</label><select id="tgd">${M.eq[e].d.map(d => `<option value="${esc(d)}">${esc(arbDors(M, e, d))}</option>`).join('')}<option value="">Banqueta o entrenador</option></select>
-    <label class="lbl">Sanció</label><select id="tgt">${Object.entries(TG).map(([k, [ic, t]]) => `<option value="${k}">${ic} ${t}${k === 'pen' ? ' (punt per al rival)' : ''}</option>`).join('')}</select>
-    <p class="meta" style="margin:6px 0 0">Amb una expulsió o una desqualificació, el jugador ha de sortir: fes-hi un canvi.</p></div>`, { ok: 'Posa la targeta', ico: '🟨' });
+  const pr = dialeg(`<b>Sanció - ${esc(arbNom(M, e))}</b>${info(SANC_INFO, 'Sancions')}<div class="form"><label class="lbl">Sanció</label><select id="tgt" onchange="document.getElementById('tgqui').hidden=this.value==='re'||this.value==='si'">${Object.entries(TG).map(([k, [ic, t]]) => `<option value="${k}">${ic} ${t}${k === 'pen' ? ' (punt per al rival)' : ''}</option>`).join('')}
+      <option value="re">⌚ Retard de l'equip</option><option value="si">✋ Sol·licitud improcedent</option></select>
+    <div id="tgqui"><label class="lbl">A qui</label><select id="tgd">${M.eq[e].d.map(d => `<option value="${esc(d)}">${esc(arbDors(M, e, d))}</option>`).join('')}<option value="">Banqueta o entrenador</option></select>
+    <p class="meta" style="margin:6px 0 0">Amb una expulsió o una desqualificació, el jugador ha de sortir: fes-hi un canvi.</p></div></div>`, { ok: 'Posa la sanció', ico: '🟨' });
   if (!await pr) return;
-  arbEv({ k: 'tg', e, d: $('#tgd').value, tipus: $('#tgt').value });
+  const t = $('#tgt').value;
+  if (t === 're') return arbRetard(e);
+  if (t === 'si') {
+    const ja = arbCompta(M, e, 'si');
+    arbEv({ k: 'si', e });
+    // la segona sol·licitud improcedent del partit es castiga com a retard
+    if (ja) { await dialeg(`Segona sol·licitud improcedent de ${esc(arbNom(M, e))} en aquest partit: es sanciona com a retard.`, { sol: true, ico: '⌚' }); arbRetard(e); }
+    return;
+  }
+  arbEv({ k: 'tg', e, d: $('#tgd').value, tipus: t });
 };
+// retard: el primer de l'equip en tot el partit és amonestació (groga al canell); tots els altres, penalització (punt i saque per al rival)
+window.arbRetard = e => { const M = arbM(), tipus = arbCompta(M, e, 're') ? 'rp' : 'ra'; arbEv({ k: 're', e, tipus }); desat(`${RET[tipus][0]} ${RET[tipus][1]}`); };
 // formació de cada equip a l'inici del set, els lliures i qui saca
 function arbFormacio(M, i) {
   const S = M.sets[i], f = S.f || [{}, {}], L = S.L || [[], []], n = M.reg.n || 6;
@@ -3180,7 +3214,7 @@ function textActa(M) {
     l.push(`  Saca primer: ${arbNom(M, S.s0 ?? 0)}`);
     [0, 1].forEach(e => { const cv = (S.ev || []).filter(ev => ev.k === 'cv' && ev.e === e).map(ev => `${ev.entra} per ${ev.surt}`);
       l.push(`  ${arbNom(M, e)}: formació ${zks(M).map(z => S.f[e][z]).join('-')}${st.L[e].length ? `; lliures ${st.L[e].join(', ')}` : ''}; temps morts ${st.tm[e]}; canvis ${cv.length ? cv.join(', ') : 'cap'}`); });
-    st.log.filter(x => x.ev.k === 'tg').forEach(x => l.push(`  ${arbTxtEv(M, x.ev)} (${x.m[0]}-${x.m[1]})`)); });
+    st.log.filter(x => ['tg', 're', 'si'].includes(x.ev.k)).forEach(x => l.push(`  ${arbTxtEv(M, x.ev)} (${x.m[0]}-${x.m[1]})`)); });
   if (M.obs) l.push('', `Observacions: ${M.obs}`);
   return l.join('\n');
 }
@@ -3316,7 +3350,8 @@ function actaFull(M) {
   const g = arbSetsGuanyats(M), I = M.info || {}, sets = [0, 1, 2, 3, 4].map(i => M.sets[i]?.f ? arbSet(M, i) : null);
   const hores = M.sets.map((S, i) => S.f && sets[i] ? arbSetHores(S, sets[i]) : null).filter(Boolean);
   const HI = hores[0]?.ini, HF = [...hores].reverse().find(x => x.fi)?.fi;
-  const sanc = M.sets.flatMap((S, i) => S.f ? arbSet(M, i).log.filter(x => x.ev.k === 'tg').map(x => ({ ...x.ev, set: i + 1, m: x.m })) : []);
+  const sanc = M.sets.flatMap((S, i) => S.f ? arbSet(M, i).log.filter(x => x.ev.k === 'tg' || x.ev.k === 're').map(x => ({ ...x.ev, set: i + 1, m: x.m })) : []);
+  const solImp = [0, 1].map(e => arbCompta(M, e, 'si') > 0);
   const LL = e => new Set(M.sets.flatMap(S => S.L?.[e] || []));
   const roster = e => M.eq[e].d.map(d => `<tr><td class="n">${esc(d)}${LL(e).has(d) ? ' L' : ''}</td><td>${esc(M.eq[e].noms?.[d] || '')}</td></tr>`).join('');
   const fila = (i, st) => { const S = M.sets[i]; if (!st) return '<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
@@ -3332,8 +3367,8 @@ function actaFull(M) {
     <div class="arow">${actaSet(M, 4)}<div class="aeqs"><div class="aeqh">EQUIPS</div><div class="aeqcols">${[0, 1].map(e => `<table class="aros"><tr><th class="n">N.</th><th>${esc(arbNom(M, e))}</th></tr>${roster(e)}</table>`).join('')}</div></div></div>
     <div class="abot">
       <div class="aobs"><div class="at">OBSERVACIONS:</div><div class="aobst">${esc(M.obs || '')}</div>
-        <div class="asanc"><table><tr><th colspan="4">SANCIONS</th><th>EQ.</th><th>SET</th><th>PUNTS</th></tr><tr class="sm"><th>A</th><th>C</th><th>E</th><th>D</th><th></th><th></th><th></th></tr>
-          ${[0, 1, 2, 3, 4].map(n => { const x = sanc[n]; const col = t => x?.tipus === t ? esc(x.d || 'B') : ''; return `<tr><td>${col('av')}</td><td>${col('pen')}</td><td>${col('exp')}</td><td>${col('des')}</td><td>${x ? (x.e ? 'B' : 'A') : ''}</td><td>${x?.set || ''}</td><td>${x ? `${x.m[0]}:${x.m[1]}` : ':'}</td></tr>`; }).join('')}</table>
+        <div class="asanc"><table><tr><th colspan="4">SANCIONS</th><th colspan="3" class="solimp">SOL·LICITUD IMPROCEDENT <i class="${solImp[0] ? 'on' : ''}">A</i> <i class="${solImp[1] ? 'on' : ''}">B</i></th></tr><tr><th colspan="4"></th><th>EQ.</th><th>SET</th><th>PUNTS</th></tr><tr class="sm"><th>A</th><th>C</th><th>E</th><th>D</th><th></th><th></th><th></th></tr>
+          ${[0, 1, 2, 3, 4].map(n => { const x = sanc[n]; const col = t => x?.k === 're' ? ((t === 'av' && x.tipus === 'ra') || (t === 'pen' && x.tipus === 'rp') ? 'R' : '') : x?.tipus === t ? esc(x.d || 'B') : ''; return `<tr><td>${col('av')}</td><td>${col('pen')}</td><td>${col('exp')}</td><td>${col('des')}</td><td>${x ? (x.e ? 'B' : 'A') : ''}</td><td>${x?.set || ''}</td><td>${x ? `${x.m[0]}:${x.m[1]}` : ':'}</td></tr>`; }).join('')}</table>
         <table class="asig"><tr><th></th><th>NOM</th><th>SIGNATURA</th></tr><tr><td>1r AR.</td><td>${esc(I.arb1 || '')}</td><td></td></tr><tr><td>2n AR.</td><td>${esc(I.arb2 || '')}</td><td></td></tr><tr><td>ANOT.</td><td>${esc(I.anot || '')}</td><td></td></tr><tr><td colspan="3" class="cap"><span>A</span> CAPITANS <span>B</span></td></tr></table></div>
         <div class="ares">RESULTATS (L/V): ${['Iº', 'IIº', 'IIIº', 'IVº', 'Vº'].map((r, i) => `${r} <b>${sets[i] ? `${sets[i].pts[0]}/${sets[i].pts[1]}` : ' / '}</b>`).join(' ; ')}</div></div>
       <div class="asum"><table><tr><th colspan="4">A</th><th colspan="4">B</th></tr><tr class="sm"><th>T</th><th>S</th><th>G</th><th>PUNTS</th><th>PUNTS</th><th>G</th><th>S</th><th>T</th></tr>
