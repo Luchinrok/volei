@@ -984,6 +984,10 @@ body.arbfull #app { padding-bottom: 8px; }
 .mcara small, .mcreu small { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; opacity: .75; } .mcara b, .mcreu b { font: 800 17px/1.1 var(--head); }
 .msort { text-align: center; margin: 0; }
 @media (prefers-reduced-motion: reduce) { .mgir { animation-duration: .01s; } }
+
+/* versió de proves: etiqueta fixa perquè no es confongui amb la definitiva */
+.provesxip { position: fixed; top: calc(env(safe-area-inset-top) + 2px); left: 50%; transform: translateX(-50%); z-index: 60; background: #e03131; color: #fff; font: 800 11px/1 var(--head); letter-spacing: .12em; padding: 4px 10px; border-radius: 0 0 8px 8px; pointer-events: none; }
+html.proves header { box-shadow: inset 0 -4px 0 #e03131; }
 </style>
 </head>
 <body>
@@ -1113,7 +1117,10 @@ const dataCa = d => new Date(d + 'T12:00').toLocaleDateString(LOC, { weekday: 's
 
 // clau des de l'enllaç
 // Entrar amb Google només funciona des del mateix domini que la pàgina de Google (Firefox i Safari separen la memòria de cada web)
-const CASA = 'https://volei-2627-dc.firebaseapp.com/', aCasa = location.hostname === 'volei-2627-dc.firebaseapp.com' || location.hostname === 'localhost';
+// versió de proves (06-11-2026): canal de Firebase «proves» (volei-2627-dc--proves-….web.app); mateixes dades, codi nou abans de publicar-lo
+const PROVES = /^volei-2627-dc--proves-/.test(location.hostname);
+const DEFINITIVA = 'https://volei-2627-dc.firebaseapp.com/';   // els enllaços que s'envien a altres sempre van a la definitiva
+const CASA = PROVES ? location.origin + '/' : DEFINITIVA, aCasa = PROVES || location.hostname === 'volei-2627-dc.firebaseapp.com' || location.hostname === 'localhost';
 if (location.hostname === 'volei-2627-dc.web.app') location.replace(CASA + location.hash);
 const m = location.hash.match(/clau=([A-Za-z0-9]{24,})/);
 if (m) { store.set('volei.clau', m[1]); history.replaceState(null, '', location.pathname + (location.hash.replace(/[?&]?clau=[A-Za-z0-9]+/, '') || '#/')); }
@@ -3158,7 +3165,7 @@ const arbPublica = M => {
   if (!M?.directe || !USR || !db) return;
   clearTimeout(ARBPUB); ARBPUB = setTimeout(() => fsCru.setDoc(fsCru.doc(db, 'directes', M.directe), arbResum(M)).catch(e => registraError(e, 'directe')), 400);
 };
-const enllacDirecte = id => CASA + '#/marcador/' + id;
+const enllacDirecte = id => DEFINITIVA + '#/marcador/' + id;
 window.arbDirecte = async () => {
   const M = arbM();
   if (!USR) {
@@ -4121,7 +4128,7 @@ function carregaInvEquip() {
 const llistaEquip = () => Object.fromEntries(JUG.filter(j => j.actiu !== false).map(j => [j.id, j.nom]));
 // la llista de noms de l'enllaç de jugadors i famílies es manté al dia amb els jugadors de l'equip
 function sincInvEquip() { const x = INVEQ?.fam; if (x?.codi && JUG.length && JSON.stringify(x.llista) !== JSON.stringify(llistaEquip())) { x.llista = llistaEquip(); fs.updateDoc(fs.doc(db, 'equips', CLAU, 'invitacions', x.codi), { llista: x.llista, equip: gcfg().nom || club() || '' }).catch(() => {}); } }
-const urlInv = x => `${CASA}#/uneix/${CLAU}/${x.codi}`;
+const urlInv = x => `${DEFINITIVA}#/uneix/${CLAU}/${x.codi}`;
 const textInv = (c, x) => c === 'fam'
   ? `Ja podeu fer servir 3Tocs, l'app de l'equip: hi veureu els partits i els avisos, i podreu dir si veniu o no. Obriu aquest enllaç, entreu amb el compte de Google i trieu qui sou:\n${urlInv(x)}`
   : `T'he convidat a 3Tocs, l'app de vòlei${club() ? ' del ' + club() : ''}, com a entrenador/a. Obre aquest enllaç i entra amb el teu compte de Google:\n${urlInv(x)}`;
@@ -4168,7 +4175,7 @@ window.creaInvitacio = async () => {
   if (['jugador', 'familia'].includes(rols[g]) && !js.length) return desat('Tria el jugador');
   const codi = [...crypto.getRandomValues(new Uint8Array(15))].map(b => 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 56]).join('');
   await fs.setDoc(fs.doc(db, 'equips', CLAU, 'invitacions', codi), { rols, ...(js.length ? { jugadors: { [g]: js } } : {}), creat: Date.now(), per: USR.uid, perNom: USR.displayName || '', usada: null });
-  const url = `${CASA}#/uneix/${CLAU}/${codi}`;
+  const url = `${DEFINITIVA}#/uneix/${CLAU}/${codi}`;
   const noms = js.map(j => nomCurt(JUG.find(x => x.id === j)?.nom || '')).filter(Boolean).join(' i ');
   const text = `T'he convidat a 3Tocs, l'app de vòlei${club() ? ' del ' + club() : ''}.${noms ? ` Hi veuràs els partits i els avisos, i podràs dir si ${noms} ${js.length > 1 ? 'vénen' : 've'} o no.` : ''} Obre aquest enllaç i entra amb el teu compte de Google:\n${url}`;
   obreFitxa(`<b>Enllaç d'invitació</b><div class="form"><p class="meta" style="margin:0 0 6px">Serveix per a <b>una sola persona</b>. Envia-l'hi per WhatsApp o com vulguis.</p>
@@ -4420,6 +4427,7 @@ function pintaPantalla() {
   document.querySelectorAll('nav.tabs a').forEach(x => x.classList.toggle('on', x.dataset.t === tab));
 }
 window.render = render;
+if (PROVES) { document.documentElement.classList.add('proves'); document.body.insertAdjacentHTML('beforeend', '<div class="provesxip">PROVES</div>'); }
 Object.defineProperty(window, 'editEquip', { get: () => editEquip, set: v => { editEquip = v; } });
 Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editAss = v; } });
 Object.defineProperty(window, 'sesEd', { get: () => sesEd, set: v => { sesEd = v; } });
