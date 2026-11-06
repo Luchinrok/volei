@@ -974,6 +974,16 @@ body.arbfull #app { padding-bottom: 8px; }
 .marcsets { margin-top: 10px; padding: 6px 14px; }
 .marcset { display: grid; grid-template-columns: 1fr 48px 48px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); } .marcset:first-child { border-top: 0; }
 .marcset span { font-weight: 700; color: var(--muted); } .marcset b { font: 800 22px/1 var(--head); text-align: center; font-variant-numeric: tabular-nums; color: var(--muted); } .marcset b.gu { color: var(--ink); } .marcset.obert b { color: #e03131; }
+
+.moneda { perspective: 600px; display: grid; place-items: center; margin: 4px 0 10px; }
+.mgir { position: relative; width: 150px; height: 150px; transform-style: preserve-3d; animation: mgira 1.6s cubic-bezier(.2,.7,.3,1) forwards; }
+@keyframes mgira { 0% { transform: translateY(0) rotateY(0); } 40% { transform: translateY(-40px) rotateY(calc(var(--fi) * .5)); } 100% { transform: translateY(0) rotateY(var(--fi)); } }
+.mcara, .mcreu { position: absolute; inset: 0; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 14px; text-align: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: inset 0 0 0 6px rgba(0,0,0,.12), 0 6px 16px rgba(0,0,0,.2); }
+.mcara { background: radial-gradient(circle at 35% 30%, #ffe680, #f5c518 60%, #c99a00); color: #14202e; }
+.mcreu { background: radial-gradient(circle at 35% 30%, #4a77b4, #14325a 65%, #0b1d36); color: #fff; transform: rotateY(180deg); }
+.mcara small, .mcreu small { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; opacity: .75; } .mcara b, .mcreu b { font: 800 17px/1.1 var(--head); }
+.msort { text-align: center; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .mgir { animation-duration: .01s; } }
 </style>
 </head>
 <body>
@@ -1805,7 +1815,7 @@ function viewHome() {
     return `<a class="pxl" href="#/p/${p.id}"><span class="pxd">${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + esc(p.hora) : ''} <span class="qd">${queden(p.data)}</span></span>
       <span class="pxt">${p.lloc === 'fora' ? riv + ' vs ' + nos(p) : nos(p) + ' vs ' + riv}</span></a>`; };
   return `<div class="hello"><h2>${salutacio()}!</h2><span>${new Date().toLocaleDateString(LOC, { weekday: 'long', day: 'numeric', month: 'long' })}</span></div>
-  ${D.sessions.length ? '' : `<div class="card warn"><b>Aquest equip encara no té sessions.</b><div class="meta">Les prepararem amb Claude. L'assistència, els partits i la resta ja funcionen.</div></div>`}
+  ${D.sessions.length ? '' : `<div class="card arbsense"><b>Aquest equip encara no té sessions.</b><div class="meta">Crea la primera: en blanc, copiant-ne una d'un altre equip o important un fitxer.</div>${potEditar() ? `<div class="actions" style="margin:10px 0 0"><button class="btn primary" style="flex:1" onclick="novaSessio()">＋ Crea una sessió</button></div>` : ''}</div>`}
   <div class="heros">${esFS() ? proximes(2).map(x => heroFS(x)).join('') : ['DT', 'DJ'].map(f => [f, properDia(f)]).filter(([, d]) => d).sort((a, b) => a[1].i - b[1].i).map(([f]) => hero(f)).join('')}</div>
   ${CLAU ? `<div class="quick">
     <button onclick="goLlista()"><span class="qi">${ICO.llista}</span>Passar llista</button>
@@ -3010,10 +3020,17 @@ window.arbEsborraSet = async () => {
   if (M.sets.length === 1) { S.ev = []; S.preparant = true; delete S.editant; } else M.sets.pop();
   desaArb(); render();
 };
+// sorteig amb una moneda que gira a la vista de tothom: abans es diu quin equip és cara i quin creu; l'atzar és del generador segur del mòbil
 window.arbSorteig = () => {
-  const M = arbM(), e = Math.random() < .5 ? 0 : 1;
-  document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', +b.dataset.v === e));
-  dialeg(`🪙 Guanya el sorteig <b>${esc(arbNom(M, e))}</b>.<br><small>Tria si saca o rep, i el camp. Si tria rebre, marca «Saca» a l'altre equip.</small>`, { sol: true });
+  const M = arbM(), S = M.sets.at(-1), e = crypto.getRandomValues(new Uint8Array(1))[0] & 1, A = esc(arbNom(M, 0)), B = esc(arbNom(M, 1));
+  arbFormDom(S);
+  dialeg(`<div class="moneda"><div class="mgir" style="--fi:${1800 + e * 180}deg"><div class="mcara"><small>Cara</small><b>${A}</b></div><div class="mcreu"><small>Creu</small><b>${B}</b></div></div></div>
+    <p class="msort" id="msort">Cara: <b>${A}</b> - Creu: <b>${B}</b></p>`, { sol: true, ico: '🪙' });
+  setTimeout(() => {
+    const p = $('#msort'); if (p) p.innerHTML = `${e ? 'Creu' : 'Cara'}: guanya <b>${e ? B : A}</b>.<br><small>Tria si saca o rep, i el camp. Si tria rebre, marca «Saca» a l'altre equip.</small>`;
+    S.sorteig = { e, t: Date.now() }; S.s0 = e; desaArb();
+    document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(x => x.classList.toggle('on', +x.dataset.v === e));
+  }, 1700);
 };
 window.arbFormTorna = () => { delete arbM().sets.at(-1).editant; desaArb(); render(); };
 window.arbFormSel = e => {
@@ -3079,6 +3096,7 @@ window.arbAcaba = async esborra => {
 function textActa(M) {
   const g = arbSetsGuanyats(M), l = [`Acta: ${arbNom(M, 0)} - ${arbNom(M, 1)} (${g[0]}-${g[1]})`, new Date(M.t).toLocaleDateString(LOC)];
   M.sets.forEach((S, i) => { if (!S.f) return; const st = arbSet(M, i); l.push('', `Set ${i + 1}: ${st.pts[0]}-${st.pts[1]}`);
+    if (S.sorteig) l.push(`  Sorteig: guanya ${arbNom(M, S.sorteig.e)} (${new Date(S.sorteig.t).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })})`);
     l.push(`  Saca primer: ${arbNom(M, S.s0 ?? 0)}`);
     [0, 1].forEach(e => { const cv = (S.ev || []).filter(ev => ev.k === 'cv' && ev.e === e).map(ev => `${ev.entra} per ${ev.surt}`);
       l.push(`  ${arbNom(M, e)}: formació ${[1, 2, 3, 4, 5, 6].map(z => S.f[e][z]).join('-')}${st.L[e].length ? `; lliures ${st.L[e].join(', ')}` : ''}; temps morts ${st.tm[e]}; canvis ${cv.length ? cv.join(', ') : 'cap'}`); });
@@ -3091,7 +3109,7 @@ function arbActa(M, k = -1) {
   const g = arbSetsGuanyats(M), viu = k < 0, decidit = g.some(x => x >= guanyarSets(M));
   const fets = M.sets.map((S, i) => S.f ? { S, i, st: arbSet(M, i) } : null).filter(Boolean);
   const sets = fets.map(({ S, i, st }) => `<details class="arbset" ${i === M.sets.length - 1 && !decidit ? 'open' : ''}><summary><b>Set ${i + 1}</b><span class="arbsetsq">🏐 ${esc(arbNom(M, S.s0 ?? 0))}</span><b class="arbsetm ${st.fi ? '' : 'obert'}">${st.pts[0]}-${st.pts[1]}</b></summary>
-      <p class="arbfor">${[0, 1].map(e => `<b>${esc(arbNom(M, e))}</b> ${[1, 2, 3, 4, 5, 6].map(z => esc(S.f[e][z])).join('-')}${st.L[e].length ? ` <span class="lli">L ${st.L[e].map(esc).join(', ')}</span>` : ''}`).join('<br>')}</p>
+      <p class="arbfor">${S.sorteig ? `🪙 Sorteig: guanya ${esc(arbNom(M, S.sorteig.e))} (${new Date(S.sorteig.t).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })})<br>` : ''}${[0, 1].map(e => `<b>${esc(arbNom(M, e))}</b> ${[1, 2, 3, 4, 5, 6].map(z => esc(S.f[e][z])).join('-')}${st.L[e].length ? ` <span class="lli">L ${st.L[e].map(esc).join(', ')}</span>` : ''}`).join('<br>')}</p>
       ${st.log.length ? st.log.map(x => `<div class="arbev"><span class="arbevm">${x.m[0]}-${x.m[1]}</span><span class="grow">${esc(arbTxtEv(M, x.ev))}</span><button onclick="arbEsbEv(${k},${i},${x.j})" title="Esborra" aria-label="Esborra aquest moviment">✕</button></div>`).join('') : '<p class="meta" style="margin:4px 0">Encara res en aquest set.</p>'}</details>`).join('');
   return `<div class="arbactacap">
       <div class="arbactaeq"><span>${esc(arbNom(M, 0))}</span><b>${g[0]}-${g[1]}</b><span>${esc(arbNom(M, 1))}</span></div>
