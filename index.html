@@ -2798,9 +2798,9 @@ function viewArbitre() {
     return { fl, html: `<div class="arbmeitat ${c === 'e' ? 'esq' : 'dre'}" ${mou ? `data-arb="${k}" data-costat="${c}"` : ''}>
       ${ZK.map(z => { const [X, Y] = pantalla(c, xy[z]), d = st.pos[e][z];
         return `<div class="arbtok ${mou ? 'mou' : ''} ${mal.has(z) ? 'mal' : ''} ${st.saca === e && z === 1 ? 'sq' : ''} ${st.L[e].includes(d) ? 'lli' : ''}" data-z="${z}" style="left:${X}%;top:${Y}%"><b>${esc(d || '?')}</b><small>Z${z}</small>${st.targ[e][d] ? `<i class="arbtg t${st.targ[e][d]}"></i>` : ''}</div>`; }).join('')}
-      <span class="arbetq">R${rot}${e === rep ? ' - rep' : ' - saca'}</span>${mou && ARBXY[k]?.mogut ? `<button class="arbreset" onclick="arbReset('${k}')" title="Torna-los a lloc" aria-label="Torna els jugadors a lloc">↺</button>` : ''}</div>` };
+      <span class="arbetq">R${rot}${e === rep ? ' - rep' : ' - saca'}</span></div>`, mogut: mou && ARBXY[k]?.mogut ? k : '' };
   };
-  const E = meitat(esq, 'e'), Dr = meitat(dre, 'd'), fl = [...E.fl, ...Dr.fl];
+  const E = meitat(esq, 'e'), Dr = meitat(dre, 'd'), fl = [...E.fl, ...Dr.fl], mogut = [E, Dr].find(x => x.mogut)?.mogut;
   const equip = e => `<button class="arbeq ${st.saca === e ? 'serv' : ''}" ${st.fi ? 'disabled' : ''} onclick="arbEv({k:'p',e:${e}})" aria-label="Punt per a ${esc(arbNom(M, e))}">
     <span class="arbnom">${esc(arbNom(M, e))}</span><b>${st.pts[e]}</b><small>${st.saca === e ? `Saca el ${esc(st.pos[e][1] || '?')}` : `Sets ${g[e]}`}</small></button>`;
   const fila = e => { const lb = st.lib[e], off = st.fi ? 'disabled' : '';
@@ -2808,7 +2808,8 @@ function viewArbitre() {
     <button class="arbxip" ${st.tm[e] >= M.reg.tm || st.fi ? 'disabled' : ''} onclick="arbEv({k:'tm',e:${e}})">TM <i>${Array.from({ length: M.reg.tm }, (_, k) => k < st.tm[e] ? '●' : '○').join('')}</i></button>
     <button class="arbxip" ${st.cv[e] >= M.reg.cv || st.fi ? 'disabled' : ''} onclick="arbCanvi(${e})">Canvi <i>${st.cv[e]}/${M.reg.cv}</i></button>
     ${st.L[e].length ? `<button class="arbxip lli ${lb ? 'on' : ''}" ${off} onclick="arbLliure(${e})">Lliure${lb ? ` <i>${esc(lb.L)}</i>` : ''}</button>` : ''}
-    <button class="arbxip" ${off} onclick="arbTargeta(${e})" title="Targeta" aria-label="Targeta per a ${esc(arbNom(M, e))}"><i class="arbcard"></i><i class="arbcard r"></i></button></div>`; };
+    <button class="arbxip" ${off} onclick="arbTargeta(${e})" title="Targeta" aria-label="Targeta per a ${esc(arbNom(M, e))}"><i class="arbcard"></i><i class="arbcard r"></i></button>
+    ${e === rep && mogut ? `<button class="arbxip" onclick="arbReset('${mogut}')" title="Torna-los a lloc" aria-label="Torna els jugadors a lloc">↺ A lloc</button>` : ''}</div>`; };
   const avisos = [
     st.canviCamp && Math.max(...st.pts) === Math.ceil(M.reg.u / 2) && !st.fi ? `Canvi de camp: un equip ha arribat a ${Math.ceil(M.reg.u / 2)} punts.` : '',
     st.avis, fl.length ? `Falta de rotació: ${fl.map(x => x[2]).join('; ')}` : ''].filter(Boolean);
