@@ -832,18 +832,12 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 .arbeq b { font: 800 52px/1 var(--head); font-variant-numeric: tabular-nums; }
 .arbeq small { font-size: 13px; color: #f5c518; font-weight: 700; min-height: 16px; }
 .arbeq:disabled { opacity: .6; }
-.arbpista { position: relative; border-radius: 14px; background: #e47a3a; border: 4px solid #2f6db3; overflow: hidden; }
-.arbmeitat { position: relative; height: 182px; touch-action: none; }
-.arbxarxa { height: 6px; background: repeating-linear-gradient(90deg, #222 0 2px, #f4f4f4 2px 6px); box-shadow: 0 0 0 2px #fff; }
-.arbmeitat.baix::before, .arbmeitat.dalt::before { content: ''; position: absolute; left: 0; right: 0; border-top: 2px solid rgba(255,255,255,.85); }
-.arbmeitat.baix::before { top: 33%; } .arbmeitat.dalt::before { bottom: 33%; }
 .arbtok { position: absolute; transform: translate(-50%, -50%); width: 46px; height: 46px; border-radius: 50%; background: #fff; color: #14202e; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; border: 2px solid #6b7480; }
 .arbtok b { font: 800 19px/1 var(--head); } .arbtok small { font-size: 9px; font-weight: 700; color: #6b7480; margin-top: 1px; }
 .arbtok.mou { cursor: grab; border-color: #14325a; }
 .arbtok.sq { box-shadow: 0 0 0 3px #f5c518; }
 .arbtok.mal { border-color: #e03131; box-shadow: 0 0 0 3px #e03131; }
 .arbetq { position: absolute; left: 8px; font: 700 12px/1 var(--head); color: rgba(255,255,255,.95); }
-.arbmeitat.baix .arbetq { bottom: 6px; } .arbmeitat.dalt .arbetq { top: 6px; }
 .arbfalta { margin: 6px 0 0; color: var(--no); font-weight: 700; font-size: 14px; text-align: center; }
 .arbavis { margin: 0 0 8px; padding: 8px 10px; border-radius: 12px; background: var(--brand-soft); color: var(--brand); font-weight: 700; font-size: 14px; text-align: center; }
 .arbfila { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; }
@@ -857,11 +851,12 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 .arbform .rform select { padding: 8px 6px; font-weight: 800; font-size: 18px; text-align: center; }
 .arbxip.on { background: #14325a; color: #fff; border-color: #14325a; }
 .arbnormes summary { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; } .arbnormes summary .meta { flex: 1; font-weight: 400; }
-.arbreset { position: absolute; right: 8px; bottom: 6px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(20,50,90,.85); color: #fff; font-size: 18px; cursor: pointer; } .arbmeitat.dalt .arbreset { bottom: auto; top: 6px; }
+.arbreset { position: absolute; bottom: 6px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(20,50,90,.85); color: #fff; font-size: 18px; cursor: pointer; }
 
 .arbreg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 10px; } .arbreg label { display: flex; flex-direction: column; gap: 3px; text-align: center; }
 .arbreg small { font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; } .arbreg input { text-align: center; padding: 8px 2px; font-weight: 800; font-size: 17px; }
-.arbtok.lli { background: #f5c518; border-color: #14325a; } .arbtok.lli small { color: #14325a; }
+.arbtok.lli { background: #0ca678; border-color: #087f5b; color: #fff; } .arbtok.lli small { color: #e6fcf5; }
+.arbxip.lli.on { background: #0ca678; border-color: #0ca678; } .arbxip.lli.on i { color: #fff; }
 .arbtg { position: absolute; top: -4px; right: -2px; width: 10px; height: 14px; border-radius: 2px; box-shadow: 0 0 0 1.5px #fff; } .arbtg.t1 { background: #f5c518; } .arbtg.t2, .arbtg.t3, .arbtg.t4 { background: #e03131; }
 .arbfila { flex-wrap: wrap; } .arbxip { padding: 7px 10px; } .arbxip.on i { color: #f5c518; }
 .arblli { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; } .arblli select { padding: 8px 6px; font-weight: 700; }
@@ -873,6 +868,25 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 .arbhist { cursor: pointer; } .arbhres { font: 800 20px/1 var(--head); margin-right: 6px; } .arbhist .chev { color: var(--muted); font-size: 22px; }
 .arbev .grow, .arbset summary .grow { flex: 1; min-width: 0; } .arbcard { display: inline-block; width: 11px; height: 15px; border-radius: 2px; background: #f5c518; vertical-align: -2px; } .arbcard.r { background: #e03131; margin-left: 3px; transform: rotate(10deg); }
 .esbdesf { background: var(--brand-soft); border-radius: 10px; padding: 6px 8px; } .esbdesf .grow { flex: 1; min-width: 0; font-size: 14px; }
+
+/* àrbitre a pantalla sencera amb la pista en horitzontal (06-11-2026) */
+body.arbfull nav.tabs { display: none; }
+body.arbfull #app { padding-bottom: 8px; }
+.arbviu { display: flex; flex-direction: column; gap: 8px; height: calc(100dvh - var(--arbt, 120px) - 10px); min-height: 520px; }
+.arbviu > * { margin: 0 !important; }
+.arbviu { justify-content: space-between; } .arbviu .arbmarcador { flex: 1 1 auto; min-height: 118px; max-height: 190px; } .arbviu .arbeq { justify-content: center; } .arbviu .arbeq b { font-size: clamp(44px, 7dvh, 68px); } .arbviu .arbeq .arbnom { font-size: 17px; }
+.arbpista { position: relative; flex: 1 1 auto; min-height: 200px; max-height: min(calc((100vw - 32px) * .85), 560px); display: flex; border-radius: 14px; background: #e47a3a; border: 4px solid #2f6db3; overflow: hidden; }
+.arbmeitat { position: relative; flex: 1; touch-action: none; }
+.arbxarxa { width: 6px; background: repeating-linear-gradient(180deg, #222 0 2px, #f4f4f4 2px 6px); box-shadow: 0 0 0 2px #fff; }
+.arbmeitat::before { content: ''; position: absolute; top: 0; bottom: 0; border-left: 2px solid rgba(255,255,255,.85); }
+.arbmeitat.esq::before { left: 66.7%; } .arbmeitat.dre::before { left: 33.3%; }
+.arbmeitat .arbetq { bottom: 6px; } .arbmeitat.esq .arbetq { left: 8px; } .arbmeitat.dre .arbetq { left: auto; right: 8px; }
+.arbmeitat.esq .arbreset { left: 6px; bottom: 26px; } .arbmeitat.dre .arbreset { right: 6px; bottom: 26px; }
+.arbtok { width: 42px; height: 42px; } .arbtok b { font-size: 18px; }
+.arbpista .arbavis { position: absolute; left: 8px; right: 8px; top: 8px; margin: 0; z-index: 2; font-size: 13px; padding: 6px 8px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.arbpista .arbavis.mal { background: #fff0f0; color: var(--no); }
+.arbfiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .arbfiles .arbfila { margin: 0; flex-wrap: wrap; gap: 5px; align-content: flex-start; } .arbfiles .arbfila:last-child { justify-content: flex-end; }
+.arbfiles .arbxip { padding: 6px 9px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -2773,39 +2787,46 @@ function viewArbitre() {
   const st = arbSet(M, i), g = arbSetsGuanyats(M);
   if (g.some(x => x >= guanyarSets(M))) return arbActa(M);
   const rep = 1 - st.saca, ev = S.ev || [], darrer = ev.at(-1);
-  // una sola pista com la veu l'àrbitre: l'equip A a baix, el B a dalt (girat); l'equip que rep es pot moure
-  const meitat = e => {
+  // pista en horitzontal, com la veu l'àrbitre des de la cadira: la xarxa al mig, un equip a cada costat.
+  // Les posicions es guarden des del punt de vista de l'equip (x: d'esquerra a dreta mirant la xarxa, y: 0 = xarxa) i es giren per pintar-les
+  const esq = ((S.esq ?? 0) + (st.canviFet ? 1 : 0)) % 2, dre = 1 - esq;
+  const pantalla = (c, [x, y]) => c === 'e' ? [100 - y, x] : [y, 100 - x];
+  const meitat = (e, c) => {
     const rot = (st.rot[e] % 6) + 1, k = M.id + '|' + e + '|' + rot, mou = e === rep && !st.fi;
     const xy = e === rep ? (ARBXY[k] ||= { 4: [18, 22], 3: [50, 22], 2: [82, 22], 5: [18, 76], 6: [50, 80], 1: [82, 76] }) : { 4: [18, 22], 3: [50, 22], 2: [82, 22], 5: [18, 72], 6: [50, 72], 1: [82, 72] };
-    const fl = e === rep ? faltes(xy) : [], mal = new Set(fl.flatMap(([a, b]) => [a, b])), gira = e === 1;
-    return { fl, html: `<div class="arbmeitat ${gira ? 'dalt' : 'baix'}" ${mou ? `data-arb="${k}" data-gira="${gira ? 1 : 0}"` : ''}>
-      ${ZK.map(z => { const [x, y] = xy[z], X = gira ? 100 - x : x, Y = gira ? 100 - y : y, d = st.pos[e][z];
+    const fl = e === rep ? faltes(xy) : [], mal = new Set(fl.flatMap(([a, b]) => [a, b]));
+    return { fl, html: `<div class="arbmeitat ${c === 'e' ? 'esq' : 'dre'}" ${mou ? `data-arb="${k}" data-costat="${c}"` : ''}>
+      ${ZK.map(z => { const [X, Y] = pantalla(c, xy[z]), d = st.pos[e][z];
         return `<div class="arbtok ${mou ? 'mou' : ''} ${mal.has(z) ? 'mal' : ''} ${st.saca === e && z === 1 ? 'sq' : ''} ${st.L[e].includes(d) ? 'lli' : ''}" data-z="${z}" style="left:${X}%;top:${Y}%"><b>${esc(d || '?')}</b><small>Z${z}</small>${st.targ[e][d] ? `<i class="arbtg t${st.targ[e][d]}"></i>` : ''}</div>`; }).join('')}
-      <span class="arbetq">${esc(arbNom(M, e))} - R${rot}${e === rep ? ' - rep' : ' - saca'}</span>${mou && ARBXY[k]?.mogut ? `<button class="arbreset" onclick="arbReset('${k}')" title="Torna-los a lloc" aria-label="Torna els jugadors a lloc">↺</button>` : ''}</div>` };
+      <span class="arbetq">R${rot}${e === rep ? ' - rep' : ' - saca'}</span>${mou && ARBXY[k]?.mogut ? `<button class="arbreset" onclick="arbReset('${k}')" title="Torna-los a lloc" aria-label="Torna els jugadors a lloc">↺</button>` : ''}</div>` };
   };
-  const A = meitat(0), B = meitat(1), fl = rep ? B.fl : A.fl;
+  const E = meitat(esq, 'e'), Dr = meitat(dre, 'd'), fl = [...E.fl, ...Dr.fl];
   const equip = e => `<button class="arbeq ${st.saca === e ? 'serv' : ''}" ${st.fi ? 'disabled' : ''} onclick="arbEv({k:'p',e:${e}})" aria-label="Punt per a ${esc(arbNom(M, e))}">
     <span class="arbnom">${esc(arbNom(M, e))}</span><b>${st.pts[e]}</b><small>${st.saca === e ? `Saca el ${esc(st.pos[e][1] || '?')}` : `Sets ${g[e]}`}</small></button>`;
   const fila = e => { const lb = st.lib[e], off = st.fi ? 'disabled' : '';
-    return `<div class="arbfila"><span class="arbfnom">${esc(arbNom(M, e))}</span>
+    return `<div class="arbfila">
     <button class="arbxip" ${st.tm[e] >= M.reg.tm || st.fi ? 'disabled' : ''} onclick="arbEv({k:'tm',e:${e}})">TM <i>${Array.from({ length: M.reg.tm }, (_, k) => k < st.tm[e] ? '●' : '○').join('')}</i></button>
     <button class="arbxip" ${st.cv[e] >= M.reg.cv || st.fi ? 'disabled' : ''} onclick="arbCanvi(${e})">Canvi <i>${st.cv[e]}/${M.reg.cv}</i></button>
-    ${st.L[e].length ? `<button class="arbxip ${lb ? 'on' : ''}" ${off} onclick="arbLliure(${e})">Lliure${lb ? ` <i>${esc(lb.L)}</i>` : ''}</button>` : ''}
+    ${st.L[e].length ? `<button class="arbxip lli ${lb ? 'on' : ''}" ${off} onclick="arbLliure(${e})">Lliure${lb ? ` <i>${esc(lb.L)}</i>` : ''}</button>` : ''}
     <button class="arbxip" ${off} onclick="arbTargeta(${e})" title="Targeta" aria-label="Targeta per a ${esc(arbNom(M, e))}"><i class="arbcard"></i><i class="arbcard r"></i></button></div>`; };
-  return `<div class="arbtop"><span>Set ${i + 1}</span><span>Sets ${g[0]}-${g[1]}</span><span class="arbmenu"><button class="mini" onclick="arbVeuActa(-1)" title="Acta" aria-label="Acta">☰</button><button class="mini" onclick="arbFormacioEdita()" title="Formacions" aria-label="Formacions">✎</button><button class="mini" onclick="arbAcaba()" title="Acaba el partit" aria-label="Acaba el partit">✕</button></span></div>
-    <div class="arbmarcador">${equip(0)}<span class="arbguio">-</span>${equip(1)}</div>
-    ${st.fi ? `<div class="enjoc"><span class="grow"><b>Set per a ${esc(arbNom(M, st.guanya))}</b><small>${st.pts[0]}-${st.pts[1]}</small></span><button class="btn primary" onclick="arbSegSet()">Següent set</button></div>` : ''}
-    ${st.canviCamp && Math.max(...st.pts) === Math.ceil(M.reg.u / 2) && !st.fi ? `<p class="arbavis">Canvi de camp: un equip ha arribat a ${Math.ceil(M.reg.u / 2)} punts.</p>` : ''}
-    ${st.avis ? `<p class="arbavis">${esc(st.avis)}</p>` : ''}
-    <div class="arbpista">${B.html}<div class="arbxarxa"></div>${A.html}</div>
-    ${fl.length ? `<p class="arbfalta">Falta de rotació: ${fl.map(x => x[2]).join('; ')}</p>` : ''}
-    ${fila(0)}${fila(1)}
-    <div class="arbpeu"><span class="grow">${darrer ? esc(arbTxtEv(M, darrer)) : 'Toca el marcador de l’equip que guanya el punt.'}</span><button class="btn" ${ev.length ? '' : 'disabled'} onclick="arbDesfes()">↶ Desfés</button></div>`;
+  const avisos = [
+    st.canviCamp && Math.max(...st.pts) === Math.ceil(M.reg.u / 2) && !st.fi ? `Canvi de camp: un equip ha arribat a ${Math.ceil(M.reg.u / 2)} punts.` : '',
+    st.avis, fl.length ? `Falta de rotació: ${fl.map(x => x[2]).join('; ')}` : ''].filter(Boolean);
+  return `<div class="arbviu">
+    <div class="arbtop"><span>Set ${i + 1}</span><span>Sets ${g[esq]}-${g[dre]}</span><span class="arbmenu"><button class="mini" onclick="arbGira()" title="Canvia els equips de costat" aria-label="Canvia els equips de costat">⇄</button><button class="mini" onclick="arbVeuActa(-1)" title="Acta" aria-label="Acta">☰</button><button class="mini" onclick="arbFormacioEdita()" title="Formacions" aria-label="Formacions">✎</button><button class="mini" onclick="arbAcaba()" title="Acaba el partit" aria-label="Acaba el partit">✕</button></span></div>
+    <div class="arbmarcador">${equip(esq)}<span class="arbguio">-</span>${equip(dre)}</div>
+    ${st.fi ? `<div class="enjoc"><span class="grow"><b>Set per a ${esc(arbNom(M, st.guanya))}</b><small>${st.pts[esq]}-${st.pts[dre]}</small></span><button class="btn primary" onclick="arbSegSet()">Següent set</button></div>` : ''}
+    <div class="arbpista">${E.html}<div class="arbxarxa"></div>${Dr.html}
+      ${avisos.length ? `<p class="arbavis ${fl.length ? 'mal' : ''}">${avisos.map(esc).join('<br>')}</p>` : ''}</div>
+    <div class="arbfiles">${fila(esq)}${fila(dre)}</div>
+    <div class="arbpeu"><span class="grow">${darrer ? esc(arbTxtEv(M, darrer)) : 'Toca el marcador de l’equip que guanya el punt.'}</span><button class="btn" ${ev.length ? '' : 'disabled'} onclick="arbDesfes()">↶ Desfés</button></div>
+  </div>`;
 }
+window.arbGira = () => { const S = arbM().sets.at(-1); S.esq = 1 - (S.esq ?? 0); desaArb(); render(); };
 window.arbReset = k => { delete ARBXY[k]; render(); };
 window.arbEv = ev => { const M = arbM(); M.sets[M.sets.length - 1].ev = [...(M.sets[M.sets.length - 1].ev || []), { ...ev, t: Date.now() }]; desaArb(); render(); };
 window.arbDesfes = () => { const S = arbM().sets.at(-1); S.ev = (S.ev || []).slice(0, -1); desaArb(); render(); };
-window.arbSegSet = () => { const M = arbM(), ant = M.sets.at(-1); M.sets.push({ f: [{ ...ant.f[0] }, { ...ant.f[1] }], L: (ant.L || [[], []]).map(x => [...x]), s0: 1 - ant.s0, ev: [], nova: true }); desaArb(); render(); };
+window.arbSegSet = () => { const M = arbM(), ant = M.sets.at(-1); M.sets.push({ f: [{ ...ant.f[0] }, { ...ant.f[1] }], L: (ant.L || [[], []]).map(x => [...x]), s0: 1 - ant.s0, esq: 1 - (ant.esq ?? 0), ev: [], nova: true }); desaArb(); render(); };
 window.arbFormacioEdita = () => { arbM().sets.at(-1).editant = true; desaArb(); render(); };
 window.arbCanvi = async e => {
   const M = arbM(), st = arbSet(M, M.sets.length - 1), camp = ZK.map(z => st.pos[e][z]).filter(d => d && !st.L[e].includes(d));
@@ -3258,7 +3279,7 @@ addEventListener('pointermove', e => { if (!recDrag) return; const r = recDrag.c
   recDrag.t.style.left = recDrag.x + '%'; recDrag.t.style.top = recDrag.y + '%'; });
 addEventListener('pointerup', () => {
   if (!recDrag) return; const d = recDrag; recDrag = null; if (d.x == null) return;
-  if (d.c.dataset.arb) { const g = d.c.dataset.gira === '1', o = (ARBXY[d.c.dataset.arb] ||= {}); o[d.t.dataset.z] = [Math.round(g ? 100 - d.x : d.x), Math.round(g ? 100 - d.y : d.y)]; o.mogut = true; return render(); }
+  if (d.c.dataset.arb) { const o = (ARBXY[d.c.dataset.arb] ||= {}), [x, y] = d.c.dataset.costat === 'e' ? [d.y, 100 - d.x] : [100 - d.y, d.x]; o[d.t.dataset.z] = [Math.round(x), Math.round(y)]; o.mogut = true; return render(); }
   if (d.c.dataset.rival) { rivalXY(d.c.dataset.rival, +d.c.dataset.rot)[d.t.dataset.z] = [Math.round(d.x), Math.round(d.y)]; return render(); }
   const p = PAR.find(x => x.id === d.c.dataset.edit), sis = sistemaDe(p), lli = lliureDe(p, setActiu), s0 = (p.sets || {})[setActiu] || {};
   let pos = {}; ZK.forEach(z => { if (s0[z]) pos[z] = s0[z]; });
@@ -4153,6 +4174,7 @@ function pintaPantalla() {
   const a = document.activeElement;
   if (a && ((a.matches?.('input, textarea, select') && a.closest('.sesed, .exed')) || a.id === 'triaq' || a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
+  { const v = $('.arbviu'); document.body.classList.toggle('arbfull', !!v); if (v) v.style.setProperty('--arbt', Math.round(v.getBoundingClientRect().top + scrollY) + 'px'); }
   const ruta = r + '/' + arg;
   muntaCalendari(); capitalitza(); colocaInfos($('#app')); accessible($('#app'));
   document.documentElement.style.setProperty('--hh', $('header').offsetHeight + 'px');   // per al marcador fix del directe
