@@ -798,7 +798,15 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 .rz.sq { border-color: #f5c518; background: color-mix(in srgb, #f5c518 22%, var(--card)); }
 .rform .rinp { display: flex; flex-direction: column; align-items: center; gap: 2px; } .rform .rinp small { font-size: 11px; color: var(--muted); font-weight: 700; }
 .rform input { text-align: center; font-weight: 800; font-size: 20px; padding: 8px 4px; }
-.rvtog { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 14px 2px -6px; font-size: 13px; color: var(--muted); cursor: pointer; } .rvtog input { width: 16px; height: 16px; margin: 0; accent-color: var(--brand); }
+.rvtog { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0; font-size: 13px; color: var(--muted); cursor: pointer; } .rvtog input { width: 16px; height: 16px; margin: 0; accent-color: var(--brand); }
+
+.dirrow { display: flex; align-items: center; gap: 10px; margin: 16px 0 10px; }
+.dirrow .btn { flex: 1; text-decoration: none; text-align: center; padding: 14px; font-size: 17px; }
+.dirrow .rvtog { margin: 0; flex: none; width: 92px; line-height: 1.2; justify-content: flex-start; }
+.rivlin { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: 14px; color: var(--muted); }
+.rivrec summary .mini { width: auto; }
+.rcourt[data-rival] .rtok { cursor: grab; background: #fff; border-color: #6b7480; }
+.rcourt[data-rival] .rtok .tn { font: 800 20px/1 var(--head); color: var(--ink); }
 </style>
 </head>
 <body>
@@ -2589,14 +2597,23 @@ function estatSet(p, n) {
   return { pos, L, saca, rr };
 }
 // rotacions del rival (06-11-2026), com un àrbitre: p.rivalRot = {actiu, sets: {n: {1..6: dorsal}}}; rota sola cada cop que recupera el saque
+function rivalPos(p, n, rr) {   // on és cada dorsal del rival ara: la formació del set rotada rr cops
+  const ini = p.rivalRot?.sets?.[n]; if (!ini || !ZK.some(z => ini[z])) return null;
+  let pos = { ...ini }; for (let i = 0; i < rr % 6; i++) pos = rota(pos); return pos;
+}
+// posicions del rival a la pissarra: les que hagis mogut en aquest partit i rotació (només al mòbil, no es guarden), si no a lloc
+const RIVXY = {};
+const rivalXY = (id, rot) => { const k = id + '|' + rot; if (!RIVXY[k]) RIVXY[k] = { 4: [18, 12], 3: [50, 12], 2: [82, 12], 5: [18, 78], 6: [50, 82], 1: [82, 78] }; return RIVXY[k]; };
 function rivalHtml(p, n, rr, saca) {
   if (!p.rivalRot?.actiu) return '';
-  const ini = p.rivalRot.sets?.[n];
-  if (!ini || !ZK.some(z => ini[z])) return `<div class="card rival"><div class="row"><span class="grow"><b>Rotacions del rival</b><div class="meta">Set ${n}: encara no hi ha la formació.</div></span><button class="btn primary" onclick="dirRival('${p.id}')">Posa-la</button></div></div>`;
-  let pos = { ...ini }; for (let i = 0; i < rr % 6; i++) pos = rota(pos);
-  const cel = z => `<span class="rz ${saca === 'ells' && z === 1 ? 'sq' : ''}"><small>Z${z}</small><b>${esc(pos[z] || '–')}</b></span>`;
-  return `<div class="card rival"><div class="row" style="margin:0 0 8px"><span class="grow"><b>${saca === 'ells' ? `Saca el ${esc(pos[1] || '?')} del rival` : 'Recepció del rival'}</b><div class="meta">Rotació ${rr % 6 + 1} · ${rr} ${rr === 1 ? 'canvi' : 'canvis'} de saque</div></span><button class="mini" title="Canvia la formació del rival" onclick="dirRival('${p.id}')">✎</button></div>
-    <div class="rgrid"><i class="rxarxa">Xarxa</i>${[4, 3, 2, 5, 6, 1].map(cel).join('')}</div></div>`;
+  const pos = rivalPos(p, n, rr);
+  if (!pos) return `<div class="rivlin"><span class="grow">Rotacions del rival: set ${n} sense formació.</span><button class="btn" onclick="dirRival('${p.id}')">Posa-la</button></div>`;
+  if (saca === 'ells') return '';   // qui saca ja surt al marcador
+  const rot = rr % 6 + 1, xy = rivalXY(p.id, rot), fl = faltes(xy), mal = new Set(fl.flatMap(([a, b]) => [a, b]));
+  return `<details class="card recdir rivrec" open><summary><b>Recepció del rival · R${rot}</b><span class="meta"><button class="mini" title="Canvia la formació del rival" onclick="event.preventDefault();dirRival('${p.id}')">✎</button></span></summary>
+    <div class="court rcourt" data-rival="${p.id}" data-rot="${rot}"><div class="net"></div><div class="l3"></div>
+    ${ZK.map(z => `<div class="tok rtok ${mal.has(z) ? 'malrot' : ''}" data-z="${z}" style="left:${xy[z][0]}%;top:${xy[z][1]}%"><small>Z${z}</small><span class="tn">${esc(pos[z] || '?')}</span></div>`).join('')}</div>
+    ${fl.length ? `<p class="red" style="text-align:center;margin:4px 0">⚠️ Falta de rotació: ${fl.map(x => x[2]).join('; ')}</p>` : ''}</details>`;
 }
 window.dirRival = async id => {
   const p = PAR.find(x => x.id === id), n = setActiu, ant = p.rivalRot?.sets?.[n - 1], ara = p.rivalRot?.sets?.[n] || {};
@@ -2629,9 +2646,9 @@ function viewDirecte(id) {
   return `<div class="marc ${p.equip === 'G' ? 'mG' : 'mN'}">
     <div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
-    <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival')}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
-  ${rivalHtml(p, setActiu, rr, saca)}
+    <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival') + ((r => r?.[1] ? ' · el ' + esc(r[1]) : '')(rivalPos(p, setActiu, rr)))}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
   ${saca === 'nos' && pos[1] && !enJoc ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs quatre">${['ace', 'bs', 'ms', 'es'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
+  ${enJoc ? '' : rivalHtml(p, setActiu, rr, saca)}
   ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs quatre">${['rp', 'rb', 'rd', 'er'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirRep('${id}','${k}')">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error' }[k]}<small>${ACC[k].np ? 'sense punt' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? (() => { const sis = sistemaDe(p), lli = lliureDe(p, setActiu), m = campRec(pos, L, s0, lli), { r, xy } = recPos(p, m, sis, lli);
     return `<details class="card recdir" open><summary><b>Recepció${r ? ' · R' + r : ''}</b><span class="meta">${sis}${r ? ' · col·locador a Z' + r : ''}</span></summary>${recCourt(m, xy, false)}</details>`; })() : ''}
@@ -2906,12 +2923,13 @@ window.recReset = (id, r) => {
 };
 // arrossegar a la pista de recepció
 let recDrag = null;
-addEventListener('pointerdown', e => { const t = e.target.closest?.('.rcourt[data-edit] .rtok'); if (!t) return; e.preventDefault(); recDrag = { t, c: t.closest('.rcourt') }; t.setPointerCapture?.(e.pointerId); });
+addEventListener('pointerdown', e => { const t = e.target.closest?.('.rcourt[data-edit] .rtok, .rcourt[data-rival] .rtok'); if (!t) return; e.preventDefault(); recDrag = { t, c: t.closest('.rcourt') }; t.setPointerCapture?.(e.pointerId); });
 addEventListener('pointermove', e => { if (!recDrag) return; const r = recDrag.c.getBoundingClientRect();
   recDrag.x = Math.max(3, Math.min(97, 100 * (e.clientX - r.left) / r.width)); recDrag.y = Math.max(3, Math.min(97, 100 * (e.clientY - r.top) / r.height));
   recDrag.t.style.left = recDrag.x + '%'; recDrag.t.style.top = recDrag.y + '%'; });
 addEventListener('pointerup', () => {
   if (!recDrag) return; const d = recDrag; recDrag = null; if (d.x == null) return;
+  if (d.c.dataset.rival) { rivalXY(d.c.dataset.rival, +d.c.dataset.rot)[d.t.dataset.z] = [Math.round(d.x), Math.round(d.y)]; return render(); }
   const p = PAR.find(x => x.id === d.c.dataset.edit), sis = sistemaDe(p), lli = lliureDe(p, setActiu), s0 = (p.sets || {})[setActiu] || {};
   let pos = {}; ZK.forEach(z => { if (s0[z]) pos[z] = s0[z]; });
   const vol = recRot && rotsDe(sis).includes(recRot) ? recRot : rotsDe(sis)[0];
@@ -2975,8 +2993,8 @@ function viewPartit(id) {
   <div class="irow">${info(`<ul><li>Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables.</li><li>Als desplegables només surten els convocats que encara no tenen posició en aquest set.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols en aquest set».</li></ul>`, `Alineació`)}</div></details>
   <details class="card plega" ${(PLEG['rec' + id] ?? false) ? 'open' : ''} ontoggle="obertPart('rec', '${id}', this.open)"><summary><b>Recepció</b><span class="meta">${sistemaDe(p)}${lliureDe(p, setActiu) ? ' amb lliure' : ' sense lliure'}</span></summary>
   ${recepcioHtml(p)}</details>
-  <label class="rvtog" title="Al directe, poses la formació del rival a cada set i l'app et diu on ha d'estar cadascú."><input type="checkbox" ${p.rivalRot?.actiu ? 'checked' : ''} onchange="rivalActiu('${id}', this.checked)"> Controlar les rotacions del rival</label>
-  <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px;margin:16px 0 10px" href="#/directe/${id}">Marcador en directe</a>
+  <div class="dirrow"><a class="btn primary" href="#/directe/${id}">Marcador en directe</a>
+    <label class="rvtog" title="Al directe, poses la formació del rival a cada set i l'app et diu on ha d'estar cadascú."><input type="checkbox" ${p.rivalRot?.actiu ? 'checked' : ''} onchange="rivalActiu('${id}', this.checked)"> Rotacions del rival</label></div>
   <details class="card plega" ${(PLEG['est' + id] ?? true) ? 'open' : ''} ontoggle="obertPart('est', '${id}', this.open)"><summary><b>Estadístiques per jugador</b><span class="meta">${(() => { const m = estadJug(p.accions || []), n = Object.keys(m).length; return n ? n + ' jugadors amb accions apuntades' : 'Encara no hi ha accions apuntades'; })()}</span></summary>
   ${taulaEstad(p)}</details>
 </div>`;
