@@ -898,6 +898,12 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbform .rform .rinp { flex-direction: row; gap: 4px; } .arbform .rform .rinp small { width: 18px; flex: 0 0 18px; font-size: 11px; }
 .arbform .rform select { padding: 6px 4px; font-size: 16px; min-width: 0; width: 100%; }
 .arbform .rform .rinp:nth-last-child(-n+2) small { color: #0ca678; }
+
+.arbdors { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; } .arbdors:empty { display: none; }
+.arbdx { display: inline-flex; align-items: center; gap: 2px; background: var(--brand-soft); color: var(--brand); border-radius: 999px; padding: 3px 4px 3px 10px; }
+.arbdx b { font: 800 16px/1 var(--head); font-variant-numeric: tabular-nums; }
+.arbdx button { border: 0; background: none; color: var(--muted); font-size: 13px; width: 24px; height: 24px; cursor: pointer; }
+.arbdin { display: flex; gap: 6px; margin-top: 8px; } .arbdin input { flex: 1; min-width: 0; font-weight: 700; } .arbdin input::placeholder { font-weight: 400; } .arbdin .btn { width: 48px; padding: 0; font-size: 22px; }
 </style>
 </head>
 <body>
@@ -2921,13 +2927,13 @@ window.arbDesaFormacio = () => {
 };
 // preparar un partit nou: noms i dorsals dels dos equips (o els del meu equip)
 function arbPrepara() {
-  const N = ARBNOU || (ARBNOU = { eq: [{ nom: '', txt: '', meu: false, sel: [] }, { nom: '', txt: '', meu: false, sel: [] }], reg: { ...REG_DEF } });
+  const N = ARBNOU || (ARBNOU = { eq: [{ nom: '', ds: [], meu: false, sel: [] }, { nom: '', ds: [], meu: false, sel: [] }], reg: { ...REG_DEF } });
   const meus = USR && JUG.length ? JUG.filter(j => j.actiu !== false && dors(j.id)) : [];
   const eq = e => { const q = N.eq[e];
-    return `<div class="card arbform"><div class="arbformcap"><b>${e ? 'Equip B' : 'Equip A'}</b></div><input type="text" value="${esc(q.nom)}" placeholder="Nom de l'equip" aria-label="Nom de l'equip ${e ? 'B' : 'A'}" oninput="ARBNOU.eq[${e}].nom=this.value">
+    return `<div class="card arbform"><div class="arbformcap"><b>${e ? 'Equip B' : 'Equip A'}</b></div><input type="text" value="${esc(q.nom)}" placeholder="Nom de l'equip" aria-label="Nom de l'equip ${e ? 'B' : 'A'}" enterkeyhint="next" oninput="ARBNOU.eq[${e}].nom=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();$('#ad${e}')?.focus()}">
       ${meus.length ? `<label class="conv" style="margin-top:8px"><input type="checkbox" ${q.meu ? 'checked' : ''} onchange="ARBNOU.eq[${e}].meu=this.checked;if(this.checked){ARBNOU.eq[${e}].nom=ARBNOU.eq[${e}].nom||'${esc(club() || '').replace(/'/g, '')}';ARBNOU.eq[${1 - e}].meu=false}render()"><span class="grow">És el meu equip</span></label>` : ''}
       ${q.meu ? `<div class="tjug">${meus.map(j => `<label class="conv"><input type="checkbox" ${q.sel.includes(j.id) ? 'checked' : ''} onchange="arbSelJug(${e},'${j.id}',this.checked)"><span class="grow"><b class="dnum">${esc(dors(j.id))}</b> ${esc(j.nom)}</span></label>`).join('')}</div>`
-        : `<input type="text" inputmode="numeric" style="margin-top:8px" value="${esc(q.txt)}" placeholder="Dorsals: 1, 3, 4, 7, 9, 10, 12…" aria-label="Dorsals" oninput="ARBNOU.eq[${e}].txt=this.value">`}</div>`; };
+        : `<div class="arbdors" id="adc${e}">${arbXips(e)}</div><div class="arbdin"><input id="ad${e}" type="text" inputmode="numeric" enterkeyhint="next" autocomplete="off" placeholder="Jugador ${(q.ds || []).length + 1}: dorsal" aria-label="Dorsal" onkeydown="if(event.key==='Enter'){event.preventDefault();arbAfegeixDors(${e})}"><button type="button" class="btn" onclick="arbAfegeixDors(${e})" aria-label="Afegeix el dorsal">+</button></div>`}</div>`; };
   const hist = ARB.hist || [];
   return `<h2>Partit nou</h2><div class="irow">${info(`<p>Per portar un partit com l'àrbitre: formacions, rotacions dels dos equips, lliures, canvis, temps morts, targetes i l'acta.</p><p>Funciona sense compte i es guarda en aquest mòbil. Els partits acabats es poden obrir, corregir i reobrir.</p>`, `Àrbitre`)}</div>
     ${eq(0)}${eq(1)}
@@ -2936,11 +2942,20 @@ function arbPrepara() {
     <div class="actions"><button class="btn primary" style="flex:1" onclick="arbComenca()">Comença el partit</button></div>
     ${hist.length ? `<h3>Partits arbitrats</h3>${hist.slice().reverse().map((M, k) => `<div class="card row arbhist" onclick="arbVeuActa(${hist.length - 1 - k})"><span class="grow"><b>${esc(arbNom(M, 0))} - ${esc(arbNom(M, 1))}</b><div class="meta">${new Date(M.t).toLocaleDateString(LOC)}</div></span><b class="arbhres">${arbSetsGuanyats(M).join('-')}</b><span class="chev">›</span></div>`).join('')}` : ''}`;
 }
+// dorsals d'un en un: s'escriu el número, Enter, i el camp queda buit per al següent (sense tornar a pintar la pantalla, perquè no es tanqui el teclat)
+const arbParteix = t => (t || '').split(/[^0-9A-Za-z]+/).filter(Boolean);
+const arbXips = e => (ARBNOU.eq[e].ds || []).map(d => `<span class="arbdx"><b>${esc(d)}</b><button type="button" onclick="arbTreuDors(${e},'${esc(d)}')" aria-label="Treu el ${esc(d)}">✕</button></span>`).join('');
+const arbPintaDors = e => { const q = ARBNOU.eq[e]; $(`#adc${e}`).innerHTML = arbXips(e); $(`#ad${e}`).placeholder = `Jugador ${q.ds.length + 1}: dorsal`; };
+window.arbAfegeixDors = e => {
+  const q = ARBNOU.eq[e], inp = $(`#ad${e}`), nous = arbParteix(inp.value);
+  q.ds = [...new Set([...(q.ds || []), ...nous])]; inp.value = ''; arbPintaDors(e); inp.focus();
+};
+window.arbTreuDors = (e, d) => { const q = ARBNOU.eq[e]; q.ds = q.ds.filter(x => x !== d); arbPintaDors(e); };
 window.arbSelJug = (e, id, on) => { const s = ARBNOU.eq[e].sel; ARBNOU.eq[e].sel = on ? [...s, id] : s.filter(x => x !== id); };
 window.arbComenca = () => {
   const N = ARBNOU, eq = N.eq.map(q => {
     if (q.meu) { const js = JUG.filter(j => q.sel.includes(j.id)); return { nom: q.nom.trim(), d: js.map(j => String(dors(j.id))), noms: Object.fromEntries(js.map(j => [String(dors(j.id)), j.nom])) }; }
-    return { nom: q.nom.trim(), d: [...new Set(q.txt.split(/[^0-9A-Za-z]+/).filter(Boolean))] };
+    return { nom: q.nom.trim(), d: [...new Set([...(q.ds || []), ...arbParteix($(`#ad${N.eq.indexOf(q)}`)?.value)])] };
   });
   for (const [e, q] of eq.entries()) { if (!q.nom) return dialeg(`Posa el nom de l'equip ${e ? 'B' : 'A'}.`, { sol: true }); if (q.d.length < 6) return dialeg(`${esc(q.nom)} necessita com a mínim 6 dorsals.`, { sol: true }); }
   ARB.actual = { id: 'a' + Date.now(), t: Date.now(), eq, reg: N.reg, sets: [{ f: [{}, {}], L: [[], []], s0: 0, ev: [], preparant: true }] }; ARBNOU = null; desaArb(); render();
