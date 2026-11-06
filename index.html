@@ -872,6 +872,7 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 .arbevm { min-width: 44px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--muted); } .arbev .mini { width: 30px; height: 30px; }
 .arbhist { cursor: pointer; } .arbhres { font: 800 20px/1 var(--head); margin-right: 6px; } .arbhist .chev { color: var(--muted); font-size: 22px; }
 .arbev .grow, .arbset summary .grow { flex: 1; min-width: 0; } .arbcard { display: inline-block; width: 11px; height: 15px; border-radius: 2px; background: #f5c518; vertical-align: -2px; } .arbcard.r { background: #e03131; margin-left: 3px; transform: rotate(10deg); }
+.esbdesf { background: var(--brand-soft); border-radius: 10px; padding: 6px 8px; } .esbdesf .grow { flex: 1; min-width: 0; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -2698,7 +2699,7 @@ window.rivalActiu = (id, v) => { const p = PAR.find(x => x.id === id); p.rivalRo
 // ---------- Àrbitre (06-11-2026): portar un partit com l'àrbitre, sense compte ni club. Tot es guarda al mòbil (volei.arbitre).
 // M = {id, t, eq: [{nom, d: [dorsals], noms: {dorsal: nom}}, …], reg: {p, u, sets, tm, cv}, sets: [{f: [{1..6}, {1..6}], s0: 0|1, ev: [...]}], fi}
 // ev: {k: 'p', e} punt - {k: 'tm', e} temps mort - {k: 'cv', e, surt, entra} canvi - {k: 'li', e, surt, entra} lliure - {k: 'tg', e, d, tipus: av|pen|exp|des} targeta. Cada set: L = [[lliures A], [lliures B]]
-let ARB = store.get('volei.arbitre', { actual: null, hist: [] }), ARBNOU = null, ARBXY = {}, ARBVEU = null;
+let ARB = store.get('volei.arbitre', { actual: null, hist: [] }), ARBNOU = null, ARBXY = {}, ARBVEU = null, DIR_ESB = null;
 const desaArb = () => store.set('volei.arbitre', ARB);
 const arbM = () => ARB.actual;
 const REG_DEF = { p: 25, u: 15, sets: 5, tm: 2, cv: 6 };
@@ -2979,7 +2980,8 @@ function viewDirecte(id) {
   ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu}.</p>` : ''}
   ${conv.some(j => !dins.has(j.id)) ? `<details class="banq"><summary>Banqueta (${conv.filter(j => !dins.has(j.id)).length})</summary><div class="djgrid">${conv.filter(j => !dins.has(j.id)).map(j => tile(j.id, 'Banqueta')).join('')}</div></details>` : ''}
   <div class="accs tres">${['erv', 'prv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div>
-  <details class="card plog"><summary>Punts del set ${setActiu} (${acc.length})</summary>
+  <details class="card plog" ${window.PLOG_OBERT ? 'open' : ''} ontoggle="PLOG_OBERT=this.open"><summary>Punts del set ${setActiu} (${acc.length})</summary>
+    ${DIR_ESB?.id === id ? `<div class="hist esbdesf"><span class="grow">Esborrat: ${ACC[DIR_ESB.a.a]?.i || '🔁'} ${esc(ACC[DIR_ESB.a.a]?.t || '')}${DIR_ESB.a.j ? ' - ' + esc(nomJ(DIR_ESB.a.j)) : ''}</span><button class="btn" onclick="dirRecupera()">↶ Recupera</button></div>` : ''}
     ${acc.slice().reverse().map(a => `<div class="hist">${linia(a)}</div>`).join('') || '<p class="meta" style="margin:0">Encara cap punt apuntat en aquest set.</p>'}</details>
   <div class="actions"><a class="btn" style="text-decoration:none;flex:1;text-align:center" href="#/p/${id}">Torna al partit</a></div>`;
 }
@@ -2998,6 +3000,7 @@ window.dirRep = (id, k) => {
     return `<button class="dj ${r ? 'ps-' + r : ''}" onclick="dirAcc('${id}','${jid}','${k}')"><small>${jid === L ? 'Lliure' : 'Z' + ZK.find(z => pos[z] === jid)}${r ? ' ' + POS[r].l : ''}</small><span class="djn">${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b>` : ''}${esc((JUG.find(q => q.id === jid)?.nom || '').split(' ')[0])}</span></button>`; }).join('')}</div></div>`);
 };
 window.dirAcc = (id, jid, k) => {
+  DIR_ESB = null;   // un punt nou: ja no es recupera l'esborrat (l'ordre canviaria)
   const a = ACC[k], p = PAR.find(x => x.id === id);
   p.accions = [...(p.accions || []), { s: setActiu, j: a.sol ? '' : jid, a: k, t: Date.now() }];
   if (!a.np) Object.assign(p, sumaPunt(p, setActiu, !!a.bo, 1));
@@ -3044,10 +3047,17 @@ const efecte = (p, a, d) => { if (!a.s || ACC[a.a].np) return; Object.assign(p, 
 const desaAccions = p => { fs.updateDoc(parRef(p.id), { accions: p.accions, punts: p.punts || {}, resultat: p.resultat || '' }); render(); };
 // treure el saque apuntat (bo o fluix) sense preguntar: torna el saque
 window.dirDesfes = (id, i) => { const p = PAR.find(x => x.id === id); p.accions = p.accions.filter((_, k) => k !== i); desaAccions(p); };
-window.dirEsborra = async (id, i) => {
+// esborrar d'un toc (la llista es queda oberta); l'últim esborrat es pot recuperar
+window.PLOG_OBERT = false;
+window.dirEsborra = (id, i) => {
   const p = PAR.find(x => x.id === id), a = p.accions[i];
-  if (!await dialeg(`Esborrar <b>${ACC[a.a].i} ${ACC[a.a].t}</b>${a.j ? ' de ' + esc(JUG.find(q => q.id === a.j)?.nom || '') : ''}?${ACC[a.a].np ? '' : '<br><small>El marcador es corregeix sol.</small>'}`, { ok: 'Esborra', perill: true })) return;
+  DIR_ESB = { id, i, a }; window.PLOG_OBERT = true;
   efecte(p, a, -1); p.accions = p.accions.filter((_, k) => k !== i); desaAccions(p);
+};
+window.dirRecupera = () => {
+  const d = DIR_ESB; if (!d) return; DIR_ESB = null;
+  const p = PAR.find(x => x.id === d.id); if (!p) return;
+  efecte(p, d.a, 1); p.accions = [...p.accions.slice(0, d.i), d.a, ...p.accions.slice(d.i)]; desaAccions(p);
 };
 window.dirEdita = async (id, i) => {
   const p = PAR.find(x => x.id === id), a = p.accions[i], conv = JUG.filter(j => (p.convocats || []).includes(j.id) || j.id === a.j);
