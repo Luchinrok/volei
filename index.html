@@ -1022,6 +1022,12 @@ body.arbfull #app { padding-bottom: 8px; }
 .ahores { margin-top: 1mm; font-size: 6.5pt; }
 
 .actafora { position: fixed; left: -10000px; top: 0; width: 287mm; background: #fff; }
+
+.rgrid.c2 { grid-template-columns: repeat(2, 1fr); }
+.arbfmt { margin: 8px 0 0; }
+.rvcv { width: 28px; height: 28px; margin-left: 4px; vertical-align: middle; } .rvcvl { padding: 4px 0; border-top: 1px solid var(--line); }
+
+.arbpista.platja { background: #e9c98b; } .arbpista.platja .arbetq { color: #14325a; } .arbpista.platja .arbmeitat::before { display: none; }
 </style>
 </head>
 <body>
@@ -2817,8 +2823,28 @@ function estatSet(p, n) {
 // rotacions del rival (06-11-2026), com un àrbitre: p.rivalRot = {actiu, sets: {n: {1..6: dorsal}}}; rota sola cada cop que recupera el saque
 function rivalPos(p, n, rr) {   // on és cada dorsal del rival ara: la formació del set rotada rr cops
   const ini = p.rivalRot?.sets?.[n]; if (!ini || !ZK.some(z => ini[z])) return null;
-  let pos = { ...ini }; for (let i = 0; i < rr % 6; i++) pos = rota(pos); return pos;
+  let pos = { ...ini }; for (let i = 0; i < rr % 6; i++) pos = rota(pos);
+  // canvis del rival en aquest set (p.rivalRot.canvis = {set: [{surt, entra}]}): el dorsal que entra ocupa el lloc del que surt
+  for (const c of p.rivalRot?.canvis?.[n] || []) ZK.forEach(z => { if (pos[z] === c.surt) pos[z] = c.entra; });
+  return pos;
 }
+window.dirCanviRival = async id => {
+  const p = PAR.find(x => x.id === id), n = setActiu, pos = rivalPos(p, n, estatSet(p, n).rr || 0), fets = p.rivalRot?.canvis?.[n] || [];
+  if (!pos) return dirRival(id);
+  const ok = await dialeg(`<b>Canvi del rival - set ${n}</b><div class="form"><label class="lbl">Surt</label><select id="rvs">${ZK.map(z => pos[z]).filter(Boolean).map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('')}</select>
+    <label class="lbl">Entra</label><input type="text" inputmode="numeric" maxlength="3" id="rve" aria-label="Dorsal que entra">
+    ${fets.length ? `<p class="meta" style="margin:10px 0 4px">Canvis d'aquest set</p>${fets.map((c, k) => `<div class="row rvcvl"><span class="grow">Entra el <b>${esc(c.entra)}</b> per el ${esc(c.surt)}</span><button type="button" class="mini" onclick="rivalTreuCanvi('${id}', ${n}, ${k})" title="Desfés aquest canvi" aria-label="Desfés aquest canvi">✕</button></div>`).join('')}` : ''}</div>`, { ok: 'Fes el canvi', ico: '🔁' });
+  const surt = $('#rvs')?.value, entra = ($('#rve')?.value || '').trim();
+  if (!ok || !surt || !entra) return;
+  const nous = [...fets, { surt, entra }];
+  p.rivalRot = { ...(p.rivalRot || {}), canvis: { ...(p.rivalRot?.canvis || {}), [n]: nous } };
+  fs.updateDoc(parRef(id), { ['rivalRot.canvis.' + n]: nous }); render();
+};
+window.rivalTreuCanvi = (id, n, k) => {
+  const p = PAR.find(x => x.id === id), nous = (p.rivalRot?.canvis?.[n] || []).filter((_, j) => j !== k);
+  p.rivalRot = { ...(p.rivalRot || {}), canvis: { ...(p.rivalRot?.canvis || {}), [n]: nous } };
+  fs.updateDoc(parRef(id), { ['rivalRot.canvis.' + n]: nous }); $('#dlg').hidden = true; render();
+};
 // posicions del rival a la pissarra: les que hagis mogut en aquest partit i rotació (només al mòbil, no es guarden), si no a lloc
 const RIVXY = {};
 window.rivalReset = (id, rot) => { delete RIVXY[id + '|' + rot]; render(); };
@@ -2829,7 +2855,7 @@ function rivalHtml(p, n, rr, saca) {
   if (!pos) return `<div class="rivlin"><span class="grow">Rotacions del rival: set ${n} sense formació.</span><button class="btn" onclick="dirRival('${p.id}')">Posa-la</button></div>`;
   if (saca === 'ells') return '';   // qui saca ja surt al marcador
   const rot = rr % 6 + 1, xy = rivalXY(p.id, rot), fl = faltes(xy), mal = new Set(fl.flatMap(([a, b]) => [a, b]));
-  return `<details class="card recdir rivrec" open><summary><b>Recepció del rival - R${rot}</b><span class="meta"><button class="mini" title="Torna-los a lloc" aria-label="Torna els jugadors a lloc" onclick="event.preventDefault();rivalReset('${p.id}', ${rot})">↺</button> <button class="mini" title="Canvia la formació del rival" onclick="event.preventDefault();dirRival('${p.id}')">✎</button></span></summary>
+  return `<details class="card recdir rivrec" open><summary><b>Recepció del rival - R${rot}</b><span class="meta"><button class="mini" title="Torna-los a lloc" aria-label="Torna els jugadors a lloc" onclick="event.preventDefault();rivalReset('${p.id}', ${rot})">↺</button> <button class="mini" title="Canvi del rival" aria-label="Canvi del rival" onclick="event.preventDefault();dirCanviRival('${p.id}')">🔁</button> <button class="mini" title="Canvia la formació del rival" onclick="event.preventDefault();dirRival('${p.id}')">✎</button></span></summary>
     <div class="court rcourt" data-rival="${p.id}" data-rot="${rot}"><div class="net"></div><div class="l3"></div>
     ${ZK.map(z => `<div class="tok rtok ${mal.has(z) ? 'malrot' : ''}" data-z="${z}" style="left:${xy[z][0]}%;top:${xy[z][1]}%"><small>Z${z}</small><span class="tn">${esc(pos[z] || '?')}</span></div>`).join('')}</div>
     ${fl.length ? `<p class="red" style="text-align:center;margin:4px 0">⚠️ Falta de rotació: ${fl.map(x => x[2]).join('; ')}</p>` : ''}</details>`;
@@ -2852,7 +2878,12 @@ window.rivalActiu = (id, v) => { const p = PAR.find(x => x.id === id); p.rivalRo
 let ARB = store.get('volei.arbitre', { actual: null, hist: [] }), ARBNOU = null, ARBXY = {}, ARBVEU = null, DIR_ESB = null;
 const desaArb = () => { store.set('volei.arbitre', ARB); if (ARB.actual?.directe) arbPublica(ARB.actual); };
 const arbM = () => ARB.actual;
-const REG_DEF = { p: 25, u: 15, sets: 5, tm: 2, cv: 6 };
+const REG_DEF = { n: 6, p: 25, u: 15, sets: 5, tm: 2, cv: 6 };
+// formats: 6x6 (pista), 4x4 (quatre jugadors que roten, sense lliure) i platja 2x2 (ordre de saque, sense canvis, canvi de camp cada 7 punts, 5 al decisiu)
+const FORMATS = { 6: { nom: '6x6', reg: { n: 6, p: 25, u: 15, sets: 5, tm: 2, cv: 6 } }, 4: { nom: '4x4', reg: { n: 4, p: 25, u: 15, sets: 3, tm: 2, cv: 6 } }, 2: { nom: 'Platja 2x2', reg: { n: 2, p: 21, u: 15, sets: 3, tm: 1, cv: 0 } } };
+const zks = M => ZK.slice(0, M?.reg?.n || 6);
+const rotaN = (o, n) => n === 6 ? rota(o) : Object.fromEntries(Array.from({ length: n }, (_, k) => [k + 1, o[(k + 1) % n + 1]]));
+const zLbl = (M, z) => (M?.reg?.n || 6) === 2 ? (+z === 1 ? '1r' : '2n') : 'Z' + z;
 const arbNom = (M, e) => M.eq[e].nom || (e ? 'Equip B' : 'Equip A');
 const arbDors = (M, e, d) => d + (M.eq[e].noms?.[d] ? ' ' + M.eq[e].noms[d].split(' ')[0] : '');
 const guanyarSets = M => Math.ceil((M.reg.sets || 5) / 2);
@@ -2862,18 +2893,20 @@ function arbSet(M, i) {
   const S = M.sets[i], L = S.L || [[], []];
   const st = { pts: [0, 0], saca: S.s0, rot: [0, 0], pos: [{ ...(S.f?.[0] || {}) }, { ...(S.f?.[1] || {}) }], tm: [0, 0], cv: [0, 0], par: [{}, {}], tornat: [{}, {}], lib: [null, null], L, targ: [{}, {}], fi: false, guanya: null, canviCamp: false, log: [], avis: '',
     serv: [[], []], cvs: [], tms: [] };   // per a l'acta en PDF: torns de saque (columna i punts en perdre'l), canvis i temps morts amb el marcador
-  const decisiu = i + 1 === (M.reg.sets || 5), obj = decisiu ? M.reg.u : M.reg.p;
+  const decisiu = i + 1 === (M.reg.sets || 5), obj = decisiu ? M.reg.u : M.reg.p, n = M.reg.n || 6, ZM = zks(M);
+  st.nCanvis = 0;
   const punt = e => {
     st.pts[e]++;
     const perd = st.saca !== e;
     if (perd) {
-      st.serv[st.saca].push({ c: st.rot[st.saca] % 6, v: st.pts[st.saca] });
-      st.saca = e; st.rot[e]++; st.pos[e] = rota(st.pos[e]);
+      st.serv[st.saca].push({ c: st.rot[st.saca] % n, v: st.pts[st.saca] });
+      st.saca = e; st.rot[e]++; st.pos[e] = rotaN(st.pos[e], n);
       // el lliure no pot anar a la línia de davant: surt sol i torna el jugador que havia substituït
       const lb = st.lib[e]; if (lb && st.pos[e][4] === lb.L) { st.pos[e][4] = lb.per; st.lib[e] = null; st.avis = `El lliure ${lb.L} arriba a davant: surt i torna el ${lb.per}.`; }
     }
-    if (decisiu && Math.max(...st.pts) === Math.ceil(obj / 2) && !st.canviFet) { st.canviCamp = true; st.canviFet = true; st.canviM = [...st.pts]; }
-    if (Math.max(...st.pts) >= obj && Math.abs(st.pts[0] - st.pts[1]) >= 2) { st.fi = true; st.guanya = st.pts[0] > st.pts[1] ? 0 : 1; if (!perd) st.serv[e].push({ c: st.rot[e] % 6, v: st.pts[e], fi: true }); }
+    if (n === 2) { const k = decisiu ? 5 : 7, sum = st.pts[0] + st.pts[1]; if (sum % k === 0) { st.nCanvis++; st.canviM = [...st.pts]; st.avis = `Canvi de camp (${st.pts[0]}-${st.pts[1]}).`; } }
+    else if (decisiu && Math.max(...st.pts) === Math.ceil(obj / 2) && !st.canviFet) { st.canviCamp = true; st.canviFet = true; st.canviM = [...st.pts]; st.nCanvis = 1; }
+    if (Math.max(...st.pts) >= obj && Math.abs(st.pts[0] - st.pts[1]) >= 2) { st.fi = true; st.guanya = st.pts[0] > st.pts[1] ? 0 : 1; if (n === 2) st.avis = ''; if (!perd) st.serv[e].push({ c: st.rot[e] % n, v: st.pts[e], fi: true }); }
   };
   (S.ev || []).forEach((ev, j) => {
     if (st.fi) return;
@@ -2882,14 +2915,14 @@ function arbSet(M, i) {
     else if (ev.k === 'tm') { st.tm[ev.e]++; st.tms.push({ e: ev.e, m: [st.pts[ev.e], st.pts[1 - ev.e]] }); }
     else if (ev.k === 'cv') {
       st.cv[ev.e]++;
-      ZK.forEach(z => { if (st.pos[ev.e][z] === ev.surt) st.pos[ev.e][z] = ev.entra; });
+      ZM.forEach(z => { if (st.pos[ev.e][z] === ev.surt) st.pos[ev.e][z] = ev.entra; });
       const par = st.par[ev.e];
-      const torna = par[ev.entra] === ev.surt, tit = torna ? ev.entra : ev.surt, z = ZK.find(k => S.f?.[ev.e]?.[k] === tit);
+      const torna = par[ev.entra] === ev.surt, tit = torna ? ev.entra : ev.surt, z = ZM.find(k => S.f?.[ev.e]?.[k] === tit);
       st.cvs.push({ e: ev.e, c: z ? z - 1 : -1, entra: ev.entra, torna, m: [st.pts[ev.e], st.pts[1 - ev.e]] });
       if (torna) st.tornat[ev.e][ev.entra] = true;   // el titular torna per qui l'havia substituït
       else par[ev.surt] = ev.entra;   // titular → suplent
     } else if (ev.k === 'li') {   // el lliure entra, surt o es canvia per l'altre lliure (no compta com a canvi)
-      ZK.forEach(z => { if (st.pos[ev.e][z] === ev.surt) st.pos[ev.e][z] = ev.entra; });
+      ZM.forEach(z => { if (st.pos[ev.e][z] === ev.surt) st.pos[ev.e][z] = ev.entra; });
       const esL = d => L[ev.e].includes(d);
       st.lib[ev.e] = esL(ev.entra) ? { L: ev.entra, per: esL(ev.surt) ? st.lib[ev.e]?.per : ev.surt } : null;
     } else if (ev.k === 'tg') {
@@ -2924,22 +2957,23 @@ function viewArbitre() {
   const M = arbM();
   if (!M) return arbPrepara();
   const i = M.sets.length - 1, S = M.sets[i];
-  if (S.preparant || S.editant || !S.f || !ZK.every(z => S.f[0][z]) || !ZK.every(z => S.f[1][z])) return arbFormacio(M, i);
+  if (S.preparant || S.editant || !S.f || !zks(M).every(z => S.f[0][z]) || !zks(M).every(z => S.f[1][z])) return arbFormacio(M, i);
   const st = arbSet(M, i), g = arbSetsGuanyats(M);
   if (g.some(x => x >= guanyarSets(M))) return arbActa(M);
   const rep = 1 - st.saca, ev = S.ev || [], darrer = ev.at(-1);
   // pista en horitzontal, com la veu l'àrbitre des de la cadira: la xarxa al mig, un equip a cada costat.
   // Les posicions es guarden des del punt de vista de l'equip (x: d'esquerra a dreta mirant la xarxa, y: 0 = xarxa) i es giren per pintar-les
-  const esq = ((S.esq ?? 0) + (st.canviFet ? 1 : 0)) % 2, dre = 1 - esq;
+  const esq = ((S.esq ?? 0) + (st.nCanvis || 0)) % 2, dre = 1 - esq, n = M.reg.n || 6;
   const pantalla = (c, [x, y]) => c === 'e' ? [100 - y, x] : [y, 100 - x];
   const meitat = (e, c) => {
-    const rot = (st.rot[e] % 6) + 1, k = M.id + '|' + e + '|' + rot, mou = e === rep && !st.fi;
-    const xy = e === rep ? (ARBXY[k] ||= { 4: [18, 22], 3: [50, 22], 2: [82, 22], 5: [18, 76], 6: [50, 80], 1: [82, 76] }) : { 4: [18, 22], 3: [50, 22], 2: [82, 22], 5: [18, 72], 6: [50, 72], 1: [82, 72] };
-    const fl = e === rep ? faltes(xy) : [], mal = new Set(fl.flatMap(([a, b]) => [a, b]));
+    const rot = (st.rot[e] % n) + 1, k = M.id + '|' + e + '|' + rot, mou = e === rep && !st.fi;
+    const lloc = n === 6 ? { 4: [18, 22], 3: [50, 22], 2: [82, 22], 5: [18, 74], 6: [50, 76], 1: [82, 74] } : n === 4 ? { 3: [28, 24], 2: [72, 24], 4: [28, 72], 1: [72, 72] } : { 2: [30, 55], 1: [70, 55] };
+    const xy = e === rep ? (ARBXY[k] ||= { ...lloc }) : lloc;
+    const fl = e === rep && n === 6 ? faltes(xy) : [], mal = new Set(fl.flatMap(([a, b]) => [a, b]));   // les faltes de posició només al 6x6
     return { fl, html: `<div class="arbmeitat ${c === 'e' ? 'esq' : 'dre'}" ${mou ? `data-arb="${k}" data-costat="${c}"` : ''}>
-      ${ZK.map(z => { const [X, Y] = pantalla(c, xy[z]), d = st.pos[e][z];
-        return `<div class="arbtok ${mou ? 'mou' : ''} ${mal.has(z) ? 'mal' : ''} ${st.saca === e && z === 1 ? 'sq' : ''} ${st.L[e].includes(d) ? 'lli' : ''}" data-z="${z}" style="left:${X}%;top:${Y}%"><b>${esc(d || '?')}</b><small>Z${z}</small>${st.targ[e][d] ? `<i class="arbtg t${st.targ[e][d]}"></i>` : ''}</div>`; }).join('')}
-      <span class="arbetq">R${rot}${e === rep ? ' - rep' : ' - saca'}</span></div>`, mogut: mou && ARBXY[k]?.mogut ? k : '' };
+      ${zks(M).map(z => { const [X, Y] = pantalla(c, xy[z]), d = st.pos[e][z];
+        return `<div class="arbtok ${mou ? 'mou' : ''} ${mal.has(z) ? 'mal' : ''} ${st.saca === e && z === 1 ? 'sq' : ''} ${st.L[e].includes(d) ? 'lli' : ''}" data-z="${z}" style="left:${X}%;top:${Y}%"><b>${esc(d || '?')}</b><small>${n === 2 ? (S.f[e][1] === d ? '1r' : '2n') : zLbl(M, z)}</small>${st.targ[e][d] ? `<i class="arbtg t${st.targ[e][d]}"></i>` : ''}</div>`; }).join('')}
+      <span class="arbetq">${n === 2 ? '' : `R${rot}`}${e === rep ? (n === 2 ? 'rep' : ' - rep') : (n === 2 ? 'saca' : ' - saca')}</span></div>`, mogut: mou && ARBXY[k]?.mogut ? k : '' };
   };
   const E = meitat(esq, 'e'), Dr = meitat(dre, 'd'), fl = [...E.fl, ...Dr.fl], mogut = [E, Dr].find(x => x.mogut)?.mogut;
   const equip = e => `<button class="arbeq ${st.saca === e ? 'serv' : ''}" ${st.fi ? 'disabled' : ''} onclick="arbEv({k:'p',e:${e}})" aria-label="Punt per a ${esc(arbNom(M, e))}">
@@ -2947,7 +2981,7 @@ function viewArbitre() {
   const fila = e => { const lb = st.lib[e], off = st.fi ? 'disabled' : '';
     return `<div class="arbfila">
     <button class="arbxip" ${st.tm[e] >= M.reg.tm || st.fi ? 'disabled' : ''} onclick="arbEv({k:'tm',e:${e}})">TM <i>${Array.from({ length: M.reg.tm }, (_, k) => k < st.tm[e] ? '●' : '○').join('')}</i></button>
-    <button class="arbxip" ${st.cv[e] >= M.reg.cv || st.fi ? 'disabled' : ''} onclick="arbCanvi(${e})">Canvi <i>${st.cv[e]}/${M.reg.cv}</i></button>
+    ${M.reg.cv ? `<button class="arbxip" ${st.cv[e] >= M.reg.cv || st.fi ? 'disabled' : ''} onclick="arbCanvi(${e})">Canvi <i>${st.cv[e]}/${M.reg.cv}</i></button>` : ''}
     ${st.L[e].length ? `<button class="arbxip lli ${lb ? 'on' : ''}" ${off} onclick="arbLliure(${e})">Lliure${lb ? ` <i>${esc(lb.L)}</i>` : ''}</button>` : ''}
     <button class="arbxip" ${off} onclick="arbTargeta(${e})" title="Targeta" aria-label="Targeta per a ${esc(arbNom(M, e))}"><i class="arbcard"></i><i class="arbcard r"></i></button>
     ${e === rep && mogut ? `<button class="arbxip" onclick="arbReset('${mogut}')" title="Torna-los a lloc" aria-label="Torna els jugadors a lloc">↺ A lloc</button>` : ''}</div>`; };
@@ -2958,7 +2992,7 @@ function viewArbitre() {
     <div class="arbtop"><span>Set ${i + 1}</span><span>Sets ${g[esq]}-${g[dre]}</span><span class="arbmenu"><button class="mini ${M.directe ? 'arbon' : ''}" onclick="arbDirecte()" title="Marcador en directe" aria-label="Marcador en directe">📡</button><button class="mini" onclick="arbGira()" title="Canvia els equips de costat" aria-label="Canvia els equips de costat">⇄</button><button class="mini" onclick="arbVeuActa(-1)" title="Acta" aria-label="Acta">☰</button><button class="mini" onclick="arbFormacioEdita()" title="Formacions" aria-label="Formacions">✎</button><button class="mini" onclick="arbAcaba()" title="Acaba el partit" aria-label="Acaba el partit">✕</button></span></div>
     <div class="arbmarcador">${equip(esq)}<span class="arbguio">-</span>${equip(dre)}</div>
     ${st.fi ? `<div class="enjoc"><span class="grow"><b>Set per a ${esc(arbNom(M, st.guanya))}</b><small>${st.pts[esq]}-${st.pts[dre]}</small></span><button class="btn primary" onclick="arbSegSet()">Següent set</button></div>` : ''}
-    <div class="arbpista">${E.html}<div class="arbxarxa"></div>${Dr.html}
+    <div class="arbpista ${n === 2 ? 'platja' : ''}">${E.html}<div class="arbxarxa"></div>${Dr.html}
       ${avisos.length ? `<p class="arbavis ${fl.length ? 'mal' : ''}">${avisos.map(esc).join('<br>')}</p>` : ''}</div>
     <div class="arbfiles">${fila(esq)}${fila(dre)}</div>
     <div class="arbpeu"><span class="grow">${darrer ? esc(arbTxtEv(M, darrer)) : 'Toca el marcador de l’equip que guanya el punt.'}</span><button class="btn" ${ev.length ? '' : 'disabled'} onclick="arbDesfes()">↶ Desfés</button></div>
@@ -2995,7 +3029,7 @@ window.arbDesfes = () => { const M = arbM(), S = M.sets.at(-1), d = (S.ev || [])
 window.arbSegSet = () => { const M = arbM(), ant = M.sets.at(-1); M.sets.push({ f: [{}, {}], L: [[], []], s0: 1 - ant.s0, esq: 1 - (ant.esq ?? 0), ev: [], preparant: true }); desaArb(); render(); };
 window.arbFormacioEdita = () => { arbM().sets.at(-1).editant = true; desaArb(); render(); };
 window.arbCanvi = async e => {
-  const M = arbM(), st = arbSet(M, M.sets.length - 1), camp = ZK.map(z => st.pos[e][z]).filter(d => d && !st.L[e].includes(d));
+  const M = arbM(), st = arbSet(M, M.sets.length - 1), camp = zks(M).map(z => st.pos[e][z]).filter(d => d && !st.L[e].includes(d));
   const pr = dialeg(`<b>Canvi - ${esc(arbNom(M, e))}</b><div class="form"><label class="lbl">Surt</label><select id="arbs" onchange="arbOpcions(${e})">${camp.map(d => `<option value="${esc(d)}">${esc(arbDors(M, e, d))}</option>`).join('')}</select>
     <label class="lbl">Entra</label><select id="arbe"></select><p class="meta" id="arbav" style="margin:6px 0 0"></p></div>`, { ok: 'Fes el canvi', ico: '🔁' });
   arbOpcions(e);
@@ -3037,24 +3071,24 @@ window.arbTargeta = async e => {
 };
 // formació de cada equip a l'inici del set, els lliures i qui saca
 function arbFormacio(M, i) {
-  const S = M.sets[i], f = S.f || [{}, {}], L = S.L || [[], []];
+  const S = M.sets[i], f = S.f || [{}, {}], L = S.L || [[], []], n = M.reg.n || 6;
   const usats = e => [...Object.values(f[e]), ...L[e]];
   const opts = (e, v) => M.eq[e].d.map(d => `<option value="${esc(d)}" ${v === d ? 'selected' : ''} ${v !== d && usats(e).includes(d) ? 'disabled' : ''}>${esc(arbDors(M, e, d))}</option>`).join('');
   // un jugador només pot ser a una zona: els que ja són en una altra surten desactivats
-  const sel = (e, z) => `<label class="rinp"><small>Z${z}</small><select id="af${e}${z}" data-eq="${e}" onchange="arbFormSel(${e})"><option value="">–</option>${opts(e, f[e][z])}</select></label>`;
+  const sel = (e, z) => `<label class="rinp"><small>${zLbl(M, z)}</small><select id="af${e}${z}" data-eq="${e}" onchange="arbFormSel(${e})"><option value="">–</option>${opts(e, f[e][z])}</select></label>`;
   const selL = (e, n) => `<label class="rinp"><small>L${n + 1}</small><select id="al${e}${n}" data-eq="${e}" onchange="arbFormSel(${e})" aria-label="Lliure ${n + 1}"><option value="">–</option>${opts(e, L[e][n])}</select></label>`;
-  const ants = M.sets.slice(0, i).map((x, j) => x.f && ZK.every(z => x.f[0]?.[z]) ? j : -1).filter(j => j >= 0);
+  const ants = M.sets.slice(0, i).map((x, j) => x.f && zks(M).every(z => x.f[0]?.[z]) ? j : -1).filter(j => j >= 0);
   const copia = e => ants.length ? `<span class="arbcopia">${ants.map(j => `<button type="button" class="arbxip" onclick="arbCopiaForm(${e},${j})" title="Copia la formació del set ${j + 1}">⧉ Set ${j + 1}</button>`).join('')}</span>` : '';
   const qui = M.sets.slice(0, i).map((x, j) => x.f ? `Al set ${j + 1} va sacar primer ${arbNom(M, x.s0 ?? 0)}.` : '').filter(Boolean);
   return `<div class="arbformtop"><h2>Set ${i + 1}</h2>${info(`<p>El dorsal de cada zona a l'inici del set, com a la fitxa de l'àrbitre. Z1 és qui saca. L1 i L2 són els lliures (no compten com a canvi).</p><p>Marca quin equip saca primer. Amb ⧉ copies la formació d'un set anterior.</p>`, `Formacions`)}</div>
     ${i === 0 || i + 1 === (M.reg.sets || 5) ? `<button type="button" class="arbxip arbsort" onclick="arbSorteig()">🪙 Sorteig</button>` : ''}
     ${qui.length ? `<p class="meta arbqui">${qui.map(esc).join('<br>')}</p>` : ''}
-    <div id="as0">${[0, 1].map(e => `<div class="card arbform"><div class="arbformcap"><b>${esc(arbNom(M, e))}</b>${copia(e)}<button type="button" class="arbxip ${(S.s0 ?? 0) === e ? 'on' : ''}" data-v="${e}" onclick="document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', b === this))">🏐 Saca</button></div><div class="rgrid rform"><i class="rxarxa"></i>${[4, 3, 2, 5, 6, 1].map(z => sel(e, z)).join('')}${selL(e, 0)}${selL(e, 1)}</div></div>`).join('')}</div>
+    <div id="as0">${[0, 1].map(e => `<div class="card arbform"><div class="arbformcap"><b>${esc(arbNom(M, e))}</b>${copia(e)}<button type="button" class="arbxip ${(S.s0 ?? 0) === e ? 'on' : ''}" data-v="${e}" onclick="document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', b === this))">🏐 Saca</button></div><div class="rgrid rform ${n === 6 ? '' : 'c2'}"><i class="rxarxa"></i>${(n === 6 ? [4, 3, 2, 5, 6, 1] : n === 4 ? [3, 2, 4, 1] : [1, 2]).map(z => sel(e, z)).join('')}${n === 6 ? selL(e, 0) + selL(e, 1) : ''}</div></div>`).join('')}</div>
     <div class="actions"><button class="btn primary" style="flex:1" onclick="arbDesaFormacio()">${S.editant ? 'Desa' : 'Comença el set'}</button>${S.editant ? `<button class="btn" onclick="arbFormTorna()">Torna</button>` : ''}</div>
     <div class="actions">${i > 0 || (S.ev || []).length ? `<button class="btn danger" onclick="arbEsborraSet()">Esborra el set ${i + 1}</button>` : ''}${i === 0 ? `<button class="btn danger" onclick="arbAcaba(true)">Esborra aquest partit</button>` : ''}</div>`;
 }
 // guarda el que hi ha a la pantalla (sense validar) i copia la formació d'un set anterior a un equip
-const arbFormDom = S => { S.f = [0, 1].map(e => Object.fromEntries(ZK.map(z => [z, $(`#af${e}${z}`)?.value]).filter(([, v]) => v))); S.L = [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`)?.value).filter(Boolean)); S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); };
+const arbFormDom = S => { S.f = [0, 1].map(e => Object.fromEntries(zks(arbM()).map(z => [z, $(`#af${e}${z}`)?.value]).filter(([, v]) => v))); S.L = [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`)?.value).filter(Boolean)); S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); };
 window.arbCopiaForm = (e, j) => { const M = arbM(), S = M.sets.at(-1), A = M.sets[j]; arbFormDom(S); S.f[e] = { ...A.f[e] }; S.L[e] = [...(A.L?.[e] || [])]; desaArb(); render(); };
 window.arbEsborraSet = async () => {
   const M = arbM(), S = M.sets.at(-1);
@@ -3081,9 +3115,9 @@ window.arbFormSel = e => {
   sels.forEach(x => [...x.options].forEach(o => { o.disabled = !!o.value && o.value !== x.value && usats.includes(o.value); }));
 };
 window.arbDesaFormacio = () => {
-  const M = arbM(), S = M.sets.at(-1), f = [0, 1].map(e => Object.fromEntries(ZK.map(z => [z, $(`#af${e}${z}`).value]).filter(([, v]) => v)));
-  const L = [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`).value).filter(Boolean));
-  for (const e of [0, 1]) { const v = Object.values(f[e]); if (v.length < 6) return dialeg(`Falten jugadors a ${esc(arbNom(M, e))}.`, { sol: true }); if (new Set([...v, ...L[e]]).size < 6 + L[e].length) return dialeg(`Hi ha un dorsal repetit a ${esc(arbNom(M, e))}.`, { sol: true }); }
+  const M = arbM(), S = M.sets.at(-1), nz = zks(M).length, f = [0, 1].map(e => Object.fromEntries(zks(M).map(z => [z, $(`#af${e}${z}`).value]).filter(([, v]) => v)));
+  const L = [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`)?.value).filter(Boolean));
+  for (const e of [0, 1]) { const v = Object.values(f[e]); if (v.length < nz) return dialeg(`Falten jugadors a ${esc(arbNom(M, e))}.`, { sol: true }); if (new Set([...v, ...L[e]]).size < nz + L[e].length) return dialeg(`Hi ha un dorsal repetit a ${esc(arbNom(M, e))}.`, { sol: true }); }
   S.f = f; S.L = L; S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); if (!S.editant && !S.ini) S.ini = Date.now(); delete S.editant; delete S.preparant; delete S.nova; desaArb(); render();
 };
 // preparar un partit nou: noms i dorsals dels dos equips (o els del meu equip)
@@ -3105,6 +3139,7 @@ function arbPrepara() {
       <div class="arbcompte" id="adn${e}">${arbCompte(e)}</div></div>`; };
   const hist = ARB.hist || [];
   return `<div class="arbpre"><h2>Partit nou</h2>${info(`<p>Per portar un partit com l'àrbitre: formacions, rotacions dels dos equips, lliures, canvis, temps morts, targetes i l'acta.</p><p>Escriu el dorsal de cada jugador i prem Enter. Si un equip és el teu, marca «El meu equip» i tria'ls de la llista.</p><p>Funciona sense compte i es guarda en aquest mòbil. Els partits acabats es poden obrir, corregir i reobrir.</p>`, `Àrbitre`)}</div>
+    <div class="seg arbfmt">${Object.entries(FORMATS).sort((a, b) => b[0] - a[0]).map(([k, x]) => `<button type="button" class="${(N.reg.n || 6) === +k ? 'on' : ''}" onclick="arbFormat(${k})">${x.nom}</button>`).join('')}</div>
     ${eq(0)}${eq(1)}
     <details class="card arbnormes"><summary><b>Normes</b><span class="meta">Sets a ${N.reg.p}, decisiu a ${N.reg.u}, ${N.reg.tm} TM, ${N.reg.cv} canvis</span></summary><div class="arbreg">
       ${[['sets', 'Sets'], ['p', 'Punts'], ['u', 'Decisiu'], ['tm', 'TM'], ['cv', 'Canvis']].map(([k, t]) => `<label><small>${t}</small><input type="number" inputmode="numeric" min="1" value="${N.reg[k]}" oninput="ARBNOU.reg.${k}=+this.value||ARBNOU.reg.${k}"></label>`).join('')}</div></details>
@@ -3114,20 +3149,21 @@ function arbPrepara() {
 // dorsals d'un en un: s'escriu el número, Enter, i el camp queda buit per al següent (sense tornar a pintar la pantalla, perquè no es tanqui el teclat)
 const arbParteix = t => (t || '').split(/[^0-9A-Za-z]+/).filter(Boolean);
 const arbXips = e => (ARBNOU.eq[e].ds || []).map(d => `<span class="arbdx"><b>${esc(d)}</b><button type="button" onclick="arbTreuDors(${e},'${esc(d)}')" aria-label="Treu el ${esc(d)}">✕</button></span>`).join('');
-const arbCompte = e => { const q = ARBNOU.eq[e], n = (q.meu ? q.sel : q.ds || []).length; return n >= 6 ? `<span class="ok">✓ ${n} jugadors</span>` : `${n} ${n === 1 ? 'jugador' : 'jugadors'} - en falten ${6 - n}`; };
+const arbCompte = e => { const q = ARBNOU.eq[e], n = (q.meu ? q.sel : q.ds || []).length, min = ARBNOU.reg.n || 6; return n >= min ? `<span class="ok">✓ ${n} jugadors</span>` : `${n} ${n === 1 ? 'jugador' : 'jugadors'} - en falten ${min - n}`; };
 const arbPintaDors = e => { const q = ARBNOU.eq[e]; $(`#adc${e}`).innerHTML = arbXips(e); $(`#ad${e}`).placeholder = `Jugador ${q.ds.length + 1}: dorsal`; $(`#adn${e}`).innerHTML = arbCompte(e); };
 window.arbAfegeixDors = e => {
   const q = ARBNOU.eq[e], inp = $(`#ad${e}`), nous = arbParteix(inp.value);
   q.ds = [...new Set([...(q.ds || []), ...nous])]; inp.value = ''; arbPintaDors(e); inp.focus();
 };
 window.arbTreuDors = (e, d) => { const q = ARBNOU.eq[e]; q.ds = q.ds.filter(x => x !== d); arbPintaDors(e); };
+window.arbFormat = n => { ARBNOU.reg = { ...FORMATS[n].reg }; render(); };
 window.arbSelJug = (e, id, on) => { const s = ARBNOU.eq[e].sel; ARBNOU.eq[e].sel = on ? [...s, id] : s.filter(x => x !== id); const n = $(`#adn${e}`); if (n) n.innerHTML = arbCompte(e); };
 window.arbComenca = () => {
   const N = ARBNOU, eq = N.eq.map(q => {
     if (q.meu) { const js = JUG.filter(j => q.sel.includes(j.id)); return { nom: q.nom.trim(), d: js.map(j => String(dors(j.id))), noms: Object.fromEntries(js.map(j => [String(dors(j.id)), j.nom])) }; }
     return { nom: q.nom.trim(), d: [...new Set([...(q.ds || []), ...arbParteix($(`#ad${N.eq.indexOf(q)}`)?.value)])] };
   });
-  for (const [e, q] of eq.entries()) { if (!q.nom) return dialeg(`Posa el nom de l'equip ${e ? 'B' : 'A'}.`, { sol: true }); if (q.d.length < 6) return dialeg(`${esc(q.nom)} necessita com a mínim 6 dorsals.`, { sol: true }); }
+  for (const [e, q] of eq.entries()) { if (!q.nom) return dialeg(`Posa el nom de l'equip ${e ? 'B' : 'A'}.`, { sol: true }); if (q.d.length < (N.reg.n || 6)) return dialeg(`${esc(q.nom)} necessita com a mínim ${N.reg.n || 6} dorsals.`, { sol: true }); }
   ARB.actual = { id: 'a' + Date.now(), t: Date.now(), eq, reg: N.reg, sets: [{ f: [{}, {}], L: [[], []], s0: 0, ev: [], preparant: true }] }; ARBNOU = null; desaArb(); render();
 };
 window.arbAcaba = async esborra => {
@@ -3143,7 +3179,7 @@ function textActa(M) {
     if (S.sorteig) l.push(`  Sorteig: guanya ${arbNom(M, S.sorteig.e)} (${new Date(S.sorteig.t).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })})`);
     l.push(`  Saca primer: ${arbNom(M, S.s0 ?? 0)}`);
     [0, 1].forEach(e => { const cv = (S.ev || []).filter(ev => ev.k === 'cv' && ev.e === e).map(ev => `${ev.entra} per ${ev.surt}`);
-      l.push(`  ${arbNom(M, e)}: formació ${[1, 2, 3, 4, 5, 6].map(z => S.f[e][z]).join('-')}${st.L[e].length ? `; lliures ${st.L[e].join(', ')}` : ''}; temps morts ${st.tm[e]}; canvis ${cv.length ? cv.join(', ') : 'cap'}`); });
+      l.push(`  ${arbNom(M, e)}: formació ${zks(M).map(z => S.f[e][z]).join('-')}${st.L[e].length ? `; lliures ${st.L[e].join(', ')}` : ''}; temps morts ${st.tm[e]}; canvis ${cv.length ? cv.join(', ') : 'cap'}`); });
     st.log.filter(x => x.ev.k === 'tg').forEach(x => l.push(`  ${arbTxtEv(M, x.ev)} (${x.m[0]}-${x.m[1]})`)); });
   if (M.obs) l.push('', `Observacions: ${M.obs}`);
   return l.join('\n');
@@ -3153,7 +3189,7 @@ function arbActa(M, k = -1) {
   const g = arbSetsGuanyats(M), viu = k < 0, decidit = g.some(x => x >= guanyarSets(M));
   const fets = M.sets.map((S, i) => S.f ? { S, i, st: arbSet(M, i) } : null).filter(Boolean);
   const sets = fets.map(({ S, i, st }) => `<details class="arbset" ${i === M.sets.length - 1 && !decidit ? 'open' : ''}><summary><b>Set ${i + 1}</b><span class="arbsetsq">🏐 ${esc(arbNom(M, S.s0 ?? 0))}</span><b class="arbsetm ${st.fi ? '' : 'obert'}">${st.pts[0]}-${st.pts[1]}</b></summary>
-      <p class="arbfor">${S.sorteig ? `🪙 Sorteig: guanya ${esc(arbNom(M, S.sorteig.e))} (${new Date(S.sorteig.t).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })})<br>` : ''}${[0, 1].map(e => `<b>${esc(arbNom(M, e))}</b> ${[1, 2, 3, 4, 5, 6].map(z => esc(S.f[e][z])).join('-')}${st.L[e].length ? ` <span class="lli">L ${st.L[e].map(esc).join(', ')}</span>` : ''}`).join('<br>')}</p>
+      <p class="arbfor">${S.sorteig ? `🪙 Sorteig: guanya ${esc(arbNom(M, S.sorteig.e))} (${new Date(S.sorteig.t).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })})<br>` : ''}${[0, 1].map(e => `<b>${esc(arbNom(M, e))}</b> ${zks(M).map(z => esc(S.f[e][z])).join('-')}${st.L[e].length ? ` <span class="lli">L ${st.L[e].map(esc).join(', ')}</span>` : ''}`).join('<br>')}</p>
       ${st.log.length ? st.log.map(x => `<div class="arbev"><span class="arbevm">${x.m[0]}-${x.m[1]}</span><span class="grow">${esc(arbTxtEv(M, x.ev))}</span><button onclick="arbEsbEv(${k},${i},${x.j})" title="Esborra" aria-label="Esborra aquest moviment">✕</button></div>`).join('') : '<p class="meta" style="margin:4px 0">Encara res en aquest set.</p>'}</details>`).join('');
   return `<div class="arbactacap">
       <div class="arbactaeq"><span>${esc(arbNom(M, 0))}</span><b>${g[0]}-${g[1]}</b><span>${esc(arbNom(M, 1))}</span></div>
@@ -3196,8 +3232,8 @@ window.arbEsborraHist = async k => {
 // ---------- Marcador en directe (06-11-2026): l'àrbitre publica el resultat a /directes/{id} i qualsevol amb l'enllaç el segueix.
 // Només hi va el nom dels equips i el marcador (cap nom de jugador). Cal haver entrat amb Google per publicar-lo.
 const arbResum = M => {
-  const g = arbSetsGuanyats(M), i = M.sets.length - 1, st = M.sets[i]?.f && ZK.every(z => M.sets[i].f[0]?.[z]) ? arbSet(M, i) : null;
-  const sets = M.sets.map((S, j) => S.f && ZK.every(z => S.f[0]?.[z]) ? arbSet(M, j) : null).filter(Boolean).map(x => ({ a: x.pts[0], b: x.pts[1], fi: x.fi }));
+  const g = arbSetsGuanyats(M), i = M.sets.length - 1, st = M.sets[i]?.f && zks(M).every(z => M.sets[i].f[0]?.[z]) ? arbSet(M, i) : null;
+  const sets = M.sets.map((S, j) => S.f && zks(M).every(z => S.f[0]?.[z]) ? arbSet(M, j) : null).filter(Boolean).map(x => ({ a: x.pts[0], b: x.pts[1], fi: x.fi }));
   return { per: USR.uid, t: Date.now(), eq: [arbNom(M, 0), arbNom(M, 1)], g, sets, saca: st && !st.fi ? st.saca : null, tm: ARBTIM?.txt?.startsWith('Temps mort') ? ARBTIM.txt : '', fi: !!M.fi || g.some(x => x >= guanyarSets(M)) };
 };
 let ARBPUB = null;
@@ -3270,7 +3306,7 @@ function actaEquip(M, i, e, st, h, dreta) {
     </div></div>`;
 }
 function actaSet(M, i) {
-  const S = M.sets[i], ok = S?.f && ZK.every(z => S.f[0]?.[z]) && ZK.every(z => S.f[1]?.[z]);
+  const S = M.sets[i], ok = S?.f && zks(M).every(z => S.f[0]?.[z]) && zks(M).every(z => S.f[1]?.[z]);
   const buit = { pts: [0, 0], fi: false, serv: [[], []], cvs: [], tms: [] }, st = ok ? arbSet(M, i) : buit, h = ok ? arbSetHores(S, st) : {};
   const esq = i % 2 ? 1 : 0;   // als sets parells els equips canvien de costat, com al paper
   const eq = (e, d) => ok ? actaEquip(M, i, e, st, h, d) : `<div class="aeq buit"><div class="acap"><span>${d ? 'FINAL:' : 'INICI:'}</span><span>EQUIP</span><span class="sr"><i>S</i><i>R</i></span></div></div>`;
@@ -3354,7 +3390,7 @@ function viewDirecte(id) {
   return `<div class="marc ${p.equip === 'G' ? 'mG' : 'mN'}">
     <div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
-    <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival') + ((r => r?.[1] ? ' - el ' + esc(r[1]) : '')(rivalPos(p, setActiu, rr)))}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
+    <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival') + ((r => r?.[1] ? ' - el ' + esc(r[1]) : '')(rivalPos(p, setActiu, rr)))}${saca === 'ells' && rivalPos(p, setActiu, rr) ? ` <button class="mini rvcv" onclick="dirCanviRival('${p.id}')" title="Canvi del rival" aria-label="Canvi del rival">🔁</button>` : ''}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
   ${saca === 'nos' && pos[1] && !enJoc ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs quatre">${['ace', 'bs', 'ms', 'es'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${enJoc ? '' : rivalHtml(p, setActiu, rr, saca)}
   ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs quatre">${['rp', 'rb', 'rd', 'er'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirRep('${id}','${k}')">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error' }[k]}<small>${ACC[k].np ? 'sense punt' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
