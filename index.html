@@ -3045,17 +3045,18 @@ window.arbDesaFormacio = () => {
 };
 // preparar un partit nou: noms i dorsals dels dos equips (o els del meu equip)
 // equips dels partits arbitrats (l'últim de cada nom), per no haver de tornar a escriure els dorsals
-const arbDesats = () => { const m = new Map(); [...(ARB.hist || []), ARB.actual].filter(Boolean).forEach(M => M.eq.forEach(q => { if (q.nom && !q.noms) m.set(q.nom.toLowerCase(), { nom: q.nom, d: q.d }); })); return [...m.values()].sort((a, b) => a.nom.localeCompare(b.nom)); };
-window.arbUsaEquip = (e, n) => { const x = arbDesats()[+n]; if (!x) return; Object.assign(ARBNOU.eq[e], { nom: x.nom, ds: [...x.d], meu: false }); render(); };
+const arbDesats = () => { const m = new Map(); [...(ARB.hist || []), ARB.actual].filter(Boolean).forEach(M => M.eq.forEach(q => { if (q.nom && !q.noms) m.set(q.nom.trim().toLowerCase(), { k: q.nom.trim().toLowerCase(), nom: q.nom.trim(), d: [...q.d] }); })); return [...m.values()].sort((a, b) => a.nom.localeCompare(b.nom)); };
+// es busca pel nom (no per la posició a la llista), perquè no es pugui agafar l'equip del costat
+window.arbUsaEquip = (e, k) => { const x = arbDesats().find(y => y.k === k); if (!x) return; Object.assign(ARBNOU.eq[e], { nom: x.nom, ds: [...x.d], meu: false, de: k }); render(); };
 function arbPrepara() {
   const desats = arbDesats();
   const N = ARBNOU || (ARBNOU = { eq: [{ nom: '', ds: [], meu: false, sel: [] }, { nom: '', ds: [], meu: false, sel: [] }], reg: { ...REG_DEF } });
   const meus = USR && JUG.length ? JUG.filter(j => j.actiu !== false && dors(j.id)) : [];
   const eq = e => { const q = N.eq[e];
     return `<div class="card arbteam t${e}"><div class="arbthead"><span class="arbbadge">${e ? 'B' : 'A'}</span>
-      <input type="text" class="arbtnom" value="${esc(q.nom)}" placeholder="Nom de l'equip ${e ? 'B' : 'A'}" aria-label="Nom de l'equip ${e ? 'B' : 'A'}" enterkeyhint="next" oninput="ARBNOU.eq[${e}].nom=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();$('#ad${e}')?.focus()}">
+      <input type="text" class="arbtnom" value="${esc(q.nom)}" placeholder="Nom de l'equip ${e ? 'B' : 'A'}" aria-label="Nom de l'equip ${e ? 'B' : 'A'}" enterkeyhint="next" oninput="ARBNOU.eq[${e}].nom=this.value;ARBNOU.eq[${e}].de=''" onkeydown="if(event.key==='Enter'){event.preventDefault();$('#ad${e}')?.focus()}">
       ${meus.length ? `<label class="arbmeu ${q.meu ? 'on' : ''}"><input type="checkbox" ${q.meu ? 'checked' : ''} onchange="ARBNOU.eq[${e}].meu=this.checked;if(this.checked){ARBNOU.eq[${e}].nom=ARBNOU.eq[${e}].nom||'${esc(club() || '').replace(/'/g, '')}';ARBNOU.eq[${1 - e}].meu=false}render()"><span>El meu equip</span></label>` : ''}</div>
-      ${!q.meu && desats.length ? `<select class="arbant" onchange="arbUsaEquip(${e}, this.value)" aria-label="Equip d'un partit anterior"><option value="">↺ Equip d'un partit anterior</option>${desats.map((x, n) => `<option value="${n}">${esc(x.nom)} (${x.d.length})</option>`).join('')}</select>` : ''}
+      ${!q.meu && desats.length ? `<select class="arbant" onchange="arbUsaEquip(${e}, this.value)" aria-label="Equip d'un partit anterior"><option value="">↺ Equip d'un partit anterior</option>${desats.map(x => `<option value="${esc(x.k)}" ${q.de === x.k ? 'selected' : ''}>${esc(x.nom)} (${x.d.length})</option>`).join('')}</select>` : ''}
       ${q.meu ? `<div class="tjug">${meus.map(j => `<label class="conv"><input type="checkbox" ${q.sel.includes(j.id) ? 'checked' : ''} onchange="arbSelJug(${e},'${j.id}',this.checked)"><span class="grow"><b class="dnum">${esc(dors(j.id))}</b> ${esc(j.nom)}</span></label>`).join('')}</div>`
         : `<div class="arbdors" id="adc${e}">${arbXips(e)}</div><div class="arbdin"><input id="ad${e}" type="text" inputmode="numeric" enterkeyhint="next" autocomplete="off" placeholder="Jugador ${(q.ds || []).length + 1}: dorsal" aria-label="Dorsal" onkeydown="if(event.key==='Enter'){event.preventDefault();arbAfegeixDors(${e})}"><button type="button" onclick="arbAfegeixDors(${e})" aria-label="Afegeix el dorsal">+</button></div>`}
       <div class="arbcompte" id="adn${e}">${arbCompte(e)}</div></div>`; };
