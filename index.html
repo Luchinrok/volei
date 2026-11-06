@@ -3357,17 +3357,26 @@ async function arbPdfFitxer(M) {
     return new File([pdf.output('blob')], nom, { type: 'application/pdf' });
   } finally { box.remove(); }
 }
+// dos passos: primer es fa el PDF i després es comparteix amb un toc nou (el mòbil només deixa compartir just després de tocar un botó)
+let ARBPDF = null;
 window.arbPdf = async k => {
   const M = arbDe(k); desat('📄 Fent el PDF…');
-  let fitxer;
-  try { fitxer = await arbPdfFitxer(M); }
-  catch (e) { registraError(e, 'acta-pdf'); return dialeg('No s\'ha pogut fer el PDF. Comprova la connexió i torna-ho a provar.', { sol: true }); }
-  if (navigator.canShare?.({ files: [fitxer] })) {
-    try { await navigator.share({ files: [fitxer], title: fitxer.name.replace(/\.pdf$/, '') }); return; }
-    catch (e) { if (e?.name === 'AbortError') return; }
-  }
-  const a = document.createElement('a'); a.href = URL.createObjectURL(fitxer); a.download = fitxer.name; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 10000); desat('✓ PDF descarregat');
+  try { ARBPDF = await arbPdfFitxer(M); }
+  catch (e) { registraError(e, 'acta-pdf'); return dialeg(`No s'ha pogut fer el PDF. Comprova la connexió i torna-ho a provar.<br><small>${esc(e?.message || e)}</small>`, { sol: true }); }
+  const potCompartir = !!navigator.canShare?.({ files: [ARBPDF] });
+  dialeg(`<b>L'acta en PDF ja està feta</b><p class="meta" style="margin:6px 0 10px">${esc(ARBPDF.name)}</p>
+    <div class="actions" style="margin:0">${potCompartir ? `<button type="button" class="btn primary" style="flex:1" onclick="arbPdfComparteix()">Comparteix</button>` : ''}<button type="button" class="btn ${potCompartir ? '' : 'primary'}" style="flex:1" onclick="arbPdfObre()">${potCompartir ? 'Obre' : 'Obre o desa'}</button></div>`, { sol: true, ok: 'Tanca', ico: '📄' });
+};
+window.arbPdfComparteix = async () => {
+  if (!ARBPDF) return;
+  try { await navigator.share({ files: [ARBPDF], title: ARBPDF.name.replace(/\.pdf$/, '') }); }
+  catch (e) { if (e?.name !== 'AbortError') { registraError(e, 'acta-pdf-share'); arbPdfObre(); } }
+};
+window.arbPdfObre = () => {
+  if (!ARBPDF) return;
+  const url = URL.createObjectURL(ARBPDF), w = window.open(url, '_blank');
+  if (!w) { const a = document.createElement('a'); a.href = url; a.download = ARBPDF.name; document.body.appendChild(a); a.click(); a.remove(); }
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 };
 Object.defineProperty(window, 'ARBNOU', { get: () => ARBNOU, set: v => { ARBNOU = v; } });
 
