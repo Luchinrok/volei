@@ -798,6 +798,7 @@ h1, h2, h3, .hero .t { text-wrap: balance; }
 .rz.sq { border-color: #f5c518; background: color-mix(in srgb, #f5c518 22%, var(--card)); }
 .rform .rinp { display: flex; flex-direction: column; align-items: center; gap: 2px; } .rform .rinp small { font-size: 11px; color: var(--muted); font-weight: 700; }
 .rform input { text-align: center; font-weight: 800; font-size: 20px; padding: 8px 4px; }
+.rvtog { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 14px 2px -6px; font-size: 13px; color: var(--muted); cursor: pointer; } .rvtog input { width: 16px; height: 16px; margin: 0; accent-color: var(--brand); }
 </style>
 </head>
 <body>
@@ -2974,7 +2975,7 @@ function viewPartit(id) {
   <div class="irow">${info(`<ul><li>Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables.</li><li>Als desplegables només surten els convocats que encara no tenen posició en aquest set.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols en aquest set».</li></ul>`, `Alineació`)}</div></details>
   <details class="card plega" ${(PLEG['rec' + id] ?? false) ? 'open' : ''} ontoggle="obertPart('rec', '${id}', this.open)"><summary><b>Recepció</b><span class="meta">${sistemaDe(p)}${lliureDe(p, setActiu) ? ' amb lliure' : ' sense lliure'}</span></summary>
   ${recepcioHtml(p)}</details>
-  <label class="conv card" style="margin:16px 0 0;padding:12px 14px"><input type="checkbox" ${p.rivalRot?.actiu ? 'checked' : ''} onchange="rivalActiu('${id}', this.checked)"><span class="grow"><b>Controlar les rotacions del rival</b><div class="meta">Al directe, poses la formació del rival a cada set i l'app et diu on ha d'estar cadascú.</div></span></label>
+  <label class="rvtog" title="Al directe, poses la formació del rival a cada set i l'app et diu on ha d'estar cadascú."><input type="checkbox" ${p.rivalRot?.actiu ? 'checked' : ''} onchange="rivalActiu('${id}', this.checked)"> Controlar les rotacions del rival</label>
   <a class="btn primary" style="display:block;text-decoration:none;padding:14px;font-size:17px;margin:16px 0 10px" href="#/directe/${id}">Marcador en directe</a>
   <details class="card plega" ${(PLEG['est' + id] ?? true) ? 'open' : ''} ontoggle="obertPart('est', '${id}', this.open)"><summary><b>Estadístiques per jugador</b><span class="meta">${(() => { const m = estadJug(p.accions || []), n = Object.keys(m).length; return n ? n + ' jugadors amb accions apuntades' : 'Encara no hi ha accions apuntades'; })()}</span></summary>
   ${taulaEstad(p)}</details>
