@@ -984,6 +984,49 @@ body.arbfull #app { padding-bottom: 8px; }
 .mcara small, .mcreu small { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; opacity: .75; } .mcara b, .mcreu b { font: 800 17px/1.1 var(--head); }
 .msort { text-align: center; margin: 0; }
 @media (prefers-reduced-motion: reduce) { .mgir { animation-duration: .01s; } }
+
+/* acta en PDF (model de la federació catalana, A4 apaïsat) */
+#imprimeix { display: none; }
+@media print {
+  @page { size: A4 landscape; margin: 5mm; }
+  body.imprimint { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+  body.imprimint > :not(#imprimeix) { display: none !important; }
+  body.imprimint #imprimeix { display: block; }
+}
+.acta-pdf { width: 287mm; height: 199mm; box-sizing: border-box; font: 6.5pt/1.15 Arial, Helvetica, sans-serif; color: #000; display: flex; flex-direction: column; gap: 1mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.acta-pdf * { box-sizing: border-box; } .acta-pdf b { font-weight: 700; }
+.acta-pdf table { border-collapse: collapse; width: 100%; table-layout: fixed; } .acta-pdf td, .acta-pdf th { border: .2mm solid #000; padding: 0; text-align: center; font-weight: 400; }
+.ahead { display: flex; height: 12mm; border: .3mm solid #000; } .ahc { flex: 1; display: flex; flex-direction: column; justify-content: space-around; padding: 0 2mm; border-right: .2mm solid #000; font-size: 7pt; }
+.alogo { width: 45mm; display: flex; flex-direction: column; justify-content: center; align-items: center; font: 700 9pt Arial; } .alogo small { font-weight: 400; font-size: 6pt; }
+.arow { display: flex; gap: 1mm; height: 48mm; }
+.aset { flex: 1; display: flex; border: .3mm solid #000; position: relative; min-width: 0; }
+.alab { width: 6mm; border-right: .3mm solid #000; text-align: center; font: 700 10pt/1.05 Arial; padding-top: 1.5mm; position: relative; } .alab b { font-size: 12pt; }
+.amin { position: absolute; bottom: .8mm; left: 0; right: 0; font-size: 5pt; font-weight: 400; } .amin b { font-size: 7pt; }
+.aeq { flex: 1; display: flex; flex-direction: column; border-left: .3mm solid #000; min-width: 0; } .alab + .aeq { border-left: 0; }
+.acap { height: 3.6mm; display: flex; justify-content: space-between; align-items: center; padding: 0 1mm; border-bottom: .2mm solid #000; font-size: 5.5pt; white-space: nowrap; overflow: hidden; }
+.acap .lt { font-size: 8pt; } .acap .anom { font-weight: 700; max-width: 30mm; overflow: hidden; text-overflow: ellipsis; display: inline-block; vertical-align: bottom; }
+.acap .sr i { font-style: normal; margin-left: .8mm; padding: 0 .6mm; } .acap .sr i.on { border: .25mm solid #000; border-radius: 50%; font-weight: 700; }
+.acos { flex: 1; display: flex; min-height: 0; }
+.aform { flex: 1; height: 100%; } .aform th, .aform td { font-size: 6pt; }
+.aform .rom th { height: 3mm; font-size: 5.5pt; } .aform .tit td { height: 5.5mm; font-size: 9pt; font-weight: 700; } .aform .sub td { height: 4.6mm; font-size: 8pt; } .aform .mc td { height: 3mm; font-size: 5.5pt; }
+.aform .svw { border: 0; } .svt > tbody > tr > td { border: 0; border-right: .2mm solid #000; vertical-align: top; } .svt > tbody > tr > td:last-child { border-right: 0; }
+.svt table td { height: 4.2mm; position: relative; border-color: #888; font-size: 6.5pt; } .svt table td i { position: absolute; left: .4mm; top: .1mm; font-size: 3.6pt; font-style: normal; color: #666; }
+.svt table td b.fi { border: .25mm solid #000; border-radius: 50%; padding: 0 .5mm; }
+.apunts { width: 13mm; border-left: .3mm solid #000; display: flex; flex-direction: column; overflow: hidden; } .apunts small { font-size: 5pt; text-align: center; border-bottom: .2mm solid #000; }
+.pg { display: grid; grid-template-rows: repeat(13, minmax(0, 1fr)); grid-auto-flow: column; flex: 1 1 0; min-height: 0; font-size: 5pt; line-height: 1; text-align: center; align-items: center; padding: .3mm 0; }
+.pg span.x { text-decoration: line-through; text-decoration-thickness: .35mm; font-weight: 700; } .pg span.fi { border: .25mm solid #000; border-radius: 50%; }
+.atm { flex: 0 0 auto; border-top: .2mm solid #000; display: grid; grid-template-columns: 3mm 1fr; font-size: 5.5pt; } .atm small { grid-row: span 2; border-right: .2mm solid #000; align-self: stretch; display: flex; align-items: center; justify-content: center; } .atm span { text-align: center; border-bottom: .2mm solid #000; height: 3mm; }
+.aeq.buit { background: repeating-linear-gradient(0deg, transparent 0 4.5mm, #eee 4.5mm 4.7mm); }
+.acanvi { position: absolute; top: .4mm; left: 50%; transform: translateX(-50%); font-size: 5.5pt; background: #fff; padding: 0 1mm; }
+.aeqs { flex: 1; border: .3mm solid #000; display: flex; flex-direction: column; min-width: 0; } .aeqh { text-align: center; font-weight: 700; border-bottom: .2mm solid #000; }
+.aeqcols { display: flex; flex: 1; } .aros { align-self: flex-start; } .aros th { font-weight: 700; font-size: 6pt; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .aros .n { width: 8mm; } .aros td { height: 3mm; font-size: 6pt; text-align: left; padding-left: 1mm; } .aros td.n { text-align: center; padding: 0; }
+.abot { display: flex; gap: 1mm; flex: 1; min-height: 0; }
+.aobs { flex: 1; border: .3mm solid #000; display: flex; flex-direction: column; min-width: 0; } .aobs .at { padding: .5mm 1mm; font-weight: 700; } .aobst { flex: 1; padding: 0 1mm; font-size: 6.5pt; border-bottom: .2mm solid #000; min-height: 8mm; overflow: hidden; }
+.asanc { display: flex; gap: 1mm; padding: .8mm; } .asanc > table:first-child { width: 48%; } .asanc th { font-size: 5.5pt; font-weight: 700; } .asanc td { height: 3.1mm; font-size: 6pt; }
+.asig td:first-child { width: 12mm; text-align: left; padding-left: .8mm; font-size: 5.5pt; } .asig .cap { border: 0; font-size: 5.5pt; text-align: center; } .asig .cap span { display: inline-block; width: 20mm; }
+.ares { padding: .8mm 1mm; border-top: .2mm solid #000; font-size: 6.5pt; }
+.asum { width: 62mm; border: .3mm solid #000; padding: .8mm; } .asum th { font-size: 6pt; font-weight: 700; } .asum td { height: 3.4mm; font-size: 6.5pt; } .asum .tot td { font-weight: 700; border-top: .4mm solid #000; }
+.ahores { margin-top: 1mm; font-size: 6.5pt; }
 </style>
 </head>
 <body>
@@ -2822,28 +2865,33 @@ const TG = { av: ['🟨', 'Avís'], pen: ['🟥', 'Penalització'], exp: ['🟨�
 // estat d'un set a partir de la formació i dels esdeveniments
 function arbSet(M, i) {
   const S = M.sets[i], L = S.L || [[], []];
-  const st = { pts: [0, 0], saca: S.s0, rot: [0, 0], pos: [{ ...(S.f?.[0] || {}) }, { ...(S.f?.[1] || {}) }], tm: [0, 0], cv: [0, 0], par: [{}, {}], tornat: [{}, {}], lib: [null, null], L, targ: [{}, {}], fi: false, guanya: null, canviCamp: false, log: [], avis: '' };
+  const st = { pts: [0, 0], saca: S.s0, rot: [0, 0], pos: [{ ...(S.f?.[0] || {}) }, { ...(S.f?.[1] || {}) }], tm: [0, 0], cv: [0, 0], par: [{}, {}], tornat: [{}, {}], lib: [null, null], L, targ: [{}, {}], fi: false, guanya: null, canviCamp: false, log: [], avis: '',
+    serv: [[], []], cvs: [], tms: [] };   // per a l'acta en PDF: torns de saque (columna i punts en perdre'l), canvis i temps morts amb el marcador
   const decisiu = i + 1 === (M.reg.sets || 5), obj = decisiu ? M.reg.u : M.reg.p;
   const punt = e => {
     st.pts[e]++;
-    if (st.saca !== e) {
+    const perd = st.saca !== e;
+    if (perd) {
+      st.serv[st.saca].push({ c: st.rot[st.saca] % 6, v: st.pts[st.saca] });
       st.saca = e; st.rot[e]++; st.pos[e] = rota(st.pos[e]);
       // el lliure no pot anar a la línia de davant: surt sol i torna el jugador que havia substituït
       const lb = st.lib[e]; if (lb && st.pos[e][4] === lb.L) { st.pos[e][4] = lb.per; st.lib[e] = null; st.avis = `El lliure ${lb.L} arriba a davant: surt i torna el ${lb.per}.`; }
     }
-    if (decisiu && Math.max(...st.pts) === Math.ceil(obj / 2) && !st.canviFet) { st.canviCamp = true; st.canviFet = true; }
-    if (Math.max(...st.pts) >= obj && Math.abs(st.pts[0] - st.pts[1]) >= 2) { st.fi = true; st.guanya = st.pts[0] > st.pts[1] ? 0 : 1; }
+    if (decisiu && Math.max(...st.pts) === Math.ceil(obj / 2) && !st.canviFet) { st.canviCamp = true; st.canviFet = true; st.canviM = [...st.pts]; }
+    if (Math.max(...st.pts) >= obj && Math.abs(st.pts[0] - st.pts[1]) >= 2) { st.fi = true; st.guanya = st.pts[0] > st.pts[1] ? 0 : 1; if (!perd) st.serv[e].push({ c: st.rot[e] % 6, v: st.pts[e], fi: true }); }
   };
   (S.ev || []).forEach((ev, j) => {
     if (st.fi) return;
     st.avis = '';
     if (ev.k === 'p') punt(ev.e);
-    else if (ev.k === 'tm') st.tm[ev.e]++;
+    else if (ev.k === 'tm') { st.tm[ev.e]++; st.tms.push({ e: ev.e, m: [st.pts[ev.e], st.pts[1 - ev.e]] }); }
     else if (ev.k === 'cv') {
       st.cv[ev.e]++;
       ZK.forEach(z => { if (st.pos[ev.e][z] === ev.surt) st.pos[ev.e][z] = ev.entra; });
       const par = st.par[ev.e];
-      if (par[ev.entra] === ev.surt) st.tornat[ev.e][ev.entra] = true;   // el titular torna per qui l'havia substituït
+      const torna = par[ev.entra] === ev.surt, tit = torna ? ev.entra : ev.surt, z = ZK.find(k => S.f?.[ev.e]?.[k] === tit);
+      st.cvs.push({ e: ev.e, c: z ? z - 1 : -1, entra: ev.entra, torna, m: [st.pts[ev.e], st.pts[1 - ev.e]] });
+      if (torna) st.tornat[ev.e][ev.entra] = true;   // el titular torna per qui l'havia substituït
       else par[ev.surt] = ev.entra;   // titular → suplent
     } else if (ev.k === 'li') {   // el lliure entra, surt o es canvia per l'altre lliure (no compta com a canvi)
       ZK.forEach(z => { if (st.pos[ev.e][z] === ev.surt) st.pos[ev.e][z] = ev.entra; });
@@ -3041,7 +3089,7 @@ window.arbDesaFormacio = () => {
   const M = arbM(), S = M.sets.at(-1), f = [0, 1].map(e => Object.fromEntries(ZK.map(z => [z, $(`#af${e}${z}`).value]).filter(([, v]) => v)));
   const L = [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`).value).filter(Boolean));
   for (const e of [0, 1]) { const v = Object.values(f[e]); if (v.length < 6) return dialeg(`Falten jugadors a ${esc(arbNom(M, e))}.`, { sol: true }); if (new Set([...v, ...L[e]]).size < 6 + L[e].length) return dialeg(`Hi ha un dorsal repetit a ${esc(arbNom(M, e))}.`, { sol: true }); }
-  S.f = f; S.L = L; S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); delete S.editant; delete S.preparant; delete S.nova; desaArb(); render();
+  S.f = f; S.L = L; S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); if (!S.editant && !S.ini) S.ini = Date.now(); delete S.editant; delete S.preparant; delete S.nova; desaArb(); render();
 };
 // preparar un partit nou: noms i dorsals dels dos equips (o els del meu equip)
 // equips dels partits arbitrats (l'últim de cada nom), per no haver de tornar a escriure els dorsals
@@ -3115,18 +3163,22 @@ function arbActa(M, k = -1) {
   return `<div class="arbactacap">
       <div class="arbactaeq"><span>${esc(arbNom(M, 0))}</span><b>${g[0]}-${g[1]}</b><span>${esc(arbNom(M, 1))}</span></div>
       <div class="arbactaparc">${fets.map(({ st }) => `<span class="${st.fi ? '' : 'obert'}">${st.pts[0]}-${st.pts[1]}</span>`).join('')}</div>
-      <div class="arbactapeu"><span>${new Date(M.t).toLocaleDateString(LOC)}</span>${info(`<p>Toca un set per veure'n els moviments. Si n'hi ha un d'equivocat, esborra'l amb ✕ i el marcador es recalcula sol.</p><p>Per continuar o corregir-lo des del marcador, reobre el partit.</p>`, `Acta`)}<button class="mini" onclick="arbNomsEq(${k})" title="Canvia els noms" aria-label="Canvia els noms dels equips">✎</button></div></div>
+      <div class="arbactapeu"><span>${new Date(M.t).toLocaleDateString(LOC)}</span>${info(`<p>Toca un set per veure'n els moviments. Si n'hi ha un d'equivocat, esborra'l amb ✕ i el marcador es recalcula sol.</p><p>Per continuar o corregir-lo des del marcador, reobre el partit.</p>`, `Acta`)}<button class="mini" onclick="arbNomsEq(${k})" title="Dades del partit" aria-label="Dades del partit">✎</button></div></div>
     <div class="card arbsets">${sets}</div>
     <details class="card arbobs" ${M.obs ? 'open' : ''}><summary><b>Observacions</b></summary><textarea rows="3" placeholder="Protestes, lesions, retards, incidències…" aria-label="Observacions" onchange="arbObs(${k}, this.value)">${esc(M.obs || '')}</textarea></details>
     <div class="arbactabtn">${viu && !decidit ? `<button class="btn" onclick="arbTornaLlista()" aria-label="Torna">‹</button>` : !viu ? `<button class="btn" onclick="arbTornaLlista()" aria-label="Torna">‹</button>` : ''}
-      <button class="btn primary" onclick="arbCopiaActa(${k})">Copia l'acta</button>
+      <button class="btn primary" onclick="arbPdf(${k})">📄 PDF</button><button class="btn" onclick="arbCopiaActa(${k})" title="Copia l'acta en text" aria-label="Copia l'acta en text">Text</button>
       ${viu ? (decidit ? `<button class="btn" onclick="arbAcaba()">Desa i acaba</button>` : '') : `<button class="btn" onclick="arbReobre(${k})">Reobre</button><button class="btn danger" onclick="arbEsborraHist(${k})" title="Esborra el partit" aria-label="Esborra el partit">🗑</button>`}</div>`;
 }
 window.arbObs = (k, v) => { arbDe(k).obs = v.trim(); desaArb(); };
+// noms dels equips i dades de la capçalera de l'acta (competició, terreny, àrbitres, anotador)
 window.arbNomsEq = async k => {
-  const M = arbDe(k);
-  if (!await dialeg(`<b>Noms dels equips</b><div class="form">${[0, 1].map(e => `<input type="text" id="anq${e}" style="margin-top:8px" value="${esc(arbNom(M, e))}" aria-label="Nom de l'equip ${e ? 'B' : 'A'}">`).join('')}</div>`, { ok: 'Desa', ico: '✎' })) return;
-  [0, 1].forEach(e => { const v = $(`#anq${e}`)?.value.trim(); if (v) M.eq[e].nom = v; }); desaArb(); render();
+  const M = arbDe(k), I = M.info || {};
+  const camp = (id, lbl, v) => `<label class="lbl">${lbl}</label><input type="text" id="${id}" value="${esc(v || '')}">`;
+  if (!await dialeg(`<b>Dades del partit</b><div class="form">${camp('anq0', 'Equip A', arbNom(M, 0))}${camp('anq1', 'Equip B', arbNom(M, 1))}${camp('ani_comp', 'Competició', I.comp)}${camp('ani_terreny', 'Terreny de joc', I.terreny)}${camp('ani_arb1', '1r àrbitre', I.arb1)}${camp('ani_arb2', '2n àrbitre', I.arb2)}${camp('ani_anot', 'Anotador/a', I.anot)}</div>`, { ok: 'Desa', ico: '✎' })) return;
+  [0, 1].forEach(e => { const v = $(`#anq${e}`)?.value.trim(); if (v) M.eq[e].nom = v; });
+  M.info = Object.fromEntries(['comp', 'terreny', 'arb1', 'arb2', 'anot'].map(x => [x, $(`#ani_${x}`)?.value.trim() || '']));
+  desaArb(); render();
 };
 const arbDe = k => k >= 0 ? ARB.hist[k] : arbM();
 window.arbCopiaActa = async k => { const t = textActa(arbDe(k));
@@ -3198,6 +3250,77 @@ function viewMarcador(id) {
     <p class="meta" style="text-align:center">${fa < 1 ? 'Actualitzat ara mateix' : `Actualitzat fa ${fa} min`}</p>
     <div class="actions"><a class="btn" style="flex:1;text-align:center;text-decoration:none" href="https://3tocs.web.app/">Fet amb 3Tocs</a></div></div>`;
 }
+// ---------- Acta en PDF (06-11-2026): el model d'acta de partits de la federació catalana (A4 apaïsat), omplert amb les dades del partit.
+// Es pinta en un bloc que només surt en imprimir; «Desa com a PDF» del diàleg d'imprimir del mòbil en fa el fitxer.
+const ROM = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+const hm = t => t ? new Date(t).toLocaleTimeString('ca', { hour: '2-digit', minute: '2-digit' }) : '';
+const durMin = (a, b) => a && b ? Math.max(1, Math.round((b - a) / 60000)) : '';
+function arbSetHores(S, st) { const ini = S.ini || S.ev?.[0]?.t, fi = st.fi ? S.ev?.at(-1)?.t : null; return { ini, fi, min: durMin(ini, fi) }; }
+// bloc d'un equip dins d'un set: formació (I-VI), canvis, marcador dels canvis, torns de saque (1-8), punts (1-37) i temps morts
+function actaEquip(M, i, e, st, h, dreta) {
+  const S = M.sets[i], f = S.f[e], cvs = st.cvs.filter(x => x.e === e), anada = c => cvs.find(x => x.c === c && !x.torna), tornada = c => cvs.find(x => x.c === c && x.torna);
+  const caselles = c => { const b = st.serv[e].filter(x => x.c === c); return [0, 1, 2, 3].map(r => `<tr class="sv">${[r, r + 4].map(n => `<td><i>${n + 1}</i>${b[n] ? `<b class="${b[n].fi ? 'fi' : ''}">${b[n].v}</b>` : ''}</td>`).join('')}</tr>`).join(''); };
+  const punts = st.pts[e], tm = st.tms.filter(x => x.e === e);
+  return `<div class="aeq">
+    <div class="acap"><span>${dreta ? `FINAL: <b>${hm(h.fi)}</b>` : `INICI: <b>${hm(h.ini)}</b>`}</span><span>EQUIP <b class="lt">${e ? 'B' : 'A'}</b> <span class="anom">${esc(arbNom(M, e))}</span></span><span class="sr"><i class="${(S.s0 ?? 0) === e ? 'on' : ''}">S</i><i class="${(S.s0 ?? 0) !== e ? 'on' : ''}">R</i></span></div>
+    <div class="acos">
+      <table class="aform"><tr class="rom">${ROM.map(r => `<th>${r}</th>`).join('')}</tr>
+        <tr class="tit">${ZK.map(z => `<td>${esc(f[z] || '')}</td>`).join('')}</tr>
+        <tr class="sub">${[0, 1, 2, 3, 4, 5].map(c => `<td>${esc(anada(c)?.entra || '')}</td>`).join('')}</tr>
+        <tr class="mc">${[0, 1, 2, 3, 4, 5].map(c => { const x = anada(c); return `<td>${x ? `${x.m[0]}:${x.m[1]}` : ':'}</td>`; }).join('')}</tr>
+        <tr class="mc">${[0, 1, 2, 3, 4, 5].map(c => { const x = tornada(c); return `<td>${x ? `${x.m[0]}:${x.m[1]}` : ':'}</td>`; }).join('')}</tr>
+        <tr><td colspan="6" class="svw"><table class="svt"><tr>${[0, 1, 2, 3, 4, 5].map(c => `<td><table>${caselles(c)}</table></td>`).join('')}</tr></table></td></tr></table>
+      <div class="apunts"><small>PUNTS</small><div class="pg">${Array.from({ length: 37 }, (_, n) => n + 1).map(n => `<span class="${n <= punts ? 'x' : ''} ${st.fi && n === punts ? 'fi' : ''}">${n}</span>`).join('')}</div>
+        <div class="atm"><small>T</small><span>${tm[0] ? `${tm[0].m[0]}:${tm[0].m[1]}` : ':'}</span><span>${tm[1] ? `${tm[1].m[0]}:${tm[1].m[1]}` : ':'}</span></div></div>
+    </div></div>`;
+}
+function actaSet(M, i) {
+  const S = M.sets[i], ok = S?.f && ZK.every(z => S.f[0]?.[z]) && ZK.every(z => S.f[1]?.[z]);
+  const buit = { pts: [0, 0], fi: false, serv: [[], []], cvs: [], tms: [] }, st = ok ? arbSet(M, i) : buit, h = ok ? arbSetHores(S, st) : {};
+  const esq = i % 2 ? 1 : 0;   // als sets parells els equips canvien de costat, com al paper
+  const eq = (e, d) => ok ? actaEquip(M, i, e, st, h, d) : `<div class="aeq buit"><div class="acap"><span>${d ? 'FINAL:' : 'INICI:'}</span><span>EQUIP</span><span class="sr"><i>S</i><i>R</i></span></div></div>`;
+  return `<div class="aset"><div class="alab">S<br>E<br>T<br><b>${i + 1}</b><span class="amin">MIN:<br><b>${h.min || ''}</b></span></div>${eq(esq, false)}${eq(1 - esq, true)}${i === 4 && st.canviM ? `<div class="acanvi">Punts al canvi: <b>${st.canviM[0]}:${st.canviM[1]}</b></div>` : ''}</div>`;
+}
+function actaFull(M) {
+  const g = arbSetsGuanyats(M), I = M.info || {}, sets = [0, 1, 2, 3, 4].map(i => M.sets[i]?.f ? arbSet(M, i) : null);
+  const hores = M.sets.map((S, i) => S.f && sets[i] ? arbSetHores(S, sets[i]) : null).filter(Boolean);
+  const HI = hores[0]?.ini, HF = [...hores].reverse().find(x => x.fi)?.fi;
+  const sanc = M.sets.flatMap((S, i) => S.f ? arbSet(M, i).log.filter(x => x.ev.k === 'tg').map(x => ({ ...x.ev, set: i + 1, m: x.m })) : []);
+  const LL = e => new Set(M.sets.flatMap(S => S.L?.[e] || []));
+  const roster = e => M.eq[e].d.map(d => `<tr><td class="n">${esc(d)}${LL(e).has(d) ? ' L' : ''}</td><td>${esc(M.eq[e].noms?.[d] || '')}</td></tr>`).join('');
+  const fila = (i, st) => { const S = M.sets[i]; if (!st) return '<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+    const cv = e => (S.ev || []).filter(x => x.k === 'cv' && x.e === e).length;
+    return `<tr><td>${st.tm[0]}</td><td>${cv(0)}</td><td>${st.fi ? (st.guanya === 0 ? 1 : 0) : ''}</td><td>${st.pts[0]}</td><td>${st.pts[1]}</td><td>${st.fi ? (st.guanya === 1 ? 1 : 0) : ''}</td><td>${cv(1)}</td><td>${st.tm[1]}</td></tr>`; };
+  const guanya = g.some(x => x >= guanyarSets(M)) ? arbNom(M, g[0] > g[1] ? 0 : 1) : '';
+  return `<div class="acta-pdf">
+    <div class="ahead"><div class="ahc"><div>COMPETICIÓ: <b>${esc(I.comp || '')}</b></div><div>EQUIP A: <b>${esc(arbNom(M, 0))}</b></div><div>TERRENY DE JOC: <b>${esc(I.terreny || '')}</b></div></div>
+      <div class="ahc"><div>DATA: <b>${new Date(M.t).toLocaleDateString('ca')}</b> &nbsp; HORA: <b>${hm(HI || M.t)}</b></div><div>EQUIP B: <b>${esc(arbNom(M, 1))}</b></div><div></div></div>
+      <div class="alogo">Acta de partit<br><small>Feta amb 3Tocs</small></div></div>
+    <div class="arow">${actaSet(M, 0)}${actaSet(M, 1)}</div>
+    <div class="arow">${actaSet(M, 2)}${actaSet(M, 3)}</div>
+    <div class="arow">${actaSet(M, 4)}<div class="aeqs"><div class="aeqh">EQUIPS</div><div class="aeqcols">${[0, 1].map(e => `<table class="aros"><tr><th class="n">N.</th><th>${esc(arbNom(M, e))}</th></tr>${roster(e)}</table>`).join('')}</div></div></div>
+    <div class="abot">
+      <div class="aobs"><div class="at">OBSERVACIONS:</div><div class="aobst">${esc(M.obs || '')}</div>
+        <div class="asanc"><table><tr><th colspan="4">SANCIONS</th><th>EQ.</th><th>SET</th><th>PUNTS</th></tr><tr class="sm"><th>A</th><th>C</th><th>E</th><th>D</th><th></th><th></th><th></th></tr>
+          ${[0, 1, 2, 3, 4].map(n => { const x = sanc[n]; const col = t => x?.tipus === t ? esc(x.d || 'B') : ''; return `<tr><td>${col('av')}</td><td>${col('pen')}</td><td>${col('exp')}</td><td>${col('des')}</td><td>${x ? (x.e ? 'B' : 'A') : ''}</td><td>${x?.set || ''}</td><td>${x ? `${x.m[0]}:${x.m[1]}` : ':'}</td></tr>`; }).join('')}</table>
+        <table class="asig"><tr><th></th><th>NOM</th><th>SIGNATURA</th></tr><tr><td>1r AR.</td><td>${esc(I.arb1 || '')}</td><td></td></tr><tr><td>2n AR.</td><td>${esc(I.arb2 || '')}</td><td></td></tr><tr><td>ANOT.</td><td>${esc(I.anot || '')}</td><td></td></tr><tr><td colspan="3" class="cap"><span>A</span> CAPITANS <span>B</span></td></tr></table></div>
+        <div class="ares">RESULTATS (L/V): ${['Iº', 'IIº', 'IIIº', 'IVº', 'Vº'].map((r, i) => `${r} <b>${sets[i] ? `${sets[i].pts[0]}/${sets[i].pts[1]}` : ' / '}</b>`).join(' ; ')}</div></div>
+      <div class="asum"><table><tr><th colspan="4">A</th><th colspan="4">B</th></tr><tr class="sm"><th>T</th><th>S</th><th>G</th><th>PUNTS</th><th>PUNTS</th><th>G</th><th>S</th><th>T</th></tr>
+        ${[0, 1, 2, 3, 4].map(i => fila(i, sets[i])).join('')}
+        <tr class="tot"><td>${sets.reduce((a, s) => a + (s?.tm[0] || 0), 0)}</td><td>${M.sets.reduce((a, S) => a + (S.ev || []).filter(x => x.k === 'cv' && x.e === 0).length, 0)}</td><td>${g[0]}</td><td>${sets.reduce((a, s) => a + (s?.pts[0] || 0), 0)}</td><td>${sets.reduce((a, s) => a + (s?.pts[1] || 0), 0)}</td><td>${g[1]}</td><td>${M.sets.reduce((a, S) => a + (S.ev || []).filter(x => x.k === 'cv' && x.e === 1).length, 0)}</td><td>${sets.reduce((a, s) => a + (s?.tm[1] || 0), 0)}</td></tr></table>
+        <div class="ahores">HI <b>${hm(HI)}</b> HF <b>${hm(HF)}</b> TT <b>${durMin(HI, HF)}${HI && HF ? ' min' : ''}</b></div>
+        <div class="ahores">GUANYADOR: <b>${esc(guanya)}</b> &nbsp; (${g[0]}-${g[1]})</div></div>
+    </div></div>`;
+}
+window.arbPdf = k => {
+  const M = arbDe(k); let d = $('#imprimeix');
+  if (!d) { d = document.createElement('div'); d.id = 'imprimeix'; document.body.appendChild(d); }
+  d.innerHTML = actaFull(M);
+  const tit = document.title; document.title = `Acta ${arbNom(M, 0)} - ${arbNom(M, 1)} ${new Date(M.t).toLocaleDateString('ca').replace(/\//g, '-')}`;
+  document.body.classList.add('imprimint');
+  addEventListener('afterprint', () => { document.body.classList.remove('imprimint'); d.innerHTML = ''; document.title = tit; }, { once: true });
+  setTimeout(() => print(), 150);
+};
 Object.defineProperty(window, 'ARBNOU', { get: () => ARBNOU, set: v => { ARBNOU = v; } });
 
 function viewDirecte(id) {
