@@ -986,13 +986,6 @@ body.arbfull #app { padding-bottom: 8px; }
 @media (prefers-reduced-motion: reduce) { .mgir { animation-duration: .01s; } }
 
 /* acta en PDF (model de la federació catalana, A4 apaïsat) */
-#imprimeix { display: none; }
-@media print {
-  @page { size: A4 landscape; margin: 5mm; }
-  body.imprimint { background: #fff !important; padding: 0 !important; margin: 0 !important; }
-  body.imprimint > :not(#imprimeix) { display: none !important; }
-  body.imprimint #imprimeix { display: block; }
-}
 .acta-pdf { width: 287mm; height: 199mm; box-sizing: border-box; font: 6.5pt/1.15 Arial, Helvetica, sans-serif; color: #000; display: flex; flex-direction: column; gap: 1mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .acta-pdf * { box-sizing: border-box; } .acta-pdf b { font-weight: 700; }
 .acta-pdf table { border-collapse: collapse; width: 100%; table-layout: fixed; } .acta-pdf td, .acta-pdf th { border: .2mm solid #000; padding: 0; text-align: center; font-weight: 400; }
@@ -1027,6 +1020,8 @@ body.arbfull #app { padding-bottom: 8px; }
 .ares { padding: .8mm 1mm; border-top: .2mm solid #000; font-size: 6.5pt; }
 .asum { width: 62mm; border: .3mm solid #000; padding: .8mm; } .asum th { font-size: 6pt; font-weight: 700; } .asum td { height: 3.4mm; font-size: 6.5pt; } .asum .tot td { font-weight: 700; border-top: .4mm solid #000; }
 .ahores { margin-top: 1mm; font-size: 6.5pt; }
+
+.actafora { position: fixed; left: -10000px; top: 0; width: 287mm; background: #fff; }
 </style>
 </head>
 <body>
@@ -3312,14 +3307,31 @@ function actaFull(M) {
         <div class="ahores">GUANYADOR: <b>${esc(guanya)}</b> &nbsp; (${g[0]}-${g[1]})</div></div>
     </div></div>`;
 }
-window.arbPdf = k => {
-  const M = arbDe(k); let d = $('#imprimeix');
-  if (!d) { d = document.createElement('div'); d.id = 'imprimeix'; document.body.appendChild(d); }
-  d.innerHTML = actaFull(M);
-  const tit = document.title; document.title = `Acta ${arbNom(M, 0)} - ${arbNom(M, 1)} ${new Date(M.t).toLocaleDateString('ca').replace(/\//g, '-')}`;
-  document.body.classList.add('imprimint');
-  addEventListener('afterprint', () => { document.body.classList.remove('imprimint'); d.innerHTML = ''; document.title = tit; }, { once: true });
-  setTimeout(() => print(), 150);
+// el PDF es fa al mòbil (html2canvas + jsPDF, només es carreguen quan cal) i es comparteix com a fitxer; si el mòbil no ho permet, es descarrega
+const carregaScript = src => new Promise((ok, ko) => { if (document.querySelector(`script[src="${src}"]`)) return ok(); const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = ko; document.head.appendChild(sc); });
+async function arbPdfFitxer(M) {
+  await carregaScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+  await carregaScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+  const box = document.createElement('div'); box.className = 'actafora'; box.innerHTML = actaFull(M); document.body.appendChild(box);
+  try {
+    const canvas = await html2canvas(box.firstElementChild, { scale: 3, backgroundColor: '#ffffff', logging: false });
+    const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    pdf.addImage(canvas.toDataURL('image/jpeg', .92), 'JPEG', 5, 5, 287, 199);
+    const nom = `Acta ${arbNom(M, 0)} - ${arbNom(M, 1)} ${new Date(M.t).toLocaleDateString('ca').replace(/\//g, '-')}.pdf`.replace(/[\\:*?"<>|]/g, '');
+    return new File([pdf.output('blob')], nom, { type: 'application/pdf' });
+  } finally { box.remove(); }
+}
+window.arbPdf = async k => {
+  const M = arbDe(k); desat('📄 Fent el PDF…');
+  let fitxer;
+  try { fitxer = await arbPdfFitxer(M); }
+  catch (e) { registraError(e, 'acta-pdf'); return dialeg('No s\'ha pogut fer el PDF. Comprova la connexió i torna-ho a provar.', { sol: true }); }
+  if (navigator.canShare?.({ files: [fitxer] })) {
+    try { await navigator.share({ files: [fitxer], title: fitxer.name.replace(/\.pdf$/, '') }); return; }
+    catch (e) { if (e?.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(fitxer); a.download = fitxer.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000); desat('✓ PDF descarregat');
 };
 Object.defineProperty(window, 'ARBNOU', { get: () => ARBNOU, set: v => { ARBNOU = v; } });
 
