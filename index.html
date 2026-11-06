@@ -2925,16 +2925,20 @@ let ARBTIM = null, ARBTIMI = null;
 const arbTimHtml = () => { if (!ARBTIM) return ''; const r = Math.max(0, Math.ceil((ARBTIM.fi - Date.now()) / 1000));
   return `<button class="arbtim ${r ? '' : 'fi'}" id="arbtim" onclick="arbCronoAtura()" aria-label="Atura el compte enrere"><span>${esc(ARBTIM.txt)}</span><b>${Math.floor(r / 60)}:${String(r % 60).padStart(2, '0')}</b><small>✕</small></button>`; };
 const arbXiulet = () => { try { const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain(); o.frequency.value = 2800; g.gain.value = .25; o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .7); } catch {} navigator.vibrate?.([300, 120, 300]); };
-window.arbCrono = (seg, txt) => {
-  ARBTIM = { fi: Date.now() + seg * 1000, txt }; clearInterval(ARBTIMI); if (arbM()?.directe) arbPublica(arbM());
+// es guarda al mòbil: si es refresca la pàgina, el compte enrere continua on era
+window.arbCrono = (seg, txt, fi) => {
+  ARBTIM = { fi: fi || Date.now() + seg * 1000, txt }; store.set('volei.arbtim', ARBTIM); clearInterval(ARBTIMI); if (arbM()?.directe) arbPublica(arbM());
   ARBTIMI = setInterval(() => {
     const el = $('#arbtim'), r = ARBTIM ? ARBTIM.fi - Date.now() : 0;
     if (el) el.outerHTML = arbTimHtml();
-    if (r <= 0) { clearInterval(ARBTIMI); arbXiulet(); setTimeout(() => { ARBTIM = null; $('#arbtim')?.remove(); if (arbM()?.directe) arbPublica(arbM()); }, 4000); }
+    if (r <= 0) { clearInterval(ARBTIMI); arbXiulet(); setTimeout(() => { ARBTIM = null; store.set('volei.arbtim', null); $('#arbtim')?.remove(); if (arbM()?.directe) arbPublica(arbM()); }, 4000); }
   }, 250);
 };
-window.arbCronoAtura = () => { clearInterval(ARBTIMI); ARBTIM = null; $('#arbtim')?.remove(); if (arbM()?.directe) arbPublica(arbM()); };
-window.arbDesfes = () => { const S = arbM().sets.at(-1); S.ev = (S.ev || []).slice(0, -1); desaArb(); render(); };
+{ const t = store.get('volei.arbtim', null); if (t?.fi > Date.now()) setTimeout(() => arbCrono(0, t.txt, t.fi)); else store.set('volei.arbtim', null); }
+window.arbCronoAtura = () => { clearInterval(ARBTIMI); ARBTIM = null; store.set('volei.arbtim', null); $('#arbtim')?.remove(); if (arbM()?.directe) arbPublica(arbM()); };
+window.arbDesfes = () => { const M = arbM(), S = M.sets.at(-1), d = (S.ev || []).at(-1), fi = arbSet(M, M.sets.length - 1).fi; S.ev = (S.ev || []).slice(0, -1);
+  if (ARBTIM && (d?.k === 'tm' || (fi && !arbSet(M, M.sets.length - 1).fi))) arbCronoAtura();
+  desaArb(); render(); };
 window.arbSegSet = () => { const M = arbM(), ant = M.sets.at(-1); M.sets.push({ f: [{}, {}], L: [[], []], s0: 1 - ant.s0, esq: 1 - (ant.esq ?? 0), ev: [], preparant: true }); desaArb(); render(); };
 window.arbFormacioEdita = () => { arbM().sets.at(-1).editant = true; desaArb(); render(); };
 window.arbCanvi = async e => {
