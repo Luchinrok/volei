@@ -1033,6 +1033,7 @@ body.arbfull #app { padding-bottom: 8px; }
 .sanctaula td:nth-child(3) { text-align: center; font-weight: 700; }
 .solimp { font-size: 5pt !important; } .solimp i { font-style: normal; display: inline-block; width: 3.2mm; } .solimp i.on { border: .25mm solid #000; border-radius: 50%; font-weight: 700; }
 .arbtim span small { display: block; font-weight: 600; font-size: 12px; opacity: .75; } .arbtim button { border: 0; background: rgba(0,0,0,.12); color: inherit; border-radius: 10px; width: 38px; height: 38px; font-size: 17px; flex: none; cursor: pointer; }
+.arbcomp { width: 100%; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -1139,7 +1140,20 @@ window.recomana = async () => {
   if (navigator.share) { try { await navigator.share({ title: '3Tocs', text, url }); return; } catch (e) { if (e?.name === 'AbortError') return; } }
   window.open('https://wa.me/?text=' + encodeURIComponent(text + '\n' + url), '_blank');
 };
-const recomanaHtml = () => `<h3>Recomana 3Tocs</h3><div class="card"><p class="meta" style="margin:0 0 10px">Si coneixes algun entrenador a qui li pot anar bé, envia-li l'enllaç.</p><div class="actions" style="margin:0"><button class="btn primary" style="flex:1" onclick="recomana()">Comparteix</button></div></div>`;
+// l'app d'àrbitre (07-11-2026): no cal compte, l'enllaç porta directament a #/arbitre
+const APP_ARBITRE = 'https://volei-2627-dc.firebaseapp.com/#/arbitre';
+const MSG_ARBITRE = {
+  ca: "Per arbitrar partits de vòlei des del mòbil: formacions, rotacions, canvis, temps morts, targetes, cronos i l'acta en PDF. És gratuïta i no cal compte.",
+  es: 'Para arbitrar partidos de vóley desde el móvil: formaciones, rotaciones, cambios, tiempos muertos, tarjetas, cronos y el acta en PDF. Es gratis y no necesitas cuenta.',
+  en: 'To referee volleyball matches from your phone: lineups, rotations, substitutions, time-outs, cards, timers and the score sheet as a PDF. It is free and needs no account.'
+};
+window.recomanaArbitre = async () => {
+  const l = LANG || 'ca', text = MSG_ARBITRE[l] || MSG_ARBITRE.ca;
+  if (navigator.share) { try { await navigator.share({ title: '3Tocs - Àrbitre', text, url: APP_ARBITRE }); return; } catch (e) { if (e?.name === 'AbortError') return; } }
+  window.open('https://wa.me/?text=' + encodeURIComponent(text + '\n' + APP_ARBITRE), '_blank');
+};
+const recomanaHtml = () => `<h3>Recomana 3Tocs</h3><div class="card"><p class="meta" style="margin:0 0 10px">Si coneixes algun entrenador a qui li pot anar bé, envia-li l'enllaç.</p><div class="actions" style="margin:0"><button class="btn primary" style="flex:1" onclick="recomana()">Comparteix</button></div>
+  <p class="meta" style="margin:14px 0 10px">Als àrbitres, envia'ls l'app d'àrbitre: no els cal compte.</p><div class="actions" style="margin:0"><button class="btn" style="flex:1" onclick="recomanaArbitre()">📤 Comparteix l'app d'àrbitre</button></div></div>`;
 const idiomaHtml = () => `<h3>Idioma</h3><div class="card notr"><div class="seg" style="margin:0">${IDIOMES.map(([v, l]) => `<button class="${(LANG || 'ca') === v ? 'on' : ''}" onclick="triaIdioma('${v}')">${l}</button>`).join('')}</div></div>`;
 // el primer cop que s'obre l'app: triar l'idioma
 const mostraTriaIdioma = () => {
@@ -3189,6 +3203,7 @@ function arbPrepara() {
     <details class="card arbnormes"><summary><b>Normes</b><span class="meta">Sets a ${N.reg.p}, decisiu a ${N.reg.u}, ${N.reg.tm} TM, ${N.reg.cv} canvis</span></summary><div class="arbreg">
       ${[['sets', 'Sets'], ['p', 'Punts'], ['u', 'Decisiu'], ['tm', 'TM'], ['cv', 'Canvis']].map(([k, t]) => `<label><small>${t}</small><input type="number" inputmode="numeric" min="1" value="${N.reg[k]}" oninput="ARBNOU.reg.${k}=+this.value||ARBNOU.reg.${k}"></label>`).join('')}</div></details>
     <div class="actions"><button class="btn primary" style="flex:1" onclick="arbComenca()">Comença el partit</button></div>
+    <button type="button" class="btn arbcomp" onclick="recomanaArbitre()">📤 Comparteix l'app d'àrbitre</button>
     ${hist.length ? `<h3>Partits arbitrats</h3>${hist.slice().reverse().map((M, k) => `<div class="card row arbhist" onclick="arbVeuActa(${hist.length - 1 - k})"><span class="grow"><b>${esc(arbNom(M, 0))} - ${esc(arbNom(M, 1))}</b><div class="meta">${new Date(M.t).toLocaleDateString(LOC)}</div></span><b class="arbhres">${arbSetsGuanyats(M).join('-')}</b><span class="chev">›</span></div>`).join('')}` : ''}`;
 }
 // dorsals d'un en un: s'escriu el número, Enter, i el camp queda buit per al següent (sense tornar a pintar la pantalla, perquè no es tanqui el teclat)
