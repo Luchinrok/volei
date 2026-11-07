@@ -1034,6 +1034,8 @@ body.arbfull #app { padding-bottom: 8px; }
 .solimp { font-size: 5pt !important; } .solimp i { font-style: normal; display: inline-block; width: 3.2mm; } .solimp i.on { border: .25mm solid #000; border-radius: 50%; font-weight: 700; }
 .arbtim span small { display: block; font-weight: 600; font-size: 12px; opacity: .75; } .arbtim button { border: 0; background: rgba(0,0,0,.12); color: inherit; border-radius: 10px; width: 38px; height: 38px; font-size: 17px; flex: none; cursor: pointer; }
 .arbcomp { width: 100%; margin-top: 8px; }
+.arbsw { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 14px; font-weight: 600; } .arbsw input { width: 18px; height: 18px; margin: 0; }
+.arbnuv { text-align: center; margin: 8px 0 0; }
 </style>
 </head>
 <body>
@@ -1152,6 +1154,9 @@ window.recomanaArbitre = async () => {
   if (navigator.share) { try { await navigator.share({ title: '3Tocs - Àrbitre', text, url: APP_ARBITRE }); return; } catch (e) { if (e?.name === 'AbortError') return; } }
   window.open('https://wa.me/?text=' + encodeURIComponent(text + '\n' + APP_ARBITRE), '_blank');
 };
+const viewConfigArb = () => `<h3>El teu compte</h3><div class="card row">${USR.photoURL ? `<img class="foto" src="${esc(USR.photoURL)}" alt="">` : ''}<span class="grow"><b>${esc(USR.displayName || '')}</b><div class="meta">${esc(USR.email || '')} (Àrbitre)</div></span><button class="btn" onclick="surt()">Surt</button></div>
+  <p class="meta">Les actes dels partits que arbitres es guarden al teu compte: si canvies de mòbil, hi seran.</p>
+  ${idiomaHtml()}<h3>Comparteix</h3><div class="card"><div class="actions" style="margin:0"><button class="btn" style="flex:1" onclick="recomanaArbitre()">📤 Comparteix l'app d'àrbitre</button></div></div>`;
 const recomanaHtml = () => `<h3>Recomana 3Tocs</h3><div class="card"><p class="meta" style="margin:0 0 10px">Si coneixes algun entrenador a qui li pot anar bé, envia-li l'enllaç.</p><div class="actions" style="margin:0"><button class="btn primary" style="flex:1" onclick="recomana()">Comparteix</button></div>
   <p class="meta" style="margin:14px 0 10px">Als àrbitres, envia'ls l'app d'àrbitre: no els cal compte.</p><div class="actions" style="margin:0"><button class="btn" style="flex:1" onclick="recomanaArbitre()">📤 Comparteix l'app d'àrbitre</button></div></div>`;
 const idiomaHtml = () => `<h3>Idioma</h3><div class="card notr"><div class="seg" style="margin:0">${IDIOMES.map(([v, l]) => `<button class="${(LANG || 'ca') === v ? 'on' : ''}" onclick="triaIdioma('${v}')">${l}</button>`).join('')}</div></div>`;
@@ -1239,6 +1244,10 @@ const ROLS = { admin: 'Administrador', entrenador: 'Entrenador', lector: 'Només
 // jugadors i famílies (fase 2, 30-10-2026): veuen el calendari del club i les fotos, i responen per «el seu» jugador (membres/{uid}.jugadors = {grup: [id]})
 const esFam = () => ['familia', 'jugador'].includes(rolActual());
 const memRef = uid => fs.doc(db, 'equips', CLAU, 'membres', uid);
+// àrbitres (07-11-2026): membres/{uid}.arbitre = true, a més del rol de cada equip (o sol: llavors només veu l'apartat d'àrbitre).
+// Les seves actes es guarden al compte (usuaris/{uid}/arbitre/{id}), no només al mòbil
+const esArbitre = () => !!(USR && MEM?.arbitre);
+const nomesArbitre = () => esArbitre() && !Object.values(MEM.rols || {}).some(Boolean);
 const rolDe = g => USR ? (MEM?.rols || {})[g] || null : (CLAU && !NOMES_COMPTES ? 'admin' : null);
 const rolActual = () => rolDe(grupDe(TEMP));
 const esAdmin = () => !USR ? !!CLAU && !NOMES_COMPTES : Object.values(MEM?.rols || {}).includes('admin');
@@ -1292,7 +1301,7 @@ async function carregaClubs() {
 }
 window.canviaClub = k => { if (k === CLAU) return; store.set('volei.clau', k); store.set('volei.temp', null); location.hash = '#/'; location.reload(); };
 async function quiSoc() {
-  unsubMem.forEach(u => u()); unsubMem = []; MEM = null; MEMBRES = [];
+  unsubMem.forEach(u => u()); unsubMem = []; MEM = null; MEMBRES = []; ARBNUV = null;
   if (!USR) { render(); return; }
   const inv = store.get('volei.invitacio', null);
   if (inv) { await acceptaInvitacio(inv); return; }
@@ -1318,7 +1327,7 @@ async function quiSoc() {
   } catch (e) { registraError(e, 'membre'); }
   // només es connecta a les dades de l'equip si és membre amb algun rol (si no, «Encara no tens accés»)
   unsubMem.push(fs.onSnapshot(memRef(USR.uid), d => {
-    MEM = d.data() || { rols: {} };
+    MEM = d.data() || { rols: {} }; arbNuvol();
     if (!Object.values(MEM.rols || {}).some(Boolean)) return render();
     if (connectat === CLAU) { triaTemporadaPermesa(); openSeason(); } else connecta();
   }, () => { MEM = { rols: {} }; render(); }));
@@ -1351,12 +1360,24 @@ async function uneixEquip(clau, codi, inv) {
     CLAU = clau; store.set('volei.clau', clau); location.hash = '#/'; desat('✓ Benvingut a l\'equip!'); connectat = null; quiSoc();
   } catch (e) { registraError(e, 'uneix-equip'); dialeg('No s\'ha pogut entrar. Torna-ho a provar.', { sol: true }); }
 }
+// enllaç d'àrbitres (07-11-2026): qui ja és del club conserva el seu rol i s'hi suma el d'àrbitre; qui no, entra només com a àrbitre
+async function uneixArbitre(clau, codi) {
+  store.set('volei.invitacio', null);
+  const mref = fs.doc(db, 'equips', clau, 'membres', USR.uid);
+  try {
+    const ja = await fs.getDoc(mref);
+    if (ja.exists()) { if (!ja.data().arbitre) await fs.updateDoc(mref, { arbitre: true, invitacio: codi }); }
+    else await fs.setDoc(mref, { email: USR.email || '', nom: USR.displayName || '', foto: USR.photoURL || '', rols: {}, arbitre: true, invitacio: codi, alta: Date.now(), pendent: false });
+    CLAU = clau; store.set('volei.clau', clau); location.hash = '#/arbitre'; desat('✓ Ja ets àrbitre del club'); connectat = null; quiSoc();
+  } catch (e) { registraError(e, 'uneix-arbitre'); dialeg('No s\'ha pogut entrar. Torna-ho a provar.', { sol: true }); }
+}
 async function acceptaInvitacio({ clau, codi }) {
   try {
     const iref = fs.doc(db, 'equips', clau, 'invitacions', codi), inv = await fs.getDoc(iref);
-    if (inv.exists() && ['equip', 'staff'].includes(inv.data().tipus)) {
+    if (inv.exists() && ['equip', 'staff', 'arbitre'].includes(inv.data().tipus)) {
       if (inv.data().obert === false) { store.set('volei.invitacio', null); await dialeg('Aquest enllaç està tancat. Demana a l\'entrenador que el torni a obrir.', { sol: true }); location.hash = '#/'; return quiSoc(); }
       if (inv.data().tipus === 'staff') return uneixStaff(clau, codi, inv.data());
+      if (inv.data().tipus === 'arbitre') return uneixArbitre(clau, codi);
       return uneixEquip(clau, codi, inv.data());
     }
     if (!inv.exists() || (inv.data().usada && inv.data().usada !== USR.uid)) { store.set('volei.invitacio', null); await dialeg('Aquesta invitació ja s\'ha fet servir o no existeix. Demana\'n una de nova.', { sol: true }); location.hash = '#/'; return quiSoc(); }
@@ -2895,7 +2916,42 @@ window.rivalActiu = (id, v) => { const p = PAR.find(x => x.id === id); p.rivalRo
 // M = {id, t, eq: [{nom, d: [dorsals], noms: {dorsal: nom}}, …], reg: {p, u, sets, tm, cv}, sets: [{f: [{1..6}, {1..6}], s0: 0|1, ev: [...]}], fi}
 // ev: {k: 'p', e} punt - {k: 'tm', e} temps mort - {k: 'cv', e, surt, entra} canvi - {k: 'li', e, surt, entra} lliure - {k: 'tg', e, d, tipus: av|pen|exp|des} targeta. Cada set: L = [[lliures A], [lliures B]]
 let ARB = store.get('volei.arbitre', { actual: null, hist: [] }), ARBNOU = null, ARBXY = {}, ARBVEU = null, DIR_ESB = null;
-const desaArb = () => { store.set('volei.arbitre', ARB); if (ARB.actual?.directe) arbPublica(ARB.actual); };
+const desaArb = () => { store.set('volei.arbitre', ARB); if (ARB.actual?.directe) arbPublica(ARB.actual); arbPuja(); };
+// actes al compte (07-11-2026), només per als àrbitres del club: usuaris/{uid}/arbitre/{id} = {j: el partit en JSON, t, viu} o {esborrat, t}.
+// En entrar s'ajunten les del mòbil i les del compte (guanya la més nova, M.mod); després cada canvi es puja sol
+let ARBNUV = null, ARBNUVT = null, ARBNUVS = {};   // ARBNUV: uid ja ajuntat; ARBNUVS: id -> el que hi ha al compte ('x' = esborrat)
+const arbCol = () => fsCru.collection(db, 'usuaris', USR.uid, 'arbitre'), arbDoc = id => fsCru.doc(db, 'usuaris', USR.uid, 'arbitre', id);
+const arbClauN = (M, viu) => JSON.stringify({ ...M, mod: 0 }) + viu;
+async function arbNuvol() {
+  if (!esArbitre() || !fsCru || ARBNUV === USR.uid) return; ARBNUV = USR.uid;
+  try {
+    const q = await fsCru.getDocs(arbCol()); let canvi = false;
+    ARB.hist = ARB.hist || [];
+    q.docs.forEach(d => {
+      const x = d.data(), id = d.id, iH = ARB.hist.findIndex(M => M.id === id), esA = ARB.actual?.id === id, L = esA ? ARB.actual : ARB.hist[iH];
+      if (x.esborrat) { ARBNUVS[id] = 'x'; if (esA) ARB.actual = null; else if (iH >= 0) ARB.hist.splice(iH, 1); if (L) canvi = true; return; }
+      let M; try { M = JSON.parse(x.j); } catch { return; }
+      ARBNUVS[id] = arbClauN(M, !!x.viu);
+      if (L && (L.mod || 0) >= (M.mod || 0)) return;   // el del mòbil és igual o més nou
+      canvi = true;
+      if (esA) ARB.actual = null; else if (iH >= 0) ARB.hist.splice(iH, 1);
+      if (x.viu && !ARB.actual) ARB.actual = M; else ARB.hist.push(M);
+    });
+    if (canvi) { ARB.hist.sort((a, b) => a.t - b.t); store.set('volei.arbitre', ARB); render(); }
+    arbPuja();
+  } catch (e) { ARBNUV = null; registraError(e, 'arb-nuvol'); }
+}
+function arbPuja() {
+  if (!esArbitre() || ARBNUV !== USR?.uid) return; clearTimeout(ARBNUVT);
+  ARBNUVT = setTimeout(() => {
+    const ara = new Map((ARB.hist || []).map(M => [M.id, [M, false]])); if (ARB.actual) ara.set(ARB.actual.id, [ARB.actual, true]);
+    let mod = false;
+    ara.forEach(([M, viu], id) => { const k = arbClauN(M, viu); if (ARBNUVS[id] === k) return; ARBNUVS[id] = k; M.mod = Date.now(); mod = true;
+      fsCru.setDoc(arbDoc(id), { j: JSON.stringify(M), t: M.mod, viu }).catch(e => registraError(e, 'arb-puja')); });
+    Object.keys(ARBNUVS).forEach(id => { if (!ara.has(id) && ARBNUVS[id] !== 'x') { ARBNUVS[id] = 'x'; fsCru.setDoc(arbDoc(id), { esborrat: true, t: Date.now() }).catch(e => registraError(e, 'arb-puja')); } });
+    if (mod) store.set('volei.arbitre', ARB);
+  }, 1500);
+}
 const arbM = () => ARB.actual;
 const REG_DEF = { n: 6, p: 25, u: 15, sets: 5, tm: 2, cv: 6 };
 // formats: 6x6 (pista), 4x4 (quatre jugadors que roten, sense lliure) i platja 2x2 (ordre de saque, sense canvis, canvi de camp cada 7 punts, 5 al decisiu)
@@ -3204,6 +3260,7 @@ function arbPrepara() {
       ${[['sets', 'Sets'], ['p', 'Punts'], ['u', 'Decisiu'], ['tm', 'TM'], ['cv', 'Canvis']].map(([k, t]) => `<label><small>${t}</small><input type="number" inputmode="numeric" min="1" value="${N.reg[k]}" oninput="ARBNOU.reg.${k}=+this.value||ARBNOU.reg.${k}"></label>`).join('')}</div></details>
     <div class="actions"><button class="btn primary" style="flex:1" onclick="arbComenca()">Comença el partit</button></div>
     <button type="button" class="btn arbcomp" onclick="recomanaArbitre()">📤 Comparteix l'app d'àrbitre</button>
+    ${esArbitre() ? `<p class="meta arbnuv">☁️ Les actes es guarden al teu compte.</p>` : ''}
     ${hist.length ? `<h3>Partits arbitrats</h3>${hist.slice().reverse().map((M, k) => `<div class="card row arbhist" onclick="arbVeuActa(${hist.length - 1 - k})"><span class="grow"><b>${esc(arbNom(M, 0))} - ${esc(arbNom(M, 1))}</b><div class="meta">${new Date(M.t).toLocaleDateString(LOC)}</div></span><b class="arbhres">${arbSetsGuanyats(M).join('-')}</b><span class="chev">›</span></div>`).join('')}` : ''}`;
 }
 // dorsals d'un en un: s'escriu el número, Enter, i el camp queda buit per al següent (sense tornar a pintar la pantalla, perquè no es tanqui el teclat)
@@ -3861,7 +3918,8 @@ function viewFamilia() {
   ${avisosHtml()}
   ${meusJug().map(fitxa).join('')}
   <h3>Pròxims partits del club</h3>${fut.map(card).join('') || '<p class="meta">Encara no hi ha cap partit previst.</p>'}
-  <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}`;
+  <h3>Jugats</h3>${pas.map(card).join('') || '<p class="meta">Encara cap.</p>'}
+  ${esArbitre() ? `<h3>Àrbitre</h3><a class="card row" href="#/arbitre" style="text-decoration:none;color:inherit"><span class="grow"><b>Porta un partit com a àrbitre</b><div class="meta">Les actes es guarden al teu compte.</div></span><span class="chev">›</span></a>` : ''}`;
 }
 const parVis = id => PAR.find(x => x.id === id) || (CAL || []).find(x => x.id === id);
 const potFotos = () => !!rolActual();                       // penjar: tothom de l'equip
@@ -4334,8 +4392,9 @@ function viewPersones() {
     ${[...MEMBRES].sort((a, b) => (b.uid === USR.uid) - (a.uid === USR.uid)).map(m => `<div class="memb"><div class="row">${m.foto ? `<img class="foto sm" src="${esc(m.foto)}" alt="">` : `<span class="av" style="--h:${hue(m.nom || m.email || '')}">${esc(inicials(m.nom || m.email))}</span>`}
       <span class="grow"><b>${esc(m.nom || m.email || 'Sense nom')}</b>${m.uid === USR.uid ? ' <small class="meta">(tu)</small>' : ''}${['jugador', 'familia'].includes((m.rols || {})[grupDe(TEMP)]) ? ` <button class="mini lliga" onclick="lligaJugador('${m.uid}')" title="Per qui respon">🔗 ${esc(((m.jugadors || {})[grupDe(TEMP)] || []).map(j => nomCurt(JUG.find(x => x.id === j)?.nom || '?')).join(', ') || 'Tria el jugador')}</button>` : ''}<div class="meta">${esc(m.email || '')}${m.pendent && !Object.keys(m.rols || {}).length ? ' <b class="red">pendent de permís</b>' : ''}</div></span>
       ${m.uid !== USR.uid ? `<button class="mini" title="Treu-lo" onclick="treuMembre('${m.uid}')">✕</button>` : `<button class="btn" onclick="surt()">Surt</button>`}</div>
+      <label class="arbsw"><input type="checkbox" ${m.arbitre ? 'checked' : ''} onchange="posaArbitre('${m.uid}', this.checked)"> També és àrbitre</label>
       ${m.uid === USR.uid ? '' : `<div class="mrols">${Object.entries(G).map(([g, x]) => `<label>${esc(x.nom)}</label><select ${m.uid === USR.uid ? 'disabled' : ''} onchange="posaRol('${m.uid}','${g}',this.value)"><option value="">Cap accés</option>${Object.entries(ROLS).map(([k, t]) => `<option value="${k}" ${(m.rols || {})[g] === k ? 'selected' : ''}>${t}</option>`).join('')}</select>`).join('')}</div>`}</div>`).join('')}
-    <div class="irow">${info(`<ul><li><b>Administrador</b>: ho pot fer tot, també convidar.</li><li><b>Entrenador</b>: ho pot editar tot de l'equip.</li><li><b>Només mirar</b>: ho veu però no pot canviar res.</li><li><b>Jugador</b> i <b>Família</b>: veuen els partits de tot el club, les fotos i els avisos, i responen per «el seu» jugador (vinc o no vinc als partits, no vindré als entrenos). Només un vot per jugador.</li></ul>`, `Rols`)}</div>
+    <div class="irow">${info(`<ul><li><b>Administrador</b>: ho pot fer tot, també convidar.</li><li><b>Entrenador</b>: ho pot editar tot de l'equip.</li><li><b>Només mirar</b>: ho veu però no pot canviar res.</li><li><b>Jugador</b> i <b>Família</b>: veuen els partits de tot el club, les fotos i els avisos, i responen per «el seu» jugador (vinc o no vinc als partits, no vindré als entrenos). Només un vot per jugador.</li><li><b>Àrbitre</b>: se suma a qualsevol dels altres. Les actes dels partits que arbitra es guarden al seu compte. Qui només és àrbitre (sense accés a cap equip) només veu l'apartat d'àrbitre.</li></ul>`, `Rols`)}</div>
   </div>
   <h3>Convidar</h3><div class="card">${enllacEquipHtml()}
   </div>`;
@@ -4350,27 +4409,28 @@ window.lligaJugador = async uid => {
 // enllaços per convidar (30-10-2026): un per a cada tipus, per enviar per WhatsApp; es poden tancar i tornar a obrir.
 // invitacions/{codi} = {tipus: 'equip' (jugadors i famílies, amb llista: {id: nom}) | 'staff' (rols: {grup: rol}), clas: fam | entrenador | admin, grup, obert}
 let INVEQ, INVCLAS = 'fam';   // INVEQ: undefined = no carregat; {fam, entrenador, admin: doc o null}
-const CLASSES = { fam: 'Jugadors i famílies', entrenador: 'Entrenadors' };   // els administradors no: entren com a entrenadors i se'ls canvia el rol a Persones
+const CLASSES = { fam: 'Jugadors i famílies', entrenador: 'Entrenadors', arb: 'Àrbitres' };   // els administradors no: entren com a entrenadors i se'ls canvia el rol a Persones
 function carregaInvEquip() {
   if (INVEQ !== undefined || !CLAU || !esAdmin()) return; INVEQ = 'carregant';
   fs.getDocs(fs.query(fs.collection(db, 'equips', CLAU, 'invitacions'), fs.where('grup', '==', grupDe(TEMP))))
-    .then(q => { INVEQ = { fam: null, entrenador: null };
+    .then(q => { INVEQ = { fam: null, entrenador: null, arb: null };
       q.docs.forEach(d => { const x = { codi: d.id, ...d.data() }, c = x.clas || (x.tipus === 'equip' ? 'fam' : null); if (c in CLASSES && x.tipus && !INVEQ[c]) INVEQ[c] = x; });
       sincInvEquip(); render(); })
-    .catch(e => { INVEQ = { fam: null, entrenador: null }; registraError(e, 'enllacos'); render(); });
+    .catch(e => { INVEQ = { fam: null, entrenador: null, arb: null }; registraError(e, 'enllacos'); render(); });
 }
 const llistaEquip = () => Object.fromEntries(JUG.filter(j => j.actiu !== false).map(j => [j.id, j.nom]));
 // la llista de noms de l'enllaç de jugadors i famílies es manté al dia amb els jugadors de l'equip
 function sincInvEquip() { const x = INVEQ?.fam; if (x?.codi && JUG.length && JSON.stringify(x.llista) !== JSON.stringify(llistaEquip())) { x.llista = llistaEquip(); fs.updateDoc(fs.doc(db, 'equips', CLAU, 'invitacions', x.codi), { llista: x.llista, equip: gcfg().nom || club() || '' }).catch(() => {}); } }
 const urlInv = x => `${CASA}#/uneix/${CLAU}/${x.codi}`;
-const textInv = (c, x) => c === 'fam'
+const textInv = (c, x) => c === 'arb' ? `T'he convidat a 3Tocs${club() ? ', l\'app de vòlei del ' + club() : ''}, com a àrbitre: hi podràs portar els partits i les actes es guardaran al teu compte. Obre aquest enllaç i entra amb el teu compte de Google:\n${urlInv(x)}`
+  : c === 'fam'
   ? `Ja podeu fer servir 3Tocs, l'app de l'equip: hi veureu els partits i els avisos, i podreu dir si veniu o no. Obriu aquest enllaç, entreu amb el compte de Google i trieu qui sou:\n${urlInv(x)}`
   : `T'he convidat a 3Tocs, l'app de vòlei${club() ? ' del ' + club() : ''}, com a entrenador/a. Obre aquest enllaç i entra amb el teu compte de Google:\n${urlInv(x)}`;
 function enllacEquipHtml() {
   carregaInvEquip(); sincInvEquip();
   if (INVEQ === undefined || INVEQ === 'carregant') return '<p class="meta" style="margin:0">Carregant…</p>';
   const c = INVCLAS, x = INVEQ[c], dins = x ? MEMBRES.filter(m => m.invitacio === x.codi).length : 0;
-  const desc = { fam: 'Envia\'l al grup de WhatsApp de l\'equip. Cadascú diu si és jugador o familiar i tria per qui respon.', entrenador: 'Qui hi entri podrà portar aquest equip: sessions, llistes, partits i estadístiques.' }[c];
+  const desc = { fam: 'Envia\'l al grup de WhatsApp de l\'equip. Cadascú diu si és jugador o familiar i tria per qui respon.', entrenador: 'Qui hi entri podrà portar aquest equip: sessions, llistes, partits i estadístiques.', arb: 'Qui hi entri podrà arbitrar i les actes es guardaran al seu compte. Si ja és del club, conserva el seu rol i se li suma el d\'àrbitre; si no, només veurà l\'apartat d\'àrbitre.' }[c];
   return `<div class="seg" style="margin:0 0 10px">${Object.entries(CLASSES).map(([k, t]) => `<button class="${c === k ? 'on' : ''}" onclick="INVCLAS='${k}';render()">${t}</button>`).join('')}</div>
     <p class="meta" style="margin:0 0 8px">${desc}</p>
     ${x ? `<div class="row" style="margin:0 0 8px"><span class="grow">${x.obert === false ? '<b class="red">🔒 Tancat</b>: ningú més s\'hi pot apuntar.' : '<b class="ok">🔓 Obert</b>'}</span><span class="meta">${dins} ${dins === 1 ? 'persona hi ha entrat' : 'persones hi han entrat'}</span></div>
@@ -4386,10 +4446,11 @@ window.nouEnllac = async (c, canvia) => {
   if (INVEQ[c]?.codi) await fs.deleteDoc(fs.doc(db, 'equips', CLAU, 'invitacions', INVEQ[c].codi));
   const codi = [...crypto.getRandomValues(new Uint8Array(15))].map(b => 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 56]).join(''), g = grupDe(TEMP);
   const base = { clas: c, grup: g, obert: true, equip: gcfg().nom || club() || '', creat: Date.now(), per: USR.uid };
-  const d = c === 'fam' ? { ...base, tipus: 'equip', llista: llistaEquip() }
+  const d = c === 'fam' ? { ...base, tipus: 'equip', llista: llistaEquip() } : c === 'arb' ? { ...base, tipus: 'arbitre' }
     : { ...base, tipus: 'staff', rols: { [g]: 'entrenador' } };
   await fs.setDoc(fs.doc(db, 'equips', CLAU, 'invitacions', codi), d); INVEQ[c] = { codi, ...d }; render(); desat('✓ Enllaç creat');
 };
+window.posaArbitre = (uid, v) => fs.updateDoc(memRef(uid), { arbitre: v || fs.deleteField() });
 window.posaRol = (uid, g, v) => fs.updateDoc(memRef(uid), { ['rols.' + g]: v || fs.deleteField(), pendent: false });
 window.treuMembre = async uid => { const m = MEMBRES.find(x => x.uid === uid); if (await dialeg(`Treure <b>${esc(m?.nom || m?.email || '')}</b>?<br><small>Deixarà de veure els equips.</small>`, { ok: 'Treu-lo', perill: true })) fs.deleteDoc(memRef(uid)); };
 window.convida = () => {
@@ -4623,6 +4684,7 @@ function pintaPantalla() {
   else if (r === 'marcador') { html = viewMarcador(arg); tab = ''; title = 'Marcador'; }
   // sense equip, o amb una invitació per acceptar i sense compte: pantalla d'entrada
   else if (!USR && (NOMES_COMPTES || (r !== 'config' && (!CLAU || store.get('volei.invitacio', null))))) { html = viewEntra(); title = '3Tocs'; }
+  else if (nomesArbitre()) { html = r === 'config' ? viewConfigArb() : viewArbitre(); tab = ''; title = r === 'config' ? 'Configuració' : 'Àrbitre'; }
   else if (USR && (!CLAU || (MEM && !rolActual() && (r !== 'config' || !Object.values(MEM.rols || {}).some(Boolean))))) { html = sensePermis(); }
   else if (esFam()) { html = r === 'fotos' ? viewFotos(arg) : r === 'config' ? viewConfigFam() : viewFamilia(); tab = ''; if (r === 'fotos') title = 'Fotos'; }
   else if (r === 'fotos') { html = viewFotos(arg); tab = 'partits'; title = 'Fotos'; }
@@ -4639,7 +4701,7 @@ function pintaPantalla() {
   else if (r === 'pissarra') { html = viewPissarra(arg); tab = 'partits'; title = 'Pissarra'; }
   else if (r === 'directe') { html = viewDirecte(arg); tab = 'partits'; title = 'En directe'; }
   else html = viewHome();
-  $('#tabs').hidden = $('#tbtn').hidden = !USR || esFam() || !CLAU;   // sense compte o sense club no hi ha res a navegar
+  $('#tabs').hidden = $('#tbtn').hidden = !USR || esFam() || !CLAU || nomesArbitre();   // sense compte o sense club no hi ha res a navegar
   $('#tabs').innerHTML = `<a href="#/" data-t="inici"><span class="ico">${ICO.inici}</span>Inici</a>
     <a href="#/entrenos" data-t="entrenos"><span class="ico">${ICO.pista}</span>Sessions</a>
     <a href="#/assistencia" data-t="assistencia"><span class="ico">${ICO.ass}</span>Assistència</a>
@@ -4666,6 +4728,7 @@ Object.defineProperty(window, 'editAss', { get: () => editAss, set: v => { editA
 Object.defineProperty(window, 'sesEd', { get: () => sesEd, set: v => { sesEd = v; } });
 Object.defineProperty(window, 'exEd', { get: () => exEd, set: v => { exEd = v; } });
 Object.defineProperty(window, 'novaTab', { get: () => novaTab, set: v => { novaTab = v; } });
+Object.defineProperty(window, 'INVCLAS', { get: () => INVCLAS, set: v => { INVCLAS = v; } });   // pestanyes dels enllaços per convidar
 
 $('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '#/');
 addEventListener('hashchange', () => { fotoTanca(); const mi = location.hash.match(/^#\/uneix\/([A-Za-z0-9]{24,})\/([A-Za-z0-9]{12,})/); if (mi) { store.set('volei.invitacio', { clau: mi[1], codi: mi[2] }); if (USR) quiSoc(); } sel = null; convDesfes = null; editAss = null; nofEdit = null; ordering = false; editEquip = false; if (!/^#\/(p|pissarra|directe)\//.test(location.hash)) setActiu = 1; dirJug = null; tancaFitxa(); render(); scrollTo(0, 0); });
