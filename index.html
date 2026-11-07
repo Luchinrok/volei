@@ -2966,6 +2966,7 @@ function viewArbitre() {
   if (ARBVEU != null && ARB.hist?.[ARBVEU]) return arbActa(ARB.hist[ARBVEU], ARBVEU);
   const M = arbM();
   if (!M) return arbPrepara();
+  if (ARBVEU === -1) return arbActa(M);   // l'acta del partit que s'està jugant
   const i = M.sets.length - 1, S = M.sets[i];
   if (S.preparant || S.editant || !S.f || !zks(M).every(z => S.f[0][z]) || !zks(M).every(z => S.f[1][z])) return arbFormacio(M, i);
   const st = arbSet(M, i), g = arbSetsGuanyats(M);
@@ -2999,7 +3000,7 @@ function viewArbitre() {
     st.canviCamp && Math.max(...st.pts) === Math.ceil(M.reg.u / 2) && !st.fi ? `Canvi de camp: un equip ha arribat a ${Math.ceil(M.reg.u / 2)} punts.` : '',
     st.avis, fl.length ? `Falta de rotació: ${fl.map(x => x[2]).join('; ')}` : ''].filter(Boolean);
   return `<div class="arbviu">${arbTimHtml()}
-    <div class="arbtop"><span>Set ${i + 1}</span><span>Sets ${g[esq]}-${g[dre]}</span><span class="arbmenu"><button class="mini ${M.directe ? 'arbon' : ''}" onclick="arbDirecte()" title="Marcador en directe" aria-label="Marcador en directe">📡</button><button class="mini" onclick="arbGira()" title="Canvia els equips de costat" aria-label="Canvia els equips de costat">⇄</button><button class="mini" onclick="arbVeuActa(-1)" title="Acta" aria-label="Acta">☰</button><button class="mini" onclick="arbFormacioEdita()" title="Formacions" aria-label="Formacions">✎</button><button class="mini" onclick="arbAcaba()" title="Acaba el partit" aria-label="Acaba el partit">✕</button></span></div>
+    <div class="arbtop"><span>Set ${i + 1}</span><span>Sets ${g[esq]}-${g[dre]}</span><span class="arbmenu"><button class="mini ${M.directe ? 'arbon' : ''}" onclick="arbDirecte()" title="Marcador en directe" aria-label="Marcador en directe">📡</button><button class="mini" onclick="arbGira()" title="Canvia els equips de costat" aria-label="Canvia els equips de costat">⇄</button><button class="mini" onclick="arbPdf(-1)" title="Acta en PDF" aria-label="Acta en PDF">📄</button><button class="mini" onclick="arbVeuActa(-1)" title="Acta" aria-label="Acta">☰</button><button class="mini" onclick="arbFormacioEdita()" title="Formacions" aria-label="Formacions">✎</button><button class="mini" onclick="arbAcaba()" title="Acaba el partit" aria-label="Acaba el partit">✕</button></span></div>
     <div class="arbmarcador">${equip(esq)}<span class="arbguio">-</span>${equip(dre)}</div>
     ${st.fi ? `<div class="enjoc"><span class="grow"><b>Set per a ${esc(arbNom(M, st.guanya))}</b><small>${st.pts[esq]}-${st.pts[dre]}</small></span><button class="btn primary" onclick="arbSegSet()">Següent set</button></div>` : ''}
     <div class="arbpista ${n === 2 ? 'platja' : ''}">${E.html}<div class="arbxarxa"></div>${Dr.html}
@@ -3114,7 +3115,7 @@ function arbFormacio(M, i) {
   const ants = M.sets.slice(0, i).map((x, j) => x.f && zks(M).every(z => x.f[0]?.[z]) ? j : -1).filter(j => j >= 0);
   const copia = e => ants.length ? `<span class="arbcopia">${ants.map(j => `<button type="button" class="arbxip" onclick="arbCopiaForm(${e},${j})" title="Copia la formació del set ${j + 1}">⧉ Set ${j + 1}</button>`).join('')}</span>` : '';
   const qui = M.sets.slice(0, i).map((x, j) => x.f ? `Al set ${j + 1} va sacar primer ${arbNom(M, x.s0 ?? 0)}.` : '').filter(Boolean);
-  return `<div class="arbformtop"><h2>Set ${i + 1}</h2>${info(`<p>El dorsal de cada zona a l'inici del set, com a la fitxa de l'àrbitre. Z1 és qui saca. L1 i L2 són els lliures (no compten com a canvi).</p><p>Marca quin equip saca primer. Amb ⧉ copies la formació d'un set anterior.</p>`, `Formacions`)}</div>
+  return `<div class="arbformtop"><h2>Set ${i + 1}</h2>${M.sets.some(x => x.f && zks(M).every(z => x.f[0]?.[z])) ? `<button type="button" class="mini" onclick="arbPdf(-1)" title="Acta en PDF" aria-label="Acta en PDF">📄</button>` : ''}${info(`<p>El dorsal de cada zona a l'inici del set, com a la fitxa de l'àrbitre. Z1 és qui saca. L1 i L2 són els lliures (no compten com a canvi).</p><p>Marca quin equip saca primer. Amb ⧉ copies la formació d'un set anterior.</p>`, `Formacions`)}</div>
     ${i === 0 || i + 1 === (M.reg.sets || 5) ? `<button type="button" class="arbxip arbsort" onclick="arbSorteig()">🪙 Sorteig</button>` : ''}
     ${qui.length ? `<p class="meta arbqui">${qui.map(esc).join('<br>')}</p>` : ''}
     <div id="as0">${[0, 1].map(e => `<div class="card arbform"><div class="arbformcap"><b>${esc(arbNom(M, e))}</b>${copia(e)}<button type="button" class="arbxip ${(S.s0 ?? 0) === e ? 'on' : ''}" data-v="${e}" onclick="document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', b === this))">🏐 Saca</button></div><div class="rgrid rform ${n === 6 ? '' : 'c2'}"><i class="rxarxa"></i>${(n === 6 ? [4, 3, 2, 5, 6, 1] : n === 4 ? [3, 2, 4, 1] : [1, 2]).map(z => sel(e, z)).join('')}${n === 6 ? selL(e, 0) + selL(e, 1) : ''}</div></div>`).join('')}</div>
