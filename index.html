@@ -1032,6 +1032,7 @@ body.arbfull #app { padding-bottom: 8px; }
 .sanctaula { width: 100%; border-collapse: collapse; font-size: 13px; margin: 4px 0 10px; } .sanctaula th, .sanctaula td { border-bottom: 1px solid var(--line); padding: 5px 4px; text-align: left; vertical-align: top; } .sanctaula th { font-size: 12px; color: var(--muted); }
 .sanctaula td:nth-child(3) { text-align: center; font-weight: 700; }
 .solimp { font-size: 5pt !important; } .solimp i { font-style: normal; display: inline-block; width: 3.2mm; } .solimp i.on { border: .25mm solid #000; border-radius: 50%; font-weight: 700; }
+.arbtim span small { display: block; font-weight: 600; font-size: 12px; opacity: .75; } .arbtim button { border: 0; background: rgba(0,0,0,.12); color: inherit; border-radius: 10px; width: 38px; height: 38px; font-size: 17px; flex: none; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -3020,20 +3021,29 @@ window.arbEv = ev => {
 };
 // compte enrere a dalt de la pantalla del partit; en acabar vibra i fa un xiulet curt
 let ARBTIM = null, ARBTIMI = null;
-const arbTimHtml = () => { if (!ARBTIM) return ''; const r = Math.max(0, Math.ceil((ARBTIM.fi - Date.now()) / 1000));
-  return `<button class="arbtim ${r ? '' : 'fi'}" id="arbtim" onclick="arbCronoAtura()" aria-label="Atura el compte enrere"><span>${esc(ARBTIM.txt)}</span><b>${Math.floor(r / 60)}:${String(r % 60).padStart(2, '0')}</b><small>✕</small></button>`; };
+// seq: els passos que vénen després (escalfament); quan s'acaba un pas, xiula i comença el següent
+const arbTimHtml = () => { if (!ARBTIM) return ''; const r = Math.max(0, Math.ceil((ARBTIM.fi - Date.now()) / 1000)), seg = ARBTIM.seq || [];
+  return `<div class="arbtim ${r ? '' : 'fi'}" id="arbtim"><span>${esc(ARBTIM.txt)}${seg.length ? `<small>Després: ${esc(seg[0].txt)}</small>` : ''}</span><b>${Math.floor(r / 60)}:${String(r % 60).padStart(2, '0')}</b>${seg.length ? `<button onclick="arbCronoSalta()" title="Passa al següent" aria-label="Passa al següent">⏭</button>` : ''}<button onclick="arbCronoAtura()" title="Atura" aria-label="Atura el compte enrere">✕</button></div>`; };
 const arbXiulet = () => { try { const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain(); o.frequency.value = 2800; g.gain.value = .25; o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .7); } catch {} navigator.vibrate?.([300, 120, 300]); };
+// passa els passos ja acabats (p. ex. si s'ha refrescat la pàgina a mig escalfament); torna si n'ha passat algun
+const arbTimAvanca = () => { let canvi = false; while (ARBTIM?.seq?.length && ARBTIM.fi <= Date.now()) { const [n, ...rest] = ARBTIM.seq; ARBTIM = { fi: ARBTIM.fi + n.seg * 1000, txt: n.txt, seq: rest }; canvi = true; } if (canvi) store.set('volei.arbtim', ARBTIM); return canvi; };
 // es guarda al mòbil: si es refresca la pàgina, el compte enrere continua on era
-window.arbCrono = (seg, txt, fi) => {
-  ARBTIM = { fi: fi || Date.now() + seg * 1000, txt }; store.set('volei.arbtim', ARBTIM); clearInterval(ARBTIMI); if (arbM()?.directe) arbPublica(arbM());
+window.arbCrono = (seg, txt, fi, seq) => {
+  ARBTIM = { fi: fi || Date.now() + seg * 1000, txt, seq: seq || [] }; arbTimAvanca(); store.set('volei.arbtim', ARBTIM); clearInterval(ARBTIMI); if (arbM()?.directe) arbPublica(arbM());
   ARBTIMI = setInterval(() => {
+    if (arbTimAvanca()) arbXiulet();
     const el = $('#arbtim'), r = ARBTIM ? ARBTIM.fi - Date.now() : 0;
     if (el) el.outerHTML = arbTimHtml();
     if (r <= 0) { clearInterval(ARBTIMI); arbXiulet(); setTimeout(() => { ARBTIM = null; store.set('volei.arbtim', null); $('#arbtim')?.remove(); if (arbM()?.directe) arbPublica(arbM()); }, 4000); }
   }, 250);
 };
-{ const t = store.get('volei.arbtim', null); if (t?.fi > Date.now()) setTimeout(() => arbCrono(0, t.txt, t.fi)); else store.set('volei.arbtim', null); }
+{ const t = store.get('volei.arbtim', null), fi = t ? t.fi + (t.seq || []).reduce((a, x) => a + x.seg * 1000, 0) : 0;
+  if (fi > Date.now()) setTimeout(() => arbCrono(0, t.txt, t.fi, t.seq)); else store.set('volei.arbtim', null); }
 window.arbCronoAtura = () => { clearInterval(ARBTIMI); ARBTIM = null; store.set('volei.arbtim', null); $('#arbtim')?.remove(); if (arbM()?.directe) arbPublica(arbM()); };
+window.arbCronoSalta = () => { const [n, ...rest] = ARBTIM?.seq || []; if (n) arbCrono(n.seg, n.txt, 0, rest); else arbCronoAtura(); };
+// escalfament a la xarxa: remat per 4 i per 2 (els dos equips alhora) i saques, primer un equip i després l'altre
+const ESCALF = [[210, 'Remat per 4'], [210, 'Remat per 2'], [90, 'Saques {0}'], [90, 'Saques {1}']];
+window.arbEscalfa = () => { const M = arbM(), p = ESCALF.map(([seg, t]) => ({ seg, txt: t.replace('{0}', arbNom(M, 0)).replace('{1}', arbNom(M, 1)) })); arbCrono(p[0].seg, p[0].txt, 0, p.slice(1)); render(); };
 window.arbDesfes = () => { const M = arbM(), S = M.sets.at(-1), d = (S.ev || []).at(-1), fi = arbSet(M, M.sets.length - 1).fi; S.ev = (S.ev || []).slice(0, -1);
   if (ARBTIM && (d?.k === 'tm' || (fi && !arbSet(M, M.sets.length - 1).fi))) arbCronoAtura();
   desaArb(); render(); };
@@ -3115,8 +3125,8 @@ function arbFormacio(M, i) {
   const ants = M.sets.slice(0, i).map((x, j) => x.f && zks(M).every(z => x.f[0]?.[z]) ? j : -1).filter(j => j >= 0);
   const copia = e => ants.length ? `<span class="arbcopia">${ants.map(j => `<button type="button" class="arbxip" onclick="arbCopiaForm(${e},${j})" title="Copia la formació del set ${j + 1}">⧉ Set ${j + 1}</button>`).join('')}</span>` : '';
   const qui = M.sets.slice(0, i).map((x, j) => x.f ? `Al set ${j + 1} va sacar primer ${arbNom(M, x.s0 ?? 0)}.` : '').filter(Boolean);
-  return `<div class="arbformtop"><h2>Set ${i + 1}</h2>${M.sets.some(x => x.f && zks(M).every(z => x.f[0]?.[z])) ? `<button type="button" class="mini" onclick="arbPdf(-1)" title="Acta en PDF" aria-label="Acta en PDF">📄</button>` : ''}${info(`<p>El dorsal de cada zona a l'inici del set, com a la fitxa de l'àrbitre. Z1 és qui saca. L1 i L2 són els lliures (no compten com a canvi).</p><p>Marca quin equip saca primer. Amb ⧉ copies la formació d'un set anterior.</p>`, `Formacions`)}</div>
-    ${i === 0 || i + 1 === (M.reg.sets || 5) ? `<button type="button" class="arbxip arbsort" onclick="arbSorteig()">🪙 Sorteig</button>` : ''}
+  return `${arbTimHtml()}<div class="arbformtop"><h2>Set ${i + 1}</h2>${M.sets.some(x => x.f && zks(M).every(z => x.f[0]?.[z])) ? `<button type="button" class="mini" onclick="arbPdf(-1)" title="Acta en PDF" aria-label="Acta en PDF">📄</button>` : ''}${info(`<p>El dorsal de cada zona a l'inici del set, com a la fitxa de l'àrbitre. Z1 és qui saca. L1 i L2 són els lliures (no compten com a canvi).</p><p>Marca quin equip saca primer. Amb ⧉ copies la formació d'un set anterior.</p>`, `Formacions`)}</div>
+    ${i === 0 || i + 1 === (M.reg.sets || 5) ? `<button type="button" class="arbxip arbsort" onclick="arbSorteig()">🪙 Sorteig</button>` : ''}${i === 0 && !(S.ev || []).length ? ` <button type="button" class="arbxip arbsort" onclick="arbEscalfa()" title="Remat per 4 i per 2 (3:30 cada un) i saques (1:30 cada equip)">⏱ Escalfament</button>` : ''}
     ${qui.length ? `<p class="meta arbqui">${qui.map(esc).join('<br>')}</p>` : ''}
     <div id="as0">${[0, 1].map(e => `<div class="card arbform"><div class="arbformcap"><b>${esc(arbNom(M, e))}</b>${copia(e)}<button type="button" class="arbxip ${(S.s0 ?? 0) === e ? 'on' : ''}" data-v="${e}" onclick="document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', b === this))">🏐 Saca</button></div><div class="rgrid rform ${n === 6 ? '' : 'c2'}"><i class="rxarxa"></i>${(n === 6 ? [4, 3, 2, 5, 6, 1] : n === 4 ? [3, 2, 4, 1] : [1, 2]).map(z => sel(e, z)).join('')}${n === 6 ? selL(e, 0) + selL(e, 1) : ''}</div></div>`).join('')}</div>
     <div class="actions"><button class="btn primary" style="flex:1" onclick="arbDesaFormacio()">${S.editant ? 'Desa' : 'Comença el set'}</button>${S.editant ? `<button class="btn" onclick="arbFormTorna()">Torna</button>` : ''}</div>
