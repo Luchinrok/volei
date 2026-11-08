@@ -1037,6 +1037,7 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbsw { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 14px; font-weight: 600; } .arbsw input { width: 18px; height: 18px; margin: 0; }
 .arbnuv { text-align: center; margin: 8px 0 0; }
 .arbtim { position: relative; top: auto; left: auto; right: auto; z-index: 2; width: 100%; padding: 8px 12px; box-shadow: 0 4px 14px rgba(0,0,0,.15); flex: none; margin: 0 0 8px; } .arbviu .arbtim { margin: 0; } .arbtim b { font-size: 30px; }
+.arbavis.arbavisv { margin: 0; font-size: 13px; padding: 6px 8px; flex: none; } .arbavis.arbavisv.mal { background: #fff0f0; color: var(--no); border: 1px solid #e03131; }
 </style>
 </head>
 <body>
@@ -3083,8 +3084,8 @@ function viewArbitre() {
     <div class="arbtop"><span>Set ${i + 1}</span><span>Sets ${g[esq]}-${g[dre]}</span><span class="arbmenu"><button class="mini ${M.directe ? 'arbon' : ''}" onclick="arbDirecte()" title="Marcador en directe" aria-label="Marcador en directe">📡</button><button class="mini" onclick="arbGira()" title="Canvia els equips de costat" aria-label="Canvia els equips de costat">⇄</button><button class="mini" onclick="arbPdf(-1)" title="Acta en PDF" aria-label="Acta en PDF">📄</button><button class="mini" onclick="arbVeuActa(-1)" title="Acta" aria-label="Acta">☰</button><button class="mini" onclick="arbFormacioEdita()" title="Formacions" aria-label="Formacions">✎</button><button class="mini" onclick="arbAcaba()" title="Acaba el partit" aria-label="Acaba el partit">✕</button></span></div>
     <div class="arbmarcador">${equip(esq)}<span class="arbguio">-</span>${equip(dre)}</div>
     ${st.fi ? `<div class="enjoc"><span class="grow"><b>Set per a ${esc(arbNom(M, st.guanya))}</b><small>${st.pts[esq]}-${st.pts[dre]}</small></span><button class="btn primary" onclick="arbSegSet()">Següent set</button></div>` : ''}
-    <div class="arbpista ${n === 2 ? 'platja' : ''}">${E.html}<div class="arbxarxa"></div>${Dr.html}
-      ${avisos.length ? `<p class="arbavis ${fl.length ? 'mal' : ''}">${avisos.map(esc).join('<br>')}</p>` : ''}</div>
+    <div class="arbpista ${n === 2 ? 'platja' : ''}">${E.html}<div class="arbxarxa"></div>${Dr.html}</div>
+    ${avisos.length ? `<p class="arbavis arbavisv ${fl.length ? 'mal' : ''}">${avisos.map(esc).join('<br>')}</p>` : ''}
     <div class="arbfiles">${fila(esq)}${fila(dre)}</div>
     <div class="arbpeu"><span class="grow">${darrer ? esc(arbTxtEv(M, darrer)) : 'Toca el marcador de l’equip que guanya el punt.'}</span><button class="btn" ${ev.length ? '' : 'disabled'} onclick="arbDesfes()">↶ Desfés</button></div>
   </div>`;
