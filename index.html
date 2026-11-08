@@ -1136,9 +1136,9 @@ const IDIOMES = [['ca', 'Català'], ['es', 'Español'], ['en', 'English']];
 // recomanar l'app a un altre entrenador (04-11-2026): menú de compartir del mòbil o, si no n'hi ha, WhatsApp
 const PRESENTACIO = 'https://3tocs.web.app/';
 const MSG_RECOMANA = {
-  ca: "Mira 3Tocs, l'app que faig servir per portar l'equip de vòlei: les sessions, la llista i els partits. És gratuïta i només cal un compte de Google.",
-  es: 'Mira 3Tocs, la app que uso para llevar el equipo de vóley: las sesiones, la lista y los partidos. Es gratis y solo necesitas una cuenta de Google.',
-  en: "Check out 3Tocs, the app I use to run my volleyball team: sessions, attendance and matches. It's free and you only need a Google account."
+  ca: "Mira 3Tocs, l'app que faig servir per portar l'equip de vòlei: les sessions, la llista i els partits. Només cal un compte de Google.",
+  es: 'Mira 3Tocs, la app que uso para llevar el equipo de vóley: las sesiones, la lista y los partidos. Solo necesitas una cuenta de Google.',
+  en: "Check out 3Tocs, the app I use to run my volleyball team: sessions, attendance and matches. All you need is a Google account."
 };
 window.recomana = async () => {
   const l = LANG || 'ca', url = PRESENTACIO + (l === 'ca' ? '' : '?lang=' + l), text = MSG_RECOMANA[l] || MSG_RECOMANA.ca;
@@ -1148,9 +1148,9 @@ window.recomana = async () => {
 // l'app d'àrbitre (07-11-2026): no cal compte, l'enllaç porta directament a #/arbitre
 const APP_ARBITRE = 'https://volei-2627-dc.firebaseapp.com/#/arbitre';
 const MSG_ARBITRE = {
-  ca: "Per arbitrar partits de vòlei des del mòbil: formacions, rotacions, canvis, temps morts, targetes, cronos i l'acta en PDF. És gratuïta i no cal compte.",
-  es: 'Para arbitrar partidos de vóley desde el móvil: formaciones, rotaciones, cambios, tiempos muertos, tarjetas, cronos y el acta en PDF. Es gratis y no necesitas cuenta.',
-  en: 'To referee volleyball matches from your phone: lineups, rotations, substitutions, time-outs, cards, timers and the score sheet as a PDF. It is free and needs no account.'
+  ca: "Per arbitrar partits de vòlei des del mòbil: formacions, rotacions, canvis, temps morts, targetes, cronos i l'acta en PDF. No cal fer-se cap compte.",
+  es: 'Para arbitrar partidos de vóley desde el móvil: formaciones, rotaciones, cambios, tiempos muertos, tarjetas, cronos y el acta en PDF. No hace falta crearse ninguna cuenta.',
+  en: 'To referee volleyball matches from your phone: lineups, rotations, substitutions, time-outs, cards, timers and the score sheet as a PDF. No account needed.'
 };
 window.recomanaArbitre = async () => {
   const l = LANG || 'ca', text = MSG_ARBITRE[l] || MSG_ARBITRE.ca;
@@ -1820,7 +1820,7 @@ function viewEntra() {
     <p class="meta">${inv ? 'Entra amb el teu compte de Google per acceptar la invitació.' : 'Entra amb el teu compte de Google per veure els teus equips.'}</p>
     <button class="btn primary gbtn" onclick="entra()"><b>G</b> Entra amb Google</button>
     ${USR === undefined ? '<p class="meta">Connectant…</p>' : ''}
-    ${inv ? '' : `<p class="queés">Tens les sessions de la temporada i saps quina toca cada dia. Passes llista des de la pista i, als partits, apuntes el marcador i qui fa cada punt. Serveix per a un equip o per a tot el club, i és gratuïta.</p>`}
+    ${inv ? '' : `<p class="queés">Tens les sessions de la temporada i saps quina toca cada dia. Passes llista des de la pista i, als partits, apuntes el marcador i qui fa cada punt. Serveix per a un equip o per a tot el club.</p>`}
     ${inv ? '' : `<p class="meta" style="margin-top:18px">Ets àrbitre? <a href="#/arbitre">Porta un partit sense compte</a></p>`}</div>`;
 }
 const sensePermis = () => `${CLAU ? `<div class="card warn"><b>Encara no tens accés a aquest equip.</b><div class="meta">Demana a l'administrador que et convidi o que et doni permís.</div></div>` : ''}
