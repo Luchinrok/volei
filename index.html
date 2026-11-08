@@ -1036,6 +1036,7 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbcomp { width: 100%; margin-top: 8px; }
 .arbsw { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 14px; font-weight: 600; } .arbsw input { width: 18px; height: 18px; margin: 0; }
 .arbnuv { text-align: center; margin: 8px 0 0; }
+.arbtim { position: relative; top: auto; left: auto; right: auto; z-index: 2; width: 100%; padding: 8px 12px; box-shadow: 0 4px 14px rgba(0,0,0,.15); flex: none; margin: 0 0 8px; } .arbviu .arbtim { margin: 0; } .arbtim b { font-size: 30px; }
 </style>
 </head>
 <body>
@@ -1431,7 +1432,7 @@ async function openSeason() {
   UNSUB.push(fs.onSnapshot(ref('estat', 'fets'), d => { FETS = d.data() || {}; render(); }));
   UNSUB.push(fs.onSnapshot(ref('estat', 'recepcio'), d => { REC = d.data() || {}; render(); }, () => {}));
   UNSUB.push(fs.onSnapshot(col('comentaris'), q => { COMS = q.docs.map(d => ({ id: d.id, ...d.data() })); render(); }));
-  UNSUB.push(fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nom.localeCompare(b.nom, 'ca')); sincFitxes(); render(); }));
+  UNSUB.push(fs.onSnapshot(col('jugadors'), q => { JUG = q.docs.map(d => ({ id: d.id, ...d.data() })).sort(perDorsal); sincFitxes(); render(); }));
   UNSUB.push(fs.onSnapshot(col('sessions'), q => {
     if (!D.fs) D.__json = D.sessions;
     const tot = q.docs.map(d => ({ ...d.data(), codi: d.id })).sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0)), ss = tot.filter(x => !x.esborrada);
@@ -1450,6 +1451,11 @@ async function openSeason() {
 const CALK = ['data', 'hora', 'equip', 'rival', 'lloc', 'adreca', 'resultat', 'punts', 'fotos', 'portada'];
 const calDe = p => Object.fromEntries(CALK.map(k => [k, p[k] ?? '']));
 // ---------- jugadors i famílies: respostes, avisos i fitxes
+// jugadors ordenats per dorsal a tot arreu (08-11-2026): primer els números, de menor a major; els que no en tenen, al final i pel nom
+const cmpDors = (a, b) => { const x = parseInt(a, 10), y = parseInt(b, 10), nx = isNaN(x), ny = isNaN(y);
+  return nx !== ny ? nx - ny : !nx && x !== y ? x - y : String(a ?? '').localeCompare(String(b ?? ''), 'ca', { numeric: true }); };
+const perDorsal = (a, b) => cmpDors(a.dorsal, b.dorsal) || a.nom.localeCompare(b.nom, 'ca');
+const ordDors = ds => [...(ds || [])].sort(cmpDors);
 const meusJug = () => (MEM?.jugadors || {})[grupDe(TEMP)] || [];
 const respId = (tipus, id, jid) => `${tipus}_${id}_${jid}`;          // un sol vot per jugador, el respongui qui el respongui
 const respDe = (tipus, id, jid) => RESP.find(r => r._doc === respId(tipus, id, jid));   // r.id és la data o el partit; r._doc, l'id del document
@@ -1934,7 +1940,7 @@ const PLURAL = { col: 'Col·locadors', op: 'Oposats', rec: 'Puntes', cen: 'Centr
 function textConvocats(p) {
   const d = new Date(p.data + 'T12:00'), dia = d.toLocaleDateString(LOC, { weekday: 'long' }), riv = p.rival || 'Rival?';
   const cap = `*Convocats ${dia[0].toUpperCase() + dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}${p.hora ? ' ' + p.hora : ''} ${p.lloc === 'fora' ? riv + ' vs ' + nomNostre(p) : nomNostre(p) + ' vs ' + riv}*`;
-  const js = JUG.filter(j => (p.convocats || []).includes(j.id)).sort((a, b) => a.nom.localeCompare(b.nom, 'ca'));
+  const js = JUG.filter(j => (p.convocats || []).includes(j.id)).sort(perDorsal);
   const linia = j => `- ${dors(j.id) ? dors(j.id) + ' ' : ''}${j.nom}`;
   const grups = Object.keys(POS).map(k => [PLURAL[k], js.filter(j => posOk(j.posicio) === k)]).concat([['Sense posició', js.filter(j => !posOk(j.posicio))]]).filter(([, l]) => l.length);
   return cap + '\n\n' + grups.map(([t, l]) => `${t} (${l.length})\n${l.map(linia).join('\n')}`).join('\n\n');
@@ -2456,7 +2462,7 @@ function viewAssistencia() {
   <div class="irow">${info(`<ul><li>Toca un nom per veure els seus entrenos i partits.</li><li><b>%</b>: entrenos que ha vingut sobre els que s'ha passat llista. El primer és de tota la temporada i el segon, dels últims 30 dies.</li><li>El % de l'últim mes surt <span class="red">en vermell</span> si baixa més de 10 punts.</li><li>El nom surt <span class="red">en vermell</span> si ha faltat alguna vegada sense avisar (💀 = quantes).</li></ul>`, `Assistència`)}</div>
   <h3>Equip</h3>
   ${editEquip ? `<div class="card eqlist">
-    ${JUG.slice().sort((a, b) => (a.actiu === false) - (b.actiu === false) || a.nom.localeCompare(b.nom, 'ca')).map(j => { const dj = diesJug(j), eqs = !dosEq() ? [] : j.equip === 'NG' ? ['N', 'G'] : j.equip ? [j.equip] : [];
+    ${JUG.slice().sort((a, b) => (a.actiu === false) - (b.actiu === false) || perDorsal(a, b)).map(j => { const dj = diesJug(j), eqs = !dosEq() ? [] : j.equip === 'NG' ? ['N', 'G'] : j.equip ? [j.equip] : [];
       return `<button class="eqrow ${j.actiu === false ? 'inactiu' : ''}" onclick="editaJug('${j.id}')">
         <span class="eqd">${esc(dors(j.id) || '–')}</span>${posOk(j.posicio) ? `<i class="pb pb-${j.posicio} inl" title="${POS[j.posicio].t}">${POS[j.posicio].l}</i>` : ''}
         <span class="eqn">${esc(j.nom)}${j.actiu === false ? '<small>ja no és a l\'equip</small>' : ''}</span>
@@ -2592,7 +2598,7 @@ window.editaJug = id => {
   setTimeout(() => !id && $('#ejn')?.focus(), 50);
 };
 // ordre per passar d'un jugador a l'altre dins la fitxa: el de la llista (actius primer, per nom)
-const ordreJug = () => JUG.slice().sort((a, b) => (a.actiu === false) - (b.actiu === false) || a.nom.localeCompare(b.nom, 'ca'));
+const ordreJug = () => JUG.slice().sort((a, b) => (a.actiu === false) - (b.actiu === false) || perDorsal(a, b));
 window.desaJug = (id, mou) => {
   const nom = $('#ejn').value.trim(); if (!nom) return $('#ejn').focus();
   const totsD = Object.keys(tcfg().dies).map(Number).sort(), sel = $('#ejdies') ? [...$('#ejdies').querySelectorAll('button.on')].map(b => +b.dataset.d) : totsD;
@@ -2916,6 +2922,9 @@ window.rivalActiu = (id, v) => { const p = PAR.find(x => x.id === id); p.rivalRo
 // M = {id, t, eq: [{nom, d: [dorsals], noms: {dorsal: nom}}, …], reg: {p, u, sets, tm, cv}, sets: [{f: [{1..6}, {1..6}], s0: 0|1, ev: [...]}], fi}
 // ev: {k: 'p', e} punt - {k: 'tm', e} temps mort - {k: 'cv', e, surt, entra} canvi - {k: 'li', e, surt, entra} lliure - {k: 'tg', e, d, tipus: av|pen|exp|des} targeta. Cada set: L = [[lliures A], [lliures B]]
 let ARB = store.get('volei.arbitre', { actual: null, hist: [] }), ARBNOU = null, ARBXY = {}, ARBVEU = null, DIR_ESB = null;
+// els dorsals de cada equip, sempre per ordre de número (també els partits guardats d'abans)
+const arbOrdena = () => [ARB.actual, ...(ARB.hist || [])].filter(Boolean).forEach(M => M.eq?.forEach(q => { q.d = ordDors(q.d); }));
+arbOrdena();
 const desaArb = () => { store.set('volei.arbitre', ARB); if (ARB.actual?.directe) arbPublica(ARB.actual); arbPuja(); };
 // actes al compte (07-11-2026), només per als àrbitres del club: usuaris/{uid}/arbitre/{id} = {j: el partit en JSON, t, viu} o {esborrat, t}.
 // En entrar s'ajunten les del mòbil i les del compte (guanya la més nova, M.mod); després cada canvi es puja sol
@@ -2937,7 +2946,7 @@ async function arbNuvol() {
       if (esA) ARB.actual = null; else if (iH >= 0) ARB.hist.splice(iH, 1);
       if (x.viu && !ARB.actual) ARB.actual = M; else ARB.hist.push(M);
     });
-    if (canvi) { ARB.hist.sort((a, b) => a.t - b.t); store.set('volei.arbitre', ARB); render(); }
+    if (canvi) { ARB.hist.sort((a, b) => a.t - b.t); arbOrdena(); store.set('volei.arbitre', ARB); render(); }
     arbPuja();
   } catch (e) { ARBNUV = null; registraError(e, 'arb-nuvol'); }
 }
@@ -3239,7 +3248,7 @@ window.arbDesaFormacio = () => {
 // equips dels partits arbitrats (l'últim de cada nom), per no haver de tornar a escriure els dorsals
 const arbDesats = () => { const m = new Map(); [...(ARB.hist || []), ARB.actual].filter(Boolean).forEach(M => M.eq.forEach(q => { if (q.nom && !q.noms) m.set(q.nom.trim().toLowerCase(), { k: q.nom.trim().toLowerCase(), nom: q.nom.trim(), d: [...q.d] }); })); return [...m.values()].sort((a, b) => a.nom.localeCompare(b.nom)); };
 // es busca pel nom (no per la posició a la llista), perquè no es pugui agafar l'equip del costat
-window.arbUsaEquip = (e, k) => { const x = arbDesats().find(y => y.k === k); if (!x) return; Object.assign(ARBNOU.eq[e], { nom: x.nom, ds: [...x.d], meu: false, de: k }); render(); };
+window.arbUsaEquip = (e, k) => { const x = arbDesats().find(y => y.k === k); if (!x) return; Object.assign(ARBNOU.eq[e], { nom: x.nom, ds: ordDors(x.d), meu: false, de: k }); render(); };
 function arbPrepara() {
   const desats = arbDesats();
   const N = ARBNOU || (ARBNOU = { eq: [{ nom: '', ds: [], meu: false, sel: [] }, { nom: '', ds: [], meu: false, sel: [] }], reg: { ...REG_DEF } });
@@ -3270,15 +3279,15 @@ const arbCompte = e => { const q = ARBNOU.eq[e], n = (q.meu ? q.sel : q.ds || []
 const arbPintaDors = e => { const q = ARBNOU.eq[e]; $(`#adc${e}`).innerHTML = arbXips(e); $(`#ad${e}`).placeholder = `Jugador ${q.ds.length + 1}: dorsal`; $(`#adn${e}`).innerHTML = arbCompte(e); };
 window.arbAfegeixDors = e => {
   const q = ARBNOU.eq[e], inp = $(`#ad${e}`), nous = arbParteix(inp.value);
-  q.ds = [...new Set([...(q.ds || []), ...nous])]; inp.value = ''; arbPintaDors(e); inp.focus();
+  q.ds = ordDors(new Set([...(q.ds || []), ...nous])); inp.value = ''; arbPintaDors(e); inp.focus();
 };
 window.arbTreuDors = (e, d) => { const q = ARBNOU.eq[e]; q.ds = q.ds.filter(x => x !== d); arbPintaDors(e); };
 window.arbFormat = n => { ARBNOU.reg = { ...FORMATS[n].reg }; render(); };
 window.arbSelJug = (e, id, on) => { const s = ARBNOU.eq[e].sel; ARBNOU.eq[e].sel = on ? [...s, id] : s.filter(x => x !== id); const n = $(`#adn${e}`); if (n) n.innerHTML = arbCompte(e); };
 window.arbComenca = () => {
   const N = ARBNOU, eq = N.eq.map(q => {
-    if (q.meu) { const js = JUG.filter(j => q.sel.includes(j.id)); return { nom: q.nom.trim(), d: js.map(j => String(dors(j.id))), noms: Object.fromEntries(js.map(j => [String(dors(j.id)), j.nom])) }; }
-    return { nom: q.nom.trim(), d: [...new Set([...(q.ds || []), ...arbParteix($(`#ad${N.eq.indexOf(q)}`)?.value)])] };
+    if (q.meu) { const js = JUG.filter(j => q.sel.includes(j.id)); return { nom: q.nom.trim(), d: ordDors(js.map(j => String(dors(j.id)))), noms: Object.fromEntries(js.map(j => [String(dors(j.id)), j.nom])) }; }
+    return { nom: q.nom.trim(), d: ordDors(new Set([...(q.ds || []), ...arbParteix($(`#ad${N.eq.indexOf(q)}`)?.value)])) };
   });
   for (const [e, q] of eq.entries()) { if (!q.nom) return dialeg(`Posa el nom de l'equip ${e ? 'B' : 'A'}.`, { sol: true }); if (q.d.length < (N.reg.n || 6)) return dialeg(`${esc(q.nom)} necessita com a mínim ${N.reg.n || 6} dorsals.`, { sol: true }); }
   ARB.actual = { id: 'a' + Date.now(), t: Date.now(), eq, reg: N.reg, sets: [{ f: [{}, {}], L: [[], []], s0: 0, ev: [], preparant: true }] }; ARBNOU = null; desaArb(); render();
