@@ -3092,10 +3092,16 @@ function viewArbitre() {
 }
 window.arbGira = () => { const S = arbM().sets.at(-1); S.esq = 1 - (S.esq ?? 0); desaArb(); render(); };
 window.arbReset = k => { delete ARBXY[k]; render(); };
+const arbSetPts = (M, i, treu) => { const S = M.sets[i], ev = S.ev; S.ev = ev.slice(0, treu); const p = arbSet(M, i).pts; S.ev = ev; return p; };
 window.arbEv = ev => {
   const M = arbM(), i = M.sets.length - 1, abans = arbSet(M, i).fi;
   M.sets[i].ev = [...(M.sets[i].ev || []), { ...ev, t: Date.now() }]; desaArb();
   if (ev.k === 'tm') arbCrono(30, `Temps mort ${arbNom(M, ev.e)}`);
+  else if (['p', 'tg', 're'].includes(ev.k) && M.reg.tt && i + 1 < (M.reg.sets || 5) && !arbSet(M, i).fi) {
+    // temps morts tècnics (FIVB): a pista, quan l'equip que va davant arriba a 8 i a 16; a platja, quan la suma arriba a 21
+    const ara = arbSet(M, i).pts, ab = arbSetPts(M, i, -1), pl = (M.reg.n || 6) === 2;
+    if (pl ? ara[0] + ara[1] === 21 && ab[0] + ab[1] < 21 : [8, 16].some(x => Math.max(...ara) === x && Math.max(...ab) < x)) arbCrono(pl ? 30 : 60, 'Temps mort tècnic');
+  }
   else if (!abans && arbSet(M, i).fi && !arbSetsGuanyats(M).some(x => x >= guanyarSets(M))) arbCrono(180, 'Descans entre sets');
   render();
 };
@@ -3125,7 +3131,7 @@ window.arbCronoSalta = () => { const [n, ...rest] = ARBTIM?.seq || []; if (n) ar
 const ESCALF = [[210, 'Remat per 4'], [210, 'Remat per 2'], [90, 'Saques {0}'], [90, 'Saques {1}']];
 window.arbEscalfa = () => { const M = arbM(), p = ESCALF.map(([seg, t]) => ({ seg, txt: t.replace('{0}', arbNom(M, 0)).replace('{1}', arbNom(M, 1)) })); arbCrono(p[0].seg, p[0].txt, 0, p.slice(1)); render(); };
 window.arbDesfes = () => { const M = arbM(), S = M.sets.at(-1), d = (S.ev || []).at(-1), fi = arbSet(M, M.sets.length - 1).fi; S.ev = (S.ev || []).slice(0, -1);
-  if (ARBTIM && (d?.k === 'tm' || (fi && !arbSet(M, M.sets.length - 1).fi))) arbCronoAtura();
+  if (ARBTIM && (d?.k === 'tm' || (['p', 'tg', 're'].includes(d?.k) && ARBTIM.txt === 'Temps mort tècnic') || (fi && !arbSet(M, M.sets.length - 1).fi))) arbCronoAtura();
   desaArb(); render(); };
 window.arbSegSet = () => { const M = arbM(), ant = M.sets.at(-1); M.sets.push({ f: [{}, {}], L: [[], []], s0: 1 - ant.s0, esq: 1 - (ant.esq ?? 0), ev: [], preparant: true }); desaArb(); render(); };
 window.arbFormacioEdita = () => { arbM().sets.at(-1).editant = true; desaArb(); render(); };
@@ -3266,8 +3272,10 @@ function arbPrepara() {
   return `<div class="arbpre"><h2>Partit nou</h2>${info(`<p>Per portar un partit com l'àrbitre: formacions, rotacions dels dos equips, lliures, canvis, temps morts, targetes i l'acta.</p><p>Escriu el dorsal de cada jugador i prem Enter. Si un equip és el teu, marca «El meu equip» i tria'ls de la llista.</p><p>Funciona sense compte i es guarda en aquest mòbil. Els partits acabats es poden obrir, corregir i reobrir.</p>`, `Àrbitre`)}</div>
     <div class="seg arbfmt">${Object.entries(FORMATS).sort((a, b) => b[0] - a[0]).map(([k, x]) => `<button type="button" class="${(N.reg.n || 6) === +k ? 'on' : ''}" onclick="arbFormat(${k})">${x.nom}</button>`).join('')}</div>
     ${eq(0)}${eq(1)}
-    <details class="card arbnormes"><summary><b>Normes</b><span class="meta">Sets a ${N.reg.p}, decisiu a ${N.reg.u}, ${N.reg.tm} TM, ${N.reg.cv} canvis</span></summary><div class="arbreg">
-      ${[['sets', 'Sets'], ['p', 'Punts'], ['u', 'Decisiu'], ['tm', 'TM'], ['cv', 'Canvis']].map(([k, t]) => `<label><small>${t}</small><input type="number" inputmode="numeric" min="1" value="${N.reg[k]}" oninput="ARBNOU.reg.${k}=+this.value||ARBNOU.reg.${k}"></label>`).join('')}</div></details>
+    <details class="card arbnormes"><summary><b>Normes</b><span class="meta">Sets a ${N.reg.p}, decisiu a ${N.reg.u}, ${N.reg.tm} TM, ${N.reg.cv} canvis${N.reg.tt ? ', TM tècnics' : ''}</span></summary><div class="arbreg">
+      ${[['sets', 'Sets'], ['p', 'Punts'], ['u', 'Decisiu'], ['tm', 'TM'], ['cv', 'Canvis']].map(([k, t]) => `<label><small>${t}</small><input type="number" inputmode="numeric" min="1" value="${N.reg[k]}" oninput="ARBNOU.reg.${k}=+this.value||ARBNOU.reg.${k}"></label>`).join('')}</div>
+      <label class="arbsw"><input type="checkbox" ${N.reg.tt ? 'checked' : ''} onchange="ARBNOU.reg.tt=this.checked;render()"> Temps morts tècnics</label>
+      <p class="meta" style="margin:2px 0 0">${(N.reg.n || 6) === 2 ? 'Quan la suma dels punts arriba a 21, 30 segons.' : 'Quan un equip arriba a 8 i a 16 punts, 60 segons.'} No n'hi ha al set decisiu.</p></details>
     <div class="actions"><button class="btn primary" style="flex:1" onclick="arbComenca()">Comença el partit</button></div>
     <button type="button" class="btn arbcomp" onclick="recomanaArbitre()">📤 Comparteix l'app d'àrbitre</button>
     ${esArbitre() ? `<p class="meta arbnuv">☁️ Les actes es guarden al teu compte.</p>` : ''}
@@ -3333,9 +3341,10 @@ window.arbObs = (k, v) => { arbDe(k).obs = v.trim(); desaArb(); };
 window.arbNomsEq = async k => {
   const M = arbDe(k), I = M.info || {};
   const camp = (id, lbl, v) => `<label class="lbl">${lbl}</label><input type="text" id="${id}" value="${esc(v || '')}">`;
-  if (!await dialeg(`<b>Dades del partit</b><div class="form">${camp('anq0', 'Equip A', arbNom(M, 0))}${camp('anq1', 'Equip B', arbNom(M, 1))}${camp('ani_comp', 'Competició', I.comp)}${camp('ani_terreny', 'Terreny de joc', I.terreny)}${camp('ani_arb1', '1r àrbitre', I.arb1)}${camp('ani_arb2', '2n àrbitre', I.arb2)}${camp('ani_anot', 'Anotador/a', I.anot)}</div>`, { ok: 'Desa', ico: '✎' })) return;
+  if (!await dialeg(`<b>Dades del partit</b><div class="form">${camp('anq0', 'Equip A', arbNom(M, 0))}${camp('anq1', 'Equip B', arbNom(M, 1))}${camp('ani_comp', 'Competició', I.comp)}${camp('ani_terreny', 'Terreny de joc', I.terreny)}${camp('ani_arb1', '1r àrbitre', I.arb1)}${camp('ani_arb2', '2n àrbitre', I.arb2)}${camp('ani_anot', 'Anotador/a', I.anot)}<label class="arbsw"><input type="checkbox" id="ani_tt" ${M.reg.tt ? 'checked' : ''}> Temps morts tècnics</label></div>`, { ok: 'Desa', ico: '✎' })) return;
   [0, 1].forEach(e => { const v = $(`#anq${e}`)?.value.trim(); if (v) M.eq[e].nom = v; });
   M.info = Object.fromEntries(['comp', 'terreny', 'arb1', 'arb2', 'anot'].map(x => [x, $(`#ani_${x}`)?.value.trim() || '']));
+  M.reg.tt = !!$('#ani_tt')?.checked;
   desaArb(); render();
 };
 const arbDe = k => k >= 0 ? ARB.hist[k] : arbM();
