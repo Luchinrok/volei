@@ -2833,6 +2833,8 @@ const ACC = {
   rp: { t: 'Recepció perfecta', i: '⭐', bo: 1, np: 1 }, rb: { t: 'Bona recepció', i: '👍', bo: 1, np: 1 }, rd: { t: 'Recepció dolenta', i: '👎', bo: 0, np: 1 },
   bd: { t: 'Bona defensa', i: '🧤', bo: 1, np: 1 }, bc: { t: 'Bona col·locació', i: '🙌', bo: 1, np: 1 },
   frot: { t: 'Falta de rotació', i: '🔄', bo: 0, sol: 1 },
+  // punts passats des de l'acta de l'àrbitre (08-11-2026): se sap qui guanya el punt, però no qui ni com
+  pn: { t: 'Punt nostre', i: '➕', bo: 1, sol: 1 }, pe: { t: 'Punt d\'ells', i: '➖', bo: 0, sol: 1 },
   // canvi de jugador dins del set: {a: 'canvi', j: qui entra, surt: qui surt}
   canvi: { t: 'Canvi', i: '🔁', np: 1, cv: 1 }
 };
@@ -3299,7 +3301,7 @@ window.arbFormat = n => { ARBNOU.reg = { ...FORMATS[n].reg }; render(); };
 window.arbSelJug = (e, id, on) => { const s = ARBNOU.eq[e].sel; ARBNOU.eq[e].sel = on ? [...s, id] : s.filter(x => x !== id); const n = $(`#adn${e}`); if (n) n.innerHTML = arbCompte(e); };
 window.arbComenca = () => {
   const N = ARBNOU, eq = N.eq.map(q => {
-    if (q.meu) { const js = JUG.filter(j => q.sel.includes(j.id)); return { nom: q.nom.trim(), d: ordDors(js.map(j => String(dors(j.id)))), noms: Object.fromEntries(js.map(j => [String(dors(j.id)), j.nom])) }; }
+    if (q.meu) { const js = JUG.filter(j => q.sel.includes(j.id)); return { nom: q.nom.trim(), d: ordDors(js.map(j => String(dors(j.id)))), noms: Object.fromEntries(js.map(j => [String(dors(j.id)), j.nom])), ids: Object.fromEntries(js.map(j => [String(dors(j.id)), j.id])) }; }
     return { nom: q.nom.trim(), d: ordDors(new Set([...(q.ds || []), ...arbParteix($(`#ad${N.eq.indexOf(q)}`)?.value)])) };
   });
   for (const [e, q] of eq.entries()) { if (!q.nom) return dialeg(`Posa el nom de l'equip ${e ? 'B' : 'A'}.`, { sol: true }); if (q.d.length < (N.reg.n || 6)) return dialeg(`${esc(q.nom)} necessita com a mínim ${N.reg.n || 6} dorsals.`, { sol: true }); }
@@ -3337,9 +3339,54 @@ function arbActa(M, k = -1) {
     <div class="card arbsets">${sets}</div>
     <details class="card arbobs" ${M.obs ? 'open' : ''}><summary><b>Observacions</b></summary><textarea rows="3" placeholder="Protestes, lesions, retards, incidències…" aria-label="Observacions" onchange="arbObs(${k}, this.value)">${esc(M.obs || '')}</textarea></details>
     <div class="arbactabtn">${viu && !decidit ? `<button class="btn" onclick="arbTornaLlista()" aria-label="Torna">‹</button>` : !viu ? `<button class="btn" onclick="arbTornaLlista()" aria-label="Torna">‹</button>` : ''}
-      <button class="btn primary" onclick="arbPdf(${k})">📄 PDF</button><button class="btn" onclick="arbCopiaActa(${k})" title="Copia l'acta en text" aria-label="Copia l'acta en text">Text</button>
+      <button class="btn primary" onclick="arbPdf(${k})">📄 PDF</button>${(M.reg.n || 6) === 6 && USR && potEditar() && PAR.length ? `<button class="btn" onclick="arbAPartit(${k})" title="Passa-ho a les estadístiques d'un partit de l'equip" aria-label="Passa-ho a les estadístiques d'un partit de l'equip">📊 Al partit</button>` : ''}<button class="btn" onclick="arbCopiaActa(${k})" title="Copia l'acta en text" aria-label="Copia l'acta en text">Text</button>
       ${viu ? (decidit ? `<button class="btn" onclick="arbAcaba()">Desa i acaba</button>` : '') : `<button class="btn" onclick="arbReobre(${k})">Reobre</button><button class="btn danger" onclick="arbEsborraHist(${k})" title="Esborra el partit" aria-label="Esborra el partit">🗑</button>`}</div>`;
 }
+// de l'àrbitre al partit (08-11-2026): l'acta passa a les estadístiques d'un partit de l'equip: alineació de cada set, qui saca,
+// canvis, el marcador punt per punt (pn/pe, sense jugador: al directe es poden completar) i les formacions i canvis del rival
+const arbJid = (M, e, d) => d == null || d === '' ? '' : M.eq[e].ids?.[d] || JUG.find(j => dors(j.id) === String(d))?.id || '';
+window.arbAPartit = async k => {
+  const M = arbDe(k);
+  const ps = PAR.slice().sort((a, b) => Math.abs(new Date(a.data + 'T12:00') - M.t) - Math.abs(new Date(b.data + 'T12:00') - M.t)).slice(0, 30);
+  if (!ps.length) return dialeg('Aquest equip encara no té cap partit. Crea\'l a Partits i torna-hi.', { sol: true });
+  const meu = M.eq.findIndex(q => q.ids || q.noms), nos = meu >= 0 ? meu : M.eq.findIndex(q => club() && q.nom.toLowerCase().includes(club().toLowerCase())) >= 0 ? M.eq.findIndex(q => q.nom.toLowerCase().includes(club().toLowerCase())) : 0;
+  const ok = await dialeg(`<b>Passa-ho a les estadístiques</b><div class="form"><label class="lbl">Partit</label><select id="apar">${ps.map(p => `<option value="${p.id}" ${p.id === M.partit ? 'selected' : ''}>${esc(dataCa(p.data))} ${eqNom(p.equip) ? esc(eqNom(p.equip)) + ' ' : ''}vs ${esc(p.rival || '?')}</option>`).join('')}</select>
+    <label class="lbl">El nostre equip</label><div class="seg" id="aeq" style="margin:0">${[0, 1].map(e => `<button type="button" class="${e === nos ? 'on' : ''}" data-e="${e}" onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))">${esc(arbNom(M, e))}</button>`).join('')}</div>
+    <p class="meta" style="margin:10px 0 0">Hi van l'alineació de cada set, qui saca, els canvis, el marcador punt per punt i les formacions i canvis del rival. Els punts hi arriben sense jugador: al directe els pots completar (qui i com).</p></div>`, { ok: 'Passa-ho', ico: '📊' });
+  if (!ok) return;
+  const id = $('#apar').value, e = +($('#aeq .on')?.dataset.e || 0), r = 1 - e, p = PAR.find(x => x.id === id);
+  const fets = M.sets.map((S, i) => ({ S, i, n: i + 1 })).filter(({ S, n }) => n <= 5 && S.f && ZK.every(z => S.f[0]?.[z]) && ZK.every(z => S.f[1]?.[z]));
+  if (!fets.length) return dialeg('Encara no hi ha cap set començat.', { sol: true });
+  const falten = [...new Set(fets.flatMap(({ S }) => [...ZK.map(z => S.f[e][z]), ...(S.L?.[e] || []), ...(S.ev || []).filter(x => x.k === 'cv' && x.e === e).flatMap(x => [x.surt, x.entra])]))].filter(d => d && !arbJid(M, e, d));
+  if (falten.length && !await dialeg(`Aquests dorsals no són de cap jugador de l'equip: <b>${falten.map(esc).join(', ')}</b>.<br><small>Posa'ls el número a la fitxa del jugador i torna-ho a passar, o continua sense ells.</small>`, { ok: 'Continua', ico: '⚠️' })) return;
+  const ja = fets.filter(({ n }) => (p.accions || []).some(a => a.s === n) || ZK.some(z => p.sets?.[n]?.[z]));
+  if (ja.length && !await dialeg(`El partit ja té dades ${ja.length > 1 ? 'dels sets' : 'del set'} ${ja.map(x => x.n).join(', ')}. Les canvio per les de l'acta?`, { ok: 'Canvia-les', perill: true })) return;
+  const nums = new Set(fets.map(x => x.n)), conv = new Set(p.convocats || []), J = d => { const j = arbJid(M, e, d); if (j) conv.add(j); return j; };
+  const sets = { ...(p.sets || {}) }, saque = { ...(p.saque || {}) }, punts = { ...(p.punts || {}) };
+  const rivalRot = { ...(p.rivalRot || {}), actiu: true, sets: { ...(p.rivalRot?.sets || {}) }, canvis: { ...(p.rivalRot?.canvis || {}) } };
+  const accions = (p.accions || []).filter(a => !nums.has(a.s));
+  for (const { S, i, n } of fets) {
+    const al = {}; ZK.forEach(z => { const j = J(S.f[e][z]); if (j) al[z] = j; });
+    const L = (S.L?.[e] || []).map(J).filter(Boolean); if (L[0]) al.L = L[0];
+    const ant = p.sets?.[n] || {}; ['rols', 'C1', 'C2'].forEach(c => { if (ant[c]) al[c] = ant[c]; });
+    sets[n] = al; saque[n] = (S.s0 ?? 0) === e ? 'nos' : 'ells';
+    rivalRot.sets[n] = Object.fromEntries(ZK.map(z => [z, String(S.f[r][z])])); rivalRot.canvis[n] = [];
+    // punt per punt: qui guanya cada punt (també els de les sancions), i els canvis al seu lloc
+    let ab = [0, 0];
+    (S.ev || []).slice().forEach((x, j) => {
+      const ara = arbSetPts(M, i, j + 1);
+      [0, 1].forEach(q => { for (let c = ab[q]; c < ara[q]; c++) accions.push({ s: n, j: '', a: q === e ? 'pn' : 'pe', t: x.t || 0 }); });
+      ab = ara;
+      if (x.k === 'cv' && x.e === e) { const ent = J(x.entra), sur = J(x.surt); if (ent && sur) accions.push({ s: n, a: 'canvi', j: ent, surt: sur, t: x.t || 0 }); }
+      if (x.k === 'cv' && x.e === r) rivalRot.canvis[n].push({ surt: String(x.surt), entra: String(x.entra) });
+    });
+    const v = [0, 0]; v[nostreIdx(p, true)] = ab[e]; v[nostreIdx(p, false)] = ab[r]; punts[n] = v;
+  }
+  const resultat = resultatDe(punts), canvi = { sets, saque, accions, punts, resultat, convocats: [...conv], rivalRot };
+  try { await fs.updateDoc(parRef(id), canvi); } catch (err) { registraError(err, 'arb-a-partit'); return dialeg('No s\'ha pogut desar al partit. Torna-ho a provar.', { sol: true }); }
+  Object.assign(p, canvi); M.partit = id; desaArb();
+  if (await dialeg(`<b>✓ Passat al partit</b><br>${fets.length === 1 ? '1 set' : fets.length + ' sets'}: ${fets.map(({ n }) => `${punts[n][nostreIdx(p, true)]}-${punts[n][nostreIdx(p, false)]}`).join(', ')}.`, { ok: 'Obre el partit', ico: '📊' })) location.hash = '#/p/' + id;
+};
 window.arbObs = (k, v) => { arbDe(k).obs = v.trim(); desaArb(); };
 // noms dels equips i dades de la capçalera de l'acta (competició, terreny, àrbitres, anotador)
 window.arbNomsEq = async k => {
