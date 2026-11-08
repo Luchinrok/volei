@@ -1038,6 +1038,7 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbnuv { text-align: center; margin: 8px 0 0; }
 .arbtim { position: relative; top: auto; left: auto; right: auto; z-index: 2; width: 100%; padding: 8px 12px; box-shadow: 0 4px 14px rgba(0,0,0,.15); flex: none; margin: 0 0 8px; } .arbviu .arbtim { margin: 0; } .arbtim b { font-size: 30px; }
 .arbavis.arbavisv { margin: 0; font-size: 13px; padding: 6px 8px; flex: none; } .arbavis.arbavisv.mal { background: #fff0f0; color: var(--no); border: 1px solid #e03131; }
+html.arbmode, html.arbmode body { overscroll-behavior-y: none; }
 </style>
 </head>
 <body>
@@ -2922,7 +2923,7 @@ window.rivalActiu = (id, v) => { const p = PAR.find(x => x.id === id); p.rivalRo
 // ---------- Àrbitre (06-11-2026): portar un partit com l'àrbitre, sense compte ni club. Tot es guarda al mòbil (volei.arbitre).
 // M = {id, t, eq: [{nom, d: [dorsals], noms: {dorsal: nom}}, …], reg: {p, u, sets, tm, cv}, sets: [{f: [{1..6}, {1..6}], s0: 0|1, ev: [...]}], fi}
 // ev: {k: 'p', e} punt - {k: 'tm', e} temps mort - {k: 'cv', e, surt, entra} canvi - {k: 'li', e, surt, entra} lliure - {k: 'tg', e, d, tipus: av|pen|exp|des} targeta. Cada set: L = [[lliures A], [lliures B]]
-let ARB = store.get('volei.arbitre', { actual: null, hist: [] }), ARBNOU = null, ARBXY = {}, ARBVEU = null, DIR_ESB = null;
+let ARB = store.get('volei.arbitre', { actual: null, hist: [] }), ARBNOU = store.get('volei.arbnou', null), ARBXY = {}, ARBVEU = null, DIR_ESB = null;
 // els dorsals de cada equip, sempre per ordre de número (també els partits guardats d'abans)
 const arbOrdena = () => [ARB.actual, ...(ARB.hist || [])].filter(Boolean).forEach(M => M.eq?.forEach(q => { q.d = ordDors(q.d); }));
 arbOrdena();
@@ -3202,7 +3203,7 @@ window.arbTargeta = async e => {
 window.arbRetard = e => { const M = arbM(), tipus = arbCompta(M, e, 're') ? 'rp' : 'ra'; arbEv({ k: 're', e, tipus }); desat(`${RET[tipus][0]} ${RET[tipus][1]}`); };
 // formació de cada equip a l'inici del set, els lliures i qui saca
 function arbFormacio(M, i) {
-  const S = M.sets[i], f = S.f || [{}, {}], L = S.L || [[], []], n = M.reg.n || 6;
+  const S = M.sets[i], f = S.esb?.f || S.f || [{}, {}], L = S.esb?.L || S.L || [[], []], s0 = S.esb?.s0 ?? S.s0 ?? 0, n = M.reg.n || 6;
   const usats = e => [...Object.values(f[e]), ...L[e]];
   const opts = (e, v) => M.eq[e].d.map(d => `<option value="${esc(d)}" ${v === d ? 'selected' : ''} ${v !== d && usats(e).includes(d) ? 'disabled' : ''}>${esc(arbDors(M, e, d))}</option>`).join('');
   // un jugador només pot ser a una zona: els que ja són en una altra surten desactivats
@@ -3214,13 +3215,15 @@ function arbFormacio(M, i) {
   return `${arbTimHtml()}<div class="arbformtop"><h2>Set ${i + 1}</h2>${M.sets.some(x => x.f && zks(M).every(z => x.f[0]?.[z])) ? `<button type="button" class="mini" onclick="arbPdf(-1)" title="Acta en PDF" aria-label="Acta en PDF">📄</button>` : ''}${info(`<p>El dorsal de cada zona a l'inici del set, com a la fitxa de l'àrbitre. Z1 és qui saca. L1 i L2 són els lliures (no compten com a canvi).</p><p>Marca quin equip saca primer. Amb ⧉ copies la formació d'un set anterior.</p>`, `Formacions`)}</div>
     ${i === 0 || i + 1 === (M.reg.sets || 5) ? `<button type="button" class="arbxip arbsort" onclick="arbSorteig()">🪙 Sorteig</button>` : ''}${i === 0 && !(S.ev || []).length ? ` <button type="button" class="arbxip arbsort" onclick="arbEscalfa()" title="Remat per 4 i per 2 (3:30 cada un) i saques (1:30 cada equip)">⏱ Escalfament</button>` : ''}
     ${qui.length ? `<p class="meta arbqui">${qui.map(esc).join('<br>')}</p>` : ''}
-    <div id="as0">${[0, 1].map(e => `<div class="card arbform"><div class="arbformcap"><b>${esc(arbNom(M, e))}</b>${copia(e)}<button type="button" class="arbxip ${(S.s0 ?? 0) === e ? 'on' : ''}" data-v="${e}" onclick="document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', b === this))">🏐 Saca</button></div><div class="rgrid rform ${n === 6 ? '' : 'c2'}"><i class="rxarxa"></i>${(n === 6 ? [4, 3, 2, 5, 6, 1] : n === 4 ? [3, 2, 4, 1] : [1, 2]).map(z => sel(e, z)).join('')}${n === 6 ? selL(e, 0) + selL(e, 1) : ''}</div></div>`).join('')}</div>
+    <div id="as0">${[0, 1].map(e => `<div class="card arbform"><div class="arbformcap"><b>${esc(arbNom(M, e))}</b>${copia(e)}<button type="button" class="arbxip ${s0 === e ? 'on' : ''}" data-v="${e}" onclick="document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(b => b.classList.toggle('on', b === this));arbFormEsb()">🏐 Saca</button></div><div class="rgrid rform ${n === 6 ? '' : 'c2'}"><i class="rxarxa"></i>${(n === 6 ? [4, 3, 2, 5, 6, 1] : n === 4 ? [3, 2, 4, 1] : [1, 2]).map(z => sel(e, z)).join('')}${n === 6 ? selL(e, 0) + selL(e, 1) : ''}</div></div>`).join('')}</div>
     <div class="actions"><button class="btn primary" style="flex:1" onclick="arbDesaFormacio()">${S.editant ? 'Desa' : 'Comença el set'}</button>${S.editant ? `<button class="btn" onclick="arbFormTorna()">Torna</button>` : ''}</div>
     <div class="actions">${i > 0 || (S.ev || []).length ? `<button class="btn danger" onclick="arbEsborraSet()">Esborra el set ${i + 1}</button>` : ''}${i === 0 ? `<button class="btn danger" onclick="arbAcaba(true)">Esborra aquest partit</button>` : ''}</div>`;
 }
 // guarda el que hi ha a la pantalla (sense validar) i copia la formació d'un set anterior a un equip
-const arbFormDom = S => { S.f = [0, 1].map(e => Object.fromEntries(zks(arbM()).map(z => [z, $(`#af${e}${z}`)?.value]).filter(([, v]) => v))); S.L = [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`)?.value).filter(Boolean)); S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); };
-window.arbCopiaForm = (e, j) => { const M = arbM(), S = M.sets.at(-1), A = M.sets[j]; arbFormDom(S); S.f[e] = { ...A.f[e] }; S.L[e] = [...(A.L?.[e] || [])]; desaArb(); render(); };
+// esborrany de la formació (S.esb = {f, L, s0}): es guarda a cada canvi i no toca la formació de veritat fins a «Comença el set» o «Desa»
+const arbFormDom = S => { S.esb = { f: [0, 1].map(e => Object.fromEntries(zks(arbM()).map(z => [z, $(`#af${e}${z}`)?.value]).filter(([, v]) => v))), L: [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`)?.value).filter(Boolean)), s0: +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0) }; };
+window.arbFormEsb = () => { const S = arbM()?.sets.at(-1); if (S && $('#as0')) { arbFormDom(S); desaArb(); } };
+window.arbCopiaForm = (e, j) => { const M = arbM(), S = M.sets.at(-1), A = M.sets[j]; arbFormDom(S); S.esb.f[e] = { ...A.f[e] }; S.esb.L[e] = [...(A.L?.[e] || [])]; desaArb(); render(); };
 window.arbEsborraSet = async () => {
   const M = arbM(), S = M.sets.at(-1);
   if ((S.ev || []).length && !await dialeg(`Esborrar el set ${M.sets.length}?<br><small>Se'n perdran els punts i els moviments.</small>`, { ok: 'Esborra', perill: true })) return;
@@ -3236,20 +3239,21 @@ window.arbSorteig = () => {
     <p class="msort" id="msort">Cara: <b>${A}</b> - Creu: <b>${B}</b></p>`, { sol: true, ico: '🪙' });
   setTimeout(() => {
     const p = $('#msort'); if (p) p.innerHTML = `${e ? 'Creu' : 'Cara'}: guanya <b>${e ? B : A}</b>.<br><small>Tria si saca o rep, i el camp. Si tria rebre, marca «Saca» a l'altre equip.</small>`;
-    S.sorteig = { e, t: Date.now() }; S.s0 = e; desaArb();
+    S.sorteig = { e, t: Date.now() }; S.s0 = e; if (S.esb) S.esb.s0 = e; desaArb();
     document.querySelectorAll('#as0 .arbformcap > .arbxip').forEach(x => x.classList.toggle('on', +x.dataset.v === e));
   }, 1700);
 };
-window.arbFormTorna = () => { delete arbM().sets.at(-1).editant; desaArb(); render(); };
+window.arbFormTorna = () => { const S = arbM().sets.at(-1); delete S.editant; delete S.esb; desaArb(); render(); };
 window.arbFormSel = e => {
   const sels = [...document.querySelectorAll(`select[data-eq="${e}"]`)], usats = sels.map(x => x.value).filter(Boolean);
   sels.forEach(x => [...x.options].forEach(o => { o.disabled = !!o.value && o.value !== x.value && usats.includes(o.value); }));
+  arbFormEsb();
 };
 window.arbDesaFormacio = () => {
   const M = arbM(), S = M.sets.at(-1), nz = zks(M).length, f = [0, 1].map(e => Object.fromEntries(zks(M).map(z => [z, $(`#af${e}${z}`).value]).filter(([, v]) => v)));
   const L = [0, 1].map(e => [0, 1].map(n => $(`#al${e}${n}`)?.value).filter(Boolean));
   for (const e of [0, 1]) { const v = Object.values(f[e]); if (v.length < nz) return dialeg(`Falten jugadors a ${esc(arbNom(M, e))}.`, { sol: true }); if (new Set([...v, ...L[e]]).size < nz + L[e].length) return dialeg(`Hi ha un dorsal repetit a ${esc(arbNom(M, e))}.`, { sol: true }); }
-  S.f = f; S.L = L; S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); if (!S.editant && !S.ini) S.ini = Date.now(); delete S.editant; delete S.preparant; delete S.nova; desaArb(); render();
+  S.f = f; S.L = L; S.s0 = +($('#as0 .arbformcap > .arbxip.on')?.dataset.v || 0); if (!S.editant && !S.ini) S.ini = Date.now(); delete S.editant; delete S.preparant; delete S.nova; delete S.esb; desaArb(); render();
 };
 // preparar un partit nou: noms i dorsals dels dos equips (o els del meu equip)
 // equips dels partits arbitrats (l'últim de cada nom), per no haver de tornar a escriure els dorsals
@@ -3258,7 +3262,7 @@ const arbDesats = () => { const m = new Map(); [...(ARB.hist || []), ARB.actual]
 window.arbUsaEquip = (e, k) => { const x = arbDesats().find(y => y.k === k); if (!x) return; Object.assign(ARBNOU.eq[e], { nom: x.nom, ds: ordDors(x.d), meu: false, de: k }); render(); };
 function arbPrepara() {
   const desats = arbDesats();
-  const N = ARBNOU || (ARBNOU = { eq: [{ nom: '', ds: [], meu: false, sel: [] }, { nom: '', ds: [], meu: false, sel: [] }], reg: { ...REG_DEF } });
+  const N = ARBNOU || (ARBNOU = { eq: [{ nom: '', ds: [], meu: false, sel: [] }, { nom: '', ds: [], meu: false, sel: [] }], reg: { ...REG_DEF } }); store.set('volei.arbnou', N);
   const meus = USR && JUG.length ? JUG.filter(j => j.actiu !== false && dors(j.id)) : [];
   const eq = e => { const q = N.eq[e];
     return `<div class="card arbteam t${e}"><div class="arbthead"><span class="arbbadge">${e ? 'B' : 'A'}</span>
@@ -3285,7 +3289,7 @@ function arbPrepara() {
 const arbParteix = t => (t || '').split(/[^0-9A-Za-z]+/).filter(Boolean);
 const arbXips = e => (ARBNOU.eq[e].ds || []).map(d => `<span class="arbdx"><b>${esc(d)}</b><button type="button" onclick="arbTreuDors(${e},'${esc(d)}')" aria-label="Treu el ${esc(d)}">✕</button></span>`).join('');
 const arbCompte = e => { const q = ARBNOU.eq[e], n = (q.meu ? q.sel : q.ds || []).length, min = ARBNOU.reg.n || 6; return n >= min ? `<span class="ok">✓ ${n} jugadors</span>` : `${n} ${n === 1 ? 'jugador' : 'jugadors'} - en falten ${min - n}`; };
-const arbPintaDors = e => { const q = ARBNOU.eq[e]; $(`#adc${e}`).innerHTML = arbXips(e); $(`#ad${e}`).placeholder = `Jugador ${q.ds.length + 1}: dorsal`; $(`#adn${e}`).innerHTML = arbCompte(e); };
+const arbPintaDors = e => { store.set('volei.arbnou', ARBNOU); const q = ARBNOU.eq[e]; $(`#adc${e}`).innerHTML = arbXips(e); $(`#ad${e}`).placeholder = `Jugador ${q.ds.length + 1}: dorsal`; $(`#adn${e}`).innerHTML = arbCompte(e); };
 window.arbAfegeixDors = e => {
   const q = ARBNOU.eq[e], inp = $(`#ad${e}`), nous = arbParteix(inp.value);
   q.ds = ordDors(new Set([...(q.ds || []), ...nous])); inp.value = ''; arbPintaDors(e); inp.focus();
@@ -3299,7 +3303,7 @@ window.arbComenca = () => {
     return { nom: q.nom.trim(), d: ordDors(new Set([...(q.ds || []), ...arbParteix($(`#ad${N.eq.indexOf(q)}`)?.value)])) };
   });
   for (const [e, q] of eq.entries()) { if (!q.nom) return dialeg(`Posa el nom de l'equip ${e ? 'B' : 'A'}.`, { sol: true }); if (q.d.length < (N.reg.n || 6)) return dialeg(`${esc(q.nom)} necessita com a mínim ${N.reg.n || 6} dorsals.`, { sol: true }); }
-  ARB.actual = { id: 'a' + Date.now(), t: Date.now(), eq, reg: N.reg, sets: [{ f: [{}, {}], L: [[], []], s0: 0, ev: [], preparant: true }] }; ARBNOU = null; desaArb(); render();
+  ARB.actual = { id: 'a' + Date.now(), t: Date.now(), eq, reg: N.reg, sets: [{ f: [{}, {}], L: [[], []], s0: 0, ev: [], preparant: true }] }; ARBNOU = null; store.set('volei.arbnou', null); desaArb(); render();
 };
 window.arbAcaba = async esborra => {
   if (!await dialeg(esborra ? 'Esborrar aquest partit?' : 'Acabar el partit?<br><small>Es guardarà amb el resultat que hi ha ara. Després el pots obrir, corregir i reobrir.</small>', { ok: esborra ? 'Esborra' : 'Acaba', perill: !!esborra })) return;
@@ -4684,6 +4688,8 @@ function registraError(e, on) {
   try { fs.addDoc(fs.collection(db, 'equips', CLAU, 'errors'), { t: Date.now(), msg: msg.slice(0, 300), stack: String(e?.stack || '').slice(0, 1500), on: on || '', ruta: location.hash.slice(0, 80), temporada: TEMP, ua: navigator.userAgent.slice(0, 160) }); } catch {}
 }
 addEventListener('error', e => registraError(e.error || e.message, 'global'));
+// àrbitre: el que s'escriu al formulari del partit nou es guarda al moment (els camps el copien a ARBNOU)
+['input', 'change'].forEach(t => document.addEventListener(t, () => { if (ARBNOU && $('.arbpre')) store.set('volei.arbnou', ARBNOU); }));
 addEventListener('unhandledrejection', e => registraError(e.reason, 'promesa'));
 function render() {
   try { pintaPantalla(); }
@@ -4729,6 +4735,7 @@ function pintaPantalla() {
   const a = document.activeElement;
   if (a && ((a.matches?.('input, textarea, select') && a.closest('.sesed, .exed')) || a.id === 'triaq' || a.id === 'com' || a.id === 'bibq' || a.id === 'nounom' || a.id === 'noftxt' || a.id === 'noutemp' || a.id === 'club' || a.id === 'gnom' || a.id === 'nougrup' || a.id === 'nouclub' || a.id === 'noutempg' || a.id === 'rival' || /^p[ab]\d$/.test(a.id) || (a.type === 'text' && a.closest('.edit-pl'))) && $('#app').contains(a)) return;
   $('#app').innerHTML = html;
+  document.documentElement.classList.toggle('arbmode', r === 'arbitre' || nomesArbitre());
   { const v = $('.arbviu'); document.body.classList.toggle('arbfull', !!v || !!$('.marcviu')); if (v) v.style.setProperty('--arbt', Math.round(v.getBoundingClientRect().top + scrollY) + 'px');
     // àrbitre: que la pantalla no s'apagui mentre es porta el partit
     if (v && !window.ARBWL && navigator.wakeLock) navigator.wakeLock.request('screen').then(l => { window.ARBWL = l; l.addEventListener('release', () => { window.ARBWL = null; }); }).catch(() => {});
