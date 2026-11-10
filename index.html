@@ -1514,6 +1514,9 @@ window.avnvCap = () => { AVNV.sel.clear(); avnvCal(); };
 window.avnvTria = iso => { AVNV.sel.has(iso) ? AVNV.sel.delete(iso) : AVNV.sel.add(iso); avnvCal(); };
 window.avnvMes = d => { const [y, m] = AVNV.mes.split('-').map(Number), t = new Date(y, m - 1 + d, 1); AVNV.mes = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; avnvCal(); };
 window.avnvSetmana = () => { const j = JUG.find(x => x.id === AVNV.jid), dg = finsDiumenge(); entrenosJug(j, 8).filter(d => d <= dg).forEach(d => AVNV.sel.add(d)); AVNV.mes = avui().slice(0, 7); avnvCal(); };
+// motius de no venir (10-11-2026): un toc posa el motiu al camp de text (es pot escriure un altre)
+const MOTIUS_NV = ['Malalt', 'Lesionat', 'Feina', 'Estudis', 'Viatge', 'Família'];
+window.avnvMotiu = b => { const on = !b.classList.contains('on'); document.querySelectorAll('#avmots button').forEach(x => x.classList.toggle('on', on && x === b)); $('#avmotiu').value = on ? b.textContent : ''; };
 window.avisaNoVe = async jid => {
   const j = JUG.find(x => x.id === jid); if (!j) return;
   const ja = RESP.filter(r => r.tipus === 'e' && r.jugador === jid && r.id >= avui()), motiu0 = ja.find(r => r.motiu)?.motiu || '';
@@ -1521,7 +1524,9 @@ window.avisaNoVe = async jid => {
   const p = dialeg(`<b>${esc(j.nom)} no vindrà</b><div class="form">
     <div class="actions" style="margin:4px 0 8px"><button type="button" class="btn" onclick="avnvSetmana()">Aquesta setmana</button><button type="button" class="btn" onclick="avnvCap()">Cap</button></div>
     <div id="avnvcal"></div>
-    <label class="lbl" style="margin-top:8px">Motiu (opcional)</label><input type="text" id="avmotiu" value="${esc(motiu0)}" placeholder="Per exemple: de viatge"></div>`, { ok: 'Desa', ico: '📅' });
+    <label class="lbl" style="margin-top:8px">Motiu (opcional)</label>
+    <div class="motius" id="avmots">${MOTIUS_NV.map(m => `<button type="button" class="${motiu0 === m ? 'on' : ''}" onclick="avnvMotiu(this)">${m}</button>`).join('')}</div>
+    <input type="text" id="avmotiu" value="${esc(motiu0)}" placeholder="O escriu-lo tu" oninput="document.querySelectorAll('#avmots button').forEach(b => b.classList.toggle('on', b.textContent === this.value.trim()))"></div>`, { ok: 'Desa', ico: '📅' });
   avnvCal();
   if (!await p) return;
   const tria = AVNV.sel, motiu = ($('#avmotiu')?.value || '').trim();
