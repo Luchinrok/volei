@@ -1039,6 +1039,8 @@ body.arbfull #app { padding-bottom: 8px; }
 .arbtim { position: relative; top: auto; left: auto; right: auto; z-index: 2; width: 100%; padding: 8px 12px; box-shadow: 0 4px 14px rgba(0,0,0,.15); flex: none; margin: 0 0 8px; } .arbviu .arbtim { margin: 0; } .arbtim b { font-size: 30px; }
 .arbavis.arbavisv { margin: 0; font-size: 13px; padding: 6px 8px; flex: none; } .arbavis.arbavisv.mal { background: #fff0f0; color: var(--no); border: 1px solid #e03131; }
 html.arbmode, html.arbmode body { overscroll-behavior-y: none; }
+.avnvd { padding: 3px 0; gap: 8px; } .avnvd select { width: auto; max-width: 55%; }
+.faltes summary { cursor: pointer; }
 </style>
 </head>
 <body>
@@ -1498,7 +1500,7 @@ const entrenosJug = (j, n = 28) => { const out = [], dies = tcfg().dies || {}, d
   return out; };
 const finsDiumenge = () => { const d = new Date(); d.setDate(d.getDate() + (7 - (d.getDay() || 7))); return isoLocal(d); };
 // calendari per triar els dies que no vindrà (es pot moure de mes)
-let AVNV = null;   // {jid, sel: Set de dates, mes: 'AAAA-MM'}
+let AVNV = null;   // {jid, sel: Set de dates, mes: 'AAAA-MM', mot: {data: motiu}, tots: motiu per als dies nous}
 const esDiaJug = (j, iso) => { const w = new Date(iso + 'T12:00').getDay(), dj = diesJug(j); return !!(tcfg().dies || {})[w] && (!dj || dj.includes(w)); };
 function avnvCal() {
   const j = JUG.find(x => x.id === AVNV.jid), [y, m] = AVNV.mes.split('-').map(Number), ini = new Date(y, m - 1, 1), n = new Date(y, m, 0).getDate(), buits = (ini.getDay() + 6) % 7;
@@ -1509,36 +1511,59 @@ function avnvCal() {
   $('#avnvcal').innerHTML = `<div class="calnav" style="margin:0 0 6px"><button type="button" class="btn" ${AVNV.mes <= ara ? 'disabled' : ''} onclick="avnvMes(-1)" aria-label="Mes anterior">‹</button><b>${nomMes(AVNV.mes)}</b><button type="button" class="btn" onclick="avnvMes(1)" aria-label="Mes següent">›</button></div>
     <div class="avcal">${['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map(x => `<i>${x}</i>`).join('')}${cel.join('')}</div>
     <p class="meta" style="margin:6px 0 0">${AVNV.sel.size ? `${AVNV.sel.size} ${AVNV.sel.size === 1 ? 'entreno triat' : 'entrenos triats'}` : 'Toca els dies d’entreno que no vindrà.'}</p>`;
+  avnvDies();
 }
+// motiu de cada dia (10-11-2026): els botons i el text posen el motiu a tots els dies triats; a la llista de sota es canvia el d'un dia sol
+const avnvOps = v => [...new Set(['', ...MOTIUS_NV, ...Object.values(AVNV.mot), AVNV.tots, v].filter(x => x != null))];
+function avnvDies() {
+  const el = $('#avnvdies'); if (!el) return;
+  const ds = [...AVNV.sel].sort();
+  el.innerHTML = ds.length > 1 ? `<label class="lbl" style="margin-top:8px">Motiu de cada dia</label>${ds.map(d => { const v = AVNV.mot[d] ?? AVNV.tots;
+    return `<div class="row avnvd"><b class="grow">${dataCa(d)}</b><select onchange="avnvMot('${d}', this.value)">${avnvOps(v).map(o => `<option value="${esc(o)}" ${o === v ? 'selected' : ''}>${o ? esc(o) : '-'}</option>`).join('')}</select></div>`; }).join('')}` : '';
+}
+window.avnvMot = (d, v) => { AVNV.mot[d] = v; };
+window.avnvTots = v => { AVNV.tots = v; AVNV.sel.forEach(d => { AVNV.mot[d] = v; }); avnvDies(); };
 window.avnvCap = () => { AVNV.sel.clear(); avnvCal(); };
-window.avnvTria = iso => { AVNV.sel.has(iso) ? AVNV.sel.delete(iso) : AVNV.sel.add(iso); avnvCal(); };
+window.avnvTria = iso => { if (AVNV.sel.has(iso)) AVNV.sel.delete(iso); else { AVNV.sel.add(iso); if (!(iso in AVNV.mot)) AVNV.mot[iso] = AVNV.tots; } avnvCal(); };
 window.avnvMes = d => { const [y, m] = AVNV.mes.split('-').map(Number), t = new Date(y, m - 1 + d, 1); AVNV.mes = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; avnvCal(); };
-window.avnvSetmana = () => { const j = JUG.find(x => x.id === AVNV.jid), dg = finsDiumenge(); entrenosJug(j, 8).filter(d => d <= dg).forEach(d => AVNV.sel.add(d)); AVNV.mes = avui().slice(0, 7); avnvCal(); };
-// motius de no venir (10-11-2026): un toc posa el motiu al camp de text (es pot escriure un altre)
+window.avnvSetmana = () => { const j = JUG.find(x => x.id === AVNV.jid), dg = finsDiumenge(); entrenosJug(j, 8).filter(d => d <= dg).forEach(d => { AVNV.sel.add(d); if (!(d in AVNV.mot)) AVNV.mot[d] = AVNV.tots; }); AVNV.mes = avui().slice(0, 7); avnvCal(); };
+// motius de no venir (10-11-2026): un toc posa el motiu al camp de text (es pot escriure un altre); un altre toc el treu
 const MOTIUS_NV = ['Malalt', 'Lesionat', 'Feina', 'Estudis', 'Viatge', 'Família'];
-window.avnvMotiu = b => { const on = !b.classList.contains('on'); document.querySelectorAll('#avmots button').forEach(x => x.classList.toggle('on', on && x === b)); $('#avmotiu').value = on ? b.textContent : ''; };
+window.avnvMotiu = (b, sol) => { const on = !b.classList.contains('on'); document.querySelectorAll('#avmots button').forEach(x => x.classList.toggle('on', on && x === b)); $('#avmotiu').value = on ? b.textContent : ''; if (!sol) avnvTots($('#avmotiu').value); };
 window.avisaNoVe = async jid => {
   const j = JUG.find(x => x.id === jid); if (!j) return;
-  const ja = RESP.filter(r => r.tipus === 'e' && r.jugador === jid && r.id >= avui()), motiu0 = ja.find(r => r.motiu)?.motiu || '';
-  AVNV = { jid, sel: new Set(ja.map(r => r.id)), mes: avui().slice(0, 7) };
+  const ja = RESP.filter(r => r.tipus === 'e' && r.jugador === jid && r.id >= avui()), ms = [...new Set(ja.map(r => r.motiu || ''))], motiu0 = ms.length === 1 ? ms[0] : '';
+  AVNV = { jid, sel: new Set(ja.map(r => r.id)), mes: avui().slice(0, 7), mot: Object.fromEntries(ja.map(r => [r.id, r.motiu || ''])), tots: motiu0 };
   const p = dialeg(`<b>${esc(j.nom)} no vindrà</b><div class="form">
     <div class="actions" style="margin:4px 0 8px"><button type="button" class="btn" onclick="avnvSetmana()">Aquesta setmana</button><button type="button" class="btn" onclick="avnvCap()">Cap</button></div>
     <div id="avnvcal"></div>
     <label class="lbl" style="margin-top:8px">Motiu (opcional)</label>
     <div class="motius" id="avmots">${MOTIUS_NV.map(m => `<button type="button" class="${motiu0 === m ? 'on' : ''}" onclick="avnvMotiu(this)">${m}</button>`).join('')}</div>
-    <input type="text" id="avmotiu" value="${esc(motiu0)}" placeholder="O escriu-lo tu" oninput="document.querySelectorAll('#avmots button').forEach(b => b.classList.toggle('on', b.textContent === this.value.trim()))"></div>`, { ok: 'Desa', ico: '📅' });
+    <input type="text" id="avmotiu" value="${esc(motiu0)}" placeholder="O escriu-lo tu" oninput="document.querySelectorAll('#avmots button').forEach(b => b.classList.toggle('on', b.textContent === this.value.trim()))" onchange="avnvTots(this.value.trim())">
+    <div id="avnvdies"></div></div>`, { ok: 'Desa', ico: '📅' });
   avnvCal();
   if (!await p) return;
-  const tria = AVNV.sel, motiu = ($('#avmotiu')?.value || '').trim();
+  const tria = AVNV.sel;
   try {
     await Promise.all([
-      ...[...tria].map(d => fs.setDoc(ref('respostes', respId('e', d, jid)), { tipus: 'e', id: d, jugador: jid, estat: 'no', per: USR?.uid || '', nom: USR?.displayName || '', t: Date.now(), ...(motiu ? { motiu } : {}) })),
+      ...[...tria].map(d => { const motiu = (AVNV.mot[d] ?? AVNV.tots ?? '').trim(), r = ja.find(x => x.id === d);
+        if (r && (r.motiu || '') === motiu) return null;   // sense canvis: no es torna a escriure (es manté qui ho va dir)
+        return fs.setDoc(ref('respostes', respId('e', d, jid)), { tipus: 'e', id: d, jugador: jid, estat: 'no', per: USR?.uid || '', nom: USR?.displayName || '', t: Date.now(), ...(motiu ? { motiu } : {}) }); }),
       ...ja.filter(r => !tria.has(r.id)).map(r => fs.deleteDoc(ref('respostes', r._doc)))]);
     // si avui ja hi ha llista, s'hi marca
     const a = ASS.find(x => x.id === avui());
     if (a && tria.has(avui()) && a.estat?.[jid] === 'si') fs.updateDoc(ref('assistencia', a.id), { ['estat.' + jid]: 'avisa' });
     desat('✓ Desat');
   } catch (e) { registraError(e, 'avisa-no-ve'); dialeg('No s\'ha pogut desar. Torna-ho a provar.', { sol: true }); }
+};
+window.motiuDia = async (jid, d) => {
+  const r = respDe('e', d, jid), m0 = r?.motiu || '';
+  const ok = await dialeg(`<b>Motiu del ${esc(dataCa(d))}</b><div class="form"><div class="motius" id="avmots">${MOTIUS_NV.map(m => `<button type="button" class="${m0 === m ? 'on' : ''}" onclick="avnvMotiu(this, 1)">${m}</button>`).join('')}</div>
+    <input type="text" id="avmotiu" value="${esc(m0)}" placeholder="O escriu-lo tu"></div>`, { ok: 'Desa', ico: '📅' });
+  if (!ok) return;
+  const motiu = ($('#avmotiu')?.value || '').trim();
+  try { await fs.setDoc(ref('respostes', respId('e', d, jid)), { tipus: 'e', id: d, jugador: jid, estat: 'no', per: r?.per || USR?.uid || '', nom: r?.nom || USR?.displayName || '', t: r?.t || Date.now(), ...(motiu ? { motiu } : {}) }); desat('✓ Desat'); }
+  catch (e) { registraError(e, 'motiu-dia'); dialeg('No s\'ha pogut desar. Torna-ho a provar.', { sol: true }); }
 };
 const avisNoVe = (jid, d) => { const r = respDe('e', d, jid); return r ? `<small class="meta avnv">Ha avisat que no vindrà${r.motiu ? ': ' + esc(r.motiu) : ''}</small>` : ''; };
 function noVenenHtml() {
@@ -2681,6 +2706,12 @@ function viewJugador(id) {
   ${(() => { const fut = RESP.filter(r => r.tipus === 'e' && r.jugador === id && r.id >= avui()).sort((x, y) => x.id.localeCompare(y.id));
     return `<h3>No vindrà</h3><div class="card">${fut.length ? fut.map(r => `<div class="row" style="padding:3px 0"><span class="grow"><b>${dataCa(r.id)}</b>${r.motiu ? ` <span class="meta">${esc(r.motiu)}</span>` : ''}</span><small class="meta">${r.per && r.per !== USR?.uid ? 'Ho ha dit ' + esc((r.nom || '').split(' ')[0]) : ''}</small></div>`).join('') : '<p class="meta" style="margin:0">No ha avisat de cap entreno.</p>'}
       ${['admin', 'entrenador'].includes(rolActual()) ? `<div class="actions" style="margin:8px 0 0"><button class="btn" style="flex:1" onclick="avisaNoVe('${id}')">📅 Apunta dies que no vindrà</button></div>` : ''}</div>`; })()}
+  ${(() => { // faltes de la temporada amb el motiu (10-11-2026); l'entrenador pot posar o canviar el motiu de cada dia
+    const ed = ['admin', 'entrenador'].includes(rolActual()), est = Object.fromEntries(fetes().filter(a => a.data < avui() && ['avisa', 'no'].includes(a.estat?.[id])).map(a => [a.data, a.estat[id]]));
+    RESP.filter(r => r.tipus === 'e' && r.jugador === id && r.id < avui() && !(r.id in est) && !ASS.some(a => a.data === r.id && a.estat?.[id] === 'si')).forEach(r => { est[r.id] = 'avisa'; });
+    const ds = Object.keys(est).sort().reverse(); if (!ds.length) return '';
+    return `<details class="card faltes"><summary><b>Faltes de la temporada (${ds.length})</b></summary>${ds.map(d => { const m = respDe('e', d, id)?.motiu;
+      return `<div class="row" style="padding:3px 0"><span class="grow">${ESTI[est[d]]} <b>${dataCa(d)}</b> <span class="meta">${m ? esc(m) : est[d] === 'no' ? 'No va avisar' : 'Sense motiu'}</span></span>${ed ? `<button class="mini" title="Motiu" aria-label="Motiu" onclick="motiuDia('${id}', '${d}')">✎</button>` : ''}</div>`; }).join('')}</details>`; })()}
   <h3>Entrenos</h3>
   ${llistes.length ? `<div class="card"><div class="streak">${llistes.slice().reverse().map(a => `<i class="${a.estat[id]}" title="${dataCa(a.data)} ${EST[a.estat[id]]}"></i>`).join('')}</div>
     <div class="irow">${info(`<p>Cada quadre és un entreno, del més antic al més nou.</p>`, `Entrenos`)}</div></div>
