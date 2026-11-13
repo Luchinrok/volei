@@ -1044,6 +1044,7 @@ html.arbmode, html.arbmode body { overscroll-behavior-y: none; }
 .court .tok.lib { cursor: pointer; } .court .tok.lib.buit { min-width: 34px; text-align: center; opacity: .8; }
 .rtria { margin: 18px auto 8px; } .rtria .rtok { font: inherit; font-size: 13px; cursor: pointer; min-width: 64px; padding: 6px 8px; } .rtria .rtok .tn { font-weight: 800; }
 .posgrid.lliper { grid-template-columns: 1fr 1fr; }
+.jafora { margin-top: 10px; } .jafora summary { cursor: pointer; font-size: 14px; font-weight: 650; color: var(--muted); padding: 4px 0; } .pl.fora { opacity: .6; }
 </style>
 </head>
 <body>
@@ -2492,8 +2493,10 @@ function viewAssistencia() {
       ${j.no ? `<span class="red" title="Faltes sense avisar">💀${j.no}</span>` : ''}
       <span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span>
       <span class="pct mes ${j.pctM != null && j.pct != null && j.pctM < j.pct - 10 ? 'baixa' : ''}">${j.pctM ?? '–'}${j.pctM != null ? '%' : ''}</span>
-    </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}</details>
-  ${statsJug(true).length ? `<p class="meta">Ja no hi són: ${statsJug(true).map(j => `<a href="#/j/${j.id}">${esc(j.nom)}</a> (${j.pct ?? '–'}${j.pct != null ? '%' : ''})`).join(', ')}</p>` : ''}
+    </div>`).join('') : '<p class="meta" style="margin:0">Encara no hi ha jugadors. Afegeix-los a baix.</p>'}
+    ${(() => { const fora = statsJug(true).sort(perDorsal); return fora.length ? `<details class="jafora"><summary>Ja no hi són (${fora.length})</summary>${fora.map(j => `<div class="pl fora">
+      <span class="nom">${av(j)}<a class="nomlink" href="#/j/${j.id}">${esc(j.nom)}</a></span>
+      <span class="pct">${j.pct ?? '–'}${j.pct != null ? '%' : ''}</span><span class="pct mes"></span></div>`).join('')}</details>` : ''; })()}</details>
   <div class="irow">${info(`<ul><li>Toca un nom per veure els seus entrenos i partits.</li><li><b>%</b>: entrenos que ha vingut sobre els que s'ha passat llista. El primer és de tota la temporada i el segon, dels últims 30 dies.</li><li>El % de l'últim mes surt <span class="red">en vermell</span> si baixa més de 10 punts.</li><li>El nom surt <span class="red">en vermell</span> si ha faltat alguna vegada sense avisar (💀 = quantes).</li></ul>`, `Assistència`)}</div>
   <h3>Equip</h3>
   ${editEquip ? `<div class="card eqlist">
