@@ -4321,15 +4321,16 @@ window.rolPosa = (id, jid, v, alDirecte) => {
 };
 // alineació tocant la pista (13-11-2026): s'obre la llista dels convocats; en triar-ne un, s'obre la zona buida següent
 const ALIN_ORDRE = ['4', '3', '2', '5', '6', '1', 'L'];
+const POSPL = { col: 'Col·locadors', op: 'Oposats', rec: 'Puntes', cen: 'Centrals', lli: 'Lliures', '': 'Sense posició' };   // grups de la llista, per posició
 window.alinTria = (id, z) => {
   const p = PAR.find(x => x.id === id); if (!p) return;
   const pos = (p.sets || {})[setActiu] || {}, convs = JUG.filter(j => (p.convocats || []).includes(j.id)).sort(perDorsal), on = j => [...ZK, 'L'].find(k => pos[k] === j.id);
   if (!convs.length) return dialeg('Primer marca els convocats del partit.', { sol: true });
   const lliures = convs.filter(j => !on(j)), posats = convs.filter(j => on(j) && on(j) !== String(z));
-  const bt = (j, lab) => { const r = rolSet(pos, j.id) || posJ(j.id); return `<button class="dj ${r ? 'ps-' + r : ''}" onclick="alinPosa('${id}','${z}','${j.id}')"><small>${lab ? lab + (r && POS[r] ? ' ' + POS[r].l : '') : r && POS[r] ? POS[r].t : '&nbsp;'}</small><span class="djn">${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc((j.nom || '').split(' ')[0])}</span></button>`; };
+  const bt = (j, lab) => { const r = rolSet(pos, j.id) || posJ(j.id); return `<button class="dj ${r ? 'ps-' + r : ''}" onclick="alinPosa('${id}','${z}','${j.id}')">${lab ? `<small>${lab}${r && POS[r] ? ' ' + POS[r].l : ''}</small>` : ''}<span class="djn">${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc((j.nom || '').split(' ')[0])}</span></button>`; };
   obreFitxa(`<div class="fhead"><b>Set ${setActiu}: ${z === 'L' ? 'lliure' : 'Z' + z}</b></div>
     ${pos[z] ? `<div class="actions" style="margin:0 0 8px"><button class="btn" style="flex:1" onclick="alinPosa('${id}','${z}','')">Treu ${esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])}</button></div>` : ''}
-    <div class="fgrup"><small>Sense posició</small>${lliures.length ? `<div class="djgrid">${lliures.map(j => bt(j, '')).join('')}</div>` : '<p class="meta" style="margin:4px 0">Tots els convocats ja tenen posició.</p>'}</div>
+    ${lliures.length ? [...Object.keys(POS), ''].map(k => { const js = lliures.filter(j => (rolSet(pos, j.id) || posOk(posJ(j.id))) === k); return js.length ? `<div class="fgrup"><small>${POSPL[k]}</small><div class="djgrid">${js.map(j => bt(j, '')).join('')}</div></div>` : ''; }).join('') : '<p class="meta" style="margin:4px 0">Tots els convocats ja tenen posició.</p>'}
     ${posats.length ? `<details class="fgrup"><summary class="meta" style="cursor:pointer">Ja a la pista (es mou aquí)</summary><div class="djgrid">${posats.map(j => bt(j, on(j) === 'L' ? 'Lliure' : 'Z' + on(j))).join('')}</div></details>` : ''}`);
 };
 window.alinPosa = (id, z, jid) => {
