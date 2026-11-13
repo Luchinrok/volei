@@ -4008,7 +4008,7 @@ function viewPartit(id) {
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
     ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? `<button class="btn" onclick="triaCopia('${id}')">Copia un set</button>` : ''}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
-  <div class="irow">${info(`<ul><li>Toca una zona (o la L del lliure) i tria qui hi va. Després s'obre sola la següent zona buida.</li><li>Arrossega un jugador a una altra zona per intercanviar-los.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols en aquest set».</li></ul>`, `Alineació`)}</div></details>
+  <div class="irow">${info(`<ul><li>Toca una zona (o la L del lliure) i tria qui hi va.</li><li>Arrossega un jugador a una altra zona per intercanviar-los.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols en aquest set».</li></ul>`, `Alineació`)}</div></details>
   <details class="card plega" ${(PLEG['rec' + id] ?? false) ? 'open' : ''} ontoggle="obertPart('rec', '${id}', this.open)"><summary><b>Recepció</b><span class="meta">${sistemaDe(p)}${lliureDe(p, setActiu) ? ' amb lliure' : ' sense lliure'}</span></summary>
   ${recepcioHtml(p)}</details>
   <div class="dirrow"><a class="btn primary" href="#/directe/${id}">Marcador en directe</a>
@@ -4347,8 +4347,7 @@ window.rolPosa = (id, jid, v, alDirecte) => {
   if (v && v !== posJ(jid)) r[jid] = v; else delete r[jid];   // triar el rol de l'equip treu el canvi
   pos.rols = r; setPos(id, pos); if (alDirecte) dirAlin(id);
 };
-// alineació tocant la pista (13-11-2026): s'obre la llista dels convocats; en triar-ne un, s'obre la zona buida següent
-const ALIN_ORDRE = ['4', '3', '2', '5', '6', '1', 'L'];
+// alineació tocant la pista (13-11-2026): s'obre la llista dels convocats; en triar-ne un, es torna a la pista
 const POSPL = { col: 'Col·locadors', op: 'Oposats', rec: 'Puntes', cen: 'Centrals', lli: 'Lliures', '': 'Sense posició' };   // grups de la llista, per posició
 window.alinTria = (id, z) => {
   const p = PAR.find(x => x.id === id); if (!p) return;
@@ -4361,13 +4360,9 @@ window.alinTria = (id, z) => {
     ${lliures.length ? [...Object.keys(POS), ''].map(k => { const js = lliures.filter(j => (rolSet(pos, j.id) || posOk(posJ(j.id))) === k); return js.length ? `<div class="fgrup"><small>${POSPL[k]}</small><div class="djgrid">${js.map(j => bt(j, '')).join('')}</div></div>` : ''; }).join('') : '<p class="meta" style="margin:4px 0">Tots els convocats ja tenen posició.</p>'}
     ${posats.length ? `<details class="fgrup"><summary class="meta" style="cursor:pointer">Ja a la pista (es mou aquí)</summary><div class="djgrid">${posats.map(j => bt(j, on(j) === 'L' ? 'Lliure' : 'Z' + on(j))).join('')}</div></details>` : ''}`);
 };
-window.alinPosa = (id, z, jid) => {
+window.alinPosa = (id, z, jid) => {   // tria i torna a la pista (13-11-2026: sense obrir sola la zona següent)
   posSet(id, z, jid); tancaFitxa();
-  const dir = location.hash.startsWith('#/directe');
-  if (!jid) return dir && dirAlin(id);
-  const pos = (PAR.find(x => x.id === id).sets || {})[setActiu] || {}, i = ALIN_ORDRE.indexOf(String(z));
-  const seg = [...ALIN_ORDRE.slice(i + 1), ...ALIN_ORDRE.slice(0, i)].find(k => !pos[k] && k !== 'L');
-  if (seg) setTimeout(() => alinTria(id, seg), 150); else if (dir) dirAlin(id);
+  if (location.hash.startsWith('#/directe')) dirAlin(id);
 };
 window.posSet = (id, z, jid) => {
   const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) };
