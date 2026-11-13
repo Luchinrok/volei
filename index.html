@@ -1041,6 +1041,8 @@ body.arbfull #app { padding-bottom: 8px; }
 html.arbmode, html.arbmode body { overscroll-behavior-y: none; }
 .avnvd { padding: 3px 0; gap: 8px; } .avnvd select { width: auto; max-width: 55%; }
 .faltes summary { cursor: pointer; }
+.court .tok.lib { cursor: pointer; } .court .tok.lib.buit { min-width: 34px; text-align: center; opacity: .8; }
+.rtria { margin: 18px auto 8px; } .rtria .rtok { font: inherit; font-size: 13px; cursor: pointer; min-width: 64px; padding: 6px 8px; } .rtria .rtok .tn { font-weight: 800; }
 </style>
 </head>
 <body>
@@ -3642,19 +3644,22 @@ function viewDirecte(id) {
     ${acc.slice().reverse().map(a => `<div class="hist">${linia(a)}</div>`).join('') || '<p class="meta" style="margin:0">Encara cap punt apuntat en aquest set.</p>'}</details>
   <div class="actions"><a class="btn" style="text-decoration:none;flex:1;text-align:center" href="#/p/${id}">Torna al partit</a></div>`;
 }
-// tocar un jugador: finestra amb totes les opcions
+// tocar un jugador: finestra amb les opcions de la jugada (13-11-2026: sense saque ni recepció, que tenen els seus botons a dalt)
 window.dirFitxa = (id, jid) => {
   const j = JUG.find(q => q.id === jid), b = ks => ks.map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${jid}','${k}')">${ACC[k].i} ${ACC[k].t}</button>`).join('');
   obreFitxa(`<div class="fhead">${av(j)}<b>${esc(j?.nom || '')}</b></div>
-    <div class="fgrup"><small>Punt nostre</small><div class="accs">${b(['ace', 'rem', 'blq'])}</div></div>
-    <div class="fgrup"><small>Error (punt per a ells)</small><div class="accs">${b(['es', 'er', 'ed', 'ec', 'erm', 'fal'])}</div></div>
-    <div class="fgrup"><small>Sense punt</small><div class="accs">${b(['bs', 'rp', 'rb', 'rd', 'bd', 'bc'])}</div></div>`);
+    <div class="fgrup"><small>Punt nostre</small><div class="accs">${b(['rem', 'blq'])}</div></div>
+    <div class="fgrup"><small>Error (punt per a ells)</small><div class="accs">${b(['ed', 'ec', 'erm', 'fal'])}</div></div>
+    <div class="fgrup"><small>Sense punt</small><div class="accs">${b(['bd', 'bc'])}</div></div>`);
 };
 // recepció quan saquen ells: primer com ha anat, després qui l'ha feta
 window.dirRep = (id, k) => {
-  const p = PAR.find(x => x.id === id), { pos, L } = estatSet(p, setActiu), ids = [L, ...[5, 6, 1, 4, 3, 2].map(z => pos[z])].filter(Boolean);
-  obreFitxa(`<div class="fhead"><b>${ACC[k].i} ${ACC[k].t}</b></div><div class="fgrup"><small>Qui ha rebut?</small><div class="djgrid">${ids.map(jid => { const r = rolSet((p.sets || {})[setActiu] || {}, jid);
-    return `<button class="dj ${r ? 'ps-' + r : ''}" onclick="dirAcc('${id}','${jid}','${k}')"><small>${jid === L ? 'Lliure' : 'Z' + ZK.find(z => pos[z] === jid)}${r ? ' ' + POS[r].l : ''}</small><span class="djn">${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b>` : ''}${esc((JUG.find(q => q.id === jid)?.nom || '').split(' ')[0])}</span></button>`; }).join('')}</div></div>`);
+  const p = PAR.find(x => x.id === id), { pos, L } = estatSet(p, setActiu), s0 = (p.sets || {})[setActiu] || {}, sis = sistemaDe(p), lli = lliureDe(p, setActiu);
+  const m = campRec(pos, L, s0, lli), { xy } = recPos(p, m, sis, lli), fora = L && !ZK.some(z => m[z]?.jid === L) ? L : '';
+  const tok = (jid, rol, lab, st) => `<button type="button" class="tok rtok ${rol ? 'ps-' + rol : ''}" ${st} onclick="dirAcc('${id}','${jid}','${k}')"><small>${lab}${rol ? ' ' + POS[rol].l : ''}</small><span class="tn">${dors(jid) ? esc(dors(jid)) + ' ' : ''}${esc((JUG.find(q => q.id === jid)?.nom || '').split(' ')[0])}</span></button>`;
+  obreFitxa(`<div class="fhead"><b>${ACC[k].i} ${ACC[k].t}</b></div><div class="fgrup"><small>Qui ha rebut?</small>
+    <div class="court rcourt rtria"><div class="net"></div><div class="l3"></div>${ZK.filter(z => m[z] && xy[z]).map(z => tok(m[z].jid, m[z].rol, 'Z' + z, `style="left:${xy[z][0]}%;top:${xy[z][1]}%"`)).join('')}</div>
+    ${fora ? `<div class="djgrid one">${tok(fora, 'lli', 'Lliure', 'style="position:static;transform:none;margin:0 auto"')}</div>` : ''}</div>`);
 };
 window.dirAcc = (id, jid, k) => {
   DIR_ESB = null;   // un punt nou: ja no es recupera l'esborrat (l'ordre canviaria)
@@ -3808,7 +3813,7 @@ function court(pos, lineup, eq) {
     ${Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y + 14}%">${z}</span>`).join('')}
     ${Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]);
       return `<div class="tok ${j ? '' : 'buit'} ${esCentral(pos, pos[z]) ? 'cen' : ''}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? fitxaNom(j.id, esCentral(pos, pos[z]), (pos.rols || {})[j.id]) : '<span class="tn"></span>'}</div>`; }).join('')}
-    ${lineup && pos.L ? `<div class="tok lib" style="left:88%;top:93%">L ${esc(curt(JUG.find(q => q.id === pos.L)?.nom))}</div>` : ''}
+    ${lineup ? `<div class="tok lib ${pos.L ? '' : 'buit'}" data-z="L" onclick="alinTria(location.hash.split('/')[2], 'L')" style="left:88%;top:93%">${pos.L ? 'L ' + esc(curt(JUG.find(q => q.id === pos.L)?.nom)) : 'L'}</div>` : ''}
   </div>`;
 }
 // ---------------------------------------------------------------- recepció (30-10-2026)
@@ -3967,11 +3972,7 @@ function viewPartit(id) {
   <details class="card plega" ${alin ? 'open' : ''} ontoggle="obertPart('alin', '${id}', this.open)"><summary><b>Alineació</b><span class="meta">${[4, 3, 2, 5, 6, 1].map(z => pos[z] ? (dors(pos[z]) || esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])) : '').filter(Boolean).join(' ') || 'Set ' + setActiu + ' sense alineació'}</span></summary>
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
   ${court(pos, true, p.equip)}
-  <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => `<div><label>Z${z}</label><select onchange="posSet('${id}', ${z}, this.value)"><option value="">—</option>
-    ${convs.filter(j => pos[z] === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`).join('')}
-    <div><label>Lliure</label><select onchange="posSet('${id}', 'L', this.value)"><option value="">—</option>
-    ${convs.filter(j => pos.L === j.id || !Object.values(pos).includes(j.id)).map(j => `<option value="${j.id}" ${pos.L === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>
-</div>
+  ${ZK.some(z => pos[z]) ? '' : `<p class="meta" style="text-align:center;margin:0 0 8px">Toca cada zona de la pista per posar-hi un jugador.</p>`}
   ${pos.L ? `<details class="meta" style="margin:4px 0 8px"><summary style="cursor:pointer">El lliure entra pels centrals (${ZK.map(z => pos[z]).filter(j => esCentral(pos, j)).map(j => esc((JUG.find(q => q.id === j)?.nom || '').split(' ')[0])).join(' i ') || 'cap: posa el rol de central'}). Canvia-ho si no és així.</summary><div class="posgrid">${true ? ['C1', 'C2'].map((c, i) => `<div><label>Central ${i + 1}</label><select onchange="posSet('${id}', '${c}', this.value)"><option value="">—</option>
     ${ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean).filter(j => pos[c] === j.id || !esCentral(pos, j.id)).map(j => `<option value="${j.id}" ${pos[c] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`).join('') : ''}</div></details>` : ''}
   ${rolsHtml(id, pos)}
@@ -3979,7 +3980,7 @@ function viewPartit(id) {
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
     ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? `<button class="btn" onclick="triaCopia('${id}')">Copia un set</button>` : ''}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
-  <div class="irow">${info(`<ul><li>Arrossega un jugador a una altra zona per intercanviar-los, o tria'ls als desplegables.</li><li>Als desplegables només surten els convocats que encara no tenen posició en aquest set.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols en aquest set».</li></ul>`, `Alineació`)}</div></details>
+  <div class="irow">${info(`<ul><li>Toca una zona (o la L del lliure) i tria qui hi va. Després s'obre sola la següent zona buida.</li><li>Arrossega un jugador a una altra zona per intercanviar-los.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols en aquest set».</li></ul>`, `Alineació`)}</div></details>
   <details class="card plega" ${(PLEG['rec' + id] ?? false) ? 'open' : ''} ontoggle="obertPart('rec', '${id}', this.open)"><summary><b>Recepció</b><span class="meta">${sistemaDe(p)}${lliureDe(p, setActiu) ? ' amb lliure' : ' sense lliure'}</span></summary>
   ${recepcioHtml(p)}</details>
   <div class="dirrow"><a class="btn primary" href="#/directe/${id}">Marcador en directe</a>
@@ -4318,6 +4319,26 @@ window.rolPosa = (id, jid, v, alDirecte) => {
   if (v && v !== posJ(jid)) r[jid] = v; else delete r[jid];   // triar el rol de l'equip treu el canvi
   pos.rols = r; setPos(id, pos); if (alDirecte) dirAlin(id);
 };
+// alineació tocant la pista (13-11-2026): s'obre la llista dels convocats; en triar-ne un, s'obre la zona buida següent
+const ALIN_ORDRE = ['4', '3', '2', '5', '6', '1', 'L'];
+window.alinTria = (id, z) => {
+  const p = PAR.find(x => x.id === id); if (!p) return;
+  const pos = (p.sets || {})[setActiu] || {}, convs = JUG.filter(j => (p.convocats || []).includes(j.id)).sort(perDorsal), on = j => [...ZK, 'L'].find(k => pos[k] === j.id);
+  if (!convs.length) return dialeg('Primer marca els convocats del partit.', { sol: true });
+  const lliures = convs.filter(j => !on(j)), posats = convs.filter(j => on(j) && on(j) !== String(z));
+  const bt = (j, lab) => { const r = rolSet(pos, j.id) || posJ(j.id); return `<button class="dj ${r ? 'ps-' + r : ''}" onclick="alinPosa('${id}','${z}','${j.id}')"><small>${lab ? lab + (r && POS[r] ? ' ' + POS[r].l : '') : r && POS[r] ? POS[r].t : '&nbsp;'}</small><span class="djn">${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc((j.nom || '').split(' ')[0])}</span></button>`; };
+  obreFitxa(`<div class="fhead"><b>Set ${setActiu}: ${z === 'L' ? 'lliure' : 'Z' + z}</b></div>
+    ${pos[z] ? `<div class="actions" style="margin:0 0 8px"><button class="btn" style="flex:1" onclick="alinPosa('${id}','${z}','')">Treu ${esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])}</button></div>` : ''}
+    <div class="fgrup"><small>Sense posició</small>${lliures.length ? `<div class="djgrid">${lliures.map(j => bt(j, '')).join('')}</div>` : '<p class="meta" style="margin:4px 0">Tots els convocats ja tenen posició.</p>'}</div>
+    ${posats.length ? `<details class="fgrup"><summary class="meta" style="cursor:pointer">Ja a la pista (es mou aquí)</summary><div class="djgrid">${posats.map(j => bt(j, on(j) === 'L' ? 'Lliure' : 'Z' + on(j))).join('')}</div></details>` : ''}`);
+};
+window.alinPosa = (id, z, jid) => {
+  posSet(id, z, jid); tancaFitxa();
+  if (!jid) return;
+  const pos = (PAR.find(x => x.id === id).sets || {})[setActiu] || {}, i = ALIN_ORDRE.indexOf(String(z));
+  const seg = [...ALIN_ORDRE.slice(i + 1), ...ALIN_ORDRE.slice(0, i)].find(k => !pos[k] && k !== 'L');
+  if (seg) setTimeout(() => alinTria(id, seg), 150);
+};
 window.posSet = (id, z, jid) => {
   const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) };
   const grup = z === 'C1' || z === 'C2' ? ['C1', 'C2'] : [...ZK, 'L'];
@@ -4427,18 +4448,21 @@ window.pisNom = (z, jid) => {
 // arrossegar fitxes al camp
 let DRAG = null;
 document.addEventListener('pointerdown', e => {
-  const t = e.target.closest('.tok'), c = t?.closest('.court'); if (!t || !c || t.classList.contains('lib')) return;
+  const t = e.target.closest('.tok'), c = t?.closest('.court'); if (!t || !c || c.classList.contains('rtria')) return;
+  if (t.classList.contains('lib')) return;   // el lliure es tria amb un toc (onclick)
   e.preventDefault(); t.setPointerCapture(e.pointerId); t.classList.add('drag');
-  DRAG = { t, c, r: c.getBoundingClientRect() };
+  DRAG = { t, c, r: c.getBoundingClientRect(), x0: e.clientX, y0: e.clientY };
 });
 document.addEventListener('pointermove', e => {
   if (!DRAG) return;
   const { t, r } = DRAG, x = Math.min(100, Math.max(0, (e.clientX - r.left) / r.width * 100)), y = Math.min(100, Math.max(0, (e.clientY - r.top) / r.height * 100));
-  t.style.left = x + '%'; t.style.top = y + '%'; DRAG.x = x; DRAG.y = y;
+  t.style.left = x + '%'; t.style.top = y + '%'; DRAG.x = x; DRAG.y = y; DRAG.mx = e.clientX; DRAG.my = e.clientY;
 });
 document.addEventListener('pointerup', () => {
   if (!DRAG) return;
-  const { t, c, x, y } = DRAG; DRAG = null; t.classList.remove('drag');
+  const { t, c, x, y, x0, y0, mx, my } = DRAG; DRAG = null; t.classList.remove('drag');
+  const toc = x == null || Math.hypot(mx - x0, my - y0) < 8;   // tocar sense arrossegar
+  if (toc && c.dataset.mode === 'lineup') { const z = t.dataset.z; t.style.left = ZONES[z][0] + '%'; t.style.top = ZONES[z][1] + '%'; return setTimeout(() => alinTria(location.hash.split('/')[2], z), 60); }   // després del clic, perquè no el reculli la finestra
   if (x == null) return;
   const from = +t.dataset.z;
   if (c.dataset.mode === 'lineup') {
