@@ -2703,6 +2703,7 @@ function viewJugador(id) {
     <div class="jtags">${eqs.map(e => `<span class="nos ${e === 'G' ? 'g' : 'n'}">${EQN[e]}</span>`).join('')}
       <span class="pill">📅 ${dj ? dj.map(d => CURT[d]).join(' + ') : 'Tots els dies'}</span>
       ${j.actiu === false ? '<span class="pill">Ja no és a l\'equip</span>' : ''}</div></div></div>
+  ${j.actiu === false && ['admin', 'entrenador'].includes(rolActual()) ? `<div class="actions" style="margin:8px 0 0"><button class="btn primary" style="flex:1" onclick="jugSet('${id}', {actiu: true})">↺ Torna'l a l'equip</button></div>` : ''}
   <div class="rings">${anell(st.pct, 'temporada')}${anell(st.pctM, 'últim mes')}${anell(sp.pct, 'sets jugats')}</div>
   <div class="counts" style="justify-content:center"><span class="est si">✅ ${st.si || 0} ve</span><span class="est avisa">❌ ${st.av || 0} avisa</span><span class="est no">💀 ${st.no || 0} no avisa</span><span class="est">🏆 ${ps.length} partits</span></div>
   ${(() => { const fut = RESP.filter(r => r.tipus === 'e' && r.jugador === id && r.id >= avui()).sort((x, y) => x.id.localeCompare(y.id));
