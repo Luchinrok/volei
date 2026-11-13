@@ -3911,13 +3911,15 @@ function recCourt(m, xy, edit, idp) {
 let recRot = null;
 function recepcioHtml(p) {
   const id = p.id, sis = sistemaDe(p), s0 = (p.sets || {})[setActiu] || {}, lli = lliureDe(p, setActiu);
-  if (!ZK.some(z => s0[z])) return '<p class="meta">Primer posa l\u2019alineació del set.</p>';
+  // el set es tria també aquí (13-11-2026), per mirar la recepció de cada set sense anar a l'alineació
+  const sets = `<div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>`;
+  if (!ZK.some(z => s0[z])) return sets + `<p class="meta">El set ${setActiu} encara no té alineació.</p>`;
   let pos = {}; ZK.forEach(z => { if (s0[z]) pos[z] = s0[z]; });
   const rots = rotsDe(sis), vol = recRot && rots.includes(recRot) ? recRot : rots[0];
   let m = campRec(pos, s0.L, s0, lli);
   for (let k = 0; k < 6 && rotKey(m, sis) !== vol; k++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
   const sense = !rotRef(m, sis), { xy } = recPos(p, m, sis, lli);
-  return `<div class="seg" style="margin:0 0 8px">${SISTEMES.map(x => `<button class="${sis === x ? 'on' : ''}" onclick="recSis('${id}','${x}')">${x}</button>`).join('')}</div>
+  return `${sets}<div class="seg" style="margin:0 0 8px">${SISTEMES.map(x => `<button class="${sis === x ? 'on' : ''}" onclick="recSis('${id}','${x}')">${x}</button>`).join('')}</div>
     <div class="seg" style="margin:0 0 8px">${[[true, 'Amb lliure'], [false, 'Sense lliure']].map(([v, l]) => `<button class="${lli === v ? 'on' : ''}" onclick="recLli('${id}',${v})">${l}</button>`).join('')}</div>
     ${sense ? '<p class="meta">Per saber la rotació, posa el rol de col·locador (C) a qui col·loca, a l\u2019alineació.</p>' : `<div class="seg" style="margin:0 0 4px">${rots.map(r => `<button class="${vol === r ? 'on' : ''}" onclick="recRot=${r};render()">R${r}</button>`).join('')}</div>
     <p class="meta" style="text-align:center;margin:0">Rotació ${vol}: ${rotTxt(m, sis, vol)}</p>`}
