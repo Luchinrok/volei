@@ -1043,6 +1043,7 @@ html.arbmode, html.arbmode body { overscroll-behavior-y: none; }
 .faltes summary { cursor: pointer; }
 .court .tok.lib { cursor: pointer; } .court .tok.lib.buit { min-width: 34px; text-align: center; opacity: .8; }
 .rtria { margin: 18px auto 8px; } .rtria .rtok { font: inherit; font-size: 13px; cursor: pointer; min-width: 64px; padding: 6px 8px; } .rtria .rtok .tn { font-weight: 800; }
+.posgrid.lliper { grid-template-columns: 1fr 1fr; }
 </style>
 </head>
 <body>
@@ -3837,7 +3838,9 @@ const recKey = (sis, lli) => sis + (lli ? 'L' : '');
 function campRec(pos, L, s0, lli) {
   const m = {};
   ZK.forEach(z => { if (pos[z]) m[z] = { jid: pos[z], rol: rolSet(s0, pos[z]) || (esCentral(s0, pos[z]) ? 'cen' : '') }; });
-  if (lli && L) { const z = DARRERE.find(z => m[z] && esCentral(s0, m[z].jid)); if (z) m[z] = { jid: L, rol: 'lli' }; }   // pel jugador triat (o el central) que és a darrere
+  if (lli && L) {   // pel primer triat si és a darrere; si no, pel segon (13-11-2026). Sense triar: pel central que és a darrere
+    const z = s0.C1 || s0.C2 ? [s0.C1, s0.C2].filter(Boolean).map(j => DARRERE.find(z => m[z]?.jid === j)).find(Boolean) : DARRERE.find(z => m[z] && esCentral(s0, m[z].jid));
+    if (z) m[z] = { jid: L, rol: 'lli' }; }
   return m;
 }
 function rotRef(m, sis) {
@@ -3992,7 +3995,7 @@ function viewPartit(id) {
   ${court(pos, true, p.equip)}
   ${ZK.some(z => pos[z]) ? '' : `<p class="meta" style="text-align:center;margin:0 0 8px">Toca cada zona de la pista per posar-hi un jugador.</p>`}
   ${pos.L ? (() => { const per = lliPer(pos), nom = j => esc((JUG.find(q => q.id === j)?.nom || '').split(' ')[0]), dins = ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean);
-    return `<details class="meta" style="margin:4px 0 8px"><summary style="cursor:pointer">El lliure entra per ${per.filter(Boolean).map(nom).join(' i ') || 'ningú encara'}. Toca per canviar-ho.</summary><div class="posgrid">${[0, 1].map(i => `<div><label>Entra per</label><select onchange="posaLliPer('${id}', ${i}, this.value)"><option value="">—</option>
+    return `<details class="meta" style="margin:4px 0 8px"><summary style="cursor:pointer">${per[0] && per[1] ? `El lliure entra per ${nom(per[0])} (si és a davant, per ${nom(per[1])}). Toca per canviar-ho.` : `El lliure entra per ${per.filter(Boolean).map(nom).join('') || 'ningú encara'}. Toca per canviar-ho.`}</summary><div class="posgrid lliper">${[0, 1].map(i => `<div><label>${i ? 'Si és a davant, per' : 'Entra per'}</label><select onchange="posaLliPer('${id}', ${i}, this.value)"><option value="">—</option>
     ${dins.filter(j => per[1 - i] !== j.id).map(j => `<option value="${j.id}" ${per[i] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`).join('')}</div></details>`; })() : ''}
   ${rolsHtml(id, pos)}
   ${canvisHtml(p)}
