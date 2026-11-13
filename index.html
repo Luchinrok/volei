@@ -4000,9 +4000,9 @@ function viewPartit(id) {
   ${pos.L ? (() => { const per = lliPer(pos), nom = j => esc((JUG.find(q => q.id === j)?.nom || '').split(' ')[0]), dins = ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean);
     const resum = per[0] && per[1] ? `entra per ${nom(per[0])}, o per ${nom(per[1])} quan ${nom(per[0])} és a davant` : per[0] || per[1] ? `entra per ${nom(per[0] || per[1])}` : 'tria per qui entra';
     return `<details class="lliper" ${PLEG['lli' + id] ? 'open' : ''} ontoggle="obertPart('lli', '${id}', this.open)"><summary><b>Lliure:</b> ${resum}</summary>
-      ${[0, 1].map(i => `<div class="lpfila"><label>${i ? '2. Quan el 1 és a davant, entra per' : '1. Entra per'}</label><select onchange="posaLliPer('${id}', ${i}, this.value)"><option value="">—</option>
+      ${[0, 1].map(i => `<div class="lpfila"><label>${i ? 'Quan el primer és a davant, entra per' : 'Primer, entra per'}</label><select onchange="posaLliPer('${id}', ${i}, this.value)"><option value="">—</option>
       ${dins.filter(j => per[1 - i] !== j.id).map(j => `<option value="${j.id}" ${per[i] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`).join('')}
-      <p class="meta" style="margin:4px 0 0">Si tots dos són a darrere alhora, el lliure entra pel 1.</p></details>`; })() : ''}
+      <p class="meta" style="margin:4px 0 0">Si tots dos són a darrere alhora, el lliure entra pel primer.</p></details>`; })() : ''}
   ${rolsHtml(id, pos)}
   ${canvisHtml(p)}
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
