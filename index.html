@@ -482,8 +482,8 @@ a.card.srow.prox { border: 2px solid var(--accent); }
 .etd { border-bottom: 1px solid var(--line); } .etd:last-of-type { border-bottom: 0; }
 .etd summary { list-style: none; cursor: pointer; } .etd summary::-webkit-details-marker { display: none; }
 .ptab.one { grid-template-columns: minmax(0, 1fr) 54px 60px; }
-.etab { grid-template-columns: minmax(0, 1fr) 26px 26px 26px 26px 46px 36px !important; }
-.etab.ambsets { grid-template-columns: minmax(0, 1fr) 28px 24px 24px 24px 24px 44px 32px !important; gap: 3px; }
+.etab { grid-template-columns: minmax(0, 1fr) 24px 24px 24px 24px 40px 44px 34px !important; }
+.etab.ambsets { grid-template-columns: minmax(0, 1fr) 28px 22px 22px 22px 22px 40px 42px 32px !important; gap: 3px; } .etab .saqmal { color: var(--no); }
 .accs.np { grid-template-columns: 1fr 1fr; }
 .acc.lleu { border-width: 1px; min-height: 40px; font-size: 13px; }
 .stps { display: grid; gap: 4px; padding: 4px 0 10px; }
@@ -3741,7 +3741,8 @@ function estadJug(accions) {
   const m = {};
   accions.filter(a => a.j && ACC[a.a] && !ACC[a.a].cv).forEach(a => { const A = ACC[a.a], e = m[a.j] = m[a.j] || { bo: 0, mal: 0, n: {} };
     if (!A.np) A.bo ? e.bo++ : e.mal++; e.n[a.a] = (e.n[a.a] || 0) + 1; });
-  Object.values(m).forEach(e => { const r = (e.n.rp || 0) + (e.n.rb || 0), tot = r + (e.n.rd || 0) + (e.n.er || 0); e.rec = tot ? Math.round(100 * r / tot) : null; });
+  Object.values(m).forEach(e => { const r = (e.n.rp || 0) + (e.n.rb || 0), tot = r + (e.n.rd || 0) + (e.n.er || 0); e.rec = tot ? Math.round(100 * r / tot) : null;
+    e.saqE = (e.n.ace || 0) + (e.n.bs || 0) + (e.n.ms || 0); e.saq = e.saqE + (e.n.es || 0); });   // saques entrats / saques apuntats (13-11-2026)
   return m;
 }
 let estEdit = null, estObert = null;   // partit amb la taula d'estadístiques oberta per editar; jugador desplegat
@@ -3765,11 +3766,11 @@ function taulaEstad(p) {
   const edita = p.id === '_temporada' ? '' : `<div class="actions" style="margin-top:8px"><button class="btn" onclick="estEdit='${p.id}';render()">✎ Edita les estadístiques</button></div>`;
   if (!ids.length) return '<p class="meta">Encara no hi ha accions apuntades. Obre el marcador en directe durant el partit.</p>' + edita;
   const n = (e, k) => e.n[k] || ' ';
-  return `<div class="card"><div class="etab phead ${amb ? 'ambsets' : ''}"><span></span>${amb ? '<span title="Sets jugats">Sets</span>' : ''}<span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="% de recepcions bones o perfectes">Recep.</span><span>+/-</span></div>
+  return `<div class="card"><div class="etab phead ${amb ? 'ambsets' : ''}"><span></span>${amb ? '<span title="Sets jugats">Sets</span>' : ''}<span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="Saques entrats / saques">Saq.</span><span title="% de recepcions bones o perfectes">Recep.</span><span>+/-</span></div>
     ${ids.map(jid => { const e = m[jid], j = JUG.find(q => q.id === jid), b = e.bo - e.mal;
-      return `<details class="etd"><summary class="etab ${amb ? 'ambsets' : ''}"><span title="${esc(j?.nom || '')}">${esc(nomCurt(j?.nom) || '?')}</span>${amb ? `<span class="meta">${nSets(sj[jid])}</span>` : ''}<span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || ' '}</span><span>${e.rec != null ? e.rec + '%' : ' '}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
+      return `<details class="etd"><summary class="etab ${amb ? 'ambsets' : ''}"><span title="${esc(j?.nom || '')}">${esc(nomCurt(j?.nom) || '?')}</span>${amb ? `<span class="meta">${nSets(sj[jid])}</span>` : ''}<span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || ' '}</span><span class="${e.saq && e.saqE < e.saq ? 'saqmal' : ''}">${e.saq ? e.saqE + '/' + e.saq : ' '}</span><span>${e.rec != null ? e.rec + '%' : ' '}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
         <div class="meta" style="padding:0 0 8px">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' ') || 'Cap acció apuntada.'}</div></details>`; }).join('')}
-    <div class="meta irow2" style="margin-top:6px"><span class="grow">Errors del rival: ${accions.filter(a => a.a === 'erv').length}. Punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</span>${info(`<ul>${amb ? '<li><b>Sets</b>: sets jugats en aquest partit. Amb canvis, la part del set que ha estat a la pista.</li>' : ''}<li>🎯 Aces</li><li>💥 Remats punt</li><li>🧱 Bloquejos punt</li><li>✗ Errors</li><li><b>Recep.</b>: de cada 100 recepcions, quantes han estat bones o perfectes (també compten les dolentes i els errors de recepció).</li><li><b>+/-</b>: punts guanyats menys punts perduts.</li></ul>`, `Què vol dir cada columna`)}</div>${edita}</div>`;
+    <div class="meta irow2" style="margin-top:6px"><span class="grow">Errors del rival: ${accions.filter(a => a.a === 'erv').length}. Punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</span>${info(`<ul>${amb ? '<li><b>Sets</b>: sets jugats en aquest partit. Amb canvis, la part del set que ha estat a la pista.</li>' : ''}<li>🎯 Aces</li><li>💥 Remats punt</li><li>🧱 Bloquejos punt</li><li>✗ Errors</li><li><b>Saq.</b>: saques entrats / saques apuntats (els fallats són la diferència). Compten els que s'apunten al directe: ace, bon saque, saque fluix i error de saque.</li><li><b>Recep.</b>: de cada 100 recepcions, quantes han estat bones o perfectes (també compten les dolentes i els errors de recepció).</li><li><b>+/-</b>: punts guanyats menys punts perduts.</li></ul>`, `Què vol dir cada columna`)}</div>${edita}</div>`;
 }
 window.estMou = (id, jid, k, d) => {
   const p = PAR.find(x => x.id === id), accions = [...(p.accions || [])];
