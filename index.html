@@ -3806,6 +3806,14 @@ const fitxaNom = (jid, cen, rol) => fitxaNomV(jid) + posBadge(jid, cen, rol);
 const rolSet = (pos, jid) => posOk((pos?.rols || {})[jid]) || posJ(jid);
 const fitxaNomOld = jid => { const j = JUG.find(q => q.id === jid); if (!j) return ''; const d = dors(jid); return d ? `<b class="tdn">${esc(d)}</b><span class="tn">${esc(curt(j.nom))}</span>` : `<span class="tn">${esc(curt(j.nom))}</span>`; };
 const ZONES = { 4: [17, 22], 3: [50, 22], 2: [83, 22], 5: [17, 72], 6: [50, 72], 1: [83, 72] };
+// per qui entra el lliure (13-11-2026): per defecte pels centrals, però es pot triar qualsevol jugador (C1/C2 = els dos per qui entra)
+const lliPer = pos => pos.C1 || pos.C2 ? [pos.C1 || '', pos.C2 || ''] : [...ZK.map(z => pos[z]).filter(j => esCentral(pos, j)), '', ''].slice(0, 2);
+window.posaLliPer = (id, i, v) => {
+  const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) }, a = lliPer(pos);
+  a[i] = v; if (a[0] && a[0] === a[1]) a[1 - i] = '';
+  ['C1', 'C2'].forEach((c, k) => { if (a[k]) pos[c] = a[k]; else delete pos[c]; });
+  setPos(id, pos);
+};
 const esCentral = (pos, jid) => !!jid && (pos.C1 || pos.C2 ? (pos.C1 === jid || pos.C2 === jid) : ZK.some(z => pos[z] === jid) && rolSet(pos, jid) === 'cen');   // per qui entra el lliure
 function court(pos, lineup, eq) {
   // pos: {1..6: jugador, L: lliure, C1/C2: centrals}. lineup = true: arrossegar un jugador a una altra zona els intercanvia
@@ -3830,7 +3838,7 @@ const recKey = (sis, lli) => sis + (lli ? 'L' : '');
 function campRec(pos, L, s0, lli) {
   const m = {};
   ZK.forEach(z => { if (pos[z]) m[z] = { jid: pos[z], rol: rolSet(s0, pos[z]) || (esCentral(s0, pos[z]) ? 'cen' : '') }; });
-  if (lli && L) { const z = DARRERE.find(z => m[z] && (m[z].rol === 'cen' || esCentral(s0, m[z].jid))); if (z) m[z] = { jid: L, rol: 'lli' }; }
+  if (lli && L) { const z = DARRERE.find(z => m[z] && esCentral(s0, m[z].jid)); if (z) m[z] = { jid: L, rol: 'lli' }; }   // pel jugador triat (o el central) que és a darrere
   return m;
 }
 function rotRef(m, sis) {
@@ -3984,8 +3992,9 @@ function viewPartit(id) {
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
   ${court(pos, true, p.equip)}
   ${ZK.some(z => pos[z]) ? '' : `<p class="meta" style="text-align:center;margin:0 0 8px">Toca cada zona de la pista per posar-hi un jugador.</p>`}
-  ${pos.L ? `<details class="meta" style="margin:4px 0 8px"><summary style="cursor:pointer">El lliure entra pels centrals (${ZK.map(z => pos[z]).filter(j => esCentral(pos, j)).map(j => esc((JUG.find(q => q.id === j)?.nom || '').split(' ')[0])).join(' i ') || 'cap: posa el rol de central'}). Canvia-ho si no és així.</summary><div class="posgrid">${true ? ['C1', 'C2'].map((c, i) => `<div><label>Central ${i + 1}</label><select onchange="posSet('${id}', '${c}', this.value)"><option value="">—</option>
-    ${ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean).filter(j => pos[c] === j.id || !esCentral(pos, j.id)).map(j => `<option value="${j.id}" ${pos[c] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`).join('') : ''}</div></details>` : ''}
+  ${pos.L ? (() => { const per = lliPer(pos), nom = j => esc((JUG.find(q => q.id === j)?.nom || '').split(' ')[0]), dins = ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean);
+    return `<details class="meta" style="margin:4px 0 8px"><summary style="cursor:pointer">El lliure entra per ${per.filter(Boolean).map(nom).join(' i ') || 'ningú encara'}. Toca per canviar-ho.</summary><div class="posgrid">${[0, 1].map(i => `<div><label>Entra per</label><select onchange="posaLliPer('${id}', ${i}, this.value)"><option value="">—</option>
+    ${dins.filter(j => per[1 - i] !== j.id).map(j => `<option value="${j.id}" ${per[i] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`).join('')}</div></details>`; })() : ''}
   ${rolsHtml(id, pos)}
   ${canvisHtml(p)}
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
