@@ -3630,7 +3630,7 @@ function viewDirecte(id) {
   ${enJoc ? '' : rivalHtml(p, setActiu, rr, saca)}
   ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs quatre">${['rp', 'rb', 'rd', 'er'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirRep('${id}','${k}')">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error' }[k]}<small>${ACC[k].np ? 'sense punt' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? (() => { const sis = sistemaDe(p), lli = lliureDe(p, setActiu), m = campRec(pos, L, s0, lli), { r, xy } = recPos(p, m, sis, lli);
-    return `<details class="card recdir" open><summary><b>Recepció${r ? ' - R' + r : ''}</b><span class="meta">${sis}${r ? ' - col·locador a Z' + r : ''}</span></summary>${recCourt(m, xy, false)}</details>`; })() : ''}
+    return `<details class="card recdir" open><summary><b>Recepció${r ? ' - R' + r : ''}</b><span class="meta">${sis}${r ? ' - ' + rotTxt(m, sis, r) : ''}</span></summary>${recCourt(m, xy, false)}</details>`; })() : ''}
   ${(() => { const graella = `<div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
   <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>`;
     return saca === 'nos' && pos[1] && !enJoc ? `<div class="actions" style="margin:6px 0"><button class="btn" style="flex:1" onclick="dirCanvi('${id}')">Canvi</button></div>`
@@ -3841,7 +3841,17 @@ function rotRef(m, sis) {
   const z = sis === '4-2' ? cs.find(z => DAVANT.includes(z)) : cs.find(z => DARRERE.includes(z));
   return +(z || cs[0]);
 }
-const rotsDe = sis => sis === '6-2' ? [1, 6, 5] : sis === '4-2' ? [2, 3, 4] : [1, 6, 5, 4, 3, 2];
+const rotsDe = sis => sis === '4-2' ? [2, 3, 4] : [1, 6, 5, 4, 3, 2];
+// clau de cada rotació (13-11-2026): al 6-2 també les sis per separat, comptades per un dels dos col·locadors, sempre el mateix (el «A»).
+// rotRef continua dient qui col·loca (el de darrere), per a les posicions per defecte
+function rotKey(m, sis) {
+  const cs = ZK.filter(z => m[z]?.rol === 'col');
+  if (sis !== '6-2' || cs.length < 2) return rotRef(m, sis);
+  return +cs.sort((a, b) => m[a].jid.localeCompare(m[b].jid))[0];
+}
+const ROT_OPP = { 4: 1, 3: 6, 2: 5 };   // al 6-2, abans es guardava pel de darrere: si l'A és a davant, la que hi havia és la de la zona del davant
+const rotTxt = (m, sis, r) => { const c = rotRef(m, sis), nom = z => esc((JUG.find(q => q.id === m[z]?.jid)?.nom || '').split(' ')[0]);
+  return sis === '6-2' && c && c !== r ? `${nom(String(r))} a Z${r} - col·loca ${nom(String(c))} (Z${c})` : sis === '6-2' && c ? `${nom(String(r))} a Z${r}, col·loca` : `col·locador a Z${r}${sis === '4-2' ? ' (el de davant)' : ''}`; };
 // posicions per defecte: tres receptors a 2/3 del camp; col·locador, centrals i oposat de davant a la xarxa; el col·locador de darrere amagat
 function recDefecte(m, sis) {
   const xy = {}, ref = String(rotRef(m, sis));
@@ -3871,7 +3881,8 @@ function arregla(xy) {
 }
 // posicions d'una rotació: les guardades del partit, si no les de l'equip, si no les per defecte
 function recPos(p, m, sis, lli) {
-  const r = rotRef(m, sis), g = (p.recepcio?.pos || {})[recKey(sis, lli)]?.[r] || (REC[recKey(sis, lli)] || {})[r] || {}, def = recDefecte(m, sis), xy = {};
+  const r = rotKey(m, sis), o = sis === '6-2' && ROT_OPP[r], P = (p.recepcio?.pos || {})[recKey(sis, lli)] || {}, E = REC[recKey(sis, lli)] || {};
+  const g = P[r] || (o && P[o]) || E[r] || (o && E[o]) || {}, def = recDefecte(m, sis), xy = {};
   ZK.forEach(z => { if (m[z]) xy[z] = g[z] ? [...g[z]] : def[z]; });
   return { r, xy };
 }
@@ -3891,12 +3902,12 @@ function recepcioHtml(p) {
   let pos = {}; ZK.forEach(z => { if (s0[z]) pos[z] = s0[z]; });
   const rots = rotsDe(sis), vol = recRot && rots.includes(recRot) ? recRot : rots[0];
   let m = campRec(pos, s0.L, s0, lli);
-  for (let k = 0; k < 6 && rotRef(m, sis) !== vol; k++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
+  for (let k = 0; k < 6 && rotKey(m, sis) !== vol; k++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
   const sense = !rotRef(m, sis), { xy } = recPos(p, m, sis, lli);
   return `<div class="seg" style="margin:0 0 8px">${SISTEMES.map(x => `<button class="${sis === x ? 'on' : ''}" onclick="recSis('${id}','${x}')">${x}</button>`).join('')}</div>
     <div class="seg" style="margin:0 0 8px">${[[true, 'Amb lliure'], [false, 'Sense lliure']].map(([v, l]) => `<button class="${lli === v ? 'on' : ''}" onclick="recLli('${id}',${v})">${l}</button>`).join('')}</div>
     ${sense ? '<p class="meta">Per saber la rotació, posa el rol de col·locador (C) a qui col·loca, a l\u2019alineació.</p>' : `<div class="seg" style="margin:0 0 4px">${rots.map(r => `<button class="${vol === r ? 'on' : ''}" onclick="recRot=${r};render()">R${r}</button>`).join('')}</div>
-    <p class="meta" style="text-align:center;margin:0">Rotació ${vol}: col·locador a Z${vol}${sis === '6-2' ? ' (el de darrere)' : sis === '4-2' ? ' (el de davant)' : ''}</p>`}
+    <p class="meta" style="text-align:center;margin:0">Rotació ${vol}: ${rotTxt(m, sis, vol)}</p>`}
     ${recCourt(m, xy, !sense, id)}
     ${sense ? '' : `<div class="actions" style="margin-top:0"><button class="btn" onclick="recReset('${id}',${vol})">Torna a la posició per defecte</button></div>`}
     <div class="irow">${info(`<ul><li>Arrossega els jugadors per fixar com recepcioneu en cada rotació.</li><li>Es guarda per a aquest partit, i l'equip la recorda per als següents.</li><li>Si una posició fa falta de rotació, surt <span class="red">en vermell</span>.</li></ul><p>Colors de cada posició:</p><p>${llegPos()}</p>`, `Recepció`)}</div>`;
@@ -3927,7 +3938,7 @@ addEventListener('pointerup', () => {
   const p = PAR.find(x => x.id === d.c.dataset.edit), sis = sistemaDe(p), lli = lliureDe(p, setActiu), s0 = (p.sets || {})[setActiu] || {};
   let pos = {}; ZK.forEach(z => { if (s0[z]) pos[z] = s0[z]; });
   const vol = recRot && rotsDe(sis).includes(recRot) ? recRot : rotsDe(sis)[0];
-  let m = campRec(pos, s0.L, s0, lli); for (let k = 0; k < 6 && rotRef(m, sis) !== vol; k++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
+  let m = campRec(pos, s0.L, s0, lli); for (let k = 0; k < 6 && rotKey(m, sis) !== vol; k++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
   const { xy } = recPos(p, m, sis, lli); xy[d.t.dataset.z] = [Math.round(d.x), Math.round(d.y)];
   desaRec(p, sis, lli, vol, xy); render();
 });
