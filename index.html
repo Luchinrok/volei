@@ -1045,6 +1045,12 @@ html.arbmode, html.arbmode body { overscroll-behavior-y: none; }
 .rtria { margin: 18px auto 8px; } .rtria .rtok { font: inherit; font-size: 13px; cursor: pointer; min-width: 64px; padding: 6px 8px; } .rtria .rtok .tn { font-weight: 800; }
 .lliper { margin: 4px 0 8px; font-size: 14px; } .lliper summary { cursor: pointer; } .lpfila { display: flex; align-items: center; gap: 8px; margin-top: 8px; } .lpfila label { flex: 1; font-size: 13px; font-weight: 650; color: var(--muted); } .lpfila select { width: 46%; padding: 6px 4px; font-size: 14px; }
 .jafora { margin-top: 10px; } .jafora summary { cursor: pointer; font-size: 14px; font-weight: 650; color: var(--muted); padding: 4px 0; } .pl.fora { opacity: .6; }
+/* estadístiques per jugador (13-11-2026): la taula llisca cap a la dreta i el nom es queda fix */
+.escroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
+.escroll .etab { width: max-content; min-width: 100%; grid-template-columns: 104px 26px 26px 26px 26px 34px 44px 50px 36px !important; }
+.escroll .etab:not(.ambsets) { grid-template-columns: 104px 26px 26px 26px 34px 44px 50px 36px !important; }
+.escroll .etab > :first-child { position: sticky; left: 0; z-index: 1; background: var(--card); padding-right: 4px; }
+.escroll .etdet { padding: 0 0 8px; position: sticky; left: 0; max-width: calc(100vw - 72px); white-space: normal; }
 </style>
 </head>
 <body>
@@ -3766,10 +3772,10 @@ function taulaEstad(p) {
   const edita = p.id === '_temporada' ? '' : `<div class="actions" style="margin-top:8px"><button class="btn" onclick="estEdit='${p.id}';render()">✎ Edita les estadístiques</button></div>`;
   if (!ids.length) return '<p class="meta">Encara no hi ha accions apuntades. Obre el marcador en directe durant el partit.</p>' + edita;
   const n = (e, k) => e.n[k] || ' ';
-  return `<div class="card"><div class="etab phead ${amb ? 'ambsets' : ''}"><span></span>${amb ? '<span title="Sets jugats">Sets</span>' : ''}<span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="Saques entrats / saques">Saq.</span><span title="% de recepcions bones o perfectes">Recep.</span><span>+/-</span></div>
+  return `<div class="card"><div class="escroll"><div class="etab phead ${amb ? 'ambsets' : ''}"><span></span>${amb ? '<span title="Sets jugats">Sets</span>' : ''}<span title="Ace">🎯</span><span title="Remat punt">💥</span><span title="Bloqueig punt">🧱</span><span title="Errors">✗</span><span title="Saques entrats / saques">Saq.</span><span title="% de recepcions bones o perfectes">Recep.</span><span>+/-</span></div>
     ${ids.map(jid => { const e = m[jid], j = JUG.find(q => q.id === jid), b = e.bo - e.mal;
       return `<details class="etd"><summary class="etab ${amb ? 'ambsets' : ''}"><span title="${esc(j?.nom || '')}">${esc(nomCurt(j?.nom) || '?')}</span>${amb ? `<span class="meta">${nSets(sj[jid])}</span>` : ''}<span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || ' '}</span><span class="${e.saq && e.saqE < e.saq ? 'saqmal' : ''}">${e.saq ? e.saqE + '/' + e.saq : ' '}</span><span>${e.rec != null ? e.rec + '%' : ' '}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
-        <div class="meta" style="padding:0 0 8px">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' ') || 'Cap acció apuntada.'}</div></details>`; }).join('')}
+        <div class="meta etdet">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' ') || 'Cap acció apuntada.'}</div></details>`; }).join('')}</div>
     <div class="meta irow2" style="margin-top:6px"><span class="grow">Errors del rival: ${accions.filter(a => a.a === 'erv').length}. Punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</span>${info(`<ul>${amb ? '<li><b>Sets</b>: sets jugats en aquest partit. Amb canvis, la part del set que ha estat a la pista.</li>' : ''}<li>🎯 Aces</li><li>💥 Remats punt</li><li>🧱 Bloquejos punt</li><li>✗ Errors</li><li><b>Saq.</b>: saques entrats / saques apuntats (els fallats són la diferència). Compten els que s'apunten al directe: ace, bon saque, saque fluix i error de saque.</li><li><b>Recep.</b>: de cada 100 recepcions, quantes han estat bones o perfectes (també compten les dolentes i els errors de recepció).</li><li><b>+/-</b>: punts guanyats menys punts perduts.</li></ul>`, `Què vol dir cada columna`)}</div>${edita}</div>`;
 }
 window.estMou = (id, jid, k, d) => {
