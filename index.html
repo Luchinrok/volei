@@ -3674,13 +3674,11 @@ window.dirAcc = (id, jid, k) => {
 window.dirAlin = id => {
   const p = PAR.find(x => x.id === id), pos = (p.sets || {})[setActiu] || {}, conv = JUG.filter(j => (p.convocats || []).includes(j.id));
   const sq = saqueIni(p, setActiu), ss = p.sets || {}, copiables = [1, 2, 3, 4, 5].filter(n => n !== setActiu && ZK.some(z => (ss[n] || {})[z]));
-  const sel = (z, lab) => `<div><label>${lab}</label><select onchange="dirPos('${id}', '${z}', this.value)"><option value="">—</option>${conv.filter(j => pos[z] === j.id || ![...ZK, 'L'].some(k => pos[k] === j.id)).map(j => `<option value="${j.id}" ${pos[z] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`;
   obreFitxa(`<b>Set ${setActiu}: qui comença</b><div class="form">
     ${copiables.length ? `<label class="lbl">Mateixa alineació que…</label><div class="seg" style="margin:0">${copiables.map(n => `<button onclick="dirCopia('${id}', ${n})">Set ${n}</button>`).join('')}</div>` : ''}
     ${setActiu === 1 || setActiu === 5 ? `<label class="lbl">Saca primer</label><div class="seg" style="margin:0">${[['nos', club() || 'Nosaltres'], ['ells', p.rival || 'El rival']].map(([v, l]) => `<button class="${sq === v ? 'on' : ''}" onclick="dirSaque('${id}','${v}')">${esc(l)}</button>`).join('')}</div>`
       : `<p class="meta" style="margin:8px 0 0">🏐 Al set ${setActiu} saca primer ${esc(sq === 'nos' ? club() || 'el nostre equip' : p.rival || 'el rival')} (s'alterna cada set; es tria al set 1).</p>`}
-    <div class="posgrid">${[4, 3, 2, 5, 6, 1].map(z => sel(z, 'Z' + z)).join('')}${sel('L', 'Lliure')}</div>
-    ${conv.length ? '' : '<p class="meta">Primer posa els convocats al partit.</p>'}
+    ${conv.length ? `${court(pos, true, p.equip)}<p class="meta" style="text-align:center;margin:0 0 8px">Toca cada zona (o la L) per posar-hi un jugador. Arrossega'ls per intercanviar-los.</p>` : '<p class="meta">Primer posa els convocats al partit.</p>'}
     ${rolsHtml(id, pos, true)}
     <div class="irow">${info(`<ul><li><b>Z1</b> és qui saca.</li><li>La rotació avança sola quan recuperem el saque.</li></ul>`, `Saque i rotació`)}</div></div>`);
 };
@@ -4355,10 +4353,11 @@ window.alinTria = (id, z) => {
 };
 window.alinPosa = (id, z, jid) => {
   posSet(id, z, jid); tancaFitxa();
-  if (!jid) return;
+  const dir = location.hash.startsWith('#/directe');
+  if (!jid) return dir && dirAlin(id);
   const pos = (PAR.find(x => x.id === id).sets || {})[setActiu] || {}, i = ALIN_ORDRE.indexOf(String(z));
   const seg = [...ALIN_ORDRE.slice(i + 1), ...ALIN_ORDRE.slice(0, i)].find(k => !pos[k] && k !== 'L');
-  if (seg) setTimeout(() => alinTria(id, seg), 150);
+  if (seg) setTimeout(() => alinTria(id, seg), 150); else if (dir) dirAlin(id);
 };
 window.posSet = (id, z, jid) => {
   const pos = { ...((PAR.find(x => x.id === id).sets || {})[setActiu] || {}) };
@@ -4490,7 +4489,7 @@ document.addEventListener('pointerup', () => {
     const to = +Object.entries(ZONES).sort(([, a], [, b]) => Math.hypot(a[0] - x, a[1] - y) - Math.hypot(b[0] - x, b[1] - y))[0][0];
     const id = location.hash.split('/')[2], pos = { ...((PAR.find(q => q.id === id).sets || {})[setActiu] || {}) };
     const a = pos[from], b = pos[to]; if (a) pos[to] = a; else delete pos[to]; if (b) pos[from] = b; else delete pos[from];
-    setPos(id, pos);
+    setPos(id, pos); if (location.hash.startsWith('#/directe')) dirAlin(id);   // al directe, la pista és dins la finestra
   } else {
     const st = pisEstat(); st.xy[t.dataset.z] = [x, y]; store.set(pisKey(), st);
   }
