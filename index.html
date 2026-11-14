@@ -1051,6 +1051,7 @@ html.arbmode, html.arbmode body { overscroll-behavior-y: none; }
 .escroll .etab:not(.ambsets) { grid-template-columns: 104px 26px 26px 26px 34px 44px 50px 36px !important; }
 .escroll .etab > :first-child { position: sticky; left: 0; z-index: 1; background: var(--card); padding-right: 4px; }
 .escroll .etdet { padding: 0 0 8px; position: sticky; left: 0; max-width: calc(100vw - 72px); white-space: normal; }
+.altabs { margin: 0 0 10px; } .altabs button { font-weight: 700; }
 </style>
 </head>
 <body>
@@ -4002,7 +4003,9 @@ function viewPartit(id) {
     ${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
     <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}${(() => { const a = assPct[j.id]; return a?.pct != null ? ` <span class="cpct ${a.pct < 50 ? 'baix' : ''}" title="Assistència als entrenos (últim mes: ${a.pctM ?? '–'}%)">${a.pct}%</span>` : ''; })()}${posOk(j.posicio) ? `<i class="pb pb-${j.posicio} inl">${POS[j.posicio].l}</i>` : ''}${(() => { const r = respDe('p', id, j.id); return r ? ` <span title="Ho ha dit ${esc(r.nom || '')}">${r.estat === 'si' ? '✅' : '❌'}</span>` : ''; })()}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
     <div class="actions">${conv.size ? `<button class="btn" onclick="copiaConvocats('${id}')" title="Copia la convocatòria per al WhatsApp">Exporta</button><button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></details>
-  <details class="card plega" ${alin ? 'open' : ''} ontoggle="obertPart('alin', '${id}', this.open)"><summary><b>Alineació</b><span class="meta">${[4, 3, 2, 5, 6, 1].map(z => pos[z] ? (dors(pos[z]) || esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])) : '').filter(Boolean).join(' ') || 'Set ' + setActiu + ' sense alineació'}</span></summary>
+  <details class="card plega" ${alin ? 'open' : ''} ontoggle="obertPart('alin', '${id}', this.open)"><summary><b>Alineació i recepció</b><span class="meta">${PLEG['tab' + id] === 'rec' ? `Recepció: ${sistemaDe(p)}${lliureDe(p, setActiu) ? ' amb lliure' : ' sense lliure'}` : [4, 3, 2, 5, 6, 1].map(z => pos[z] ? (dors(pos[z]) || esc((JUG.find(q => q.id === pos[z])?.nom || '').split(' ')[0])) : '').filter(Boolean).join(' ') || 'Set ' + setActiu + ' sense alineació'}</span></summary>
+  <div class="seg altabs">${[['alin', 'Alineació'], ['rec', 'Recepció']].map(([k, t]) => `<button class="${(PLEG['tab' + id] || 'alin') === k ? 'on' : ''}" onclick="alTab('${id}','${k}')">${t}</button>`).join('')}</div>
+  ${PLEG['tab' + id] === 'rec' ? recepcioHtml(p) : `
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
   ${court(pos, true, p.equip)}
   ${ZK.some(z => pos[z]) ? '' : `<p class="meta" style="text-align:center;margin:0 0 8px">Toca cada zona de la pista per posar-hi un jugador.</p>`}
@@ -4017,9 +4020,7 @@ function viewPartit(id) {
   <div class="actions"><button class="btn" onclick="rotate('${id}')">↻ Rotar</button>
     ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? `<button class="btn" onclick="triaCopia('${id}')">Copia un set</button>` : ''}
     <a class="btn" style="text-decoration:none" href="#/pissarra/${id}">Obre a la pissarra</a></div>
-  <div class="irow">${info(`<ul><li>Toca una zona (o la L del lliure) i tria qui hi va.</li><li>Arrossega un jugador a una altra zona per intercanviar-los.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols en aquest set».</li></ul>`, `Alineació`)}</div></details>
-  <details class="card plega" ${(PLEG['rec' + id] ?? false) ? 'open' : ''} ontoggle="obertPart('rec', '${id}', this.open)"><summary><b>Recepció</b><span class="meta">${sistemaDe(p)}${lliureDe(p, setActiu) ? ' amb lliure' : ' sense lliure'}</span></summary>
-  ${recepcioHtml(p)}</details>
+  <div class="irow">${info(`<ul><li>Toca una zona (o la L del lliure) i tria qui hi va.</li><li>Arrossega un jugador a una altra zona per intercanviar-los.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols en aquest set».</li></ul>`, `Alineació`)}</div>`}</details>
   <div class="dirrow"><a class="btn primary" href="#/directe/${id}">Marcador en directe</a>
     <label class="rvtog" title="Al directe, poses la formació del rival a cada set i l'app et diu on ha d'estar cadascú."><input type="checkbox" ${p.rivalRot?.actiu ? 'checked' : ''} onchange="rivalActiu('${id}', this.checked)"> Rotacions del rival</label></div>
   <details class="card plega" ${(PLEG['est' + id] ?? true) ? 'open' : ''} ontoggle="obertPart('est', '${id}', this.open)"><summary><b>Estadístiques per jugador</b><span class="meta">${(() => { const m = estadJug(p.accions || []), n = Object.keys(m).length; return n ? n + ' jugadors amb accions apuntades' : 'Encara no hi ha accions apuntades'; })()}</span></summary>
@@ -4396,6 +4397,7 @@ window.copySet = (id, n) => {
 let convObert = null;
 // seccions plegables del partit: es recorda si són obertes (encara que la pantalla es torni a pintar)
 const PLEG = store.get('volei.pleg', {});
+window.alTab = (id, t) => { PLEG['tab' + id] = t; store.set('volei.pleg', PLEG); render(); };   // pestanyes Alineació / Recepció del partit
 window.obertPart = (k, id, o) => { if (PLEG[k + id] === o) return; PLEG[k + id] = o; store.set('volei.pleg', PLEG); };
 Object.defineProperty(window, 'convObert', { get: () => convObert, set: v => { convObert = v; } });
 Object.defineProperty(window, 'setActiu', { get: () => setActiu, set: v => { setActiu = v; } });
