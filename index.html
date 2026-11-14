@@ -3828,7 +3828,7 @@ window.posaLliPer = (id, i, v) => {
   setPos(id, pos);
 };
 const esCentral = (pos, jid) => !!jid && (pos.C1 || pos.C2 ? (pos.C1 === jid || pos.C2 === jid) : ZK.some(z => pos[z] === jid) && rolSet(pos, jid) === 'cen');   // per qui entra el lliure
-const zonesLab = () => Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y < 50 ? 4 : y - 21}%">${z}</span>`).join('');   // número de cada zona, a sobre del jugador
+const zonesLab = () => Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y - 18}%">${z}</span>`).join('');   // número de cada zona, a sobre del jugador
 function court(pos, lineup, eq) {
   // pos: {1..6: jugador, L: lliure, C1/C2: centrals}. lineup = true: arrossegar un jugador a una altra zona els intercanvia
   return `<div class="court ${eq ? 'eq' + eq : ''}" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
@@ -4013,18 +4013,12 @@ function viewPartit(id) {
   <div class="seg">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
   ${court(pos, true, p.equip)}
   ${ZK.some(z => pos[z]) ? '' : `<p class="meta" style="text-align:center;margin:0 0 8px">Toca cada zona de la pista per posar-hi un jugador.</p>`}
-  ${pos.L ? (() => { const per = lliPer(pos), nom = j => esc((JUG.find(q => q.id === j)?.nom || '').split(' ')[0]), dins = ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean);
-    const resum = per[0] && per[1] ? `entra per ${nom(per[0])}, o per ${nom(per[1])} quan ${nom(per[0])} és a davant` : per[0] || per[1] ? `entra per ${nom(per[0] || per[1])}` : 'tria per qui entra';
-    return `<details class="lliper" ${PLEG['lli' + id] ? 'open' : ''} ontoggle="obertPart('lli', '${id}', this.open)"><summary><b>Lliure:</b> ${resum}</summary>
-      ${[0, 1].map(i => `<div class="lpfila"><label>${i ? 'Quan el primer és a davant, entra per' : 'Primer, entra per'}</label><select onchange="posaLliPer('${id}', ${i}, this.value)"><option value="">—</option>
-      ${dins.filter(j => per[1 - i] !== j.id).map(j => `<option value="${j.id}" ${per[i] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`).join('')}
-      <p class="meta" style="margin:4px 0 0">Si tots dos són a darrere alhora, el lliure entra pel primer.</p></details>`; })() : ''}
-  ${rolsHtml(id, pos)}
-  ${canvisHtml(p)}
   <div class="actions alacc"><button class="btn" onclick="rotate('${id}')">↻ Rota</button>
     <button class="btn" onclick="triaCopia('${id}')" ${[1, 2, 3, 4, 5].some(n => n !== setActiu && Object.values(sets[n] || {}).some(Boolean)) ? '' : 'disabled title="Cap altre set té alineació"'}>Copia un set</button>
     <a class="btn" href="#/pissarra/${id}">Pissarra</a></div>
-  <div class="irow">${info(`<ul><li>Toca una zona (o la L del lliure) i tria qui hi va.</li><li>Arrossega un jugador a una altra zona per intercanviar-los.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols en aquest set».</li></ul>`, `Alineació`)}</div>`}</details>
+  <div class="actions alacc" style="margin-top:6px">${(() => { const nr = Object.keys(pos.rols || {}).length, nc = (p.accions || []).filter(a => a.a === 'canvi' && a.s === setActiu).length;
+    return `<button class="btn" onclick="alFitxa('${id}','lli')">Lliure</button><button class="btn" onclick="alFitxa('${id}','rols')">Rols${nr ? ` (${nr})` : ''}</button><button class="btn" onclick="alFitxa('${id}','cv')">Canvis${nc ? ` (${nc})` : ''}</button>`; })()}</div>
+  <div class="irow">${info(`<ul><li>Toca una zona (o la L del lliure) i tria qui hi va.</li><li>Arrossega un jugador a una altra zona per intercanviar-los.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols».</li></ul>`, `Alineació`)}</div>`}</details>
   <div class="dirrow"><a class="btn primary" href="#/directe/${id}">Marcador en directe</a>
     <label class="rvtog" title="Al directe, poses la formació del rival a cada set i l'app et diu on ha d'estar cadascú."><input type="checkbox" ${p.rivalRot?.actiu ? 'checked' : ''} onchange="rivalActiu('${id}', this.checked)"> Rotacions del rival</label></div>
   <details class="card plega" ${(PLEG['est' + id] ?? true) ? 'open' : ''} ontoggle="obertPart('est', '${id}', this.open)"><summary><b>Estadístiques per jugador</b><span class="meta">${(() => { const m = estadJug(p.accions || []), n = Object.keys(m).length; return n ? n + ' jugadors amb accions apuntades' : 'Encara no hi ha accions apuntades'; })()}</span></summary>
@@ -4401,6 +4395,32 @@ window.copySet = (id, n) => {
 let convObert = null;
 // seccions plegables del partit: es recorda si són obertes (encara que la pantalla es torni a pintar)
 const PLEG = store.get('volei.pleg', {});
+// lliure, rols i canvis del set (14-11-2026): tres botons que obren cada un la seva pantalla (abans eren desplegables)
+window.alFitxa = (id, k) => {
+  const p = PAR.find(x => x.id === id); if (!p) return;
+  const pos = (p.sets || {})[setActiu] || {}, nom = j => esc((JUG.find(q => q.id === j)?.nom || '').split(' ')[0]), dins = ZK.map(z => JUG.find(j => j.id === pos[z])).filter(Boolean);
+  let h = '';
+  if (k === 'lli') {
+    const per = lliPer(pos);
+    h = `<div class="fhead"><b>Set ${setActiu}: lliure</b></div>${!pos.L ? '<p class="meta">Aquest set no té lliure. Posa\'l tocant la L de la pista.</p>' : !dins.length ? '<p class="meta">Primer posa l\'alineació del set.</p>'
+      : `<p style="margin:0 0 6px">${per[0] && per[1] ? `Entra per ${nom(per[0])}, o per ${nom(per[1])} quan ${nom(per[0])} és a davant.` : per[0] || per[1] ? `Entra per ${nom(per[0] || per[1])}.` : 'Tria per qui entra.'}</p>
+      ${[0, 1].map(i => `<div class="lpfila"><label>${i ? 'Quan el primer és a davant, entra per' : 'Primer, entra per'}</label><select onchange="posaLliPer('${id}', ${i}, this.value);alFitxa('${id}','lli')"><option value="">—</option>
+      ${dins.filter(j => per[1 - i] !== j.id).map(j => `<option value="${j.id}" ${per[i] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`).join('')}
+      <p class="meta" style="margin:8px 0 0">Si tots dos són a darrere alhora, el lliure entra pel primer.</p>`}`;
+  } else if (k === 'rols') {
+    const js = [...ZK.map(z => pos[z]), pos.L].filter(Boolean);
+    h = `<div class="fhead"><b>Set ${setActiu}: rols</b></div>${js.length ? `<div class="rolgrid">${js.map(jid => { const hab = posJ(jid), v = (pos.rols || {})[jid] || '';
+      return `<label>${nom(jid)}</label><select onchange="rolPosa('${id}','${jid}',this.value,0);alFitxa('${id}','rols')">${hab ? '' : `<option value="" ${v ? '' : 'selected'}>—</option>`}${Object.entries(POS).map(([q, x]) => `<option value="${q}" ${(v || hab) === q ? 'selected' : ''}>${x.t}</option>`).join('')}</select>`; }).join('')}</div>
+      <p class="meta" style="margin:8px 0 0">Surt el rol de cada jugador. Si el canvies, només val per a aquest set; el de l'equip no canvia.</p>` : '<p class="meta">Primer posa l\'alineació del set.</p>'}`;
+  } else {
+    const cv = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.a === 'canvi' && a.s === setActiu), nj = j => esc(JUG.find(q => q.id === j)?.nom || '');
+    h = `<div class="fhead"><b>Set ${setActiu}: canvis</b></div>${cv.map(a => `<div class="row" style="gap:6px;padding:4px 0"><span>🔁</span><span class="grow">Entra <b>${nj(a.j)}</b> per ${nj(a.surt)}</span><button class="mini" title="Esborra" onclick="dirEsborra('${id}', ${a.i});alFitxa('${id}','cv')">✕</button></div>`).join('') || '<p class="meta" style="margin:0">Encara no hi ha cap canvi en aquest set.</p>'}
+      <div class="actions" style="margin:8px 0 0"><button class="btn" style="flex:1" onclick="alCanviNou('${id}')">＋ Apunta un canvi</button></div>
+      <p class="meta" style="margin:8px 0 0">Per al % de sets jugats, els canvis apuntats aquí compten mig set per a qui surt i mig per a qui entra.</p>`;
+  }
+  obreFitxa(h);
+};
+window.alCanviNou = async id => { await dirCanvi(id); alFitxa(id, 'cv'); };
 window.alTab = (id, t) => { PLEG['tab' + id] = t; store.set('volei.pleg', PLEG); render(); };   // pestanyes Alineació / Recepció del partit
 window.obertPart = (k, id, o) => { if (PLEG[k + id] === o) return; PLEG[k + id] = o; store.set('volei.pleg', PLEG); };
 Object.defineProperty(window, 'convObert', { get: () => convObert, set: v => { convObert = v; } });
