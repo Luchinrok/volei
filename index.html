@@ -1054,6 +1054,7 @@ html.arbmode, html.arbmode body { overscroll-behavior-y: none; }
 .altabs { margin: 0 0 10px; } .altabs button { font-weight: 700; }
 .recopt { display: flex; gap: 8px; margin: 0 0 10px; } .recopt .btn { flex: 1; font-weight: 700; }
 .alacc { gap: 6px; } .alacc .btn { flex: 1; padding-left: 6px; padding-right: 6px; text-align: center; text-decoration: none; white-space: nowrap; }
+.rolgrid .rolsep { grid-column: 1 / -1; margin-top: 6px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -4336,7 +4337,8 @@ window.rodaDesa = (id, n, buida) => {
 const setPos = (id, pos) => { const p = PAR.find(x => x.id === id); p.sets = { ...(p.sets || {}), [setActiu]: pos }; fs.updateDoc(parRef(id), { ['sets.' + setActiu]: pos }); render(); };
 const ZK = ['1', '2', '3', '4', '5', '6'];
 function rolsHtml(id, pos, alDirecte) {
-  const js = [...ZK.map(z => pos[z]), pos.L].filter(Boolean); if (!js.length) return '';
+  const pista = [...ZK.map(z => pos[z]), pos.L].filter(Boolean), conv = PAR.find(x => x.id === id)?.convocats || [];
+  const js = [...pista, ...JUG.filter(j => conv.includes(j.id) && !pista.includes(j.id)).sort(perDorsal).map(j => j.id)]; if (!js.length) return '';   // també la banqueta (pot entrar a mig set)
   return `<details class="rols" ${Object.keys(pos.rols || {}).length ? 'open' : ''}><summary>Rols en aquest set${Object.keys(pos.rols || {}).length ? ` (${Object.keys(pos.rols).length} canviats)` : ''}</summary>
     <div class="rolgrid">${js.map(jid => { const j = JUG.find(q => q.id === jid), hab = posJ(jid), v = (pos.rols || {})[jid] || '';
       return `<label>${esc((j?.nom || '').split(' ')[0])}</label><select onchange="rolPosa('${id}','${jid}',this.value,${alDirecte ? 1 : 0})">${hab ? '' : `<option value="" ${v ? '' : 'selected'}>—</option>`}${Object.entries(POS).map(([k, x]) => `<option value="${k}" ${(v || hab) === k ? 'selected' : ''}>${x.t}</option>`).join('')}</select>`; }).join('')}</div>
@@ -4408,9 +4410,10 @@ window.alFitxa = (id, k) => {
       ${dins.filter(j => per[1 - i] !== j.id).map(j => `<option value="${j.id}" ${per[i] === j.id ? 'selected' : ''}>${esc(nomDors(j))}</option>`).join('')}</select></div>`).join('')}
       <p class="meta" style="margin:8px 0 0">Si tots dos són a darrere alhora, el lliure entra pel primer.</p>`}`;
   } else if (k === 'rols') {
-    const js = [...ZK.map(z => pos[z]), pos.L].filter(Boolean);
+    // tots els convocats (14-11-2026): els de la banqueta també, perquè poden entrar a mig set
+    const pista = [...ZK.map(z => pos[z]), pos.L].filter(Boolean), js = [...pista, ...JUG.filter(j => (p.convocats || []).includes(j.id) && !pista.includes(j.id)).sort(perDorsal).map(j => j.id)];
     h = `<div class="fhead"><b>Set ${setActiu}: rols</b></div>${js.length ? `<div class="rolgrid">${js.map(jid => { const hab = posJ(jid), v = (pos.rols || {})[jid] || '';
-      return `<label>${nom(jid)}</label><select onchange="rolPosa('${id}','${jid}',this.value,0);alFitxa('${id}','rols')">${hab ? '' : `<option value="" ${v ? '' : 'selected'}>—</option>`}${Object.entries(POS).map(([q, x]) => `<option value="${q}" ${(v || hab) === q ? 'selected' : ''}>${x.t}</option>`).join('')}</select>`; }).join('')}</div>
+      return `${jid === js[pista.length] ? '<small class="meta rolsep">Banqueta</small>' : ''}<label>${nom(jid)}</label><select onchange="rolPosa('${id}','${jid}',this.value,0);alFitxa('${id}','rols')">${hab ? '' : `<option value="" ${v ? '' : 'selected'}>—</option>`}${Object.entries(POS).map(([q, x]) => `<option value="${q}" ${(v || hab) === q ? 'selected' : ''}>${x.t}</option>`).join('')}</select>`; }).join('')}</div>
       <p class="meta" style="margin:8px 0 0">Surt el rol de cada jugador. Si el canvies, només val per a aquest set; el de l'equip no canvia.</p>` : '<p class="meta">Primer posa l\'alineació del set.</p>'}`;
   } else {
     const cv = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.a === 'canvi' && a.s === setActiu), nj = j => esc(JUG.find(q => q.id === j)?.nom || '');
