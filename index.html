@@ -3829,7 +3829,7 @@ const esCentral = (pos, jid) => !!jid && (pos.C1 || pos.C2 ? (pos.C1 === jid || 
 function court(pos, lineup, eq) {
   // pos: {1..6: jugador, L: lliure, C1/C2: centrals}. lineup = true: arrossegar un jugador a una altra zona els intercanvia
   return `<div class="court ${eq ? 'eq' + eq : ''}" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
-    ${Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y + 14}%">${z}</span>`).join('')}
+    ${Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y - (y < 50 ? 15 : 17)}%">${z}</span>`).join('')}
     ${Object.entries(ZONES).map(([z, [x, y]]) => { const j = JUG.find(q => q.id === pos[z]);
       return `<div class="tok ${j ? '' : 'buit'} ${esCentral(pos, pos[z]) ? 'cen' : ''}" data-z="${z}" style="left:${x}%;top:${y}%">${j ? fitxaNom(j.id, esCentral(pos, pos[z]), (pos.rols || {})[j.id]) : '<span class="tn"></span>'}</div>`; }).join('')}
     ${lineup ? `<div class="tok lib ${pos.L ? '' : 'buit'}" data-z="L" onclick="alinTria(location.hash.split('/')[2], 'L')" style="left:88%;top:93%">${pos.L ? 'L ' + esc(curt(JUG.find(q => q.id === pos.L)?.nom)) : 'L'}</div>` : ''}
