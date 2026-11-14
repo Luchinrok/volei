@@ -249,6 +249,7 @@ a.nomlink { color: inherit; text-decoration: none; }
 .cp.eqG { background: #f5c518; color: #14181f; border-color: #d9a90f; }
 .cp.guanyat { border: 3px solid #22b35e; padding: 1px 0; }
 .cp.perdut { border: 3px solid #ef4136; padding: 1px 0; }
+.cp.guanyat.ajustat { border-color: #8fdca9; } .cp.perdut.ajustat { border-color: #f59f00; }
 .cp i { font-style: normal; font-size: 11px; line-height: 1; }
 .cp .rv { width: 100%; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .cp .hr { font-size: 10px; opacity: .8; }
@@ -2747,6 +2748,8 @@ function viewJugador(id) {
 
 // ------------------------------------------------------------- partits
 // el resultat s'escriu com sempre: primer el local. A fora, el primer número és el del rival.
+// 3-2 o 2-3 (14-11-2026): al calendari, la victòria en verd clar i la derrota en taronja
+const ajustat = p => { const m = /^(\d+)-(\d+)$/.exec(p.resultat || ''); return !!m && Math.max(+m[1], +m[2]) === 3 && Math.min(+m[1], +m[2]) === 2; };
 const guany = p => { const m = /^(\d+)-(\d+)$/.exec(p.resultat || ''); if (!m) return ''; let [a, b] = [+m[1], +m[2]]; if (p.lloc === 'fora') [a, b] = [b, a]; return a > b ? 'guanyat' : a < b ? 'perdut' : ''; };
 let parFiltre = store.get('volei.parfiltre', '');
 let parVista = store.get('volei.parvista', 'llista'), calMes = null;   // calMes: 'AAAA-MM'
@@ -2777,7 +2780,7 @@ function mesHtml(ym, ps) {
   for (let i = 0; i < off; i++) cel.push('<div class="cd buit"></div>');
   for (let d = 1; d <= dies; d++) {
     const iso = `${ym}-${two(d)}`, dp = ps.filter(p => p.data === iso);
-    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''} ${iso === calDia ? 'sel' : ''}" onclick="calToca('${iso}')"><span class="dn">${d}</span>${dp.map(p => `<span class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'} ${guany(p)}" title="${EQN[p.equip] || ''}"><i>${p.lloc === 'fora' ? '🚌' : '🏠'}</i><span class="rv">${esc(p.rival || 'Partit')}</span>${p.hora ? `<span class="hr">${esc(p.hora)}</span>` : ''}</span>`).join('')}</div>`);
+    cel.push(`<div class="cd ${iso === avui() ? 'avui' : ''} ${iso === calDia ? 'sel' : ''}" onclick="calToca('${iso}')"><span class="dn">${d}</span>${dp.map(p => `<span class="cp ${p.equip === 'G' ? 'eqG' : 'eqN'} ${guany(p)} ${ajustat(p) ? 'ajustat' : ''}" title="${EQN[p.equip] || ''}"><i>${p.lloc === 'fora' ? '🚌' : '🏠'}</i><span class="rv">${esc(p.rival || 'Partit')}</span>${p.hora ? `<span class="hr">${esc(p.hora)}</span>` : ''}</span>`).join('')}</div>`);
   }
   while (cel.length < 42) cel.push('<div class="cd buit"></div>');   // sempre 6 setmanes: totes les cares del cub fan la mateixa alçada
   return `<div class="cal">${['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map(d => `<div class="ch">${d}</div>`).join('')}${cel.join('')}</div>`;
