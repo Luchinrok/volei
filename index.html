@@ -3920,7 +3920,7 @@ function recCourt(m, xy, edit, idp) {
   </div>${edit ? '' : `<div class="irow">${info(`<p>${llegPos()}</p>`, `Colors de les posicions`)}</div>`}${fl.length ? `<p class="red" style="text-align:center;margin:4px 0">⚠️ Falta de rotació: ${fl.map(x => x[2]).join('; ')}</p>` : ''}`;
 }
 // pantalla del partit: triar el sistema i retocar les posicions de cada rotació abans del partit
-let recRot = null;
+let recRot = null, REC_DESF = null;   // REC_DESF: posicions d'abans de «Per defecte» {id, k, r, xy}
 function recepcioHtml(p) {
   const id = p.id, sis = sistemaDe(p), s0 = (p.sets || {})[setActiu] || {}, lli = lliureDe(p, setActiu);
   // el set es tria també aquí (13-11-2026), per mirar la recepció de cada set sense anar a l'alineació
@@ -3937,7 +3937,7 @@ function recepcioHtml(p) {
     ${sense ? '<p class="meta">Per saber la rotació, posa el rol de col·locador (C) a qui col·loca, a l\u2019alineació.</p>' : `<div class="seg" style="margin:0 0 4px">${rots.map(r => `<button class="${vol === r ? 'on' : ''}" onclick="recRot=${r};render()">R${r}</button>`).join('')}</div>
     <p class="meta" style="text-align:center;margin:0">Rotació ${vol}: ${rotTxt(m, sis, vol)}</p>`}
     ${recCourt(m, xy, !sense, id)}
-    ${sense ? '' : `<div class="actions" style="margin-top:0"><button class="btn" onclick="recReset('${id}',${vol})">Torna a la posició per defecte</button></div>`}
+    ${sense ? '' : `<div class="actions" style="margin-top:0"><button class="btn" onclick="recReset('${id}',${vol})">Per defecte</button>${REC_DESF?.id === id && REC_DESF.k === recKey(sis, lli) && REC_DESF.r === vol ? `<button class="btn primary" onclick="recDesfes()">↶ Torna a com estava</button>` : ''}</div>`}
     <div class="irow">${info(`<ul><li>Arrossega els jugadors per fixar com recepcioneu en cada rotació.</li><li>Es guarda per a aquest partit, i l'equip la recorda per als següents.</li><li>Si una posició fa falta de rotació, surt <span class="red">en vermell</span>.</li></ul><p>Colors de cada posició:</p><p>${llegPos()}</p>`, `Recepció`)}</div>`;
 }
 const desaRec = (p, sis, lli, r, xy) => {
@@ -3948,8 +3948,13 @@ const desaRec = (p, sis, lli, r, xy) => {
 };
 window.recSis = (id, sis) => { const p = PAR.find(x => x.id === id); p.recepcio = { ...(p.recepcio || {}), sistema: sis }; fs.updateDoc(parRef(id), { 'recepcio.sistema': sis }); fs.setDoc(ref('estat', 'recepcio'), { _sistema: sis }, { merge: true }); recRot = null; render(); };
 window.recLli = (id, v) => { const p = PAR.find(x => x.id === id); p.recepcio = { ...(p.recepcio || {}), lliure: v }; fs.updateDoc(parRef(id), { 'recepcio.lliure': v }); render(); };
+// «Per defecte» es pot desfer (14-11-2026): es guarden les posicions d'abans i surt «↶ Torna a com estava»
+window.recDesfes = () => { const d = REC_DESF; REC_DESF = null; if (!d) return; const p = PAR.find(x => x.id === d.id); desaRec(p, sistemaDe(p), lliureDe(p, setActiu), d.r, d.xy); render(); };
 window.recReset = (id, r) => {
   const p = PAR.find(x => x.id === id), sis = sistemaDe(p), lli = lliureDe(p, setActiu), k = recKey(sis, lli);
+  { const s0 = (p.sets || {})[setActiu] || {}; let pos = {}; ZK.forEach(z => { if (s0[z]) pos[z] = s0[z]; });
+    let m = campRec(pos, s0.L, s0, lli); for (let i = 0; i < 6 && rotKey(m, sis) !== r; i++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
+    REC_DESF = { id, k, r, xy: recPos(p, m, sis, lli).xy }; }
   if (p.recepcio?.pos?.[k]) { delete p.recepcio.pos[k][r]; fs.updateDoc(parRef(id), { recepcio: p.recepcio }); }
   fs.setDoc(ref('estat', 'recepcio'), { [k]: { [r]: fs.deleteField() } }, { merge: true }); render();
 };
@@ -3968,7 +3973,7 @@ addEventListener('pointerup', () => {
   const vol = recRot && rotsDe(sis).includes(recRot) ? recRot : rotsDe(sis)[0];
   let m = campRec(pos, s0.L, s0, lli); for (let k = 0; k < 6 && rotKey(m, sis) !== vol; k++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
   const { xy } = recPos(p, m, sis, lli); xy[d.t.dataset.z] = [Math.round(d.x), Math.round(d.y)];
-  desaRec(p, sis, lli, vol, xy); render();
+  REC_DESF = null; desaRec(p, sis, lli, vol, xy); render();
 });
 Object.defineProperty(window, 'recRot', { get: () => recRot, set: v => { recRot = v; } });
 
