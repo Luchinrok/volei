@@ -3937,7 +3937,7 @@ function recepcioHtml(p) {
     ${sense ? '<p class="meta">Per saber la rotació, posa el rol de col·locador (C) a qui col·loca, a l\u2019alineació.</p>' : `<div class="seg" style="margin:0 0 4px">${rots.map(r => `<button class="${vol === r ? 'on' : ''}" onclick="recRot=${r};render()">R${r}</button>`).join('')}</div>
     <p class="meta" style="text-align:center;margin:0">Rotació ${vol}: ${rotTxt(m, sis, vol)}</p>`}
     ${recCourt(m, xy, !sense, id)}
-    ${sense ? '' : `<div class="actions" style="margin-top:0"><button class="btn" onclick="recReset('${id}',${vol})">Per defecte</button>${REC_DESF?.id === id && REC_DESF.k === recKey(sis, lli) && REC_DESF.r === vol ? `<button class="btn primary" onclick="recDesfes()">↶ Desfés</button>` : ''}</div>`}
+    ${sense ? '' : `<div class="actions" style="margin-top:0">${REC_DESF?.id === id && REC_DESF.k === recKey(sis, lli) && REC_DESF.r === vol ? `<button class="btn" onclick="recDesfes()">↶ Desfés</button>` : `<button class="btn" onclick="recReset('${id}',${vol})">Per defecte</button>`}</div>`}
     <div class="irow">${info(`<ul><li>Arrossega els jugadors per fixar com recepcioneu en cada rotació.</li><li>Es guarda per a aquest partit, i l'equip la recorda per als següents.</li><li>Si una posició fa falta de rotació, surt <span class="red">en vermell</span>.</li></ul><p>Colors de cada posició:</p><p>${llegPos()}</p>`, `Recepció`)}</div>`;
 }
 const desaRec = (p, sis, lli, r, xy) => {
