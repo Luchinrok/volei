@@ -2859,8 +2859,34 @@ function viewPartits() {
   <details class="card plega" ${(PLEG.convj ?? true) ? 'open' : ''} ontoggle="obertPart('convj', '', this.open)"><summary><b>Convocatòries per jugador${parFiltre ? ' (' + EQN[parFiltre] + ')' : ''}</b></summary>
   <div><div class="ptab phead ${dosEq() ? '' : 'one'}"><span></span><span>Total</span>${dosEq() ? '<span>Negre</span><span>Groc</span>' : ''}<span>% sets</span></div>
     ${comptes.map(c => `<div class="ptab ${dosEq() ? '' : 'one'}"><a class="nomlink" href="#/j/${c.j.id}">${esc(c.j.nom)}</a><b>${c.tot}</b>${dosEq() ? `<span>${c.N}</span><span>${c.G}</span>` : ''}<span>${c.pct ?? '–'}${c.pct != null ? '%' : ''}</span></div>`).join('')}</div>
-  <div class="irow">${info(`<p>Dels sets amb alineació dels partits on estava convocat, quants n'ha jugat.</p><ul><li>El <b>lliure</b> compta com que juga el set.</li><li>Els <b>centrals</b> per qui entra el lliure compten mig set.</li><li>Amb <b>canvis</b>, cadascú compta la part del set que ha jugat: els punts que era a la pista si s'han apuntat al directe, o mig set si no.</li></ul>`, `% de sets jugats`)}</div></details>`;
+  <div class="irow">${info(`<p>Dels sets amb alineació dels partits on estava convocat, quants n'ha jugat.</p><ul><li>El <b>lliure</b> compta com que juga el set.</li><li>Els <b>centrals</b> per qui entra el lliure compten mig set.</li><li>Amb <b>canvis</b>, cadascú compta la part del set que ha jugat: els punts que era a la pista si s'han apuntat al directe, o mig set si no.</li></ul>`, `% de sets jugats`)}</div></details>
+  ${CAL_SUBS && potEditar() && USR ? `<button class="btn" style="width:100%;margin-top:12px" onclick="calSubs()">📅 Posa els partits al teu calendari</button>` : ''}`;
 }
+// calendari de partits per subscripció (14-11-2026): ical/{token} = {clau, t, per, creat}; la funció «ical» el serveix a /cal/{token}.ics.
+// L'enllaç de cada temporada es guarda a estat/ical; «Canvia l'enllaç» en fa un de nou i el vell deixa de funcionar.
+const CAL_SUBS = false, CAL_HOST = 'volei-2627-dc.web.app';
+window.calSubs = async (nou = false) => {
+  try {
+    let tok = (await fs.getDoc(ref('estat', 'ical'))).data()?.token;
+    if (nou && tok) { await fs.deleteDoc(fs.doc(db, 'ical', tok)).catch(() => {}); tok = null; }
+    if (!tok) {
+      tok = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      await fs.setDoc(fs.doc(db, 'ical', tok), { clau: CLAU, t: TEMP, per: USR.uid, creat: Date.now() });
+      await fs.setDoc(ref('estat', 'ical'), { token: tok, per: USR.uid, t: Date.now() });
+    }
+    const url = `https://${CAL_HOST}/cal/${tok}.ics`, web = url.replace('https://', 'webcal://');
+    obreFitxa(`<b>Partits al teu calendari</b><div class="form">
+      <p style="margin:6px 0 12px">Afegeix-lo un sol cop. Després hi aniran sortint els partits nous i els canvis d'hora o de resultat.</p>
+      <a class="btn primary" style="display:block;text-align:center" href="https://calendar.google.com/calendar/r?cid=${encodeURIComponent(web)}" target="_blank" rel="noopener">Afegeix a Google Calendar</a>
+      <a class="btn" style="display:block;text-align:center;margin-top:8px" href="${web}">Obre al calendari del mòbil</a>
+      <button class="btn" style="width:100%;margin-top:8px" onclick="calCopia('${url}')">Copia l'enllaç</button>
+      <p class="meta" style="margin-top:12px">Google el revisa cada poques hores, així que un canvi pot trigar una estona a sortir. Només hi surten els partits, sense noms de jugadors. Qui tingui l'enllaç els veurà: passa'l només a qui vulguis.</p>
+      <button class="btn danger" style="width:100%;margin-top:4px" onclick="calSubs(true)">Canvia l'enllaç</button>
+      <p class="meta" style="margin:4px 0 0">L'enllaç d'ara deixarà de funcionar.</p></div>`);
+    if (nou) desat('✓ Enllaç nou');
+  } catch (e) { registraError(e, 'calSubs'); desat("No s'ha pogut fer l'enllaç"); }
+};
+window.calCopia = async url => { try { await navigator.clipboard.writeText(url); desat('✓ Copiat'); } catch { prompt("Copia l'enllaç:", url); } };
 // partit nou (14-11-2026): primer les dades; el partit només es crea en desar (cancel·lar no deixa un partit buit)
 let PNOU = null;
 window.newPartit = (data = avui()) => {
