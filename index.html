@@ -1052,6 +1052,13 @@ html.arbmode, html.arbmode body { overscroll-behavior-y: none; }
 .escroll .etab > :first-child { position: sticky; left: 0; z-index: 1; background: var(--card); padding-right: 4px; }
 .escroll .etdet { padding: 0 0 8px; position: sticky; left: 0; max-width: calc(100vw - 72px); white-space: normal; }
 .altabs { margin: 0 0 10px; } .altabs button { font-weight: 700; }
+.recopt { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; } .recopt .lbl { margin: 0; } .recopt select { width: auto; padding: 6px 10px; font-weight: 700; }
+.tog { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; font-weight: 650; cursor: pointer; }
+.tog input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.tog span { width: 42px; height: 24px; border-radius: 999px; background: var(--line); position: relative; transition: background .15s; flex: none; }
+.tog span::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .15s; }
+.tog input:checked + span { background: var(--brand); } .tog input:checked + span::after { transform: translateX(18px); }
+.tog input:focus-visible + span { outline: 2px solid var(--brand); outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -3928,8 +3935,8 @@ function recepcioHtml(p) {
   let m = campRec(pos, s0.L, s0, lli);
   for (let k = 0; k < 6 && rotKey(m, sis) !== vol; k++) { pos = rota(pos); m = campRec(pos, s0.L, s0, lli); }
   const sense = !rotRef(m, sis), { xy } = recPos(p, m, sis, lli);
-  return `${sets}<div class="seg" style="margin:0 0 8px">${SISTEMES.map(x => `<button class="${sis === x ? 'on' : ''}" onclick="recSis('${id}','${x}')">${x}</button>`).join('')}</div>
-    <div class="seg" style="margin:0 0 8px">${[[true, 'Amb lliure'], [false, 'Sense lliure']].map(([v, l]) => `<button class="${lli === v ? 'on' : ''}" onclick="recLli('${id}',${v})">${l}</button>`).join('')}</div>
+  return `${sets}<div class="recopt"><label class="lbl">Sistema</label><select onchange="recSis('${id}', this.value)" aria-label="Sistema">${SISTEMES.map(x => `<option value="${x}" ${sis === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
+      <label class="tog"><input type="checkbox" role="switch" ${lli ? 'checked' : ''} onchange="recLli('${id}', this.checked)"><span></span>Amb lliure</label></div>
     ${sense ? '<p class="meta">Per saber la rotació, posa el rol de col·locador (C) a qui col·loca, a l\u2019alineació.</p>' : `<div class="seg" style="margin:0 0 4px">${rots.map(r => `<button class="${vol === r ? 'on' : ''}" onclick="recRot=${r};render()">R${r}</button>`).join('')}</div>
     <p class="meta" style="text-align:center;margin:0">Rotació ${vol}: ${rotTxt(m, sis, vol)}</p>`}
     ${recCourt(m, xy, !sense, id)}
