@@ -3828,7 +3828,7 @@ window.posaLliPer = (id, i, v) => {
   setPos(id, pos);
 };
 const esCentral = (pos, jid) => !!jid && (pos.C1 || pos.C2 ? (pos.C1 === jid || pos.C2 === jid) : ZK.some(z => pos[z] === jid) && rolSet(pos, jid) === 'cen');   // per qui entra el lliure
-const zonesLab = () => Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y < 50 ? 4 : y - 17}%">${z}</span>`).join('');   // número de cada zona, a sobre del jugador
+const zonesLab = () => Object.entries(ZONES).map(([z, [x, y]]) => `<span class="zl" style="left:${x}%;top:${y < 50 ? 4 : y - 21}%">${z}</span>`).join('');   // número de cada zona, a sobre del jugador
 function court(pos, lineup, eq) {
   // pos: {1..6: jugador, L: lliure, C1/C2: centrals}. lineup = true: arrossegar un jugador a una altra zona els intercanvia
   return `<div class="court ${eq ? 'eq' + eq : ''}" id="court" data-mode="${lineup ? 'lineup' : 'free'}"><div class="net"></div>
