@@ -2861,10 +2861,11 @@ function viewPartits() {
     ${comptes.map(c => `<div class="ptab ${dosEq() ? '' : 'one'}"><a class="nomlink" href="#/j/${c.j.id}">${esc(c.j.nom)}</a><b>${c.tot}</b>${dosEq() ? `<span>${c.N}</span><span>${c.G}</span>` : ''}<span>${c.pct ?? '–'}${c.pct != null ? '%' : ''}</span></div>`).join('')}</div>
   <div class="irow">${info(`<p>Dels sets amb alineació dels partits on estava convocat, quants n'ha jugat.</p><ul><li>El <b>lliure</b> compta com que juga el set.</li><li>Els <b>centrals</b> per qui entra el lliure compten mig set.</li><li>Amb <b>canvis</b>, cadascú compta la part del set que ha jugat: els punts que era a la pista si s'han apuntat al directe, o mig set si no.</li></ul>`, `% de sets jugats`)}</div></details>`;
 }
-window.newPartit = async (data = avui()) => {
-  const d = await fs.addDoc(col('partits'), { data, hora: '20:00', equip: parFiltre || 'N', rival: '', lloc: 'casa', convocats: [], sets: {}, resultat: '' });
-  location.hash = '#/p/' + d.id;
-  setTimeout(() => PAR.find(x => x.id === d.id) && editaPartit(d.id), 400);
+// partit nou (14-11-2026): primer les dades; el partit només es crea en desar (cancel·lar no deixa un partit buit)
+let PNOU = null;
+window.newPartit = (data = avui()) => {
+  PNOU = { id: '_nou', data, hora: '20:00', equip: parFiltre || 'N', rival: '', lloc: 'casa', convocats: [], sets: {}, resultat: '' };
+  editaPartit('_nou');
 };
 const parRef = id => ref('partits', id);
 window.parSet = (id, k, v) => fs.updateDoc(parRef(id), { [k]: v });
@@ -4304,7 +4305,7 @@ function viewConfigFam() {
 
 // dades del partit (data, hora, equip, lloc i rival) en una finestra
 window.editaPartit = id => {
-  const p = PAR.find(x => x.id === id), tria = (k, v) => `onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))" data-${k}="${v}"`;
+  const p = id === '_nou' ? PNOU : PAR.find(x => x.id === id), tria = (k, v) => `onclick="this.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === this))" data-${k}="${v}"`;
   obreFitxa(`<b>Dades del partit</b><div class="form">
     <label class="lbl">Rival</label><input type="text" id="epr" value="${esc(p.rival || '')}" placeholder="Nom del rival">
     <div class="grid2"><div><label class="lbl">Data</label><input type="date" id="epd" value="${p.data}"></div><div><label class="lbl">Hora</label><input type="text" id="eph" inputmode="numeric" placeholder="20:00" value="${esc(p.hora || '')}"></div></div>
@@ -4314,13 +4315,14 @@ window.editaPartit = id => {
     <details${p.fotos ? ' open' : ''}><summary class="meta" style="cursor:pointer;margin-top:10px">Fotos d'una carpeta de Drive que ja tens (opcional)</summary>
     <input type="url" id="epf" value="${esc(p.fotos || '')}" placeholder="https://drive.google.com/drive/folders/…">
     <div class="irow">${info(`<p>Normalment no cal: a «📷 Fotos» les tries de la galeria i l'app les penja sola.</p><p>Si ja tens una carpeta compartida com a «Qualsevol persona amb l'enllaç», enganxa-la aquí.</p>`, `Carpeta de fotos`)}</div></details>
-    <button class="btn danger" style="width:100%;margin-top:12px" onclick="tancaFitxa();parDel('${id}')">Esborra el partit</button></div>`,
+    ${id === '_nou' ? '' : `<button class="btn danger" style="width:100%;margin-top:12px" onclick="tancaFitxa();parDel('${id}')">Esborra el partit</button>`}</div>`,
     `<button class="btn" onclick="tancaFitxa()">Cancel·la</button><button class="btn primary" style="flex:1" onclick="desaPartit('${id}')">Desa</button>`);
   if (!p.rival) setTimeout(() => $('#epr')?.focus(), 50);
 };
-window.desaPartit = id => {
-  const p = PAR.find(x => x.id === id), d = { rival: $('#epr').value.trim(), data: $('#epd').value || p.data, hora: $('#eph').value.trim(), lloc: $('#epl .on')?.dataset.v || 'casa', adreca: $('#epa').value.trim(), fotos: $('#epf').value.trim() };
+window.desaPartit = async id => {
+  const p = id === '_nou' ? PNOU : PAR.find(x => x.id === id), d = { rival: $('#epr').value.trim(), data: $('#epd').value || p.data, hora: $('#eph').value.trim(), lloc: $('#epl .on')?.dataset.v || 'casa', adreca: $('#epa').value.trim(), fotos: $('#epf').value.trim() };
   if ($('#epe')) d.equip = $('#epe .on')?.dataset.v || p.equip;
+  if (id === '_nou') { const { id: _, ...nou } = { ...p, ...d }; PNOU = null; tancaFitxa(); const r = await fs.addDoc(col('partits'), nou); location.hash = '#/p/' + r.id; return; }
   Object.assign(p, d); fs.updateDoc(parRef(id), d); tancaFitxa(); render();
 };
 window.triaCopia = id => {
