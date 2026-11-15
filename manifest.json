@@ -1,4 +1,5 @@
 {
+ "id": "/",
  "name": "3Tocs",
  "short_name": "3Tocs",
  "lang": "ca",
@@ -33,5 +34,9 @@
    "purpose": "any"
   }
  ],
- "description": "Entrena, juga i creix en equip. Sessions, llista, partits i estadístiques per a equips de vòlei."
+ "description": "Entrena, juga i creix en equip. Sessions, llista, partits i estadístiques per a equips de vòlei.",
+ "categories": [
+  "sports",
+  "productivity"
+ ]
 }
