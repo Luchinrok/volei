@@ -679,6 +679,11 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .saqrow > small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 4px; }
 .accs.quatre { grid-template-columns: repeat(4, 1fr); gap: 5px; }
 .accs.quatre .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
+.accs.cinc { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.accs.sis { grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.accs.cinc .acc, .accs.sis .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
+.accs.cinc .acc { font-size: 11px; padding: 3px; }
+.accs.tres.dos { grid-template-columns: 1fr 1fr; }
 .pmini { position: relative; display: block; width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: var(--line); }
 .pmini img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pmini b { position: absolute; right: 3px; bottom: 3px; min-width: 20px; padding: 1px 5px; border-radius: 10px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; text-align: center; }
@@ -2854,7 +2859,7 @@ function viewPartits() {
   ${(() => { const ps2 = PAR.filter(p => !parFiltre || p.equip === parFiltre), acc = ps2.flatMap(p => (p.accions || []).filter(a => a.s)), n = k => acc.filter(a => a.a === k).length;
     const rec = ['rp', 'rb'].reduce((t, k) => t + n(k), 0), recT = rec + n('rd') + n('er');
     return `<details class="card plega" ${(PLEG.esttemp ?? false) ? 'open' : ''} ontoggle="obertPart('esttemp', '', this.open)"><summary><b>Estadístiques de la temporada${parFiltre ? ' (' + EQN[parFiltre] + ')' : ''}</b><span class="meta">${ps2.filter(p => (p.accions || []).length).length} partits amb estadístiques</span></summary>
-      ${acc.length ? `<p class="meta" style="margin:0 0 8px">Equip: ${n('ace')} aces, ${n('rem')} remats punt, ${n('blq')} bloquejos punt, ${n('es')} errors de saque, ${n('erv')} errors del rival${recT ? `, recepció bona o perfecta ${Math.round(100 * rec / recT)}%` : ''}.</p>` : ''}
+      ${acc.length ? `<p class="meta" style="margin:0 0 8px">Equip: ${n('ace')} aces, ${n('rem')} remats punt, ${n('blq')} bloquejos punt, ${n('es')} errors de saque, ${n('erv') + n('esv')} errors del rival${recT ? `, recepció bona o perfecta ${Math.round(100 * rec / recT)}%` : ''}.</p>` : ''}
       ${taulaEstad({ id: '_temporada', accions: acc })}</details>`; })()}
   <details class="card plega" ${(PLEG.convj ?? true) ? 'open' : ''} ontoggle="obertPart('convj', '', this.open)"><summary><b>Convocatòries per jugador${parFiltre ? ' (' + EQN[parFiltre] + ')' : ''}</b></summary>
   <div><div class="ptab phead ${dosEq() ? '' : 'one'}"><span></span><span>Total</span>${dosEq() ? '<span>Negre</span><span>Groc</span>' : ''}<span>% sets</span></div>
@@ -2890,6 +2895,8 @@ const ACC = {
   rp: { t: 'Recepció perfecta', i: '⭐', bo: 1, np: 1 }, rb: { t: 'Bona recepció', i: '👍', bo: 1, np: 1 }, rd: { t: 'Recepció dolenta', i: '👎', bo: 0, np: 1 },
   bd: { t: 'Bona defensa', i: '🧤', bo: 1, np: 1 }, bc: { t: 'Bona col·locació', i: '🙌', bo: 1, np: 1 },
   frot: { t: 'Falta de rotació', i: '🔄', bo: 0, sol: 1 },
+  // 15-11-2026: el rival falla el saque (a la fila de recepció); compta com a error del rival
+  esv: { t: 'Saque fallat del rival', i: '🫢', bo: 1, sol: 1 },
   // punts passats des de l'acta de l'àrbitre (08-11-2026): se sap qui guanya el punt, però no qui ni com
   pn: { t: 'Punt nostre', i: '➕', bo: 1, sol: 1 }, pe: { t: 'Punt d\'ells', i: '➖', bo: 0, sol: 1 },
   // canvi de jugador dins del set: {a: 'canvi', j: qui entra, surt: qui surt}
@@ -3645,9 +3652,9 @@ function viewDirecte(id) {
     <div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
     <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival') + ((r => r?.[1] ? ' - el ' + esc(r[1]) : '')(rivalPos(p, setActiu, rr)))}${saca === 'ells' && rivalPos(p, setActiu, rr) ? ` <button class="mini rvcv" onclick="dirCanviRival('${p.id}')" title="Canvi del rival" aria-label="Canvi del rival">🔁</button>` : ''}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
-  ${saca === 'nos' && pos[1] && !enJoc ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs quatre">${['ace', 'bs', 'ms', 'es'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
+  ${saca === 'nos' && pos[1] && !enJoc ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs cinc">${['ace', 'bs', 'ms', 'es', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${ACC[k].sol ? '' : pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${enJoc ? '' : rivalHtml(p, setActiu, rr, saca)}
-  ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs quatre">${['rp', 'rb', 'rd', 'er'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirRep('${id}','${k}')">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error' }[k]}<small>${ACC[k].np ? 'sense punt' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
+  ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs sis">${['rp', 'rb', 'rd', 'er', 'esv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="${ACC[k].sol ? `dirAcc('${id}','','${k}')` : `dirRep('${id}','${k}')`}">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error', esv: 'Fallen el saque', frot: 'Falta de rotació' }[k]}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? (() => { const sis = sistemaDe(p), lli = lliureDe(p, setActiu), m = campRec(pos, L, s0, lli), { r, xy } = recPos(p, m, sis, lli);
     return `<details class="card recdir" open><summary><b>Recepció${r ? ' - R' + r : ''}</b><span class="meta">${sis}${r ? ' - ' + rotTxt(m, sis, r) : ''}</span></summary>${recCourt(m, xy, false)}</details>`; })() : ''}
   ${(() => { const graella = `<div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
@@ -3657,7 +3664,7 @@ function viewDirecte(id) {
       return `<div class="enjoc"><span class="grow"><b>🏐 Pilota en joc</b><small><span>${ACC[sq.a].t}</span> - ${esc(nomCurt(nomJ(sq.j)))}</small></span><button class="btn" onclick="dirDesfes('${id}', ${sq.i})">↶ Desfés</button></div>`; })() : ''}${graella}`; })()}
   ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu}.</p>` : ''}
   ${conv.some(j => !dins.has(j.id)) ? `<details class="banq"><summary>Banqueta (${conv.filter(j => !dins.has(j.id)).length})</summary><div class="djgrid">${conv.filter(j => !dins.has(j.id)).map(j => tile(j.id, 'Banqueta')).join('')}</div></details>` : ''}
-  <div class="accs tres">${['erv', 'prv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div>
+  <div class="accs tres ${(saca === 'nos' && pos[1] || saca === 'ells' && ZK.some(z => pos[z])) && !enJoc ? 'dos' : ''}">${['erv', 'prv', ...((saca === 'nos' && pos[1] || saca === 'ells' && ZK.some(z => pos[z])) && !enJoc ? [] : ['frot'])].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div>
   <details class="card plog" ${window.PLOG_OBERT ? 'open' : ''} ontoggle="PLOG_OBERT=this.open"><summary>Punts del set ${setActiu} (${acc.length})</summary>
     ${DIR_ESB?.id === id ? `<div class="hist esbdesf"><span class="grow">Esborrat: ${ACC[DIR_ESB.a.a]?.i || '🔁'} ${esc(ACC[DIR_ESB.a.a]?.t || '')}${DIR_ESB.a.j ? ' - ' + esc(nomJ(DIR_ESB.a.j)) : ''}</span><button class="btn" onclick="dirRecupera()">↶ Recupera</button></div>` : ''}
     ${acc.slice().reverse().map(a => `<div class="hist">${linia(a)}</div>`).join('') || '<p class="meta" style="margin:0">Encara cap punt apuntat en aquest set.</p>'}</details>
@@ -3784,7 +3791,7 @@ function taulaEstad(p) {
     ${ids.map(jid => { const e = m[jid], j = JUG.find(q => q.id === jid), b = e.bo - e.mal;
       return `<details class="etd"><summary class="etab ${amb ? 'ambsets' : ''}"><span title="${esc(j?.nom || '')}">${esc(nomCurt(j?.nom) || '?')}</span>${amb ? `<span class="meta">${nSets(sj[jid])}</span>` : ''}<span>${n(e, 'ace')}</span><span>${n(e, 'rem')}</span><span>${n(e, 'blq')}</span><span class="red">${e.mal || ' '}</span><span class="${e.saq && e.saqE < e.saq ? 'saqmal' : ''}">${e.saq ? e.saqE + '/' + e.saq : ' '}</span><span>${e.rec != null ? e.rec + '%' : ' '}</span><b class="${b > 0 ? 'gd-ok' : b < 0 ? 'gd-ko' : ''}">${b > 0 ? '+' : ''}${b}</b></summary>
         <div class="meta etdet">${Object.entries(e.n).map(([k, c]) => `${ACC[k].i} ${ACC[k].t}: <b>${c}</b>`).join(' ') || 'Cap acció apuntada.'}</div></details>`; }).join('')}</div>
-    <div class="meta irow2" style="margin-top:6px"><span class="grow">Errors del rival: ${accions.filter(a => a.a === 'erv').length}. Punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</span>${info(`<ul>${amb ? '<li><b>Sets</b>: sets jugats en aquest partit. Amb canvis, la part del set que ha estat a la pista.</li>' : ''}<li>🎯 Aces</li><li>💥 Remats punt</li><li>🧱 Bloquejos punt</li><li>✗ Errors</li><li><b>Saq.</b>: saques entrats / saques apuntats (els fallats són la diferència). Compten els que s'apunten al directe: ace, bon saque, saque fluix i error de saque.</li><li><b>Recep.</b>: de cada 100 recepcions, quantes han estat bones o perfectes (també compten les dolentes i els errors de recepció).</li><li><b>+/-</b>: punts guanyats menys punts perduts.</li></ul>`, `Què vol dir cada columna`)}</div>${edita}</div>`;
+    <div class="meta irow2" style="margin-top:6px"><span class="grow">Errors del rival: ${accions.filter(a => a.a === 'erv' || a.a === 'esv').length}. Punts directes del rival: ${accions.filter(a => a.a === 'prv').length}.</span>${info(`<ul>${amb ? '<li><b>Sets</b>: sets jugats en aquest partit. Amb canvis, la part del set que ha estat a la pista.</li>' : ''}<li>🎯 Aces</li><li>💥 Remats punt</li><li>🧱 Bloquejos punt</li><li>✗ Errors</li><li><b>Saq.</b>: saques entrats / saques apuntats (els fallats són la diferència). Compten els que s'apunten al directe: ace, bon saque, saque fluix i error de saque.</li><li><b>Recep.</b>: de cada 100 recepcions, quantes han estat bones o perfectes (també compten les dolentes i els errors de recepció).</li><li><b>+/-</b>: punts guanyats menys punts perduts.</li></ul>`, `Què vol dir cada columna`)}</div>${edita}</div>`;
 }
 window.estMou = (id, jid, k, d) => {
   const p = PAR.find(x => x.id === id), accions = [...(p.accions || [])];
