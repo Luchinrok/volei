@@ -3661,7 +3661,7 @@ Object.defineProperty(window, 'ARBNOU', { get: () => ARBNOU, set: v => { ARBNOU 
 function viewDirecte(id) {
   const p = PAR.find(x => x.id === id); if (!p) return '<p class="empty">Carregant…</p>';
   // 16-11-2026: «Només marcador»: només punt nostre / punt d'ells, i la rotació i la recepció com a l'àrbitre
-  const simple = store.get('volei.dirsimple', false);
+  const simple = dirSimple(p);
   const v = (p.punts || {})[setActiu] || ['', ''], nos = +(v[nostreIdx(p, true)] || 0), ells = +(v[nostreIdx(p, false)] || 0);
   const { pos, L, saca, rr } = estatSet(p, setActiu), conv = JUG.filter(j => (p.convocats || []).includes(j.id)), s0 = (p.sets || {})[setActiu] || {}, rolJ = jid => rolSet(s0, jid);
   const dins = new Set([...ZK.map(z => pos[z]), L].filter(Boolean)), nomJ = jid => JUG.find(q => q.id === jid)?.nom || '';
@@ -3680,7 +3680,7 @@ function viewDirecte(id) {
     <div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
     <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival') + ((r => r?.[1] ? ' - el ' + esc(r[1]) : '')(rivalPos(p, setActiu, rr)))}${saca === 'ells' && rivalPos(p, setActiu, rr) ? ` <button class="mini rvcv" onclick="dirCanviRival('${p.id}')" title="Canvi del rival" aria-label="Canvi del rival">🔁</button>` : ''}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
-  <div class="seg dirmode">${[[0, 'Estadístiques'], [1, 'Només marcador']].map(([v, t]) => `<button class="${!!simple === !!v ? 'on' : ''}" onclick="dirMode(${v})">${t}</button>`).join('')}</div>
+  <div class="seg dirmode">${[[0, 'Estadístiques'], [1, 'Només marcador']].map(([v, t]) => `<button class="${!!simple === !!v ? 'on' : ''}" onclick="dirMode('${id}', ${v})">${t}</button>`).join('')}</div>
   ${simple ? `<div class="accs dirsim">${[['pn', esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')], ['pe', esc(p.rival || 'Rival')]].map(([k, nom]) => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')"><b>+1</b><small>${nom}</small></button>`).join('')}</div>` : ''}
   ${!simple && saca === 'nos' && pos[1] && !enJoc ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs cinc">${['ace', 'bs', 'ms', 'es', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${ACC[k].sol ? '' : pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${enJoc ? '' : rivalHtml(p, setActiu, rr, saca)}
@@ -3717,7 +3717,10 @@ window.dirRep = (id, k) => {
     <div class="court rcourt rtria"><div class="net"></div><div class="l3"></div>${ZK.filter(z => m[z] && xy[z]).map(z => tok(m[z].jid, m[z].rol, 'Z' + z, `style="left:${xy[z][0]}%;top:${xy[z][1]}%"`)).join('')}</div>
     ${fora ? `<div class="djgrid one">${tok(fora, 'lli', 'Lliure', 'style="position:static;transform:none;margin:0 auto"')}</div>` : ''}</div>`);
 };
-window.dirMode = v => { store.set('volei.dirsimple', !!v); render(); };
+// 16-11-2026: cada equip (grup + Negre/Groc) recorda l'últim mode que s'hi ha fet servir en aquest mòbil
+const dirModeKey = p => `${grupDe(TEMP)}|${p.equip || ''}`;
+const dirSimple = p => { const m = store.get('volei.dirmode', {}), k = dirModeKey(p); return k in m ? !!m[k] : store.get('volei.dirsimple', false); };
+window.dirMode = (id, v) => { const p = PAR.find(x => x.id === id); if (!p) return; const m = store.get('volei.dirmode', {}); m[dirModeKey(p)] = !!v; store.set('volei.dirmode', m); render(); };
 window.dirAcc = (id, jid, k) => {
   DIR_ESB = null;   // un punt nou: ja no es recupera l'esborrat (l'ordre canviaria)
   const a = ACC[k], p = PAR.find(x => x.id === id);
