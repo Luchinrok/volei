@@ -684,6 +684,11 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .accs.cinc .acc, .accs.sis .acc { text-align: center; font-size: 12px; min-height: 42px; padding: 4px; }
 .accs.cinc .acc { font-size: 11px; padding: 3px; }
 .accs.tres.dos { grid-template-columns: 1fr 1fr; }
+.dirmode { margin: 0 0 8px; } .dirmode button { min-height: 34px; font-size: 14px; }
+.accs.dirsim { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.accs.dirsim .acc { min-height: 84px; text-align: center; display: grid; place-content: center; gap: 2px; }
+.accs.dirsim .acc b { font: 800 34px/1 var(--head); }
+.accs.dirsim .acc small { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; }
 .pmini { position: relative; display: block; width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: var(--line); }
 .pmini img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pmini b { position: absolute; right: 3px; bottom: 3px; min-width: 20px; padding: 1px 5px; border-radius: 10px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; text-align: center; }
@@ -3652,11 +3657,13 @@ Object.defineProperty(window, 'ARBNOU', { get: () => ARBNOU, set: v => { ARBNOU 
 
 function viewDirecte(id) {
   const p = PAR.find(x => x.id === id); if (!p) return '<p class="empty">Carregant…</p>';
+  // 16-11-2026: «Només marcador»: només punt nostre / punt d'ells, i la rotació i la recepció com a l'àrbitre
+  const simple = store.get('volei.dirsimple', false);
   const v = (p.punts || {})[setActiu] || ['', ''], nos = +(v[nostreIdx(p, true)] || 0), ells = +(v[nostreIdx(p, false)] || 0);
   const { pos, L, saca, rr } = estatSet(p, setActiu), conv = JUG.filter(j => (p.convocats || []).includes(j.id)), s0 = (p.sets || {})[setActiu] || {}, rolJ = jid => rolSet(s0, jid);
   const dins = new Set([...ZK.map(z => pos[z]), L].filter(Boolean)), nomJ = jid => JUG.find(q => q.id === jid)?.nom || '';
   const tile = (jid, lab, z) => { const j = JUG.find(q => q.id === jid), sq = z === '1' && saca === 'nos';
-    return j ? `<button class="dj ${rolJ(jid) ? 'ps-' + rolJ(jid) : ''} ${sq ? 'saca' : ''}" onclick="dirFitxa('${id}','${jid}')"><small>${lab}${rolJ(jid) ? ' ' + POS[rolJ(jid)].l : ''}</small><span class="djn">${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b>` : ''}${esc((j.nom || '').split(' ')[0])}</span>${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
+    return j ? `<button class="dj ${rolJ(jid) ? 'ps-' + rolJ(jid) : ''} ${sq ? 'saca' : ''}" ${simple ? 'tabindex="-1"' : `onclick="dirFitxa('${id}','${jid}')"`}><small>${lab}${rolJ(jid) ? ' ' + POS[rolJ(jid)].l : ''}</small><span class="djn">${dors(jid) ? `<b class="dnum">${esc(dors(jid))}</b>` : ''}${esc((j.nom || '').split(' ')[0])}</span>${sq ? '<i class="sq">🏐 saca</i>' : ''}</button>` : `<span class="dj buit"><small>${lab}</small>—</span>`; };
   const acc = (p.accions || []).map((a, i) => ({ ...a, i })).filter(a => a.s === setActiu);
   // saquem nosaltres i el saque ja és apuntat sense punt (bo o fluix): la pilota és en joc i toca apuntar la jugada
   const darrerPunt = acc.map(a => ACC[a.a] && !ACC[a.a].np).lastIndexOf(true), enJoc = acc.slice(darrerPunt + 1).some(a => (saca === 'nos' ? ['bs', 'ms'] : ['rp', 'rb', 'rd']).includes(a.a));
@@ -3670,19 +3677,21 @@ function viewDirecte(id) {
     <div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
     <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival') + ((r => r?.[1] ? ' - el ' + esc(r[1]) : '')(rivalPos(p, setActiu, rr)))}${saca === 'ells' && rivalPos(p, setActiu, rr) ? ` <button class="mini rvcv" onclick="dirCanviRival('${p.id}')" title="Canvi del rival" aria-label="Canvi del rival">🔁</button>` : ''}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
-  ${saca === 'nos' && pos[1] && !enJoc ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs cinc">${['ace', 'bs', 'ms', 'es', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${ACC[k].sol ? '' : pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
+  <div class="seg dirmode">${[[0, 'Estadístiques'], [1, 'Només marcador']].map(([v, t]) => `<button class="${!!simple === !!v ? 'on' : ''}" onclick="dirMode(${v})">${t}</button>`).join('')}</div>
+  ${simple ? `<div class="accs dirsim">${[['pn', esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')], ['pe', esc(p.rival || 'Rival')]].map(([k, nom]) => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')"><b>+1</b><small>${nom}</small></button>`).join('')}</div>` : ''}
+  ${!simple && saca === 'nos' && pos[1] && !enJoc ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs cinc">${['ace', 'bs', 'ms', 'es', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${ACC[k].sol ? '' : pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${enJoc ? '' : rivalHtml(p, setActiu, rr, saca)}
-  ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs sis">${['rp', 'rb', 'rd', 'er', 'esv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="${ACC[k].sol ? `dirAcc('${id}','','${k}')` : `dirRep('${id}','${k}')`}">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error', esv: 'Fallen el saque', frot: 'Falta de rotació' }[k]}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
+  ${!simple && saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs sis">${['rp', 'rb', 'rd', 'er', 'esv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="${ACC[k].sol ? `dirAcc('${id}','','${k}')` : `dirRep('${id}','${k}')`}">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error', esv: 'Fallen el saque', frot: 'Falta de rotació' }[k]}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? (() => { const sis = sistemaDe(p), lli = lliureDe(p, setActiu), m = campRec(pos, L, s0, lli), { r, xy } = recPos(p, m, sis, lli);
     return `<details class="card recdir" open><summary><b>Recepció${r ? ' - R' + r : ''}</b><span class="meta">${sis}${r ? ' - ' + rotTxt(m, sis, r) : ''}</span></summary>${recCourt(m, xy, false)}</details>`; })() : ''}
   ${(() => { const graella = `<div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
   <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>`;
-    return saca === 'nos' && pos[1] && !enJoc ? `<div class="actions" style="margin:6px 0"><button class="btn" style="flex:1" onclick="dirCanvi('${id}')">Canvi</button></div>`
+    return !simple && saca === 'nos' && pos[1] && !enJoc ? `<div class="actions" style="margin:6px 0"><button class="btn" style="flex:1" onclick="dirCanvi('${id}')">Canvi</button></div>`
       : `${enJoc ? (() => { const sq = acc.slice(darrerPunt + 1).filter(a => ['bs', 'ms', 'rp', 'rb', 'rd'].includes(a.a)).pop();
       return `<div class="enjoc"><span class="grow"><b>🏐 Pilota en joc</b><small><span>${ACC[sq.a].t}</span> - ${esc(nomCurt(nomJ(sq.j)))}</small></span><button class="btn" onclick="dirDesfes('${id}', ${sq.i})">↶ Desfés</button></div>`; })() : ''}${graella}`; })()}
   ${!ZK.some(z => pos[z]) ? `<p class="meta" style="text-align:center">Toca «👥 Alineació» per posar qui comença el set ${setActiu}.</p>` : ''}
   ${conv.some(j => !dins.has(j.id)) ? `<details class="banq"><summary>Banqueta (${conv.filter(j => !dins.has(j.id)).length})</summary><div class="djgrid">${conv.filter(j => !dins.has(j.id)).map(j => tile(j.id, 'Banqueta')).join('')}</div></details>` : ''}
-  <div class="accs tres ${(saca === 'nos' && pos[1] || saca === 'ells' && ZK.some(z => pos[z])) && !enJoc ? 'dos' : ''}">${['erv', 'prv', ...((saca === 'nos' && pos[1] || saca === 'ells' && ZK.some(z => pos[z])) && !enJoc ? [] : ['frot'])].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div>
+  ${simple ? '' : `<div class="accs tres ${(saca === 'nos' && pos[1] || saca === 'ells' && ZK.some(z => pos[z])) && !enJoc ? 'dos' : ''}">${['erv', 'prv', ...((saca === 'nos' && pos[1] || saca === 'ells' && ZK.some(z => pos[z])) && !enJoc ? [] : ['frot'])].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div>`}
   <details class="card plog" ${window.PLOG_OBERT ? 'open' : ''} ontoggle="PLOG_OBERT=this.open"><summary>Punts del set ${setActiu} (${acc.length})</summary>
     ${DIR_ESB?.id === id ? `<div class="hist esbdesf"><span class="grow">Esborrat: ${ACC[DIR_ESB.a.a]?.i || '🔁'} ${esc(ACC[DIR_ESB.a.a]?.t || '')}${DIR_ESB.a.j ? ' - ' + esc(nomJ(DIR_ESB.a.j)) : ''}</span><button class="btn" onclick="dirRecupera()">↶ Recupera</button></div>` : ''}
     ${acc.slice().reverse().map(a => `<div class="hist">${linia(a)}</div>`).join('') || '<p class="meta" style="margin:0">Encara cap punt apuntat en aquest set.</p>'}</details>
@@ -3705,6 +3714,7 @@ window.dirRep = (id, k) => {
     <div class="court rcourt rtria"><div class="net"></div><div class="l3"></div>${ZK.filter(z => m[z] && xy[z]).map(z => tok(m[z].jid, m[z].rol, 'Z' + z, `style="left:${xy[z][0]}%;top:${xy[z][1]}%"`)).join('')}</div>
     ${fora ? `<div class="djgrid one">${tok(fora, 'lli', 'Lliure', 'style="position:static;transform:none;margin:0 auto"')}</div>` : ''}</div>`);
 };
+window.dirMode = v => { store.set('volei.dirsimple', !!v); render(); };
 window.dirAcc = (id, jid, k) => {
   DIR_ESB = null;   // un punt nou: ja no es recupera l'esborrat (l'ordre canviaria)
   const a = ACC[k], p = PAR.find(x => x.id === id);
