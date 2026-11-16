@@ -2888,6 +2888,9 @@ window.parSet = (id, k, v) => fs.updateDoc(parRef(id), { [k]: v });
 // treure tots els convocats d'un toc (amb «Recupera» per si ha estat sense voler)
 let convDesfes = null;
 window.convBuida = id => { const p = PAR.find(x => x.id === id); convDesfes = { id, llista: [...(p.convocats || [])] }; p.convocats = []; PLEG['conv' + id] = true; fs.updateDoc(parRef(id), { convocats: [] }); render(); };
+// 16-11-2026: afegir tots els jugadors actius de l'equip del partit (amb dos equips, només els d'aquell equip); no hi posa els que han dit que no
+const convCandidats = p => JUG.filter(j => j.actiu !== false && (!dosEq() || j.equip === p.equip || j.equip === 'NG') && respDe('p', p.id, j.id)?.estat !== 'no').map(j => j.id);
+window.convTots = id => { const p = PAR.find(x => x.id === id); p.convocats = [...new Set([...(p.convocats || []), ...convCandidats(p)])]; PLEG['conv' + id] = true; fs.updateDoc(parRef(id), { convocats: p.convocats }); render(); };
 window.convRecupera = () => { const p = PAR.find(x => x.id === convDesfes.id); p.convocats = convDesfes.llista; fs.updateDoc(parRef(p.id), { convocats: p.convocats }); convDesfes = null; render(); };
 window.parConv = (id, jid, on) => {
   const p = PAR.find(x => x.id === id), c = new Set(p.convocats || []);
@@ -4049,6 +4052,7 @@ function viewPartit(id) {
   </div>
   <details class="card plega" ${obert ? 'open' : ''} ontoggle="obertPart('conv', '${id}', this.open)"><summary><b>Convocats (${conv.size})</b>${(() => { const r = convs.map(j => respDe('p', id, j.id)?.estat); const si = r.filter(x => x === 'si').length, no = r.filter(x => x === 'no').length; return si + no ? `<span class="meta">✅ ${si} vénen - ❌ ${no} no - ${r.length - si - no} sense resposta</span>` : ''; })()}<span class="meta">${convs.map(j => (dors(j.id) ? dors(j.id) + ' ' : '') + esc((j.nom || '').split(' ')[0])).join(', ')}</span></summary>
     ${recompteHtml(convs)}
+    ${convCandidats(p).some(x => !conv.has(x)) ? `<div class="actions" style="margin:6px 0"><button class="btn primary" style="flex:1" onclick="convTots('${id}')">＋ Afegeix-los tots</button></div>` : ''}
     ${llista.map((j, i) => `${i && delEquip(llista[i - 1]) && !delEquip(j) ? '<div class="meta" style="padding-top:8px">Altres</div>' : ''}
     <label class="conv"><input type="checkbox" ${conv.has(j.id) ? 'checked' : ''} onchange="parConv('${id}','${j.id}',this.checked)"><span class="grow">${av(j)}${dors(j.id) ? `<b class="dnum">${esc(dors(j.id))}</b>` : ''}${esc(j.nom)}${(() => { const a = assPct[j.id]; return a?.pct != null ? ` <span class="cpct ${a.pct < 50 ? 'baix' : ''}" title="Assistència als entrenos (últim mes: ${a.pctM ?? '–'}%)">${a.pct}%</span>` : ''; })()}${posOk(j.posicio) ? `<i class="pb pb-${j.posicio} inl">${POS[j.posicio].l}</i>` : ''}${(() => { const r = respDe('p', id, j.id); return r ? ` <span title="Ho ha dit ${esc(r.nom || '')}">${r.estat === 'si' ? '✅' : '❌'}</span>` : ''; })()}</span>${j.equip && dosEq() ? `<span class="eq">${j.equip === 'NG' ? 'N+G' : j.equip}</span>` : ''}</label>`).join('')}
     <div class="actions">${conv.size ? `<button class="btn" onclick="copiaConvocats('${id}')" title="Copia la convocatòria per al WhatsApp">Exporta</button><button class="btn danger" onclick="convBuida('${id}')">✕ Treu-los tots</button>` : ''}${convDesfes?.id === id ? `<button class="btn" onclick="convRecupera()">↶ Recupera els ${convDesfes.llista.length}</button>` : ''}</div></details>
