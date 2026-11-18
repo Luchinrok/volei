@@ -3731,9 +3731,9 @@ function viewDirecte(id) {
   ${simple ? `<div class="accs dirsim">${[['pn', esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')], ['pe', esc(p.rival || 'Rival')]].map(([k, nom]) => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')"><b>+1</b><small>${nom}</small></button>`).join('')}</div>` : ''}
   ${!simple && saca === 'nos' && pos[1] && !enJoc ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs cinc">${['ace', 'bs', 'ms', 'es', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${ACC[k].sol ? '' : pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${enJoc ? '' : rivalHtml(p, setActiu, rr, saca)}
-  ${!simple && saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs sis">${['rp', 'rb', 'rd', 'er', 'esv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="${ACC[k].sol ? `dirAcc('${id}','','${k}')` : `dirRep('${id}','${k}')`}">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error', esv: 'Fallen el saque', frot: 'Falta de rotació' }[k]}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? (() => { const sis = sistemaDe(p), lli = lliureDe(p, setActiu), m = campRec(pos, L, s0, lli), { r, xy } = recPos(p, m, sis, lli);
     return `<details class="card recdir" open><summary><b>Recepció${r ? ' - R' + r : ''}</b><span class="meta">${sis}${r ? ' - ' + rotTxt(m, sis, r) : ''}</span></summary>${recCourt(m, xy, false)}</details>`; })() : ''}
+  ${!simple && saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? `<div class="saqrow"><small>Recepció (saquen ells)</small><div class="accs sis">${['rp', 'rb', 'rd', 'er', 'esv', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="${ACC[k].sol ? `dirAcc('${id}','','${k}')` : `dirRep('${id}','${k}')`}">${ACC[k].i} ${{ rp: 'Perfecta', rb: 'Bona', rd: 'Dolenta', er: 'Error', esv: 'Fallen el saque', frot: 'Falta de rotació' }[k]}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${(() => { const graella = `<div class="djgrid">${[4, 3, 2, 5, 6, 1].map(z => tile(pos[z], 'Z' + z, String(z))).join('')}</div>
   <div class="djgrid">${L ? tile(L, 'Lliure') : '<span class="dj buit"><small>Lliure</small>—</span>'}<button class="dj alt" onclick="dirAlin('${id}')"><small>Set ${setActiu}</small>👥 Alineació</button><button class="dj alt" onclick="dirCanvi('${id}')"><small>Jugadors</small>🔁 Canvi</button></div>`;
     return !simple && saca === 'nos' && pos[1] && !enJoc ? `<div class="actions" style="margin:6px 0"><button class="btn" style="flex:1" onclick="dirCanvi('${id}')">Canvi</button></div>`
@@ -3776,6 +3776,8 @@ window.dirAcc = (id, jid, k) => {
   fs.updateDoc(parRef(id), { accions: p.accions, punts: p.punts || {}, resultat: p.resultat || '' });
   try { navigator.vibrate?.(30); } catch {}
   tancaFitxa(); render();
+  // 18-11-2026: «Només marcador»: quan el punt és del rival, la pantalla es centra a la pissarra de recepció per veure si estan ben posats
+  if (k === 'pe' && dirSimple(p)) setTimeout(() => document.querySelector('.recdir:not(.rivrec)')?.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }), 60);
 };
 // alineació inicial del set i qui saca primer, des del directe
 window.dirAlin = id => {
