@@ -390,6 +390,7 @@ details.card[open] > summary { margin-bottom: 10px; }
 .view { animation: rise .22s ease-out both; }
 @keyframes rise { from { transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .view { animation: none; } .confetti { display: none; } }
+.vsug { margin-top: 10px; } .vsug .motius { margin-top: 4px; }
 .motius.vinguts button.on { border-color: var(--si); color: var(--si); background: var(--si-soft); font-weight: 650; }
 .motius.lliure button.on { border-color: #d9a90f; color: var(--accent-ink); background: var(--accent); }
 /* Llistes de sessions */
@@ -2571,8 +2572,22 @@ function llistaRows(a, actius) {
       ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" title="${EST[e]}" aria-label="${EST[e]}" onclick="setEst('${j.id}','${e}')">${ESTI[e]}</button>`).join('')}
     </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}
     ${Object.entries(a.convidats || {}).map(([id, nom]) => `<div class="pl"><span class="nom">${av({ nom })}<span class="nm">${esc(nom)}<small class="meta avnv">D'un altre equip</small></span></span><button class="mini nvb" title="Treu-la de la llista" aria-label="Treu-la de la llista" onclick="treuDeLlista('${id}')">✕</button></div>`).join('')}
+    ${(sg => sg.length ? `<div class="vsug"><small class="meta">Altres setmanes també van venir (toca per afegir-los):</small><div class="motius vinguts">${sg.map((x, i) => `<button type="button" onclick="afegeixSug(${i})">＋ ${esc(x.nom)}</button>`).join('')}</div></div>` : '')(VSUG = suggVinguts(a))}
     <button class="btn" style="margin-top:8px;width:100%" onclick="afegeixVinguts()">＋ Ha vingut algú més</button>`;
 }
+// 18-11-2026: qui ha vingut de més els mateixos dies de la setmana (últimes 8 setmanes) surt per afegir-lo d'un toc
+let VSUG = [];
+function suggVinguts(a) {
+  const w = new Date(a.data + 'T12:00').getDay(), des = new Date(new Date(a.data + 'T12:00') - 56 * 864e5).toISOString().slice(0, 10);
+  const ja = new Set(Object.values(a.convidats || {}).map(n => n.toLowerCase())), out = new Map();
+  ASS.filter(x => x.id !== a.id && x.data < a.data && x.data >= des && new Date(x.data + 'T12:00').getDay() === w).forEach(x => {
+    Object.entries(x.estat || {}).forEach(([id, e]) => { if (e !== 'si' || a.estat[id]) return;
+      const nomCv = x.convidats?.[id], j = !nomCv && JUG.find(q => q.id === id);
+      if (nomCv) { if (!ja.has(nomCv.toLowerCase())) out.set('n:' + nomCv.toLowerCase(), { k: 'n:' + nomCv, nom: nomCv }); }
+      else if (j && extraDia(j, a) && (!j.alta || j.alta <= a.data)) out.set('j:' + id, { k: 'j:' + id, nom: j.nom }); }); });
+  return [...out.values()].sort((x, y) => x.nom.localeCompare(y.nom, 'ca'));
+}
+window.afegeixSug = i => { const x = VSUG[i]; if (x) afegeixClaus(editAss, [x.k]); };
 // algú que normalment no ve aquell dia, o jugadors d'un altre equip (18-11-2026): els de fora es guarden només a la llista (convidats: {id: nom})
 const extraDia = (j, a) => j.actiu !== false && !ve(j, a.data);
 let VING = null;
@@ -2599,8 +2614,12 @@ window.afegeixVinguts = async () => {
   const ok = await p, inp = document.getElementById('vingnom');
   if (ok && inp?.value.trim()) vingNou(inp);   // l'últim nom escrit sense Intro també compta
   if (!ok || !VING.sel.size) return;
+  afegeixClaus(a, [...VING.sel]);
+};
+async function afegeixClaus(a, ks) {
+  if (!a) return;
   const canvis = {}; a.convidats = a.convidats || {};
-  [...VING.sel].forEach(k => {
+  ks.forEach(k => {
     if (k.startsWith('j:')) { const id = k.slice(2); a.estat[id] = 'si'; canvis['estat.' + id] = 'si'; return; }
     const nom = k.slice(2), id = 'cv_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     a.convidats[id] = nom; a.estat[id] = 'si'; canvis['estat.' + id] = 'si'; canvis['convidats.' + id] = nom; });
