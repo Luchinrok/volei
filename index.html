@@ -687,6 +687,12 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .accs.cinc .acc { font-size: 11px; padding: 3px; }
 .accs.tres.dos { grid-template-columns: 1fr 1fr; }
 .dirmode { margin: 0 0 8px; } .dirmode button { min-height: 34px; font-size: 14px; }
+.marc .sb b { font-size: 38px; } .marc .sb i { font-size: 30px; }
+.sbpt { display: flex; align-items: center; gap: 8px; }
+.marc .pt1 { font: 800 20px/1 var(--head); min-width: 52px; min-height: 44px; border-radius: 12px; border: 0; cursor: pointer; touch-action: manipulation; }
+.marc .pt1.bo { background: #2fbf71; color: #08240f; } .marc .pt1.mal { background: #ff6b5e; color: #2b0806; }
+.marc .pt1:active { transform: scale(.94); }
+.marc.dsim .sb .serv b::after { font-size: 14px; vertical-align: 6px; }
 .accs.dirsim { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
 .accs.dirsim .acc { min-height: 84px; text-align: center; display: grid; place-content: center; gap: 2px; }
 .accs.dirsim .acc b { font: 800 34px/1 var(--head); }
@@ -3737,17 +3743,18 @@ function viewDirecte(id) {
   // saquem nosaltres i el saque ja és apuntat sense punt (bo o fluix): la pilota és en joc i toca apuntar la jugada
   const darrerPunt = acc.map(a => ACC[a.a] && !ACC[a.a].np).lastIndexOf(true), enJoc = acc.slice(darrerPunt + 1).some(a => (saca === 'nos' ? ['bs', 'ms'] : ['rp', 'rb', 'rd']).includes(a.a));
   // el local sempre primer: a fora, el rival a l'esquerra
-  const eN = `<div class="${saca === 'nos' ? 'serv' : ''}"${setActiu === 1 || setActiu === 5 ? ` onclick="dirSaque('${id}','nos',1)" title="Toca per dir que saquem primer"` : ''}><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')}</span><b>${nos}</b></div>`;
-  const eR = `<div class="${saca === 'ells' ? 'serv' : ''}"${setActiu === 1 || setActiu === 5 ? ` onclick="dirSaque('${id}','ells',1)" title="Toca per dir que saca primer el rival"` : ''}><span class="riv">${esc(p.rival || 'Rival')}</span><b>${ells}</b></div>`;
+  // 18-11-2026: en «Només marcador», el +1 de cada equip és al marcador (fix a dalt), així es pot tocar mentre es mira la recepció
+  const mesU = (k, n) => simple ? `<span class="sbpt"><b>${n}</b><button class="pt1 ${ACC[k].bo ? 'bo' : 'mal'}" onclick="event.stopPropagation();dirAcc('${id}','','${k}')" aria-label="Punt ${k === 'pn' ? 'nostre' : 'del rival'}">+1</button></span>` : `<b>${n}</b>`;
+  const eN = `<div class="${saca === 'nos' ? 'serv' : ''}"${setActiu === 1 || setActiu === 5 ? ` onclick="dirSaque('${id}','nos',1)" title="Toca per dir que saquem primer"` : ''}><span class="nos ${p.equip === 'G' ? 'g' : 'n'}">${esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')}</span>${mesU('pn', nos)}</div>`;
+  const eR = `<div class="${saca === 'ells' ? 'serv' : ''}"${setActiu === 1 || setActiu === 5 ? ` onclick="dirSaque('${id}','ells',1)" title="Toca per dir que saca primer el rival"` : ''}><span class="riv">${esc(p.rival || 'Rival')}</span>${mesU('pe', ells)}</div>`;
   const linia = a => a.a === 'canvi'
     ? `<span>🔁</span><span class="grow">Entra <b>${esc(nomJ(a.j))}</b> per ${esc(nomJ(a.surt))}</span><button class="mini" title="Esborra" onclick="dirEsborra('${id}', ${a.i})">✕</button>`
     : `<span>${ACC[a.a].i}</span><span class="grow">${a.j ? '<b>' + esc(nomJ(a.j)) + '</b> ' : ''}${ACC[a.a].t}</span>${ACC[a.a].np ? '<span class="meta">sense punt</span>' : `<span class="${ACC[a.a].bo ? 'gd-ok' : 'gd-ko'}">${ACC[a.a].bo ? '+1 nos.' : '+1 ells'}</span>`}<button class="mini" title="Canvia" onclick="dirEdita('${id}', ${a.i})">✎</button><button class="mini" title="Esborra" onclick="dirEsborra('${id}', ${a.i})">✕</button>`;
-  return `<div class="marc ${p.equip === 'G' ? 'mG' : 'mN'}">
+  return `<div class="marc ${p.equip === 'G' ? 'mG' : 'mN'} ${simple ? 'dsim' : ''}">
     <div class="seg" style="margin:0 0 8px">${[1, 2, 3, 4, 5].map(n => `<button class="${setActiu === n ? 'on' : ''}" onclick="setActiu=${n};render()">Set ${n}</button>`).join('')}</div>
     <div class="sb">${p.lloc === 'fora' ? eR + '<i>–</i>' + eN : eN + '<i>–</i>' + eR}</div>
     <div class="saq">🏐 ${saca === 'nos' ? 'Saca ' + esc(nomJ(pos[1]) || 'el nostre equip') : 'Saca ' + esc(p.rival || 'el rival') + ((r => r?.[1] ? ' - el ' + esc(r[1]) : '')(rivalPos(p, setActiu, rr)))}${saca === 'ells' && rivalPos(p, setActiu, rr) ? ` <button class="mini rvcv" onclick="dirCanviRival('${p.id}')" title="Canvi del rival" aria-label="Canvi del rival">🔁</button>` : ''}${(setActiu === 1 || setActiu === 5) && !acc.some(a => ACC[a.a] && !ACC[a.a].np) ? '<small> (toca un equip per triar qui saca primer)</small>' : ''}</div></div>
   <div class="seg dirmode">${[[0, 'Estadístiques'], [1, 'Només marcador']].map(([v, t]) => `<button class="${!!simple === !!v ? 'on' : ''}" onclick="dirMode('${id}', ${v})">${t}</button>`).join('')}</div>
-  ${simple ? `<div class="accs dirsim">${[['pn', esc(dosEq() ? EQN[p.equip] || '' : club() || 'Nosaltres')], ['pe', esc(p.rival || 'Rival')]].map(([k, nom]) => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'}" onclick="dirAcc('${id}','','${k}')"><b>+1</b><small>${nom}</small></button>`).join('')}</div>` : ''}
   ${!simple && saca === 'nos' && pos[1] && !enJoc ? `<div class="saqrow"><small>Saque de ${esc(nomJ(pos[1]).split(' ')[0])}</small><div class="accs cinc">${['ace', 'bs', 'ms', 'es', 'frot'].map(k => `<button class="acc ${ACC[k].bo ? 'bo' : 'mal'} ${ACC[k].np ? 'lleu' : ''}" onclick="dirAcc('${id}','${ACC[k].sol ? '' : pos[1]}','${k}')">${ACC[k].i} ${ACC[k].t}<small>${ACC[k].np ? 'sense punt' : ACC[k].bo ? '+1 nosaltres' : '+1 ells'}</small></button>`).join('')}</div></div>` : ''}
   ${enJoc ? '' : rivalHtml(p, setActiu, rr, saca)}
   ${saca === 'ells' && !enJoc && ZK.some(z => pos[z]) ? (() => { const sis = sistemaDe(p), lli = lliureDe(p, setActiu), m = campRec(pos, L, s0, lli), { r, xy } = recPos(p, m, sis, lli);
