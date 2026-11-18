@@ -390,6 +390,7 @@ details.card[open] > summary { margin-bottom: 10px; }
 .view { animation: rise .22s ease-out both; }
 @keyframes rise { from { transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .view { animation: none; } .confetti { display: none; } }
+.motius.vinguts button.on { border-color: var(--si); color: var(--si); background: var(--si-soft); font-weight: 650; }
 .motius.lliure button.on { border-color: #d9a90f; color: var(--accent-ink); background: var(--accent); }
 /* Llistes de sessions */
 h2 .sub { font: 600 15px/1 Barlow, sans-serif; color: var(--muted); margin-left: 6px; }
@@ -2562,12 +2563,58 @@ function viewEditAss() {
 
 function llistaRows(a, actius) {
   return `<div class="counts"><span class="est si">✅ ${Object.values(a.estat).filter(e => e === 'si').length} venen</span><span class="est avisa">❌ ${Object.values(a.estat).filter(e => e === 'avisa').length} avisen</span><span class="est no">💀 ${Object.values(a.estat).filter(e => e === 'no').length} no avisen</span></div>
-    ${(() => { const v = Object.keys(a.estat).filter(id => a.estat[id] === 'si'), n = k => v.filter(id => posJ(id) === k).length, sense = v.filter(id => !posJ(id)).length;
+    ${(() => { const v = Object.keys(a.estat).filter(id => a.estat[id] === 'si'), n = k => v.filter(id => posJ(id) === k).length, sense = v.filter(id => !posJ(id) && !a.convidats?.[id]).length;
       return v.length ? `<div class="perpos">${Object.keys(POS).map(k => `<span title="${POS[k].t}"><i class="pb pb-${k} inl">${POS[k].l}</i> ${n(k)}</span>`).join('')}${sense ? `<span class="meta">${sense} sense posició</span>` : ''}</div>` : ''; })()}
-    ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}<span class="nm">${esc(j.nom)}${avisNoVe(j.id, a.data)}</span></span><button class="mini nvb" title="No vindrà uns dies" onclick="avisaNoVe('${j.id}')">📅</button><span class="tri">
+    ${actius.map(j => `<div class="pl"><span class="nom ${a.estat[j.id] === 'no' ? 'no' : ''}">${av(j)}<span class="nm">${esc(j.nom)}${avisNoVe(j.id, a.data)}${extraDia(j, a) ? '<small class="meta avnv">No li toca venir</small>' : ''}</span></span>${extraDia(j, a)
+      ? `<button class="mini nvb" title="Treu-lo de la llista" aria-label="Treu-lo de la llista" onclick="treuDeLlista('${j.id}')">✕</button>`
+      : `<button class="mini nvb" title="No vindrà uns dies" onclick="avisaNoVe('${j.id}')">📅</button>`}<span class="tri">
       ${['si', 'avisa', 'no'].map(e => `<button class="${e} ${a.estat[j.id] === e ? 'on' : ''}" title="${EST[e]}" aria-label="${EST[e]}" onclick="setEst('${j.id}','${e}')">${ESTI[e]}</button>`).join('')}
-    </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}`;
+    </span></div>`).join('') || '<p class="meta">Primer afegeix jugadors a la pantalla d\'assistència.</p>'}
+    ${Object.entries(a.convidats || {}).map(([id, nom]) => `<div class="pl"><span class="nom">${av({ nom })}<span class="nm">${esc(nom)}<small class="meta avnv">D'un altre equip</small></span></span><button class="mini nvb" title="Treu-la de la llista" aria-label="Treu-la de la llista" onclick="treuDeLlista('${id}')">✕</button></div>`).join('')}
+    <button class="btn" style="margin-top:8px;width:100%" onclick="afegeixVinguts()">＋ Ha vingut algú més</button>`;
 }
+// algú que normalment no ve aquell dia, o jugadors d'un altre equip (18-11-2026): els de fora es guarden només a la llista (convidats: {id: nom})
+const extraDia = (j, a) => j.actiu !== false && !ve(j, a.data);
+let VING = null;
+window.vingTria = (b, k) => { b.classList.toggle('on'); VING.sel.has(k) ? VING.sel.delete(k) : VING.sel.add(k); };
+window.vingNou = inp => {
+  const nom = inp.value.trim(); if (!nom) return; inp.value = '';
+  const k = 'n:' + nom, box = document.getElementById('vingcv'), ja = [...box.querySelectorAll('button')].find(x => x.textContent.toLowerCase() === nom.toLowerCase());
+  if (ja) { if (!ja.classList.contains('on')) ja.click(); return; }
+  VING.sel.add(k);
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'on'; b.textContent = nom; b.onclick = () => vingTria(b, k); box.appendChild(b);
+};
+window.afegeixVinguts = async () => {
+  const a = editAss; if (!a) return;
+  const llista = new Set(actiusLlista(a).map(j => j.id)), ja = new Set(Object.values(a.convidats || {}).map(n => n.toLowerCase()));
+  const altres = JUG.filter(j => j.actiu !== false && !llista.has(j.id) && (!j.alta || j.alta <= a.data)).sort((x, y) => x.nom.localeCompare(y.nom, 'ca'));
+  const vells = [...new Set(ASS.flatMap(x => Object.values(x.convidats || {})))].filter(n => !ja.has(n.toLowerCase())).sort((x, y) => x.localeCompare(y, 'ca'));
+  VING = { sel: new Set() };
+  const p = dialeg(`<b>Qui més ha vingut?</b><div class="form">
+    ${altres.length ? `<label class="lbl">De l'equip (aquest dia normalment no venen)</label><div class="motius vinguts">${altres.map(j => `<button type="button" onclick="vingTria(this, 'j:${j.id}')">${esc(j.nom)}</button>`).join('')}</div>` : ''}
+    <label class="lbl" style="margin-top:8px">D'un altre equip</label>
+    <div class="motius vinguts" id="vingcv">${vells.map((n, i) => `<button type="button" onclick="vingTria(this, VING.vells[${i}])">${esc(n)}</button>`).join('')}</div>
+    <input type="text" id="vingnom" placeholder="Escriu el nom i toca Intro" enterkeyhint="done" onkeydown="if (event.key === 'Enter') { event.preventDefault(); vingNou(this); }"></div>`, { ok: 'Afegeix', ico: '＋' });
+  VING.vells = vells.map(n => 'n:' + n);
+  const ok = await p, inp = document.getElementById('vingnom');
+  if (ok && inp?.value.trim()) vingNou(inp);   // l'últim nom escrit sense Intro també compta
+  if (!ok || !VING.sel.size) return;
+  const canvis = {}; a.convidats = a.convidats || {};
+  [...VING.sel].forEach(k => {
+    if (k.startsWith('j:')) { const id = k.slice(2); a.estat[id] = 'si'; canvis['estat.' + id] = 'si'; return; }
+    const nom = k.slice(2), id = 'cv_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    a.convidats[id] = nom; a.estat[id] = 'si'; canvis['estat.' + id] = 'si'; canvis['convidats.' + id] = nom; });
+  try { await fs.updateDoc(ref('assistencia', a.id), canvis); }
+  catch (e) { registraError(e, 'afegeix-vinguts'); return dialeg('No s\'ha pogut desar. Torna-ho a provar.', { sol: true }); }
+  const y = scrollY; render(); scrollTo(0, y);
+};
+window.treuDeLlista = id => {
+  const a = editAss; if (!a) return;
+  delete a.estat[id]; const canvis = { ['estat.' + id]: fs.deleteField() };
+  if (a.convidats?.[id]) { delete a.convidats[id]; canvis['convidats.' + id] = fs.deleteField(); }
+  fs.updateDoc(ref('assistencia', a.id), canvis);
+  const y = scrollY; render(); scrollTo(0, y);
+};
 const actiusLlista = a => JUG.filter(j => a.estat[j.id] || (j.actiu !== false && ve(j, a.data) && (!j.alta || j.alta <= a.data)));
 // la llista es passa des de la mateixa sessió (28-10-2026): queda lligada a la sessió del dia
 function llistaSessio(c) {
@@ -2618,7 +2665,7 @@ window.passaLlista = c => {
 
 function assWrite() {
   const a = editAss;
-  fs.setDoc(ref('assistencia', a.id), { data: a.data, sessio: a.sessio || '', estat: a.estat, ...(a.aplicats ? { aplicats: a.aplicats } : {}) });
+  fs.setDoc(ref('assistencia', a.id), { data: a.data, sessio: a.sessio || '', estat: a.estat, ...(a.aplicats ? { aplicats: a.aplicats } : {}), ...(a.convidats ? { convidats: a.convidats } : {}) });
   if (a.sessio && a.data < avui() && !isFet(a.sessio)) setFets([a.sessio], true);   // només si l'entreno ja ha passat (el mateix dia es marca amb ✓ Feta)
 }
 window.newAss = c => {
