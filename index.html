@@ -2021,6 +2021,18 @@ window.copiaConvocats = async id => {
   try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
   catch { dialeg(`<textarea readonly style="min-height:200px;font-size:14px" onfocus="this.select()">${esc(t)}</textarea><small>Mantén premut el text per copiar-lo.</small>`, { sol: true, ico: '📋' }); }
 };
+// 20-11-2026: resultat d'un partit per enviar: «CV Sant Pere Groc 3-1 AVAP FAMS» i a sota els sets «25-17,12-25,…» (sempre el local primer)
+function textResultat(p) {
+  const riv = p.rival || 'Rival', [loc, vis] = p.lloc === 'fora' ? [riv, nomNostre(p)] : [nomNostre(p), riv];
+  const sets = [1, 2, 3, 4, 5].map(n => (p.punts || {})[n]).filter(v => v && (+v[0] || +v[1])).map(v => `${+v[0] || 0}-${+v[1] || 0}`);
+  return `${loc} ${p.resultat || '0-0'} ${vis}${sets.length ? '\n' + sets.join(',') : ''}`;
+}
+window.enviaResultat = async id => {
+  const t = textResultat(PAR.find(x => x.id === id));
+  if (navigator.share) { try { await navigator.share({ text: t }); return; } catch (e) { if (e?.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
+  catch { dialeg(`<textarea readonly style="min-height:90px;font-size:14px" onfocus="this.select()">${esc(t)}</textarea><small>Mantén premut el text per copiar-lo.</small>`, { sol: true, ico: '📋' }); }
+};
 window.copiaPartits = async () => {
   const t = textPartits();
   try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
@@ -3771,7 +3783,7 @@ function viewDirecte(id) {
   <details class="card plog" ${window.PLOG_OBERT ? 'open' : ''} ontoggle="PLOG_OBERT=this.open"><summary>Punts del set ${setActiu} (${acc.length})</summary>
     ${DIR_ESB?.id === id ? `<div class="hist esbdesf"><span class="grow">Esborrat: ${ACC[DIR_ESB.a.a]?.i || '🔁'} ${esc(ACC[DIR_ESB.a.a]?.t || '')}${DIR_ESB.a.j ? ' - ' + esc(nomJ(DIR_ESB.a.j)) : ''}</span><button class="btn" onclick="dirRecupera()">↶ Recupera</button></div>` : ''}
     ${acc.slice().reverse().map(a => `<div class="hist">${linia(a)}</div>`).join('') || '<p class="meta" style="margin:0">Encara cap punt apuntat en aquest set.</p>'}</details>
-  <div class="actions"><a class="btn" style="text-decoration:none;flex:1;text-align:center" href="#/p/${id}">Torna al partit</a></div>`;
+  <div class="actions">${p.resultat ? `<button class="btn" onclick="enviaResultat('${id}')">📤 Envia el resultat</button>` : ''}<a class="btn" style="text-decoration:none;flex:1;text-align:center" href="#/p/${id}">Torna al partit</a></div>`;
 }
 // tocar un jugador: finestra amb les opcions de la jugada (13-11-2026: sense saque ni recepció, que tenen els seus botons a dalt)
 window.dirFitxa = (id, jid) => {
@@ -4148,6 +4160,7 @@ function viewPartit(id) {
   <div class="irow">${info(`<ul><li>Toca una zona (o la L del lliure) i tria qui hi va.</li><li>Arrossega un jugador a una altra zona per intercanviar-los.</li><li>La lletra de cada fitxa és el rol del jugador en aquest set: el de l'equip, si no l'has canviat a «Rols».</li></ul>`, `Alineació`)}</div>`}</details>
   <div class="dirrow"><a class="btn primary" href="#/directe/${id}">Marcador en directe</a>
     <label class="rvtog" title="Al directe, poses la formació del rival a cada set i l'app et diu on ha d'estar cadascú."><input type="checkbox" ${p.rivalRot?.actiu ? 'checked' : ''} onchange="rivalActiu('${id}', this.checked)"> Rotacions del rival</label></div>
+  ${p.resultat ? `<div class="actions" style="margin:0 0 10px"><button class="btn" style="flex:1" onclick="enviaResultat('${id}')">📤 Envia el resultat</button></div>` : ''}
   <details class="card plega" ${(PLEG['est' + id] ?? true) ? 'open' : ''} ontoggle="obertPart('est', '${id}', this.open)"><summary><b>Estadístiques per jugador</b><span class="meta">${(() => { const m = estadJug(p.accions || []), n = Object.keys(m).length; return n ? n + ' jugadors amb accions apuntades' : 'Encara no hi ha accions apuntades'; })()}</span></summary>
   ${taulaEstad(p)}</details>
 </div>`;
