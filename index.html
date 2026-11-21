@@ -2036,7 +2036,7 @@ let RES_TXT = '';
 window.resComparteix = async () => { try { await navigator.share({ text: RES_TXT }); } catch {} };
 window.enviaResultat = async id => {
   const t = RES_TXT = textResultat(PAR.find(x => x.id === id));
-  const ok = await dialeg(`<b>Resultat</b><pre class="restxt">${esc(t)}</pre>${navigator.share ? `<button type="button" class="btn" style="width:100%;margin-top:6px" onclick="resComparteix()">📤 Comparteix (WhatsApp…)</button>` : ''}`, { ok: '📋 Copia', cancel: 'Tanca' });
+  const ok = await dialeg(`<b>Resultat</b><pre class="restxt">${esc(t)}</pre>${navigator.share ? `<button type="button" class="btn" style="width:100%;margin-top:6px" onclick="resComparteix()">📤 Comparteix (WhatsApp…)</button>` : ''}`, { ok: '📋 Copia', cancel: 'Tanca', ico: '🏐' });
   if (!ok) return;
   try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
   catch { dialeg(`<textarea readonly style="min-height:90px;font-size:14px" onfocus="this.select()">${esc(t)}</textarea><small>Mantén premut el text per copiar-lo.</small>`, { sol: true, ico: '📋' }); }
