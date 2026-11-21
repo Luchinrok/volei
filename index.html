@@ -690,6 +690,7 @@ details.plega.entl .list .card { border: 1px solid var(--line); padding: 10px 12
 .marc .sb b { font-size: 38px; } .marc .sb i { font-size: 30px; }
 .rtok.rtap { cursor: pointer; } .rtok.rtap:active { transform: translate(-50%, -50%) scale(.94); }
 .etab .edors { font-weight: 800; opacity: .65; font-variant-numeric: tabular-nums; }
+.restxt { white-space: pre-wrap; text-align: left; font: 600 15px/1.4 var(--body, inherit); background: var(--soft, #f1f3f6); border-radius: 10px; padding: 10px 12px; margin: 8px 0 0; }
 .rtapinfo { text-align: center; margin: 0 0 4px; font-size: 13px; }
 .sbpt { display: flex; align-items: center; gap: 8px; }
 .marc .pt1 { font: 800 20px/1 var(--head); min-width: 52px; min-height: 44px; border-radius: 12px; border: 0; cursor: pointer; touch-action: manipulation; }
@@ -2028,11 +2029,15 @@ window.copiaConvocats = async id => {
 function textResultat(p) {
   const riv = p.rival || 'Rival', [loc, vis] = p.lloc === 'fora' ? [riv, nomNostre(p)] : [nomNostre(p), riv];
   const sets = [1, 2, 3, 4, 5].map(n => (p.punts || {})[n]).filter(v => v && (+v[0] || +v[1])).map(v => `${+v[0] || 0}-${+v[1] || 0}`);
-  return `${loc} ${p.resultat || '0-0'} ${vis}${sets.length ? '\n' + sets.join(',') : ''}`;
+  return `${loc} ${p.resultat || '0-0'} ${vis}${sets.length ? '\n' + sets.join(', ') : ''}`;
 }
+// 21-11-2026: finestra amb el text i dues opcions: copiar-lo al porta-retalls o el menú de compartir del mòbil
+let RES_TXT = '';
+window.resComparteix = async () => { try { await navigator.share({ text: RES_TXT }); } catch {} };
 window.enviaResultat = async id => {
-  const t = textResultat(PAR.find(x => x.id === id));
-  if (navigator.share) { try { await navigator.share({ text: t }); return; } catch (e) { if (e?.name === 'AbortError') return; } }
+  const t = RES_TXT = textResultat(PAR.find(x => x.id === id));
+  const ok = await dialeg(`<b>Resultat</b><pre class="restxt">${esc(t)}</pre>${navigator.share ? `<button type="button" class="btn" style="width:100%;margin-top:6px" onclick="resComparteix()">📤 Comparteix (WhatsApp…)</button>` : ''}`, { ok: '📋 Copia', cancel: 'Tanca' });
+  if (!ok) return;
   try { await navigator.clipboard.writeText(t); desat('✓ Copiat! Enganxa-ho al WhatsApp'); }
   catch { dialeg(`<textarea readonly style="min-height:90px;font-size:14px" onfocus="this.select()">${esc(t)}</textarea><small>Mantén premut el text per copiar-lo.</small>`, { sol: true, ico: '📋' }); }
 };
