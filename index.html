@@ -1145,24 +1145,33 @@ let LANG = store.get('volei.lang', null);
 const LOC = { ca: 'ca', es: 'es', en: 'en-GB' }[LANG || 'ca'];
 document.documentElement.lang = LANG || 'ca';
 let TR = null, TRP = [];
+// 22-11-2026: cada node recorda el text que hi ha posat el traductor; si no ha canviat, no es torna a traduir
+// (abans «Recepció{0}» tornava a agafar «Recepción» i feia «Recepciónnnn…»)
+const TRN = new WeakMap(), TRA = new WeakMap();
 const trSalta = el => el && el.closest?.('textarea, script, style, .notr, [contenteditable]');
 function trText(t) {
   const k = t.replace(/\s+/g, ' ').trim(); if (!k || !TR) return null;
-  let r = TR[k];
-  if (r == null && k.length <= 160) for (const [re, out] of TRP) { const m = k.match(re); if (m && m.slice(1).every(x => x.length <= 50)) { r = out.replace(/\{(\d+)\}/g, (_, n) => m[+n + 1]); break; } }
+  const busca = k => { let r = TR[k];
+    if (r == null && k.length <= 160) for (const [re, out] of TRP) { const m = k.match(re); if (m && m.slice(1).every(x => x.length <= 50)) { r = out.replace(/\{(\d+)\}/g, (_, n) => m[+n + 1]); break; } }
+    return r; };
+  let r = busca(k);
+  // un emoji o símbol davant («💨 Bon saque»): es tradueix la resta
+  if (r == null) { const m = k.match(/^([^\p{L}\p{N}]+?)\s+(\p{L}.*)$/u); if (m) { const x = busca(m[2]); if (x != null) r = m[1] + ' ' + x; } }
   if (r == null || r === k) return null;
   const pre = t.match(/^\s*/)[0], post = t.match(/\s*$/)[0];
   return pre + r + post;
 }
 function tradueix(root) {
   if (!TR || !root) return;
-  if (root.nodeType === 3) { if (!trSalta(root.parentElement)) { const r = trText(root.nodeValue); if (r != null) root.nodeValue = r; } return; }
+  const node = n => { if (trSalta(n.parentElement) || TRN.get(n) === n.nodeValue) return; const r = trText(n.nodeValue); if (r != null) { n.nodeValue = r; TRN.set(n, r); } };
+  if (root.nodeType === 3) return node(root);
   if (root.nodeType !== 1 || trSalta(root)) return;
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), ns = [];
   while (w.nextNode()) ns.push(w.currentNode);
-  ns.forEach(n => { if (trSalta(n.parentElement)) return; const r = trText(n.nodeValue); if (r != null) n.nodeValue = r; });
+  ns.forEach(node);
   [root, ...root.querySelectorAll('[title], [placeholder], [aria-label]')].forEach(el => ['title', 'placeholder', 'aria-label'].forEach(a => {
-    const v = el.getAttribute?.(a); if (v) { const r = trText(v); if (r != null) el.setAttribute(a, r); } }));
+    const v = el.getAttribute?.(a), fet = TRA.get(el) || {}; if (!v || fet[a] === v) return;
+    const r = trText(v); if (r != null) { el.setAttribute(a, r); fet[a] = r; TRA.set(el, fet); } }));
 }
 if (LANG && LANG !== 'ca') {
   fetch(`data/i18n/${LANG}.json`, { cache: 'no-cache' }).then(r => r.json()).then(d => {
